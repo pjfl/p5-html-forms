@@ -1,0 +1,40 @@
+[% PROCESS start_wrapper %]
+[% PROCESS block_label %]
+[% blockw.content %]
+[% PROCESS render_from_list %]
+[% blockw.after_plist %]
+[% PROCESS end_wrapper %]
+
+[% BLOCK start_wrapper -%]
+[%   RETURN UNLESS blockw.wrapper -%]
+  <[% blockw.tag %][% process_attrs( blockw.block_wrapper_attributes ) %]>
+[% END -%]
+
+[% BLOCK block_label -%]
+[%   RETURN UNLESS blockw.has_label -%]
+[%   tag = blockw.label_tag; -%]
+[%   IF lc( blockw.tag ) == 'fieldset'; tag = 'legend'; END -%]
+  <[% tag %][% process_attrs( blockw.block_label_attributes ) %]>
+    [% localise( blockw.label ) %]
+  </[% tag -%]>
+[% END -%]
+
+[% BLOCK render_from_list -%]
+[%   RETURN UNLESS blockw.has_render_list -%]
+[%   FOR field_name IN blockw.render_list -%]
+[%     IF form.field_in_index( field_name ) -%]
+[%       field_result = form.result.get_result( field_name ) -%]
+[%       NEXT UNLESS field_result -%]
+[%       field_result.render %]
+[%     ELSE -%]
+[%       block_obj = form.block( field_name ) -%]
+[%       IF block_obj; block_obj.render( form.result ) %]
+[%       ELSE; 'Found no form field or block name ' _ field_name; END %]
+[%     END -%]
+[%   END -%]
+[% END -%]
+
+[% BLOCK end_wrapper -%]
+[%   RETURN UNLESS blockw.wrapper -%]
+  </[% blockw.tag %]>
+[% END -%]

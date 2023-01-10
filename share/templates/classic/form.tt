@@ -1,0 +1,61 @@
+[% PROCESS classic/field.tt %]
+[% PROCESS classic/wrapper.tt %]
+[% PROCESS form_start %]
+[% PROCESS form_messages %]
+[%   FOR form_field IN form.sorted_fields -%]
+  [%   WRAPPER "wrapper_${form_field.uwrapper}" f=form_field -%]
+    [%   PROCESS "${form_field.uwidget}" f=form_field %]
+  [%   END %]
+[%   END -%]
+[% PROCESS form_end %]
+
+[% BLOCK form_start -%]
+[%   get_tag( 'before' ) %]
+[%   wtag = get_tag( 'wrapper_tag' ) || 'fieldset' -%]
+[%   IF wtag != 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
+  <form[% process_attrs( form.attributes ) %]>
+[%   IF wtag == 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
+[%   get_tag( 'after_start' ) %]
+[% END -%]
+
+[% BLOCK form_wrapper_start -%]
+[%   RETURN UNLESS form.do_form_wrapper -%]
+  <[% tag -%][% process_attrs( form.form_wrapper_attributes ) %]>
+[% END -%]
+
+[% BLOCK form_messages -%]
+[%   RETURN IF get_tag( 'no_form_message_div' ) -%]
+[%   message_class = get_tag( 'messages_wrapper_class' ) || 'form_messages' -%]
+  <div class="[% message_class %]">
+[%   error_class = get_tag( 'error_class' ) || 'error_message' -%]
+[%   IF form.has_error_message && (form.result.has_errors || form.result.has_form_errors) -%]
+    <span class="[% error_class %]">[% localise( form.error_message ) %]</span>
+[%   END -%]
+[%   FOR error IN form.form_errors -%]
+    <span class="[% error_class %]">[% error %]</span>
+[%   END -%]
+[%   IF form.has_success_message && form.result.validated -%]
+[%     success_class = get_tag( 'success_class' ) || 'success_message' -%]
+[%     msg = localise( form.success_message ) -%]
+    <span class="[% success_class %]">[% msg %]</span>
+[%   END -%]
+[%   IF form.has_info_message && form.info_message -%]
+[%     info_class = get_tag( 'info_class' ) || 'info_message' -%]
+    <span class="[% info_class %]">[% localise( form.info_message ) %]</span>
+[%   END -%]
+  </div>
+[% END -%]
+
+[% BLOCK form_end -%]
+[%   get_tag( 'before_end' ) %]
+[%   wtag = get_tag( 'wrapper_tag' ) || 'fieldset' -%]
+[%   IF wtag == 'fieldset'; PROCESS form_wrapper_end tag=wtag; END %]
+</form>
+[%   IF wtag != 'fieldset'; PROCESS form_wrapper_end tag=wtag; END %]
+[%   get_tag( 'after' ) %]
+[% END -%]
+
+[% BLOCK form_wrapper_end -%]
+[%   RETURN UNLESS form.do_form_wrapper -%]
+  </[% tag %]>
+[% END -%]

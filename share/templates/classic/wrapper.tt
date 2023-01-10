@@ -1,0 +1,25 @@
+[% BLOCK wrapper_fieldset -%]
+  <fieldset[% process_attrs( f.wrapper_attributes )%]>
+    <legend>[% f.label %]</legend>
+  [% content -%]
+  </fieldset>
+[% END -%]
+
+[% BLOCK wrapper_none -%]
+[% content %]
+[% END -%]
+
+[% BLOCK wrapper_simple -%]
+<[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) -%]>
+  [% IF f.do_label; PROCESS label; END %]
+  [% content -%]
+</[% f.wrapper_tag %]>
+[% END -%]
+
+[% BLOCK wrapper_wrap_label -%]
+<[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) %]>
+  <label[% process_attrs( f.label_attributes ) %] for="[% f.html_name %]">
+    [% content -%][%- f.label %]
+  </label>
+</[% f.wrapper_tag %]>
+[% END -%]
