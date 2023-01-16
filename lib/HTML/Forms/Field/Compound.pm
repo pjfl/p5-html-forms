@@ -10,6 +10,15 @@ extends 'HTML::Forms::Field';
 with    'HTML::Forms::Fields';
 with    'HTML::Forms::InitResult';
 
+has 'is_compound' => is => 'ro', isa => Bool, default => TRUE;
+
+has 'item'        => is => 'rw', clearer => 'clear_item';
+
+has 'primary_key' =>
+   is             => 'rw',
+   isa            => ArrayRef,
+   predicate      => 'has_primary_key';
+
 has '+do_label'   => default => FALSE;
 
 has '+do_wrapper' => default => FALSE;
@@ -22,15 +31,6 @@ has '+field_name_space' =>
            ? $self->form->field_name_space : [];
    };
 
-has 'is_compound' => is => 'ro', isa => Bool, default => TRUE;
-
-has 'item'        => is => 'rw', clearer => 'clear_item';
-
-has 'primary_key' =>
-   is             => 'rw',
-   isa            => ArrayRef,
-   predicate      => 'has_primary_key';
-
 has '+widget' => default => 'Compound';
 
 sub BUILD {
@@ -42,44 +42,47 @@ sub BUILD {
 
 # This is for testing compound fields outside of a form
 sub test_validate_field {
-    my $self = shift;
+   my $self = shift;
 
-    unless ($self->form) {
-        if ($self->has_input) {
-            $self->_result_from_input( $self->result, $self->input );
-        }
-        else { $self->_result_from_fields( $self->result ) }
-    }
+   unless ($self->form) {
+      if ($self->has_input) {
+         $self->_result_from_input( $self->result, $self->input );
+      }
+      else { $self->_result_from_fields( $self->result ) }
+   }
 
-    $self->validate_field;
+   $self->validate_field;
 
-    unless ($self->form) {
-        for my $err_res (@{ $self->result->error_results }) {
-            $self->result->_push_errors( $err_res->all_errors );
-        }
-    }
+   unless ($self->form) {
+      for my $err_res (@{ $self->result->error_results }) {
+         $self->result->_push_errors( $err_res->all_errors );
+      }
+   }
 
-    return;
+   return;
 }
 
 after 'clear_data' => sub {
-    my $self = shift; $self->clear_item;
+   my $self = shift;
+
+   $self->clear_item;
+   return;
 };
 
 around '_result_from_input' => sub {
-    my ($orig, $self, $self_result, $input, $exists) = @_;
+   my ($orig, $self, $self_result, $input, $exists) = @_;
 
-    return $self->_result_from_fields( $self_result ) if !$input && !$exists;
+   return $self->_result_from_fields( $self_result ) if !$input && !$exists;
 
-    return $orig->( $self, $self_result, $input, $exists );
+   return $orig->( $self, $self_result, $input, $exists );
 };
 
 around '_result_from_object' => sub {
-    my ($orig, $self, $self_result, $item) = @_;
+   my ($orig, $self, $self_result, $item) = @_;
 
-    $self->item( $item ) if $item;
+   $self->item( $item ) if $item;
 
-    return $orig->( $self, $self_result, $item );
+   return $orig->( $self, $self_result, $item );
 };
 
 1;

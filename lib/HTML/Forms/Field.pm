@@ -17,7 +17,6 @@ use Try::Tiny;
 use Unexpected::Functions  qw( inflate_placeholders throw );
 use Moo;
 use MooX::HandlesVia;
-# TODO: Do we really need this?
 use HTML::Forms::Moo;
 
 has [ 'disabled',
@@ -104,13 +103,18 @@ has 'init_value' =>
    clearer   => 'clear_init_value',
    predicate => 'has_init_value';
 
+has 'input_param' => is => 'rw', isa => Str;
+
 has 'input_without_param' => is => 'rw', predicate => 'has_input_without_param';
 
 has 'label' =>
    is       => 'rw',
    isa      => Str|Undef,
    builder  => sub {
-      my $label = ucfirst shift->name; $label =~ s{ _ }{ }gmx; return $label;
+      my $label = ucfirst shift->name;
+
+      $label =~ s{ _ }{ }gmx;
+      return $label;
    },
    lazy     => TRUE;
 
@@ -437,7 +441,7 @@ sub clear_data  {
 sub dump {
    my $self = shift;
 
-   warn 'HFs: ',         $self->name, "\n";
+   warn 'HFs: Field name: ',   $self->name, "\n";
    warn 'HFs: type: ',   $self->type, "\n";
    warn 'HFs: required: ', ($self->required ? 'true' : 'false'), "\n";
    warn 'HFs: label: ',  $self->label,  "\n";
@@ -723,7 +727,8 @@ sub value {
 }
 
 sub value_changed {
-   my $self = shift; my @cmp;
+   my $self = shift;
+   my @cmp;
 
    for ('init_value', 'value') {
       my $val = $self->$_ // NUL;
@@ -737,7 +742,9 @@ sub value_changed {
 }
 
 sub wrapper_attributes {
-   my ($self, $result) = @_; $result //= $self->result;
+   my ($self, $result) = @_;
+
+   $result //= $self->result;
 
    my $attr  = { %{ $self->wrapper_attr  } };
    my $class = [ @{ $self->wrapper_class } ];
@@ -758,7 +765,9 @@ sub wrapper_attributes {
 }
 
 sub wrapper_tag {
-   my $self = shift; return $self->get_tag( 'wrapper_tag' ) || 'div';
+   my $self = shift;
+
+   return $self->get_tag( 'wrapper_tag' ) || 'div';
 }
 
 # Private methods

@@ -21,17 +21,10 @@ my $DEFAULT_INTERVALS = [
    { value => 'year', label => 'Years'  },
 ];
 
-has '+do_label' => default => TRUE;
-
 has 'interval_options' =>
    is      => 'ro',
    isa     => ArrayRef,
    builder => sub { $DEFAULT_INTERVALS };
-
-has 'interval_period_class' =>
-   is      => 'ro',
-   isa     => Str,
-   default => 'input input--select';
 
 has 'interval_string' =>
    is      => 'lazy',
@@ -44,16 +37,26 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
-has 'interval_unit_class' =>
+has 'label_type' => is => 'ro', isa => Str, default => 'label';
+
+has 'period_class' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'input input--select';
+
+has 'unit_class' =>
    is      => 'ro',
    isa     => Str,
    default => 'input input--text input--autosize';
 
-has 'js_method' => is => 'ro', isa => Str, default => 'Util.updateInterval';
+has 'update_js_method' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'Util.updateInterval';
 
-has 'label_type' => is => 'ro', isa => Str, default => 'label';
+has '+do_label' => default => TRUE;
 
-has '+widget' => default => 'Interval';
+has '+widget'   => default => 'Interval';
 
 sub BUILD {
    my $self   = shift;
@@ -65,18 +68,18 @@ sub BUILD {
       name          => 'period',
       default       => $self->default_period,
       element_attr  => {
-         javascript => $self->onchange('period'),
-         $self->toggle_config_key => $self->toggle_config_encoded
+         javascript => $self->update_js('period'),
+         $self->toggle_config_key => $self->toggle_config_encoded,
       },
-      element_class => $self->toggle_class . SPC . $self->interval_period_class,
+      element_class => $self->toggle_class . SPC . $self->period_class,
       options       => $self->interval_options,
       type          => 'Select'
    });
    $meta->add_to_field_list({
       name          => 'unit',
       default       => $self->default_unit,
-      element_attr  => { javascript => $self->onchange('unit'), size => 4 },
-      element_class => $self->interval_unit_class,
+      element_attr  => { javascript => $self->update_js('unit'), size => 4, },
+      element_class => $self->unit_class,
       type          => 'Integer'
    });
    $self->build_fields;
@@ -100,11 +103,13 @@ sub default_unit {
    return $unit;
 }
 
-sub onchange {
-   my ($self, $name) = @_;
+sub update_js {
+   my ($self, $field_name, $event) = @_;
 
-   return sprintf 'onchange="%s(%s, %s)"', $self->js_method,
-      quote_single($self->id), quote_single($name);
+   $event //= 'onchange';
+
+   return sprintf '%s="%s(%s, %s)"', $event, $self->update_js_method,
+      quote_single($self->id), quote_single($field_name);
 }
 
 around 'get_disabled_fields' => sub {

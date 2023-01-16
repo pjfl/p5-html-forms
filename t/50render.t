@@ -119,11 +119,10 @@ $form = HTML::Forms->new_with_traits(
       },
    ],
    traits              => [ 'HTML::Forms::Renderer' ],
-   verbose             => 1,
    widget_form         => 'complex', # Should be called form_trait
 );
 
-warn $form->render;
+like $form->render, qr{ form \s class="wicked" }mx, 'form renders';
 
 done_testing;
 

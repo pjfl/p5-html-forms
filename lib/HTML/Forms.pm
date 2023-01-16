@@ -9,10 +9,11 @@ use HTML::Forms::Result;
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField HFsResult
                                LoadableClass Object Str Undef );
+use HTML::Forms::Util      qw( has_some_value );
 use Ref::Util              qw( is_blessed_ref is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
-use Unexpected::Functions  qw( throw );
+use Unexpected::Functions  qw( inflate_placeholders throw );
 use Moo::Role ();
 use Moo;
 use MooX::HandlesVia;
@@ -43,6 +44,8 @@ has 'active'   =>
       has_active   => 'count',
    };
 
+has 'ctx' => is => 'rw', clearer => 'clear_ctx', weak_ref => TRUE;
+
 has 'default_locale' => is => 'ro', isa => Str, default => 'en';
 
 has 'defaults' =>
@@ -54,6 +57,8 @@ has 'defaults' =>
       clear_defaults => 'clear',
       has_defaults   => 'count',
    };
+
+has 'dependency' => is => 'rw', isa => ArrayRef;
 
 has 'enctype' => is  => 'rw', isa => Str;
 
@@ -218,6 +223,16 @@ has '_repeatable_fields' =>
       all_repeatable_fields => 'elements',
    };
 
+has '_required' =>
+   is          => 'rw',
+   isa         => ArrayRef[HFsField],
+   builder     => sub { [] },
+   handles_via => 'Array',
+   handles     => {
+      add_required   => 'push',
+      clear_required => 'clear',
+   };
+
 has 'result' =>
    is        => 'ro',
    isa       => HFsResult,
@@ -251,6 +266,8 @@ has 'use_defaults_over_obj' =>
    isa     => Bool,
    clearer => 'clear_use_defaults_over_obj';
 
+has 'use_fields_for_input_without_param' => is => 'rw', isa => Bool;
+
 has 'use_init_obj_over_item' =>
    is      => 'rw',
    isa     => Bool,
@@ -280,6 +297,7 @@ with 'HTML::Forms::Model';
 with 'HTML::Forms::Fields';
 with 'HTML::Forms::InitResult';
 with 'HTML::Forms::Widget::ApplyRole';
+with 'HTML::Forms::Blocks';
 
 # Construction
 around 'BUILDARGS' => sub {
@@ -426,6 +444,16 @@ sub build_active {
    return;
 }
 
+sub build_errors {
+   my $self = shift;
+
+   for my $error_result (@{$self->result->error_results}) {
+      $self->result->_push_errors($error_result->all_errors);
+   }
+
+   return;
+}
+
 sub build_language_handle {
    my $self    = shift;
    my @locales = $self->has_locales            ? @{ $self->locales }
@@ -459,6 +487,7 @@ sub clear {
    $self->clear_posted;
    $self->clear_item;
    $self->clear_init_object;
+   $self->clear_ctx;
    $self->processed(FALSE);
    $self->did_init_obj(FALSE);
    $self->clear_result;
@@ -553,12 +582,15 @@ sub init_value {
 sub localise {
    my ($self, @message) = @_;
 
+   my $in = shift @message;
    my $out;
 
-   try   { $out = $self->language_handle->maketext(@message) }
-   catch { $out = $message[0] };
+   try   { $out = $self->language_handle->maketext($in) }
+   catch { $out = $in };
 
-   return $out;
+   my $defaults = [ '[?]', '[]', TRUE ]; # Undef, null, no quote bind value
+
+   return inflate_placeholders $defaults, $out, @message;
 }
 
 sub new_with_traits {
@@ -702,6 +734,8 @@ sub update_fields {
    return;
 }
 
+sub validate { TRUE }
+
 sub validate_form {
    my $self = shift;
 
@@ -721,6 +755,15 @@ sub validate_form {
 }
 
 # Private methods
+sub _clear_dependency {
+   my $self = shift;
+
+   $_->required(FALSE) for @{$self->_required};
+
+   $self->clear_required;
+   return;
+}
+
 sub _init_result {
    my ($self, $construction) = @_;
 
@@ -745,6 +788,36 @@ sub _munge_params {
 
    $new_params = $new_params->{$self->name} if $self->html_prefix;
    $self->{params} = $new_params // {}; # TODO: Ick
+   return;
+}
+
+sub _set_dependency {
+   my $self    = shift;
+   my $depends = $self->dependency || return;
+   my $params  = $self->params;
+
+   for my $group (@{$depends}) {
+      next if @{$group} < 2;
+
+      for my $name (@{$group}) {
+         my $value = $params->{$name};
+
+         next unless has_some_value($value);
+         next if $self->field($name)->type eq 'Boolean' && $value == 0;
+
+         for (@{$group}) {
+            my $field = $self->field($_);
+
+            next unless $field && !$field->required;
+
+            $self->add_required($field);
+            $field->required(TRUE);
+         }
+
+         last;
+      }
+   }
+
    return;
 }
 

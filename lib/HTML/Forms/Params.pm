@@ -44,7 +44,7 @@ sub expand_hash {
             $box_ref = \{ NUL() => ${ $box_ref } } if !ref ${ $box_ref };
             throw 'HFs: param clash for [_1]=[_2]', [ $name, $_ ]
                unless is_hashref ${ $box_ref };
-            $box_ref = \( ${ $box_ref->{ $_ } } );
+            $box_ref = \( ${ $box_ref }->{ $_ } );
          }
       }
 

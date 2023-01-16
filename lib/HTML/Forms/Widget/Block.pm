@@ -82,7 +82,9 @@ has 'wrapper' => is => 'rw', isa => Bool, default => TRUE;
 
 # Public methods
 sub block_label_attributes {
-   my $self = shift;
+   my ($self, $result) = @_;
+
+   $result //= $self->result;
 
    my $attr  = { %{ $self->label_attr } };
    my $class = [ @{ $self->label_class } ];
@@ -95,7 +97,9 @@ sub block_label_attributes {
 }
 
 sub block_wrapper_attributes {
-   my $self = shift;
+   my ($self, $result) = @_;
+
+   $result //= $self->result;
 
    my $attr  = { %{ $self->attr } };
    my $class = [ @{ $self->class } ];
@@ -108,12 +112,15 @@ sub block_wrapper_attributes {
 }
 
 sub default_build_render_list {
-   my $self = shift; return sub { [] };
+   my $self = shift;
+
+   return sub { [] };
 }
 
 # Private methods
 sub _build_default_tt_vars {
-   my $self = shift; my $form = $self->form; weaken $self; weaken $form;
+   my $self = shift; weaken $self;
+   my $form = $self->form; weaken $form;
 
    return {
       blockw        => $self,

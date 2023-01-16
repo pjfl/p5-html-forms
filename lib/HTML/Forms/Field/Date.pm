@@ -179,7 +179,9 @@ sub _get_strf_format {
    return $format if $format =~ m{ \% }mx;
 
    for my $dpf (reverse sort keys %{ $dp_to_dt }) {
-      my $strf = $dp_to_dt->{ $dpf }; $format =~ s{$dpf}{$strf}gmx;
+      my $strf = $dp_to_dt->{ $dpf };
+
+      $format =~ s{$dpf}{$strf}gmx;
    }
 
    $format =~ s/\%1/\%d/g,

@@ -4,6 +4,16 @@
     value="[% f.value | html %]">[% f.label %]</[% f.html_element %]>
 [% END -%]
 
+[% BLOCK captcha -%]
+  [% field = f -%]
+  [% IF field.captcha_type == 'local' -%]
+    [% PROCESS image f=field.image_attr -%]
+    [% PROCESS text f=field -%]
+  [% ELSE -%]
+    [% field.html -%]
+  [% END -%]
+[% END -%]
+
 [% BLOCK checkbox -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
     [%- process_attrs( f.attributes ) %] value="[% f.checkbox_value | html -%]"
@@ -23,12 +33,11 @@
 [% END -%]
 
 [% BLOCK compound -%]
-  [% FOR cf IN f.sorted_fields -%]
-    [% compound_outerf = f -%]
-    [% WRAPPER "wrapper_${cf.uwrapper}" f=cf %]
-      [% PROCESS "${cf.uwidget}" f=cf -%]
+  [% compound_field = f -%]
+  [% FOR field IN compound_field.sorted_fields -%]
+    [% WRAPPER "wrapper_${field.uwrapper}" f=field %]
+      [% PROCESS "${field.uwidget}" f=field -%]
     [% END -%]
-    [% f = compound_outerf -%]
   [% END -%]
 [% END -%]
 
@@ -40,18 +49,17 @@
 [% END -%]
 
 [% BLOCK group -%]
-  [% IF f.has_description -%]
-    <div[% process_attrs( f.attributes ) %]>
-      <p>[% f.description | html %]</p>
+  [% group_field = f -%]
+  [% IF group_field.has_description -%]
+    <div[% process_attrs( group_field.attributes ) %]>
+      <p>[% group_field.description | html %]</p>
     </div>
   [% END -%]
-  [% FOR gf IN f.sorted_fields -%]
-    [% NEXT UNLESS gf.field_group == f.name -%]
-    [% group_outerf = f -%]
-    [% WRAPPER "wrapper_${gf.uwrapper}" f=gf %]
-      [% PROCESS "${gf.uwidget}" f=gf -%]
+  [% FOR field IN group_field.sorted_fields -%]
+    [% NEXT UNLESS field.field_group == group_field.name -%]
+    [% WRAPPER "wrapper_${field.uwrapper}" f=field %]
+      [% PROCESS "${field.uwidget}" f=field -%]
     [% END -%]
-    [% f = group_outerf -%]
   [% END -%]
 [% END -%]
 
@@ -60,12 +68,16 @@
     [%- process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
 [% END -%]
 
+[% BLOCK image -%]
+  <img [% process_attrs( f.attributes ) -%] src="[% f.src %]" />
+[% END -%]
+
 [% BLOCK interval -%]
-  [% intervalf = f -%]
-  [% PROCESS hidden f=intervalf -%]
+  [% field = f -%]
+  [% PROCESS hidden f=field -%]
   <div class="input-group">
-    [% PROCESS text f=intervalf.subfield('unit') -%]
-    [% PROCESS select f=intervalf.subfield('period') -%]
+    [% PROCESS text f=field.subfield('unit') -%]
+    [% PROCESS select f=field.subfield('period') -%]
   </div>
 [% END -%]
 
@@ -91,12 +103,11 @@
 [% END -%]
 
 [% BLOCK repeatable -%]
-  [% FOR rf IN f.sorted_fields -%]
-    [% repeatable_outerf = f -%]
-    [% WRAPPER "wrapper_${rf.uwrapper}" f=rf -%]
-      [% PROCESS "${rf.uwidget}" f=rf -%]
+  [% repeatable_field = f -%]
+  [% FOR field IN repeatable_field.sorted_fields -%]
+    [% WRAPPER "wrapper_${field.uwrapper}" f=field -%]
+      [% PROCESS "${field.uwidget}" f=field -%]
     [% END -%]
-    [% f = repeatable_outerf -%]
   [% END -%]
 [% END -%]
 

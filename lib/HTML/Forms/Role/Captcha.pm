@@ -1,20 +1,32 @@
-package HTML::Forms::Model::Object;
+package HTML::Forms::Role::Captcha;
 
-use namespace::autoclean;
+use namespace::autoclean -except => '_html_forms_meta';
 
 use Moo::Role;
+use HTML::Forms::Moo;
 
-sub update_model {
+requires 'ctx';
+
+has_field 'captcha' => type => 'Captcha', label => 'Verification';
+
+sub captcha_image_url {
+   return '/captcha/image';
+}
+
+sub get_captcha {
    my $self = shift;
-   my $item = $self->item or return;
 
-   for my $field ($self->all_fields) {
-      my $name = $field->name;
+   return unless $self->ctx;
 
-      $item->$name( $field->value ) if $item->can( $name );
-   }
+   return $self->ctx->session->{captcha};
+}
 
-   return;
+sub set_captcha {
+   my ($self, $captcha) = @_;
+
+   return unless $self->ctx;
+
+   return $self->ctx->session( captcha => $captcha );
 }
 
 1;
@@ -27,11 +39,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Model::Object - One-line description of the modules purpose
+HTML::Forms::Role::Captcha - One-line description of the modules purpose
 
 =head1 Synopsis
 
-   use HTML::Forms::Model::Object;
+   use HTML::Forms::Role::Captcha;
    # Brief but working code examples
 
 =head1 Description
@@ -72,11 +84,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

@@ -12,8 +12,8 @@ use Unexpected::Functions  qw( throw );
 my @banished_keywords = ( META );
 
 my @block_attributes  = qw(  );
-my @field_attributes  = qw( default default_method default_over_obj
-                            options options_method required state temp type );
+my @moo_attributes    = qw( builder clearer coerce handles init_arg is isa
+   predicate trigger lazy reader weak_ref writer );
 my @page_attributes   = qw(  );
 
 # Public functions
@@ -147,19 +147,20 @@ sub _validate_and_filter_block_attributes {
 
 sub _filter_out_field_attributes {
    my %attributes = @_;
-   my %filter_key = map { $_ => 1 } @field_attributes;
+   my %filter_key = map { $_ => 1 } @moo_attributes;
 
    $attributes{is} //= 'ro';
 
    return map { ( $_ => $attributes{ $_ } ) }
-         grep { not exists $filter_key{ $_ } } keys %attributes;
+         grep { exists $filter_key{ $_ } } keys %attributes;
 }
 
 sub _validate_and_filter_field_attributes {
    my (%attributes) = @_;
+   my %filter_key = map { $_ => 1 } @moo_attributes;
 
    my %filtered = map { ( $_ => $attributes{ $_ } ) }
-      grep { exists $attributes{ $_ } } @field_attributes;
+      grep { not exists $filter_key{ $_ } } keys %attributes;
 
    return %filtered;
 }

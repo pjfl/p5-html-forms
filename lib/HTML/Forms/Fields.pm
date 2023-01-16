@@ -141,6 +141,23 @@ sub dump {
    return;
 }
 
+sub dump_validated {
+   my $self = shift;
+
+   warn "HFs: fields validated:\n";
+
+   for my $field ($self->sorted_fields) {
+      $field->dump_validated if $field->can('dump_validated');
+
+      my $message = $field->has_errors
+         ? join ' | ', $field->all_errors : 'validated';
+
+      warn "HFs: ", $field->name, ": ${message}\n";
+   }
+
+   return;
+}
+
 sub field {
    my ($self, $name, $fatal, $f) = @_;
 
@@ -253,7 +270,8 @@ sub propagate_error {
 
    unless ($found) {
       $self->result->add_error_result( $result );
-      $self->parent->propagate_error( $result ) if $self->parent;
+      $self->parent->propagate_error( $result )
+         if $self->can('parent') && $self->parent;
    }
 
    return;

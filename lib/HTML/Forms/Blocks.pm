@@ -2,21 +2,20 @@ package HTML::Forms::Blocks;
 
 use namespace::autoclean;
 
-use Class::Load            qw( load_optional_class );
-use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS META NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Object Str );
 use HTML::Forms::Widget::Block;
-use Try::Tiny;
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 use MooX::HandlesVia;
 
 has 'block_list' =>
-   is      => 'rw',
-   isa     => ArrayRef,
-   builder => sub { [] },
-   lazy    => TRUE;
+   is          => 'rw',
+   isa         => ArrayRef,
+   builder     => sub { [] },
+   handles_via => 'Array',
+   handles     => { has_block_list => 'count' },
+   lazy        => TRUE;
 
 has 'blocks' =>
    is          => 'lazy',
@@ -28,10 +27,9 @@ has 'blocks' =>
       block        => 'get',
       block_exists => 'exists',
       has_blocks   => 'count',
-   },
-);
+   };
 
-has 'render_list' => (
+has 'render_list' =>
    is          => 'rw',
    isa         => ArrayRef[Str],
    builder     => 'build_render_list',
@@ -42,11 +40,11 @@ has 'render_list' => (
       get_render_list    => 'get',
       has_render_list    => 'count',
    },
-   lazy        => TRUE,
-);
+   lazy        => TRUE;
 
 after 'build_fields' => sub {
-   my $self = shift; my $meta_blist = $self->_build_meta_block_list;
+   my $self = shift;
+   my $meta_blist = $self->_build_meta_block_list;
 
    if (scalar @{ $meta_blist }) {
       for my $block_attr (@{ $meta_blist }) {
@@ -61,6 +59,8 @@ after 'build_fields' => sub {
          $self->make_block( $block_attr );
       }
    }
+
+   return;
 };
 
 sub get_renderer {
@@ -120,24 +120,21 @@ sub make_block {
 sub _build_meta_block_list {
    my $self   = shift;
    my $method = META;
-   my @block_list;
 
-   return unless $self->can( $method );
+   return [] unless $self->can( $method );
 
-   for my $class (reverse $self->$method->linearized_isa) {
+   my @block_list = ();
+
+   if ($self->can( 'block_list' ) && $self->has_block_list) {
+      for my $block_def (@{ $self->block_list }) {
+         push @block_list, $block_def;
+      }
+   }
+
+   for my $class (reverse $self->$method->linearised_isa) {
       next unless $class->can( $method );
 
       my $meta = $class->$method;
-
-      if ($meta->can( 'calculate_all_roles' )) {
-         for my $role (reverse $meta->calculate_all_roles) {
-            if ($role->can( 'block_list' ) && $role->has_block_list) {
-               for my $block_def (@{ $role->block_list }) {
-                  push @block_list, $block_def;
-               }
-            }
-         }
-      }
 
       if ($meta->can( 'block_list' ) && $meta->has_block_list) {
          for my $block_def (@{ $meta->block_list }) {
@@ -146,7 +143,7 @@ sub _build_meta_block_list {
       }
    }
 
-   return clone( \@block_list );
+   return \@block_list;
 }
 
 1;
