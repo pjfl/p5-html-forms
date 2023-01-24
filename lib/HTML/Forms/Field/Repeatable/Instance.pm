@@ -1,9 +1,10 @@
 package HTML::Forms::Field::Repeatable::Instance;
 
-use namespace::autoclean;
+use namespace::autoclean -except => '_html_forms_meta';
 
 use HTML::Forms::Constants qw( FALSE TRUE );
 use Moo;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
@@ -16,13 +17,19 @@ has '+no_value_if_empty' => default => TRUE;
 sub BUILD {
    my $self = shift;
 
-   $self->add_wrapper_class( 'hfs-repinst' ) unless $self->has_wrapper_class;
+   $self->add_wrapper_class( $self->parent->instance_wrapper_class )
+      unless $self->has_wrapper_class;
 
    return;
 }
 
 sub build_tags {
-   return { wrapper => 1 };
+   return { wrapper => TRUE };
+}
+
+# TODO: Figure this out
+sub _build_html {
+   return 'fill me in {index-1}';
 }
 
 1;

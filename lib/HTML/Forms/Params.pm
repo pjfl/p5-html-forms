@@ -33,15 +33,15 @@ sub expand_hash {
 
       for (@segments) {
          if (m{ \A ( 0 | [1-9] \d* ) \z }mx) {
-            $box_ref = \[] unless defined ${ $box_ref };
+            ${ $box_ref } = [] unless defined ${ $box_ref };
             throw 'HFs: param clash for [_1]=[_2]', [ $name, $_ ]
                unless is_arrayref ${ $box_ref };
-            $box_ref = \( ${ $box_ref->[ $1 ] } );
+            $box_ref = \( ${ $box_ref }->[ $1 ] );
          }
          else {
             s{ \\(.) }{$1}gmx if $sep;  # Remove escaping
-            $box_ref = \{} unless defined ${ $box_ref };
-            $box_ref = \{ NUL() => ${ $box_ref } } if !ref ${ $box_ref };
+            ${ $box_ref } = {} unless defined ${ $box_ref };
+            ${ $box_ref } = { NUL() => ${ $box_ref } } if !ref ${ $box_ref };
             throw 'HFs: param clash for [_1]=[_2]', [ $name, $_ ]
                unless is_hashref ${ $box_ref };
             $box_ref = \( ${ $box_ref }->{ $_ } );
@@ -51,7 +51,7 @@ sub expand_hash {
       if (defined ${ $box_ref }) {
          throw 'HFs: param clash for [_1] value [_2]',
             [ $name, $flat->{$name} ] if is_hashref ${ $box_ref };
-         $box_ref = \( $$box_ref->{ NUL() } );
+         $box_ref = \( ${ $box_ref }->{ NUL() } );
       }
 
       ${ $box_ref } = $flat->{ $name };

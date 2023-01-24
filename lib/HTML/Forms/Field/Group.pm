@@ -10,9 +10,6 @@ extends 'HTML::Forms::Field::Compound';
 
 has 'description' => is => 'ro', isa => Str, predicate => 'has_description';
 
-# TODO: Where?
-has 'label_type' => is => 'ro', isa => Str, default => 'legend';
-
 has '+noupdate' => default => TRUE;
 
 has '+widget' => default => 'Group';

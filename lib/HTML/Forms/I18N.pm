@@ -8,9 +8,11 @@ use Unexpected::Functions  qw( throw );
 use Try::Tiny;
 
 sub maketext {
-   my ($self, @message) = @_; my $out;
+   my ($self, @message) = @_;
 
    return NUL unless scalar @message && defined $message[ 0 ];
+
+   my $out;
 
    try   { $out = $self->SUPER::maketext( @message ) }
    catch {

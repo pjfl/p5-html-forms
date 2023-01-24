@@ -53,10 +53,4 @@ sub peek {
    return $string;
 }
 
-sub render {
-   my $self = shift;
-
-   return $self->field_def->render( $self );
-}
-
 1;

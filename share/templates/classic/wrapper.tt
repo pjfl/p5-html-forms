@@ -10,10 +10,36 @@
 [% END -%]
 
 [% BLOCK wrapper_simple -%]
-<[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) -%]>
-  [% IF f.do_label; PROCESS label; END %]
+[%   IF f.do_wrapper -%]
+[%     f.get_tag( 'before_wrapper' ) -%]
+  <[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) -%]>
+[%   END -%]
+    [% IF f.do_label; PROCESS label; END %]
+[%   f.get_tag( 'before_element' ) -%]
+[%   IF f.get_tag( 'controls_div' ) -%]
+    <div class="controls">
+[%   ELSIF f.has_element_wrapper_class -%]
+       <div[% process_attrs( f.element_wrapper_attributes )%]>
+[%   END -%]
   [% content -%]
-</[% f.wrapper_tag %]>
+[%   IF f.get_tag( 'controls_div' ) || f.has_element_wrapper_class -%]
+       </div>
+[%   END -%]
+[%   f.get_tag( 'after_element' ) -%]
+[%   UNLESS f.get_tag( 'no_errors' ) -%]
+[%     error_class = f.get_tag( 'error_class' ) || 'error_message' -%]
+[%     FOR error IN f.result.all_errors -%]
+    <span class="[% error_class %]">[% localise( error ) %]</span>
+[%     END -%]
+[%     warning_class = f.get_tag( 'warning_class' ) || 'warning_message' -%]
+[%     FOR warning IN f.result.all_warnings -%]
+    <span class="[% warning_class %]">[% localise( warning ) %]</span>
+[%     END -%]
+[%   END -%]
+[%   IF f.do_wrapper -%]
+  </[% f.wrapper_tag %]>
+[%     f.get_tag( 'after_wrapper' ) -%]
+[%   END -%]
 [% END -%]
 
 [% BLOCK wrapper_wrap_label -%]

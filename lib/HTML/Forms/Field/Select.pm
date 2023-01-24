@@ -2,15 +2,26 @@ package HTML::Forms::Field::Select;
 
 use namespace::autoclean -except => '_html_forms_meta';
 
-use HTML::Forms::Constants qw( FALSE TRUE );
-use HTML::Forms::Types     qw( Bool CodeRef HFsSelectOptions Int Undef );
+use HTML::Entities         qw( encode_entities );
+use HTML::Forms::Constants qw( FALSE NUL TRUE );
+use HTML::Forms::Types     qw( Bool CodeRef HFsSelectOptions
+                               Int Num Str Undef );
+use HTML::Forms::Util      qw( convert_full_name get_meta );
+use Ref::Util              qw( is_arrayref is_hashref );
+use Scalar::Util           qw( weaken );
 use Moo;
 use HTML::Forms::Moo;
-use MooX::HandlesVia;
+use Sub::HandlesVia;
 
 extends 'HTML::Forms::Field';
 
+has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;
+
+has 'has_many' => is => 'rw', isa => Str;
+
 has 'multiple' => is => 'rw', isa => Bool, default => FALSE;
+
+has 'no_option_validation' => is => 'rw', isa => Bool, default => FALSE;
 
 has 'options'   =>
     is          => 'rw',
@@ -27,23 +38,283 @@ has 'options'   =>
     },
     lazy        => TRUE;
 
+has 'options_from' => is => 'rw', isa => Str, default => 'none';
+
+has 'options_index' =>
+   is          => 'rw',
+   isa         => Num,
+   default     => 0,
+   handles_via => 'Counter',
+   handles     => {
+      inc_options_index   => 'inc',
+      dec_options_index   => 'dec',
+      reset_options_index => 'reset'
+   };
+
+has 'options_method' =>
+   is          => 'ro',
+   isa         => CodeRef,
+   handles_via => 'Code',
+   handles     => { get_options => 'execute' },
+   predicate   => 'has_options_method',
+   writer      => '_set_options_method';
+
+has 'set_options' => is => 'ro', isa => Str;
+
 has 'size' => is => 'rw', isa => Int|Undef;
 
 has 'sort_options_method' =>
    is          => 'rw',
    isa         => CodeRef,
    handles_via => 'Code',
-   handles     => {
-      sort_options => 'execute',
-   },
+   handles     => { sort_options => 'execute' },
    predicate   => 'has_sort_options_method';
+
+has 'value_when_empty' => is => 'lazy', builder => 'build_value_when_empty';
+
+has '+deflate_method' => default => sub { _build_deflate_method( shift ) };
+
+has '+input_without_param' =>
+   builder => 'build_input_without_param',
+   lazy    => TRUE;
 
 has '+widget' => default => 'Select';
 
+our $class_messages = {
+   'select_invalid_value' => '[_1] is not a valid value',
+   'select_not_multiple'  => 'This field does not take multiple values',
+};
+
+after 'clear_data' => sub { shift->reset_options_index };
+
+before 'value' => sub {
+   my $self = shift;
+
+   return unless $self->has_result;
+
+   my $value = $self->result->value;
+
+   if ($self->multiple) {
+      if (!defined $value || $value eq NUL
+          || (is_arrayref $value && scalar @{$value} == 0)) {
+         $self->_set_value( $self->value_when_empty );
+      }
+      elsif ($self->has_many && scalar @{$value} && !is_hashref $value->[0]) {
+         my @new_values;
+
+         for my $has_many (@{$value}) {
+            push @new_values, { $self->has_many => $has_many };
+         }
+
+         $self->_set_value(\@new_values);
+      }
+   }
+
+   return;
+};
+
+sub BUILD {
+   my $self = shift;
+
+   $self->build_options_method;
+
+   if ($self->options && $self->has_options) {
+      $self->options_from('build');
+      $self->default_from_options($self->options);
+   }
+
+   $self->input_without_param;
+   return;
+}
+
+sub build_input_without_param {
+   my $self = shift;
+
+   if ($self->multiple) {
+      $self->not_nullable(TRUE);
+      return [];
+   }
+
+   return NUL;
+}
+
 sub build_options { [] }
+
+sub build_options_method {
+   my $self        = shift;
+   my $form        = $self->form; weaken $form;
+   my $set_options = $self->set_options;
+
+   $set_options ||= 'options_' . convert_full_name($self->full_name);
+
+   if ($form && $form->can($set_options)) {
+      if (get_meta($self)->has_attribute($set_options)) {
+         $self->_set_options_method(sub { $form->$set_options });
+      }
+      else {
+         $self->_set_options_method(sub { $form->$set_options($self) });
+      }
+   }
+
+   return;
+}
+
+sub build_value_when_empty {
+   my $self = shift;
+
+   return $self->multiple ? [] : undef;
+}
+
+sub default_from_options {
+   my ($self, $options) = @_;
+
+   my @defaults = map { $_->{value} } grep { $_->{checked} || $_->{selected} }
+                     @{$options};
+
+   if (scalar @defaults) {
+      if ($self->multiple) { $self->default(\@defaults) }
+      else { $self->default($defaults[0]) }
+   }
+
+   return;
+}
+
+sub get_class_messages {
+   my $self = shift;
+
+   return { %{ $self->next::method }, %{ $class_messages } };
+}
 
 sub html_element {
    return 'select';
+}
+
+sub _build_deflate_method {
+   my $self = shift;
+
+   return sub {
+      my $value = shift;
+
+      return $value unless $self->has_many && $self->multiple;
+
+      return $value unless is_arrayref $value
+         && scalar @{$value} && is_hashref $value->[0];
+
+      return [ map { $_->{$self->has_many} } @{$value} ];
+   };
+}
+
+sub _inner_validate_field {
+   my $self  = shift;
+   my $value = $self->value;
+
+   return unless defined $value;
+
+   if (is_arrayref $value && !$self->multiple) {
+      $self->add_error($self->get_message('select_not_multiple'));
+      return;
+   }
+   elsif (!is_arrayref $value && $self->multiple) {
+      $value = [$value];
+      $self->_set_value($value);
+   }
+
+   return if $self->no_option_validation;
+
+   my %options;
+
+   for my $opt (@{ $self->options }) {
+      if (exists $opt->{group}) {
+         for my $opt_group (@{ $opt->{options} }) {
+            $options{ $opt_group->{value} } = TRUE;
+         }
+      }
+      else { $options{ $opt->{value} } = TRUE }
+   }
+
+   if ($self->has_many) {
+      $value = [ map { $_->{ $self->has_many } } @{ $value } ];
+   }
+
+   for my $value (is_arrayref $value ? @{ $value } : ($value)) {
+      unless ($options{$value}) {
+         $self->add_error(
+            $self->get_message('select_invalid_value'), encode_entities($value)
+         );
+         return;
+      }
+   }
+
+   return TRUE;
+}
+
+sub _load_options {
+   my $self = shift;
+
+   return if $self->options_from eq 'build' ||
+      ($self->has_options && $self->do_not_reload);
+
+   my @options;
+
+   if ($self->has_options_method) {
+      @options = $self->get_options;
+      $self->options_from('method');
+   }
+   elsif ($self->form) {
+      my $full_accessor = $self->parent->full_accessor if $self->parent;
+
+      @options = $self->form->lookup_options($self, $full_accessor);
+      $self->options_from('model') if scalar @options;
+   }
+
+   return unless @options;
+
+   my $opts = is_arrayref $options[0] ? $options[0] : \@options;
+
+   if (is_hashref $opts->[0]) { $self->default_from_options($opts) }
+
+   $opts = $self->options($opts);
+
+   if ($opts) {
+      $opts = $self->sort_options($opts) if $self->has_sort_options_method;
+      $self->options($opts);
+   }
+
+   return;
+}
+
+sub _result_from_fields {
+   my ($self, $result) = @_;
+
+   $result = $self->next::method($result);
+   $self->_load_options;
+   $result->_set_value($self->default)
+      if defined $self->default && !$result->has_value;
+
+   return $result;
+}
+
+sub _result_from_input {
+   my ($self, $result, $input, $exists) = @_;
+
+   $input = is_arrayref $input ? $input : [$input] if $self->multiple;
+   $result = $self->next::method($result, $input, $exists);
+   $self->_load_options;
+   $result->_set_value($self->default)
+      if defined $self->default && !$result->has_value;
+
+   return $result;
+}
+
+sub _result_from_object {
+   my ($self, $result, $item) = @_;
+
+   $result = $self->next::method($result, $item);
+   $self->_load_options;
+   $result->_set_value($self->default)
+      if defined $self->default && !$result->has_value;
+
+   return $result;
 }
 
 1;

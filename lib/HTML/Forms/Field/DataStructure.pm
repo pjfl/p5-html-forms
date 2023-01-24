@@ -10,9 +10,6 @@ use Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-# TODO: Find out where this comes from
-has 'label_type' => is => 'ro', isa => Str, default => 'legend';
-
 has '+html5_type_attr' => default => 'hidden';
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;

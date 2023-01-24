@@ -36,7 +36,7 @@ $form->add_tt_include_path( 'frodo' );
 is $form->tt_include_path->[ 1 ], 'frodo', 'adds extra include paths';
 
 is $form->render,
-   "<form id=\"test_tt\" method=\"post\">\n<div class=\"form_messages\">\n  "
+   "<form id=\"test_tt\" method=\"post\">\n  <div class=\"form_messages\">\n  "
  . "</div>\n</form>",
    'renders default form';
 

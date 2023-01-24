@@ -10,7 +10,7 @@
     [% PROCESS image f=field.image_attr -%]
     [% PROCESS text f=field -%]
   [% ELSE -%]
-    [% field.html -%]
+    [% field.render -%]
   [% END -%]
 [% END -%]
 
@@ -34,9 +34,9 @@
 
 [% BLOCK compound -%]
   [% compound_field = f -%]
-  [% FOR field IN compound_field.sorted_fields -%]
-    [% WRAPPER "wrapper_${field.uwrapper}" f=field %]
-      [% PROCESS "${field.uwidget}" f=field -%]
+  [% FOR cfield IN compound_field.sorted_fields -%]
+    [% WRAPPER "wrapper_${cfield.uwrapper}" f=cfield -%]
+      [% PROCESS "${cfield.uwidget}" f=cfield %]
     [% END -%]
   [% END -%]
 [% END -%]
@@ -55,10 +55,10 @@
       <p>[% group_field.description | html %]</p>
     </div>
   [% END -%]
-  [% FOR field IN group_field.sorted_fields -%]
-    [% NEXT UNLESS field.field_group == group_field.name -%]
-    [% WRAPPER "wrapper_${field.uwrapper}" f=field %]
-      [% PROCESS "${field.uwidget}" f=field -%]
+  [% FOR gfield IN group_field.sorted_fields -%]
+    [% NEXT UNLESS gfield.field_group == group_field.name -%]
+    [% WRAPPER "wrapper_${gfield.uwrapper}" f=gfield -%]
+      [% PROCESS "${gfield.uwidget}" f=gfield %]
     [% END -%]
   [% END -%]
 [% END -%]
@@ -73,17 +73,17 @@
 [% END -%]
 
 [% BLOCK interval -%]
-  [% field = f -%]
-  [% PROCESS hidden f=field -%]
+  [% interval_field = f -%]
+  [% PROCESS hidden f=interval_field -%]
   <div class="input-group">
-    [% PROCESS text f=field.subfield('unit') -%]
-    [% PROCESS select f=field.subfield('period') -%]
+    [% PROCESS text f=interval_field.subfield('unit') -%]
+    [% PROCESS select f=interval_field.subfield('period') -%]
   </div>
 [% END -%]
 
 [% BLOCK label -%]
   <label[% process_attrs( f.label_attributes ) %] for="[% f.html_name %]">
-[%- f.label | html -%]</label>
+[%- f.loc_label | html -%]</label>
 [% END -%]
 
 [% BLOCK password -%]
@@ -104,9 +104,12 @@
 
 [% BLOCK repeatable -%]
   [% repeatable_field = f -%]
-  [% FOR field IN repeatable_field.sorted_fields -%]
-    [% WRAPPER "wrapper_${field.uwrapper}" f=field -%]
-      [% PROCESS "${field.uwidget}" f=field -%]
+  [% IF repeatable_field.setup_for_js -%]
+    [% form.render_repeatable_js %]
+  [% END -%]
+  [% FOR rfield IN repeatable_field.sorted_fields -%]
+    [% WRAPPER "wrapper_${rfield.uwrapper}" f=rfield -%]
+      [% PROCESS "${rfield.uwidget}" f=rfield %]
     [% END -%]
   [% END -%]
 [% END -%]
@@ -121,13 +124,13 @@
   [%- process_attrs( f.attributes ) -%]
   [%- IF f.multiple %] multiple="multiple" size="[% f.size %]"[% END -%]>
   [% FOR option IN f.options -%]
-    <option id="[% f.id %].[% loop.index %]" value="[% option.value | html -%]"
+    <option id="[% f.id %].[% loop.index %]" value="[% option.value | html %]"
     [%- FOR selval IN f.fif -%]
       [%- IF selval == option.value %] selected="selected"[% END -%]
     [%- END -%]>
     [%- option.label | html %]</option>
   [% END -%]
-  </select>
+  </[% f.html_element %]>
 [% END -%]
 
 [% BLOCK submit -%]

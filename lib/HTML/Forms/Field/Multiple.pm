@@ -2,17 +2,20 @@ package HTML::Forms::Field::Multiple;
 
 use namespace::autoclean;
 
-use Scalar::Util qw( weaken );
+use HTML::Forms::Constants qw( TRUE );
+use Scalar::Util           qw( weaken );
 use Moo;
 
 extends 'HTML::Forms::Field::Select';
 
-has '+multiple' => default => 1;
+has '+multiple' => default => TRUE;
 
 has '+size'     => default => 5;
 
 has '+sort_options_method' => default => sub {
-   my $self = shift; weaken $self;
+   my $self = shift;
+
+   weaken $self;
 
    return sub { default_sort_options( $self, @_ ) };
 };

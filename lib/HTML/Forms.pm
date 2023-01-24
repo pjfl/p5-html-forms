@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 1 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 2 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -10,7 +10,8 @@ use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField HFsResult
                                LoadableClass Object Str Undef );
 use HTML::Forms::Util      qw( has_some_value );
-use Ref::Util              qw( is_blessed_ref is_coderef is_hashref );
+use Ref::Util              qw( is_arrayref is_blessed_ref
+                               is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
 use Unexpected::Functions  qw( inflate_placeholders throw );
@@ -19,6 +20,42 @@ use Moo;
 use MooX::HandlesVia;
 
 extends 'HTML::Forms::Base';
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms - Generates markup for and processes input from HTML forms
+
+=head1 Synopsis
+
+   {
+      package HTML::Forms::Renderer;
+
+      use Moo::Role;
+
+      with 'HTML::Forms::Render::WithTT';
+
+      sub _build_tt_include_path { [ 'share/templates' ] }
+   }
+
+   my $form = HTML::Forms->new_with_traits(
+      name => 'test_tt', traits => [ 'HTML::Forms::Renderer' ],
+   );
+
+   $form->render;
+
+=head1 Description
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=cut
 
 has [ 'did_init_obj',
       'do_form_wrapper',
@@ -29,7 +66,14 @@ has [ 'did_init_obj',
 has [ 'html_prefix',
       'is_html5',
       'no_preload',
-      'no_widgets' ] => is => 'ro', isa => Bool, default => FALSE;
+      'no_widgets',
+      'quote_bind_value' ] => is => 'ro', isa => Bool, default => FALSE;
+
+=item action
+
+URL for the action attribute on the form
+
+=cut
 
 has 'action' => is  => 'rw', isa => Str;
 
@@ -299,6 +343,12 @@ with 'HTML::Forms::InitResult';
 with 'HTML::Forms::Widget::ApplyRole';
 with 'HTML::Forms::Blocks';
 
+=back
+
+=head1 Subroutines/Methods
+
+=cut
+
 # Construction
 around 'BUILDARGS' => sub {
    my ($orig, $self, @args) = @_;
@@ -536,6 +586,8 @@ sub form_wrapper_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+sub full_accessor { NUL }
+
 sub full_name { NUL }
 
 sub get_default_value { }
@@ -588,7 +640,8 @@ sub localise {
    try   { $out = $self->language_handle->maketext($in) }
    catch { $out = $in };
 
-   my $defaults = [ '[?]', '[]', TRUE ]; # Undef, null, no quote bind value
+   # Display values for undef and null bind values which are quoted by default
+   my $defaults = [ '[?]', '[]', !$self->quote_bind_value ];
 
    return inflate_placeholders $defaults, $out, @message;
 }
@@ -754,6 +807,10 @@ sub validate_form {
    return $self->validated;
 }
 
+sub values {
+   return shift->value;
+}
+
 # Private methods
 sub _clear_dependency {
    my $self = shift;
@@ -787,6 +844,7 @@ sub _munge_params {
    my $new_params = $_fix_params->expand_hash($params);
 
    $new_params = $new_params->{$self->name} if $self->html_prefix;
+
    $self->{params} = $new_params // {}; # TODO: Ick
    return;
 }
@@ -825,38 +883,13 @@ sub _set_dependency {
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
-=back
-
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

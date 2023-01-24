@@ -11,7 +11,8 @@ use Moo::Role;
 sub _get_value {
    my ($self, $field, $item) = @_;
 
-   my $accessor = $field->accessor; my @values;
+   my $accessor = $field->accessor;
+   my @values;
 
    if (defined $field->default_over_obj) {
       @values = $field->default_over_obj;

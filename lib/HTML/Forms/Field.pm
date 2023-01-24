@@ -2,6 +2,7 @@ package HTML::Forms::Field;
 
 use namespace::autoclean -except => '_html_forms_meta';
 
+use Data::Clone            qw( data_clone );
 use Data::Dumper;
 use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS TRUE FALSE NUL );
@@ -66,6 +67,17 @@ has 'do_label' => is => 'rw', isa => Bool, default => TRUE;
 
 has 'do_wrapper' => is => 'rw', isa => Bool, default => TRUE;
 
+has 'element_wrapper_class' =>
+   is          => 'rw',
+   isa         => HFsArrayRefStr,
+   coerce      => TRUE,
+   builder     => 'build_element_wrapper_class',
+   handles_via => 'Array',
+   handles     => {
+      _add_element_wrapper_class => 'push',
+      has_element_wrapper_class  => 'count',
+   };
+
 has 'field_group' => is => 'ro', isa => Str, default => NUL;
 
 has 'fif_from_value' => is => 'ro', isa => Str;
@@ -86,7 +98,7 @@ has 'html_name' =>
 
       return $prefix . $self->full_name;
    },
-   lazy    => 1;
+   lazy    => TRUE;
 
 has 'html5_type_attr' => is => 'ro', isa => Str, default => 'text';
 
@@ -309,11 +321,11 @@ with 'HTML::Forms::Widget::ApplyRole';
 sub BUILD {
    my ($self, $params) = @_;
 
-#  $self->merge_tags( $self->wrapper_tags ) if $self->has_wrapper_tags;
+   $self->merge_tags( $self->wrapper_tags ) if $self->has_wrapper_tags;
    $self->build_default_method;
    $self->validate_method;
    $self->add_widget_name_space( @{ $self->form->widget_name_space } )
-      if $self->form;
+      if $self->form && $self->form->widget_name_space;
    $self->add_action( $self->trim ) if $self->trim;
    $self->_build_apply_list;
    $self->add_action( @{ $params->{apply} } ) if $params->{apply};
@@ -339,6 +351,12 @@ our $class_messages = {
 };
 
 # Public methods
+sub add_element_wrapper_class {
+   my $self = shift;
+
+   return $self->_add_element_wrapper_class(is_arrayref $_[0] ? @{$_[0]} : @_);
+}
+
 sub add_error {
    my ($self, @message) = @_;
 
@@ -365,6 +383,12 @@ sub add_standard_element_classes {
    return;
 }
 
+sub add_standard_element_wrapper_classes {
+   my ($self, $result, $class) = @_;
+
+   return;
+}
+
 sub add_standard_label_classes {
    my ($self, $result, $class) = @_;
 
@@ -385,6 +409,8 @@ sub add_standard_wrapper_classes {
 sub attributes {
    return shift->element_attributes(@_);
 }
+
+sub build_element_wrapper_class { [] }
 
 # This is not a "true" builder, because sometimes 'default_method' is not set
 sub build_default_method {
@@ -436,6 +462,14 @@ sub clear_data  {
    $self->clear_active;
 
    return;
+}
+
+sub clone_field {
+   my ($self, %params) = @_;
+
+   my $class = blessed $self;
+
+   return $class->new({ %{ data_clone($self) }, %params });
 }
 
 sub dump {
@@ -502,6 +536,26 @@ sub element_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+sub element_wrapper_attributes {
+   my ($self, $result) = @_;
+
+   $result ||= $self->result;
+
+   my $attr  = {};
+   my $class = [ @{ $self->element_wrapper_class } ];
+
+   $self->add_standard_element_wrapper_classes( $result, $class );
+
+   $attr->{class} = $class if scalar @{ $class };
+
+   return $attr unless $self->form;
+
+   my $mod_attr =
+      $self->form->html_attributes($self, 'element_wrapper', $attr, $result );
+
+   return is_hashref $mod_attr ? $mod_attr : $attr;
+}
+
 sub fif {
    my ($self, $result) = @_;
 
@@ -530,6 +584,22 @@ sub fif {
    }
 
    return NUL;
+}
+
+sub full_accessor {
+   my $self   = shift;
+   my $parent = $self->parent;
+
+   if ($self->is_contains) {
+      return NUL unless $parent;
+      return $parent->full_accessor;
+   }
+
+   my $accessor = $self->accessor;
+   my $parent_accessor = $parent->full_accessor if $parent;
+
+   return defined $parent_accessor && length $parent_accessor
+        ? "${parent_accessor}.${accessor}" : $accessor;
 }
 
 sub full_name {

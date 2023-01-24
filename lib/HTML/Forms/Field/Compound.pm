@@ -1,10 +1,11 @@
 package HTML::Forms::Field::Compound;
 
-use namespace::autoclean;
+use namespace::autoclean -except => '_html_forms_meta';
 
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool );
 use Moo;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 with    'HTML::Forms::Fields';

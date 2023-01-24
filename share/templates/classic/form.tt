@@ -1,10 +1,10 @@
 [% PROCESS classic/field.tt %]
 [% PROCESS classic/wrapper.tt %]
 [% PROCESS form_start %]
-[% PROCESS form_messages %]
+  [% PROCESS form_messages %]
 [%   FOR form_field IN form.sorted_fields -%]
   [%   WRAPPER "wrapper_${form_field.uwrapper}" f=form_field -%]
-    [%   PROCESS "${form_field.uwidget}" f=form_field %]
+  [%     PROCESS "${form_field.uwidget}" f=form_field %]
   [%   END %]
 [%   END -%]
 [% PROCESS form_end %]
@@ -13,7 +13,7 @@
 [%   get_tag( 'before' ) %]
 [%   wtag = get_tag( 'wrapper_tag' ) || 'fieldset' -%]
 [%   IF wtag != 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
-  <form[% process_attrs( form.attributes ) %]>
+<form[% process_attrs( form.attributes ) %]>
 [%   IF wtag == 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
 [%   get_tag( 'after_start' ) %]
 [% END -%]

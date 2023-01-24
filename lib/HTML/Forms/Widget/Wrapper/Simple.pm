@@ -1,6 +1,15 @@
 package HTML::Forms::Widget::Wrapper::Simple;
 
+use HTML::Forms::Types qw( Str );
 use Moo::Role;
+
+has 'html' => is => 'lazy', isa => Str;
+
+sub render {
+   my $self = shift;
+
+   return $self->html;
+}
 
 1;
 

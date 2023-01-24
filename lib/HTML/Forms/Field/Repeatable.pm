@@ -1,17 +1,17 @@
 package HTML::Forms::Field::Repeatable;
 
-use namespace::autoclean;
+use namespace::autoclean -except => '_html_forms_meta';
 
-use Data::Clone            qw( data_clone );
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Field::Repeatable::Instance;
 use HTML::Forms::Field::PrimaryKey;
 use HTML::Forms::Field::Result;
-use HTML::Forms::Types     qw( Bool HashRef HFsField Int );
+use HTML::Forms::Types     qw( Bool HashRef HFsField Int Str );
 use HTML::Forms::Util      qw( merge );
 use Ref::Util              qw( is_arrayref );
 use Moo;
 use MooX::HandlesVia;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
@@ -32,6 +32,11 @@ has 'init_contains' =>
    handles     => {
       has_init_contains => 'count',
    };
+
+has 'instance_wrapper_class' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'hfs-repinst';
 
 has 'is_repeatable'  => is => 'ro', isa => Bool, default => TRUE;
 
@@ -58,7 +63,7 @@ sub add_extra {
 sub clone_element {
    my ($self, $index) = @_;
 
-   my $field = $self->contains->clone( errors => [], error_fields => [] );
+   my $field = $self->contains->clone_field( errors => [], error_fields => [] );
 
    $field->name( $index );
    $field->parent( $self );
@@ -74,10 +79,10 @@ sub clone_fields {
    $parent->fields( [] );
 
    for my $field (@{ $fields }) {
-      my $new_field = $field->clone( errors => [], error_fields => [] );
+      my $new_field = $field->clone_field( errors => [], error_fields => [] );
 
       $self->clone_fields( $new_field, [ $new_field->all_fields ] )
-         if $new_field->has_fields;
+         if $new_field->does('HTML::Forms::Fields') && $new_field->has_fields;
 
       $new_field->parent( $parent );
       $parent->add_field( $new_field );
@@ -119,33 +124,31 @@ sub create_element {
    # Copy the fields from this field into the instance
    $instance->add_field( $self->all_fields );
 
-   for my $fld ($instance->all_fields) { $fld->parent( $instance ) }
+   for my $field ($instance->all_fields) { $field->parent( $instance ) }
 
    # Set required flag
    $instance->required( $self->required );
 
+   return $instance unless $self->auto_id;
+
    # auto_id has no way to change widgets...deprecate this?
-   if ($self->auto_id) {
-      unless (grep { $_->can( 'is_primary_key' )
-                        && $_->is_primary_key} $instance->all_fields) {
-         my $field_attr = { name => 'id', parent => $instance };
-         my $field;
+   unless (grep { $_->can( 'is_primary_key' ) && $_->is_primary_key }
+           $instance->all_fields) {
+      my $field_attr = { name => 'id', parent => $instance };
+      my $field;
 
-         if ($self->form) { # This will pull in the widget role
-            $field_attr->{form} = $self->form;
-            $field = $self->form->_make_adhoc_field(
-               'HTML::Forms::Field::PrimaryKey', $field_attr
-            );
-         }
-         else { # The following won't have a widget role applied
-            $field = HTML::Forms::Field::PrimaryKey->new( %{ $field_attr } );
-         }
-
-         $instance->add_field( $field );
+      if ($self->form) { # This will pull in the widget role
+         $field_attr->{form} = $self->form;
+         $field = $self->form->_make_adhoc_field(
+            'HTML::Forms::Field::PrimaryKey', $field_attr
+         );
       }
-   }
+      else { # The following won't have a widget role applied
+         $field = HTML::Forms::Field::PrimaryKey->new( %{ $field_attr } );
+      }
 
-   $_->parent( $instance ) for $instance->all_fields;
+      $instance->add_field( $field );
+   }
 
    return $instance;
 }
@@ -271,16 +274,18 @@ sub _result_from_object {
    my ($self, $result, $values) = @_;
 
    return $self->_result_from_fields( $result )
-      if $self->num_when_empty > 0 and not $values;
+      if $self->num_when_empty > 0 && !$values;
 
    $self->item( $values );
    $self->init_state;
    $self->_set_result( $result );
+   $self->fields( [] );
+
+   $values = [ $values ] if $values && !is_arrayref $values;
 
    # Create field instances and fill with values
-   my $index = 0; my @new_values; $self->fields( [] );
-
-   $values = [ $values ] if $values and is_arrayref $values;
+   my $index = 0;
+   my @new_values;
 
    for my $element (@{ $values }) {
       next unless $element;

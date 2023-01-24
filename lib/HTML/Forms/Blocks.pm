@@ -2,8 +2,9 @@ package HTML::Forms::Blocks;
 
 use namespace::autoclean;
 
-use HTML::Forms::Constants qw( EXCEPTION_CLASS META NUL TRUE );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Object Str );
+use HTML::Forms::Util      qw( get_meta );
 use HTML::Forms::Widget::Block;
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
@@ -119,9 +120,8 @@ sub make_block {
 # to find blocks specified with 'has_block'
 sub _build_meta_block_list {
    my $self   = shift;
-   my $method = META;
 
-   return [] unless $self->can( $method );
+   return [] unless get_meta($self);
 
    my @block_list = ();
 
@@ -131,10 +131,10 @@ sub _build_meta_block_list {
       }
    }
 
-   for my $class (reverse $self->$method->linearised_isa) {
-      next unless $class->can( $method );
+   for my $class (reverse get_meta($self)->linearised_isa) {
+      my $meta = get_meta($class);
 
-      my $meta = $class->$method;
+      next unless $meta;
 
       if ($meta->can( 'block_list' ) && $meta->has_block_list) {
          for my $block_def (@{ $meta->block_list }) {

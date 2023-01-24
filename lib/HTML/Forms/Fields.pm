@@ -7,7 +7,7 @@ use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField Str Undef );
-use HTML::Forms::Util      qw( merge );
+use HTML::Forms::Util      qw( get_meta merge );
 use Ref::Util              qw( is_arrayref is_hashref );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
@@ -105,17 +105,16 @@ sub build_fields {
 sub clean_fields {
    my ($self, $fields) = @_;
 
-   if ($self->has_include) {
-      my @fields; my %include = map { $_ => 1 } @{ $self->include };
+   return clone( $fields ) unless $self->has_include;
 
-      for my $fld ( @{ $fields } ) {
-         push @fields, clone( $fld ) if exists $include{ $fld->{name} };
-      }
+   my %include = map { $_ => 1 } @{ $self->include };
+   my @fields;
 
-      return \@fields;
+   for my $field ( @{ $fields } ) {
+      push @fields, clone( $field ) if exists $include{ $field->{name} };
    }
 
-   return clone( $fields );
+   return \@fields;
 }
 
 sub clear_data {
@@ -313,13 +312,10 @@ sub _array_fields {
 }
 
 sub _build_meta_field_list {
-   my $self = shift;
+   my $self       = shift;
    my $field_list = [];
-   my $method = META;
 
-   if ($self->can( $method )) {
-      my $meta = $self->$method;
-
+   if (my $meta = get_meta($self)) {
       if ($meta->has_field_list) {
          for my $fld_def (@{ $meta->field_list }) {
             push @{ $field_list }, $fld_def;
@@ -344,13 +340,13 @@ sub _by_flag_updates {
       );
    }
    elsif (exists $by_flag->{repeatable}
-          && $class->meta->find_attribute_by_name( 'is_repeatable' )) {
+          && get_meta($class)->find_attribute_by_name( 'is_repeatable' )) {
       $all_updates = merge(
          $field_updates->{by_flag}->{repeatable}, $all_updates
       );
    }
    elsif (exists $by_flag->{compound}
-          && $class->meta->find_attribute_by_name( 'is_compound' )) {
+          && get_meta($class)->find_attribute_by_name( 'is_compound' )) {
       $all_updates = merge(
          $field_updates->{by_flag}->{compound}, $all_updates
       );
@@ -589,14 +585,13 @@ sub _merge_updates {
    return $field_attr if $form && $form->no_widgets;
 
    # Get the widget and widget_wrapper from form
+   my $meta = get_meta($class);
+
+   throw 'Class [_1] has no "' . META . '" method. Did you forget to '
+      .  'inherit from HTML::Forms::Field?', [ $class ]
+      unless $meta;
+
    my $widget = $field_attr->{widget};
-   my $method = META;
-
-   throw 'Class [_1] has no "' . $method . '" method. Did you forget to '
-       . 'inherit from HTML::Forms::Field?', [ $class ]
-      unless $class->can( $method );
-
-   my $meta = $class->$method;
 
    unless ($widget) {
       my $attr = $meta->find_attribute_by_name( 'widget' );
@@ -607,14 +602,11 @@ sub _merge_updates {
    my $widget_wrapper = $field_attr->{widget_wrapper};
 
    unless ($widget_wrapper) {
-      my $attr;
-
-      $attr = $meta->get_attribute( 'widget_wrapper' )
-         if $meta->has_attribute( 'widget_wrapper' );
+      my $attr = $meta->find_attribute_by_name( 'widget_wrapper' );
 
       $widget_wrapper = $attr->default if $attr;
-      $widget_wrapper ||= $form->widget_wrapper if $form;
 
+      $widget_wrapper ||= $form->widget_wrapper if $form;
       $field_attr->{widget_wrapper} = $widget_wrapper ||= 'Simple';
    }
 

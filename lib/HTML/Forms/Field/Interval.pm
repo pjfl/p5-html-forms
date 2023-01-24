@@ -2,9 +2,9 @@ package HTML::Forms::Field::Interval;
 
 use namespace::autoclean -except => '_html_forms_meta';
 
-use HTML::Forms::Constants qw( META SPC TRUE );
+use HTML::Forms::Constants qw( SPC TRUE );
 use HTML::Forms::Types     qw( ArrayRef Int Str Undef );
-use HTML::Forms::Util      qw( interval_to_string quote_single );
+use HTML::Forms::Util      qw( interval_to_string get_meta quote_single );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -37,8 +37,6 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
-has 'label_type' => is => 'ro', isa => Str, default => 'label';
-
 has 'period_class' =>
    is      => 'ro',
    isa     => Str,
@@ -59,9 +57,8 @@ has '+do_label' => default => TRUE;
 has '+widget'   => default => 'Interval';
 
 sub BUILD {
-   my $self   = shift;
-   my $method = META;
-   my $meta   = $self->$method;
+   my $self = shift;
+   my $meta = get_meta($self);
 
    $self->_toggle_event('onchange');
    $meta->add_to_field_list({

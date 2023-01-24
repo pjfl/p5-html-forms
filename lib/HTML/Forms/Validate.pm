@@ -2,8 +2,9 @@ package HTML::Forms::Validate;
 
 use namespace::autoclean;
 
-use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE FALSE META NUL );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE FALSE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef Int Str Undef );
+use HTML::Forms::Util      qw( get_meta );
 use Ref::Util              qw( is_arrayref is_coderef is_hashref
                                is_regexpref is_scalarref );
 use Scalar::Util           qw( blessed );
@@ -154,7 +155,10 @@ sub validate_field {
       elsif ($self->no_value_if_empty || $self->has_flag( 'is_contains' )) {
          $continue_validation = FALSE;
       }
-      else { $self->_set_value( undef ); $continue_validation = FALSE }
+      else {
+         $self->_set_value( undef );
+         $continue_validation = FALSE;
+      }
    }
 
    return unless $continue_validation || $self->validate_when_empty;
@@ -238,10 +242,6 @@ sub _apply_actions {
 
          $error_message //= $tobj->validate( $new_value );
       }
-
-      # now maybe:
-      # http://sco/~rgarcia/perl-5.10.0/pod/perlsyn.pod#Smart_matching_in_detail
-      # actions in a hashref
       elsif (is_coderef $action->{check}) {
          if (!$action->{check}->( $value, $self )) {
             $error_message = $self->get_message( 'wrong_value' );
@@ -286,19 +286,20 @@ sub _apply_actions {
          $self->add_error( @message );
       }
    }
+
+   return;
 }
 
 sub _build_apply_list {
    my $self   = shift;
-   my $method = META;
    my @apply_list;
 
-   return unless $self->can( $method );
+   return unless get_meta($self);
 
-   for my $class (reverse $self->$method->linearised_isa) {
-      next unless $class->can( $method );
+   for my $class (reverse get_meta($self)->linearised_isa) {
+      my $meta = get_meta($class);
 
-      my $meta = $class->$method;
+      next unless $meta;
 
       if ($meta->can( 'calculate_all_roles' )) {
          for my $role ($meta->calculate_all_roles) {

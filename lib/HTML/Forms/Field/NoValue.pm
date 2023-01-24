@@ -2,13 +2,10 @@ package HTML::Forms::Field::NoValue;
 
 use namespace::autoclean;
 
-use HTML::Forms::Constants qw( FALSE NUL TRUE );
-use HTML::Forms::Types     qw( Str );
+use HTML::Forms::Constants qw( NUL TRUE );
 use Moo;
 
 extends 'HTML::Forms::Field';
-
-has 'html' => is => 'rw', isa => Str, default => NUL;
 
 has '+noupdate' => default => TRUE;
 
@@ -21,14 +18,12 @@ has '+widget' => default => NUL;
 
 sub fif { }
 
-sub render {
-   my $self = shift; return $self->html;
-}
-
 sub validate_field { }
 
 sub _result_from_fields {
-   my ($self, $result) = @_; my $value = $self->get_default_value;
+   my ($self, $result) = @_;
+
+   my $value = $self->get_default_value;
 
    $self->value( $value ) if $value;
    $self->_set_result( $result );

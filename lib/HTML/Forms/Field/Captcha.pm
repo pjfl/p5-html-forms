@@ -35,18 +35,6 @@ has 'gd_font' => is => 'rw', isa => Str, default => 'Large';
 
 has 'height' => is => 'rw', isa => Int, default => 20;
 
-has 'html' =>
-   is      => 'lazy',
-   isa     => Str,
-   builder => sub {
-      my $self    = shift;
-      my $options = {};
-
-      $options->{theme} = $self->theme if $self->theme;
-
-      return $self->capture->get_html_v2($self->site_key, $options);
-   };
-
 has 'image' => is => 'rw';
 
 has 'image_attr' =>
@@ -163,6 +151,15 @@ sub _add_verify_error {
 
    $self->add_error($self->get_message('captcha_verify_failed'));
    return;
+}
+
+sub _build_html {
+   my $self    = shift;
+   my $options = {};
+
+   $options->{theme} = $self->theme if $self->theme;
+
+   return $self->capture->get_html_v2($self->site_key, $options);
 }
 
 sub _captcha_check {

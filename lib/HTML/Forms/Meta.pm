@@ -3,8 +3,10 @@ package HTML::Forms::Meta;
 use mro;
 use namespace::autoclean;
 
-use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE META TRUE );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use HTML::Forms::Moo::Attribute;
+use HTML::Forms::Util      qw( get_meta );
+use Scalar::Util           qw( blessed );
 use Unexpected::Functions  qw( throw );
 use Unexpected::Types      qw( ArrayRef Bool Str );
 use Moo;
@@ -79,12 +81,10 @@ sub calculate_all_roles {
 sub find_attribute_by_name {
    my ($self, $attr_name) = @_;
 
-   my $method = META;
-
    for my $class ($self->linearised_isa) {
-      next unless $class->can( $method );
+      my $meta = get_meta($class);
 
-      my $meta = $class->$method;
+      next unless $meta;
 
       return $meta->get_attribute( $attr_name )
           if $meta->has_attribute( $attr_name );

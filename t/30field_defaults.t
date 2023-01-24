@@ -241,15 +241,15 @@ is $form->field( 'meow' )->value, 'the_real_meow',
    'defaults should not override actual item values';
 
 {
-    package Test::Form2;
+   package Test::Form2;
 
-    use Moo;
-    use HTML::Forms::Moo;
-    extends 'HTML::Forms';
+   use Moo;
+   use HTML::Forms::Moo;
+   extends 'HTML::Forms';
 
-    has_field 'foo';
-    has_field 'bar';
-    has_field 'win';
+   has_field 'foo';
+   has_field 'bar';
+   has_field 'win';
 }
 
 $form = Test::Form2->new;
@@ -276,5 +276,86 @@ is $form->field( 'bar' )->fif, 'bar_from_defaults',
    'defaults used instead of init_object';
 is $form->field( 'foo' )->fif, 'foo_from_obj',
    'no value from default set to undef';
+
+{
+   package Test::Form::Rep;
+
+   use Moo;
+   use HTML::Forms::Moo;
+   extends 'HTML::Forms';
+
+   with 'HTML::Forms::Render::WithTT';
+   with 'HTML::Forms::Render::RepeatableJs';
+
+   has '+name' => default => 'testform';
+   has_field 'foo';
+   has_field 'myarray' =>
+      type         => 'Repeatable',
+      do_wrapper   => 1,
+      setup_for_js => 0,
+      tags         => { controls_div => 1 };
+   has_field 'myarray.one';
+   has_field 'myarray.two' => type => 'Select';
+   has_field 'myarray.three';
+
+   sub default_myarray {
+      my $self = shift;
+
+      return (
+         { one => 'abc1', two => 2, three => 'abc3' },
+         { one => 'def1', two => 3, three => 'def3' },
+         { one => 'ghi1', two => 1, three => 'ghi3' },
+      );
+   }
+
+   sub options_myarray_two {
+      return ( 1 => 'one', 2 => 'two', 3 => 'three' );
+   }
+
+   sub default_myarray_three {
+      return 'default_three';
+   }
+}
+
+$form = Test::Form::Rep->new( verbose => 0 );
+
+ok $form, 'builds repeatable form';
+
+$form->process;
+
+is $form->field('myarray')->num_fields, 3, 'right number of fields';
+
+my $fif     = $form->fif;
+my $exp_fif = {
+   'foo'             => '',
+   'myarray.0.one'   => 'abc1',
+   'myarray.0.three' => 'abc3',
+   'myarray.0.two'   => 2,
+   'myarray.1.one'   => 'def1',
+   'myarray.1.three' => 'def3',
+   'myarray.1.two'   => 3,
+   'myarray.2.one'   => 'ghi1',
+   'myarray.2.three' => 'ghi3',
+   'myarray.2.two'   => 1,
+};
+
+is_deeply( $fif, $exp_fif, 'repeatable fif is correct' );
+
+$fif->{foo} = 'foo_submitted';
+
+$form->process( params => $fif );
+
+my $values     = $form->values;
+my $exp_values = {
+   foo     => 'foo_submitted',
+   myarray => [
+      { one => 'abc1', two => 2, three => 'abc3' },
+      { one => 'def1', two => 3, three => 'def3' },
+      { one => 'ghi1', two => 1, three => 'ghi3' }
+   ]
+};
+
+is_deeply( $values, $exp_values, 'got expected values' );
+
 
 done_testing;

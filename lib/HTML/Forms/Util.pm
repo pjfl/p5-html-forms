@@ -6,11 +6,11 @@ use parent 'Exporter::Tiny';
 use Data::Clone            qw( clone );
 use DateTime::Duration;
 use HTML::Entities         qw( );
-use HTML::Forms::Constants qw( TRUE FALSE NUL SPC );
+use HTML::Forms::Constants qw( TRUE FALSE META NUL SPC );
 use Ref::Util              qw( is_arrayref is_blessed_ref is_hashref );
 
 our @EXPORT = qw( cc_widget convert_full_name duration_to_string
-                  encode_only_entities has_some_value inflate_interval
+                  encode_only_entities get_meta has_some_value inflate_interval
                   interval_to_string merge process_attrs quote_single
                   ucc_widget );
 
@@ -139,6 +139,13 @@ sub encode_only_entities {
    return $html;
 }
 
+sub get_meta {
+   my $proto  = shift;
+   my $method = META;
+
+   return $proto->can($method) ? $proto->$method : undef;
+}
+
 sub has_some_value {
    my $x = shift;
 
@@ -249,7 +256,8 @@ sub ucc_widget ($) {
    my $widget = shift;
 
    if ($widget ne lc $widget) {
-      $widget =~ s{ :: }{_}gmx; $widget = ucfirst $widget;
+      $widget =~ s{ :: }{_}gmx;
+      $widget = ucfirst $widget;
 
       my @parts = $widget =~ m{ ([A-Z][a-z]*) }gmx;
 
