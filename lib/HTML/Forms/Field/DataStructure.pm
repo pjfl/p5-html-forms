@@ -1,7 +1,5 @@
 package HTML::Forms::Field::DataStructure;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities );
@@ -36,6 +34,8 @@ sub _build_element_attr {
 sub _build_wrapper_class {
    return [ 'compound' ];
 }
+
+use namespace::autoclean;
 
 1;
 

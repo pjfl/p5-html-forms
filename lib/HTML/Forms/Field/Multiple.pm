@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Multiple;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( TRUE );
 use Scalar::Util           qw( weaken );
 use Moo;
@@ -38,6 +36,8 @@ sub default_sort_options {
 
    return \@out;
 }
+
+use namespace::autoclean;
 
 1;
 

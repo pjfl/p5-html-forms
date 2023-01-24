@@ -1,7 +1,5 @@
 package HTML::Forms::Blocks;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Object Str );
 use HTML::Forms::Util      qw( get_meta );
@@ -145,6 +143,8 @@ sub _build_meta_block_list {
 
    return \@block_list;
 }
+
+use namespace::autoclean;
 
 1;
 

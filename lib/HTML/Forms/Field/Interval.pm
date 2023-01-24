@@ -1,8 +1,6 @@
 package HTML::Forms::Field::Interval;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
-use HTML::Forms::Constants qw( SPC TRUE );
+use HTML::Forms::Constants qw( META SPC TRUE );
 use HTML::Forms::Types     qw( ArrayRef Int Str Undef );
 use HTML::Forms::Util      qw( interval_to_string get_meta quote_single );
 use Moo;
@@ -128,6 +126,8 @@ sub validate {
 
    return;
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

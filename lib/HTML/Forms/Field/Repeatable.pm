@@ -1,8 +1,6 @@
 package HTML::Forms::Field::Repeatable;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
-use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Constants qw( FALSE META TRUE );
 use HTML::Forms::Field::Repeatable::Instance;
 use HTML::Forms::Field::PrimaryKey;
 use HTML::Forms::Field::Result;
@@ -339,6 +337,8 @@ sub _setup_for_js {
 
    return;
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

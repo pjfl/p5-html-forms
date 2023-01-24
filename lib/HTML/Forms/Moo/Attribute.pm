@@ -1,11 +1,11 @@
 package HTML::Forms::Moo::Attribute;
 
-use namespace::autoclean;
-
 use HTML::Forms::Types qw( Str );
 use Moo;
 
 has 'default' => is => 'ro', isa => Str;
+
+use namespace::autoclean;
 
 1;
 

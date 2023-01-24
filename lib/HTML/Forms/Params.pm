@@ -1,7 +1,5 @@
 package HTML::Forms::Params;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS NUL );
 use HTML::Forms::Types     qw( Str );
 use Ref::Util              qw( is_arrayref is_hashref );
@@ -123,6 +121,8 @@ sub _collapse_hash {
          [ $self->join_name( @segments ), ref $deep ];
    }
 }
+
+use namespace::autoclean;
 
 1;
 

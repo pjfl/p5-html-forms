@@ -1,7 +1,5 @@
 package HTML::Forms::Render::WithTT;
 
-use namespace::autoclean;
-
 use File::ShareDir;
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE SPC );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str Template );
@@ -92,6 +90,8 @@ sub render {
 
    return $output;
 }
+
+use namespace::autoclean;
 
 1;
 

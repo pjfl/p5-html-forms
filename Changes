@@ -1,5 +1,7 @@
 Revision history for HTML::Forms
 
+          - Moved namespace::autoclean to end of code
+
 0.1.1     2017-12-04 15:06:49
           - Added project files to master branch
 

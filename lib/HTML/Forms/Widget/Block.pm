@@ -1,7 +1,5 @@
 package HTML::Forms::Widget::Block;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HashRef
                                HFs HFsArrayRefStr Str );
@@ -134,6 +132,8 @@ sub _build_default_tt_vars {
 sub _build_tt_template {
    return 'classic/block.tt';
 }
+
+use namespace::autoclean;
 
 1;
 

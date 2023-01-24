@@ -1,7 +1,5 @@
 package HTML::Forms::InitResult;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Field::Result;
 use Ref::Util              qw( is_arrayref is_hashref );
@@ -198,6 +196,8 @@ sub find_sub_item {
 
    return $new_item;
 }
+
+use namespace::autoclean;
 
 1;
 

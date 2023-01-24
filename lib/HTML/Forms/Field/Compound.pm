@@ -1,8 +1,6 @@
 package HTML::Forms::Field::Compound;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
-use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Constants qw( FALSE META TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool );
 use Moo;
 use HTML::Forms::Moo;
@@ -85,6 +83,8 @@ around '_result_from_object' => sub {
 
    return $orig->( $self, $self_result, $item );
 };
+
+use namespace::autoclean -except => META;
 
 1;
 

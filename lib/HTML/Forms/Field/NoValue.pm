@@ -1,7 +1,5 @@
 package HTML::Forms::Field::NoValue;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( NUL TRUE );
 use Moo;
 
@@ -46,6 +44,8 @@ sub _result_from_object {
    $result->_set_field_def( $self );
    return $result;
 }
+
+use namespace::autoclean;
 
 1;
 

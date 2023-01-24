@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Captcha;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Int LoadableClass Object Str );
 use JSON::MaybeXS          qw( decode_json );
@@ -209,6 +207,8 @@ sub _generate_captcha {
    $self->form->set_captcha($captcha);
    return;
 }
+
+use namespace::autoclean;
 
 1;
 

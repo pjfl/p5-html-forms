@@ -1,7 +1,5 @@
 package HTML::Forms::Model::Object;
 
-use namespace::autoclean;
-
 use Moo::Role;
 
 sub update_model {
@@ -16,6 +14,8 @@ sub update_model {
 
    return;
 }
+
+use namespace::autoclean;
 
 1;
 

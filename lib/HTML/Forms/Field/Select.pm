@@ -1,9 +1,7 @@
 package HTML::Forms::Field::Select;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
 use HTML::Entities         qw( encode_entities );
-use HTML::Forms::Constants qw( FALSE NUL TRUE );
+use HTML::Forms::Constants qw( FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( Bool CodeRef HFsSelectOptions
                                Int Num Str Undef );
 use HTML::Forms::Util      qw( convert_full_name get_meta );
@@ -316,6 +314,8 @@ sub _result_from_object {
 
    return $result;
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

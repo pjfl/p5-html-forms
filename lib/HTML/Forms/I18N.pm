@@ -24,6 +24,8 @@ sub maketext {
    return $out;
 }
 
+use namespace::autoclean;
+
 1;
 
 __END__

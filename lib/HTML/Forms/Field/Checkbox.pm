@@ -1,7 +1,6 @@
 package HTML::Forms::Field::Checkbox;
 
-use namespace::autoclean;
-
+use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -29,6 +28,8 @@ sub validate {
 
     return;
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

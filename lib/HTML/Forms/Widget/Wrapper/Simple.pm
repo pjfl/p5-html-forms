@@ -11,6 +11,8 @@ sub render {
    return $self->html;
 }
 
+use namespace::autoclean;
+
 1;
 
 __END__

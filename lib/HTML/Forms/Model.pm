@@ -1,7 +1,5 @@
 package HTML::Forms::Model;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE );
 use HTML::Forms::Types     qw( Str );
 use Scalar::Util           qw( blessed );
@@ -41,6 +39,8 @@ sub set_item_id { }
 sub update_model { }
 
 sub validate_model { }
+
+use namespace::autoclean;
 
 1;
 

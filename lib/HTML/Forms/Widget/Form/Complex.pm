@@ -18,6 +18,8 @@ sub _build_field_traits {
    return \@roles;
 }
 
+use namespace::autoclean;
+
 1;
 
 __END__

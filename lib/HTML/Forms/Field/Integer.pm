@@ -1,7 +1,6 @@
 package HTML::Forms::Field::Integer;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
+use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -36,6 +35,8 @@ apply( [
       },
    },
 ] );
+
+use namespace::autoclean -except => META;
 
 1;
 

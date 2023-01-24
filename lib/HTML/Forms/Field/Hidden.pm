@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Hidden;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE );
 use Moo;
 
@@ -14,6 +12,8 @@ has '+html5_type_attr' => default => 'hidden';
 has '+type_attr' => default => 'hidden';
 
 has '+widget' => default => 'Hidden';
+
+use namespace::autoclean;
 
 1;
 

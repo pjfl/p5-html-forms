@@ -1,8 +1,7 @@
 package HTML::Forms::Field::Text;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
-use HTML::Forms::Types qw( Int Undef );
+use HTML::Forms::Constants qw( META );
+use HTML::Forms::Types     qw( Int Undef );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -11,6 +10,8 @@ extends 'HTML::Forms::Field';
 has 'size' => is => 'lazy', isa => Int|Undef, default => 0;
 
 has '+widget' => default => 'Text';
+
+use namespace::autoclean -except => META;
 
 1;
 

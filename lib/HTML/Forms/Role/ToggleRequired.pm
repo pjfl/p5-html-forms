@@ -1,7 +1,5 @@
 package HTML::Forms::Role::ToggleRequired;
 
-use namespace::autoclean;
-
 use Moo::Role;
 
 around 'validate_form' => sub {
@@ -43,6 +41,8 @@ around 'validate_form' => sub {
 
    return;
 };
+
+use namespace::autoclean;
 
 1;
 

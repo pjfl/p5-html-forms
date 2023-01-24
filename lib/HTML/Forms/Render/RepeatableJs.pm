@@ -1,7 +1,5 @@
 package HTML::Forms::Render::RepeatableJs;
 
-use namespace::autoclean;
-
 use English                qw( -no_match_vars );
 use HTML::Forms::Constants qw( NUL );
 use JSON::MaybeXS          qw( encode_json );
@@ -29,6 +27,8 @@ sub render_repeatable_js {
 
    return sprintf $js, $html_str, $index_str, $level_str;
 }
+
+use namespace::autoclean;
 
 1;
 

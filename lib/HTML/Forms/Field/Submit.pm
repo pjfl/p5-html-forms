@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Submit;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE );
 use Moo;
 
@@ -10,6 +8,8 @@ extends 'HTML::Forms::Field::NoValue';
 has '+do_label' => default => FALSE;
 
 has '+widget' => default => 'Submit';
+
+use namespace::autoclean;
 
 1;
 

@@ -1,7 +1,6 @@
 package HTML::Forms::Role::Captcha;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
+use HTML::Forms::Constants qw( META );
 use Moo::Role;
 use HTML::Forms::Moo;
 
@@ -28,6 +27,8 @@ sub set_captcha {
 
    return $self->ctx->session( captcha => $captcha );
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

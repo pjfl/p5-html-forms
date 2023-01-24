@@ -1,7 +1,5 @@
 package HTML::Forms::Result;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HFs Str );
 use Moo;
@@ -69,6 +67,8 @@ sub validated {
 }
 
 sub value { shift->_get_value || {} }
+
+use namespace::autoclean;
 
 1;
 

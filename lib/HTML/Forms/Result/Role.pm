@@ -1,7 +1,5 @@
 package HTML::Forms::Result::Role;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE );
 use HTML::Forms::Types     qw( ArrayRef HFsFieldResult Str );
 use Unexpected::Functions  qw( throw );
@@ -126,6 +124,8 @@ sub get_result {
 sub is_valid { shift->validated }
 
 sub validated { $_[ 0 ]->has_input && !$_[ 0 ]->has_error_results }
+
+use namespace::autoclean;
 
 1;
 

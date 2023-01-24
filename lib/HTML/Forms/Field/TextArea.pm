@@ -1,7 +1,5 @@
 package HTML::Forms::Field::TextArea;
 
-use namespace::autoclean;
-
 use HTML::Forms::Types qw( Int );
 use Moo;
 
@@ -16,6 +14,8 @@ has '+widget' => default => 'Textarea';
 sub html_element {
    return 'textarea';
 }
+
+use namespace::autoclean;
 
 1;
 

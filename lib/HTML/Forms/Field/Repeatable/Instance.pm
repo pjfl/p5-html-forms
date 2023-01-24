@@ -1,8 +1,6 @@
 package HTML::Forms::Field::Repeatable::Instance;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
-use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Constants qw( FALSE META TRUE );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -31,6 +29,8 @@ sub build_tags {
 sub _build_html {
    return 'fill me in {index-1}';
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

@@ -1,7 +1,5 @@
 package HTML::Forms::Fields;
 
-use namespace::autoclean;
-
 use Class::Load            qw( load_optional_class );
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS FALSE META NUL TRUE );
@@ -726,6 +724,8 @@ sub _update_or_create {
 
    return $field;
 }
+
+use namespace::autoclean;
 
 1;
 

@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Boolean;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE TRUE );
 use Moo;
 
@@ -12,6 +10,8 @@ around 'value' => sub {
 
    return $orig->($self, @args) ? TRUE : FALSE;
 };
+
+use namespace::autoclean;
 
 1;
 

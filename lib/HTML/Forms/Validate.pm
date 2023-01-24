@@ -1,7 +1,5 @@
 package HTML::Forms::Validate;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE FALSE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef Int Str Undef );
 use HTML::Forms::Util      qw( get_meta );
@@ -323,6 +321,8 @@ sub _build_apply_list {
 }
 
 sub _inner_validate_field { }
+
+use namespace::autoclean;
 
 1;
 

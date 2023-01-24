@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Button;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( DOT FALSE NUL );
 use Moo;
 
@@ -30,6 +28,8 @@ sub _build_label {
 sub html_element {
    return 'button';
 }
+
+use namespace::autoclean;
 
 1;
 

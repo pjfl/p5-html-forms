@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Date;
 
-use namespace::autoclean;
-
 use DateTime;
 use DateTime::Format::Strptime;
 use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL TRUE );
@@ -192,6 +190,8 @@ sub _get_strf_format {
 
    return $format;
 }
+
+use namespace::autoclean;
 
 1;
 

@@ -1,7 +1,6 @@
 package HTML::Forms::Meta;
 
 use mro;
-use namespace::autoclean;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE );
 use HTML::Forms::Moo::Attribute;
@@ -128,6 +127,8 @@ sub linearised_isa {
 
    return map { $seen{ $_ }++; $_ } grep { !exists $seen{ $_ } } @target_isa;
 }
+
+use namespace::autoclean;
 
 1;
 

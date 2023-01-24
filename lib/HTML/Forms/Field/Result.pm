@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Result;
 
-use namespace::autoclean;
-
 use HTML::Forms::Types qw( Bool HFsField );
 use Moo;
 
@@ -52,5 +50,7 @@ sub peek {
 
    return $string;
 }
+
+use namespace::autoclean;
 
 1;

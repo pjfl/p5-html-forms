@@ -1,7 +1,5 @@
 package HTML::Forms::Field::Group;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( TRUE );
 use HTML::Forms::Types     qw( Str );
 use Moo;
@@ -23,6 +21,8 @@ sub _build_element_class {
 sub _build_wrapper_class {
    return [ 'compound' ];
 }
+
+use namespace::autoclean;
 
 1;
 

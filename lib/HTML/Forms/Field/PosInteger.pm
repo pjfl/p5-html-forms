@@ -1,7 +1,6 @@
 package HTML::Forms::Field::PosInteger;
 
-use namespace::autoclean -except => '_html_form_meta';
-
+use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -27,6 +26,8 @@ apply( [
       },
    },
 ] );
+
+use namespace::autoclean -except => META;
 
 1;
 

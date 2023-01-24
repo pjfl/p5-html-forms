@@ -1,11 +1,9 @@
 package HTML::Forms::Field;
 
-use namespace::autoclean -except => '_html_forms_meta';
-
 use Data::Clone            qw( data_clone );
 use Data::Dumper;
 use HTML::Entities         qw( encode_entities );
-use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS TRUE FALSE NUL );
+use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS TRUE FALSE META NUL );
 use HTML::Forms::Field::Result;
 use HTML::Forms::Types     qw( Bool CodeRef HashRef HFs HFsArrayRefStr
                                HFsFieldResult Int Str Undef );
@@ -917,6 +915,8 @@ sub _result_from_object {
    $result->_set_field_def( $self );
    return $result;
 }
+
+use namespace::autoclean -except => META;
 
 1;
 

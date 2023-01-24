@@ -1,7 +1,5 @@
 package HTML::Forms::Widget::ApplyRole;
 
-use namespace::autoclean;
-
 use Class::Load            qw( load_optional_class );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
 use HTML::Forms::Util      qw( cc_widget );
@@ -46,6 +44,8 @@ sub get_widget_role {
 
    return;
 }
+
+use namespace::autoclean;
 
 1;
 

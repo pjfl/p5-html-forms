@@ -1,7 +1,5 @@
 package HTML::Forms::Widget::Form::Simple;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
@@ -20,6 +18,8 @@ sub renderx {
 
    $self->render;
 }
+
+use namespace::autoclean;
 
 1;
 

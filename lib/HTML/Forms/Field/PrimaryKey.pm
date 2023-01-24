@@ -1,7 +1,5 @@
 package HTML::Forms::Field::PrimaryKey;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( Bool );
 use Moo;
@@ -28,6 +26,8 @@ sub BUILD {
 
    return;
 }
+
+use namespace::autoclean;
 
 1;
 

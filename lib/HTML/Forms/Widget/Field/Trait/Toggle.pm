@@ -1,7 +1,5 @@
 package HTML::Forms::Widget::Field::Trait::Toggle;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities );
@@ -102,7 +100,10 @@ sub clear_disabled_fields {
 }
 
 sub get_disabled_fields {
-   my ($self, $value) = @_; my @all_fields; my %seen = ();
+   my ($self, $value) = @_;
+
+   my @all_fields;
+   my %seen = ();
 
    for my $fields (values %{ $self->toggle }) {
       for my $field (@{ $fields }) {
@@ -126,7 +127,9 @@ sub get_disabled_fields {
 
 # Private methods
 sub _get_enabled {
-   my ($self, $value) = @_; my $toggle = $self->toggle;
+   my ($self, $value) = @_;
+
+   my $toggle = $self->toggle;
 
    return $toggle->{ $value } if $value && exists $toggle->{ $value };
 
@@ -151,6 +154,8 @@ sub _get_enabled {
 
    return $toggle->{-other} || [];
 }
+
+use namespace::autoclean;
 
 1;
 

@@ -1,7 +1,5 @@
 package HTML::Forms::Base;
 
-use namespace::autoclean;
-
 use HTML::Forms::Constants qw( FALSE );
 use Moo;
 
@@ -14,6 +12,8 @@ sub has_render_list {
 sub build_render_list {
    return [];
 }
+
+use namespace::autoclean;
 
 1;
 
