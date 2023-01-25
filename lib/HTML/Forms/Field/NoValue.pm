@@ -1,7 +1,8 @@
 package HTML::Forms::Field::NoValue;
 
-use HTML::Forms::Constants qw( NUL TRUE );
+use HTML::Forms::Constants qw( NUL META TRUE );
 use Moo;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
@@ -45,7 +46,7 @@ sub _result_from_object {
    return $result;
 }
 
-use namespace::autoclean;
+use namespace::autoclean -except => META;
 
 1;
 

@@ -1,35 +1,36 @@
-package HTML::Forms::Field::Repeatable::Instance;
+package HTML::Forms::Field::AddElement;
 
-use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS META TRUE );
+use HTML::Forms::Types     qw( Str );
+use Unexpected::Functions  qw( throw );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Compound';
+extends 'HTML::Forms::Field::Display';
 
-has '+do_label' => default => FALSE;
+has 'repeatable' => is => 'rw', isa => Str, required => TRUE;
 
 has '+do_wrapper' => default => TRUE;
 
-has '+no_value_if_empty' => default => TRUE;
+has '+value' => default => 'Add Element';
 
-sub BUILD {
-   my $self = shift;
+has '+widget' => default => 'RepeatableControl';
 
-   $self->add_wrapper_class( $self->parent->instance_wrapper_class )
-      unless $self->has_wrapper_class;
+around 'element_attributes' => sub {
+   my ($orig, $self, $result) = @_;
 
-   return;
-}
+   my $field = $self->parent->field($self->repeatable);
 
-sub build_tags {
-   return { wrapper => TRUE };
-}
+   throw 'Invalid repeatable name in field [_1]', [$self->name] unless $field;
 
-# TODO: Figure this out
-# Needs to render the "row" that AddElement will append to the control div
-sub _build_html {
-   return 'fill me in {index-1}';
-}
+   my $attr = $orig->($self, $result);
+
+   push @{$attr->{class}}, ('add_element', 'btn');
+   $attr->{'data-rep-id'} = $field->id;
+   $attr->{id} = $self->id;
+
+   return $attr;
+};
 
 use namespace::autoclean -except => META;
 
@@ -43,11 +44,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Repeatable::Instance - One-line description of the modules purpose
+HTML::Forms::Field::AddElement - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Repeatable::Instance;
+   use HTML::Forms::Field::AddElement;
    # Brief but working code examples
 
 =head1 Description
@@ -88,11 +89,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

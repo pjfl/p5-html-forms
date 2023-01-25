@@ -26,7 +26,7 @@ has 'attr' =>
 has 'build_render_list_method' =>
    is          => 'rw',
    isa         => CodeRef,
-   builder     => sub { default_build_render_list->( shift ) },
+   builder     => sub { shift->default_build_render_list },
    handles_via => 'Code',
    handles     => { build_render_list => 'execute_method', },
    lazy        => TRUE;

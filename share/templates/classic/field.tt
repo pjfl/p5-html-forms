@@ -69,7 +69,7 @@
 [% END -%]
 
 [% BLOCK image -%]
-  <img [% process_attrs( f.attributes ) -%] src="[% f.src %]" />
+  <img[% process_attrs( f.attributes ) -%] src="[% f.src %]" />
 [% END -%]
 
 [% BLOCK interval -%]
@@ -87,7 +87,7 @@
 [% END -%]
 
 [% BLOCK password -%]
-  <input type="password" name="[% f.html_name %]" id="[% f.id %]"
+  <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
     [%- process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
 [% END -%]
 
@@ -114,6 +114,13 @@
   [% END -%]
 [% END -%]
 
+[% BLOCK repeatable_control -%]
+[% wrapper_tag = f.get_tag( 'wrapper_tag' ) || 'div' -%]
+  <[% wrapper_tag%][% process_attrs( f.element_attributes ) %]>
+    [% localise( f.value ) | html %]
+  </[% wrapper_tag %]>
+[% END -%]
+
 [% BLOCK reset -%]
   <input type="reset" name="[% f.html_name %]" id="[% f.id %]"
     [%- process_attrs( f.attributes ) %] value="[% f.value | html %]" />
@@ -133,6 +140,11 @@
   </[% f.html_element %]>
 [% END -%]
 
+[% BLOCK span -%]
+  <span id="[% f.id %][% process_attrs( f.element_attributes ) %]">
+    [% f.value %]</span>
+[% END -%]
+
 [% BLOCK submit -%]
   <input type="submit" name="[% f.html_name %]" id="[% f.id %]"
     [%- process_attrs( f.attributes ) %] value="[% f.value | html %]" />
@@ -147,7 +159,7 @@
   <[% f.html_element %] name="[% f.html_name %]" id="[% f.id %]"
     [%- process_attrs( f.attributes ) -%] rows="[% f.rows %]" cols="[% f.cols %]">
     [% f.fif | html %]
-  </textarea>
+  </[% f.html_element %]>
 [% END -%]
 
 [% BLOCK upload -%]

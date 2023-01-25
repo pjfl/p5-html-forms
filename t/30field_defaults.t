@@ -292,11 +292,13 @@ is $form->field( 'foo' )->fif, 'foo_from_obj',
    has_field 'myarray' =>
       type         => 'Repeatable',
       do_wrapper   => 1,
-      setup_for_js => 0,
+      setup_for_js => 1,
       tags         => { controls_div => 1 };
    has_field 'myarray.one';
    has_field 'myarray.two' => type => 'Select';
    has_field 'myarray.three';
+   has_field 'myarray.four' => type => 'RmElement';
+   has_field 'add_another'  => type => 'AddElement', repeatable => 'myarray';
 
    sub default_myarray {
       my $self = shift;
@@ -357,5 +359,55 @@ my $exp_values = {
 
 is_deeply( $values, $exp_values, 'got expected values' );
 
+{
+   package Test::Form::Rep2;
+
+   use Moo;
+   use HTML::Forms::Moo;
+   extends 'HTML::Forms';
+
+   with 'HTML::Forms::Render::WithTT';
+
+   has_field 'user_name';
+   has_field 'occupation';
+   has_field 'employers' => type => 'Repeatable', num_extra => 1;
+   has_field 'employers.employer_id' => type => 'PrimaryKey';
+   has_field 'employers.name';
+   has_field 'employers.address';
+}
+
+$form = Test::Form::Rep2->new;
+
+my $unemployed_params = {
+   user_name  => 'No Employer',
+   occupation => 'Unemployed',
+   'employers.0.employer_id' => q(),
+   'employers.0.name'        => q(),
+   'employers.0.address'     => q()
+};
+
+$form->process($unemployed_params);
+
+ok $form->validated, 'User with empty employer validates';
+is_deeply $form->value, {
+   employers => [], user_name => 'No Employer', occupation => 'Unemployed'
+}, 'creates right value for empty repeatable';
+
+is_deeply $form->fif, $unemployed_params, 'right fif for empty repeatable';
+
+$form->field('employers')->add_extra;
+
+my $expected_fif = {
+   'employers.0.address'     => q(),
+   'employers.0.employer_id' => q(),
+   'employers.0.name'        => q(),
+   'employers.1.address'     => q(),
+   'employers.1.employer_id' => q(),
+   'employers.1.name'        => q(),
+   'occupation' => 'Unemployed',
+   'user_name'  => 'No Employer',
+};
+
+is_deeply $form->fif, $expected_fif, 'fif is correct with additional element';
 
 done_testing;

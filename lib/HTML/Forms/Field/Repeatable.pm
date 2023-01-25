@@ -46,6 +46,7 @@ has 'setup_for_js'   => is => 'rw', isa => Bool;
 
 has '+widget'        => default => 'Repeatable';
 
+# Public methods
 sub add_extra {
    my ($self, $count) = @_;
 

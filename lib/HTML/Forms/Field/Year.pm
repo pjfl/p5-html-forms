@@ -1,35 +1,20 @@
-package HTML::Forms::Field::Repeatable::Instance;
+package HTML::Forms::Field::Year;
 
-use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Compound';
+extends 'HTML::Forms::Field::IntRange';
 
-has '+do_label' => default => FALSE;
+has '+range_start' => default => sub {
+   my $year = (localtime)[5] + 1900 - 5;
+   return $year;
+};
 
-has '+do_wrapper' => default => TRUE;
-
-has '+no_value_if_empty' => default => TRUE;
-
-sub BUILD {
-   my $self = shift;
-
-   $self->add_wrapper_class( $self->parent->instance_wrapper_class )
-      unless $self->has_wrapper_class;
-
-   return;
-}
-
-sub build_tags {
-   return { wrapper => TRUE };
-}
-
-# TODO: Figure this out
-# Needs to render the "row" that AddElement will append to the control div
-sub _build_html {
-   return 'fill me in {index-1}';
-}
+has '+range_end' => default => sub {
+   my $year = (localtime)[5] + 1900 + 10;
+   return $year;
+};
 
 use namespace::autoclean -except => META;
 
@@ -43,11 +28,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Repeatable::Instance - One-line description of the modules purpose
+HTML::Forms::Field::Year - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Repeatable::Instance;
+   use HTML::Forms::Field::Year;
    # Brief but working code examples
 
 =head1 Description
@@ -88,11 +73,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

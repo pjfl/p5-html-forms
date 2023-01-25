@@ -1,34 +1,44 @@
-package HTML::Forms::Field::Repeatable::Instance;
+package HTML::Forms::Field::Duration;
 
-use HTML::Forms::Constants qw( FALSE META TRUE );
+use DateTime;
+use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
-has '+do_label' => default => FALSE;
+our $class_messages = {
+   'duration_invalid' => 'Invalid value for [_1]: [_2]',
+};
 
-has '+do_wrapper' => default => TRUE;
-
-has '+no_value_if_empty' => default => TRUE;
-
-sub BUILD {
+sub get_class_messages {
    my $self = shift;
 
-   $self->add_wrapper_class( $self->parent->instance_wrapper_class )
-      unless $self->has_wrapper_class;
+   return { %{ $self->next::method }, %{ $class_messages  } };
+}
 
+sub validate {
+   my $self = shift;
+
+   my @dur_parms;
+
+   for my $child ($self->all_fields) {
+      unless ($child->has_value && $child->value =~ m{ \A \d+ \z }mx) {
+         $self->add_error(
+            $self->get_message('duration_invalid'),
+            $self->loc_label,
+            $child->loc_label
+         );
+         next;
+      }
+
+      push @dur_parms, ($child->accessor => $child->value);
+   }
+
+   my $duration = DateTime::Duration->(@dur_parms);
+
+   $self->_set_value($duration);
    return;
-}
-
-sub build_tags {
-   return { wrapper => TRUE };
-}
-
-# TODO: Figure this out
-# Needs to render the "row" that AddElement will append to the control div
-sub _build_html {
-   return 'fill me in {index-1}';
 }
 
 use namespace::autoclean -except => META;
@@ -43,11 +53,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Repeatable::Instance - One-line description of the modules purpose
+HTML::Forms::Field::Duration - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Repeatable::Instance;
+   use HTML::Forms::Field::Duration;
    # Brief but working code examples
 
 =head1 Description
@@ -88,11 +98,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

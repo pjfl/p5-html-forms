@@ -1,34 +1,39 @@
-package HTML::Forms::Field::Repeatable::Instance;
+package HTML::Forms::Field::IntRange;
 
-use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS META );
+use HTML::Forms::Types     qw( Str );
+use Unexpected::Functions  qw( throw );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Compound';
+extends 'HTML::Forms::Field::Select';
 
-has '+do_label' => default => FALSE;
+has 'label_format' => is => 'rw', isa => Str, default => '%d';
 
-has '+do_wrapper' => default => TRUE;
+has '+range_start' => default => 1;
 
-has '+no_value_if_empty' => default => TRUE;
+has '+range_end' => default => 10;
 
-sub BUILD {
-   my $self = shift;
+sub build_options {
+   my $self  = shift;
+   my $start = $self->range_start;
+   my $end   = $self->range_end;
+   my $bind  = ['range_start', 'range_end'];
 
-   $self->add_wrapper_class( $self->parent->instance_wrapper_class )
-      unless $self->has_wrapper_class;
+   for ($start, $end) {
+      throw 'Both [_1] and [_2] must be defined', $bind unless defined $_;
+      throw 'Integer ranges must be integers' unless m{ \A \d+ \z }mx;
+   }
 
-   return;
-}
+   throw '[_1] must be less than [_2]', $bind unless $start < $end;
 
-sub build_tags {
-   return { wrapper => TRUE };
-}
+   my $format = $self->label_format;
 
-# TODO: Figure this out
-# Needs to render the "row" that AddElement will append to the control div
-sub _build_html {
-   return 'fill me in {index-1}';
+   throw 'IntRange needs [_1]', ['label_format'] unless $format;
+
+   return [
+      map { { label => $_, value => sprintf $format, $_ } } $start .. $end
+   ];
 }
 
 use namespace::autoclean -except => META;
@@ -43,11 +48,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Repeatable::Instance - One-line description of the modules purpose
+HTML::Forms::Field::IntRange - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Repeatable::Instance;
+   use HTML::Forms::Field::IntRange;
    # Brief but working code examples
 
 =head1 Description
@@ -88,11 +93,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>
