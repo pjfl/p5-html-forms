@@ -289,7 +289,7 @@ sub _apply_actions {
 }
 
 sub _build_apply_list {
-   my $self   = shift;
+   my $self = shift;
    my @apply_list;
 
    return unless get_meta($self);

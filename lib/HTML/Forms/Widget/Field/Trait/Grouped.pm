@@ -1,15 +1,10 @@
-package HTML::Forms::Field::Submit;
+package HTML::Forms::Widget::Field::Trait::Grouped;
 
-use HTML::Forms::Constants qw( FALSE );
-use Moo;
+use HTML::Forms::Constants qw( NUL );
+use HTML::Forms::Types     qw( Str );
+use Moo::Role;
 
-extends 'HTML::Forms::Field::NoValue';
-
-has '+do_label' => default => FALSE;
-
-has '+widget' => default => 'Submit';
-
-has '+wrapper_class' => default => 'input-button';
+has 'field_group' => is => 'rw', isa => Str, default => NUL;
 
 use namespace::autoclean;
 
@@ -23,11 +18,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Submit - One-line description of the modules purpose
+HTML::Forms::Widget::Field::Trait::Grouped - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Submit;
+   use HTML::Forms::Widget::Field::Trait::Grouped;
    # Brief but working code examples
 
 =head1 Description
@@ -68,11 +63,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

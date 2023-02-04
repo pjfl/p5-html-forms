@@ -1,0 +1,18 @@
+[% PROCESS classic/field.tt -%]
+[% PROCESS classic/wrapper.tt -%]
+
+[% BLOCK render_field -%]
+[%   WRAPPER "wrapper_${render_f.uwrapper}" f=render_f %]
+  [%   PROCESS "${render_f.uwidget}" f=render_f %]
+[%   END -%]
+[% END -%]
+
+[% IF multiple -%]
+[%   WRAPPER "wrapper_${field.uwrapper}" f=field %]
+[%     FOR afield IN field.sorted_fields -%]
+[%       PROCESS render_field render_f=afield %]
+[%     END -%]
+[%   END -%]
+[% ELSE -%]
+[%   PROCESS render_field render_f=field %]
+[% END -%]

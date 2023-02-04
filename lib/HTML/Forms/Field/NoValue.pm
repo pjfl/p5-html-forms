@@ -1,10 +1,13 @@
 package HTML::Forms::Field::NoValue;
 
 use HTML::Forms::Constants qw( NUL META TRUE );
+use HTML::Forms::Types     qw( Str );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
+
+has 'html' => is => 'rw', isa => Str, default => NUL;
 
 has '+noupdate' => default => TRUE;
 
@@ -13,7 +16,7 @@ has 'value'  =>
    clearer   => 'clear_value',
    predicate => 'has_value';
 
-has '+widget' => default => NUL;
+has '+widget' => default => 'NoValue';
 
 sub fif { }
 

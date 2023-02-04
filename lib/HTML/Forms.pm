@@ -1,10 +1,11 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 5 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 6 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
+use HTML::Forms::Params;
 use HTML::Forms::Result;
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField HFsResult
@@ -59,12 +60,15 @@ Defines the following attributes;
 
 has [ 'did_init_obj',
       'do_form_wrapper',
+      'do_label_colon',
+      'do_label_right',
       'processed',
       'use_init_obj_when_no_accessor_in_item',
       'verbose' ] => is  => 'rw', isa => Bool, default => FALSE;
 
 has [ 'html_prefix',
       'is_html5',
+      'messages_before_start',
       'no_preload',
       'no_widgets',
       'quote_bind_value' ] => is => 'ro', isa => Bool, default => FALSE;
@@ -110,12 +114,19 @@ has 'dependency' => is => 'rw', isa => ArrayRef;
 
 has 'enctype' => is  => 'rw', isa => Str;
 
+has 'error_message' =>
+   is        => 'rw',
+   isa       => Str,
+   clearer   => 'clear_error_message',
+   predicate => 'has_error_message';
+
 has 'field_traits' =>
    is          => 'lazy',
    isa         => ArrayRef,
    builder     => sub { [] },
    handles_via => 'Array',
    handles     => {
+      add_field_trait  => 'push',
       has_field_traits => 'count',
    };
 
@@ -193,6 +204,7 @@ has 'index'    =>
 
 has 'info_message' =>
    is        => 'rw',
+   isa       => Str,
    clearer   => 'clear_info_message',
    predicate => 'has_info_message';
 
@@ -244,15 +256,10 @@ has 'params'   =>
       has_params   => 'count',
       set_param    => 'set',
    },
+   lazy        => TRUE,
    trigger     => sub { shift->_munge_params( @_ ) };
 
 has 'params_args' => is => 'ro', isa => ArrayRef, default => sub { [] };
-
-has 'params_class' =>
-   is      => 'ro',
-   isa     => LoadableClass,
-   coerce  => TRUE,
-   default => 'HTML::Forms::Params';
 
 has 'posted' =>
    is        => 'rw',
@@ -297,6 +304,14 @@ has 'result' =>
    writer    => '_set_result';
 
 has 'style' => is  => 'rw', isa => Str;
+
+has 'success_message' =>
+   is        => 'rw',
+   isa       => Str,
+   clearer   => 'clear_success_message',
+   predicate => 'has_success_message';
+
+has 'title' => is => 'ro', isa => Str;
 
 has 'update_field_list' =>
    is          => 'rw',
@@ -548,6 +563,7 @@ sub clear {
    $self->clear_use_defaults_over_obj;
    $self->clear_use_init_obj_over_item;
    $self->clear_no_update;
+   $self->clear_error_message;
    $self->clear_info_message;
    $self->clear_for_js;
    return;
@@ -653,9 +669,9 @@ sub localise {
 sub new_with_traits {
    my ($class, %args) = @_;
 
-   $class = blessed $class if is_blessed_ref $class;
+   my $traits = delete $args{traits} || [];
 
-   my $traits = delete $args{traits} // [];
+   $class = blessed $class if is_blessed_ref $class;
 
    $class = Moo::Role->create_class_with_roles($class, @{ $traits })
       if scalar @{ $traits };
@@ -844,8 +860,8 @@ sub _init_result {
 sub _munge_params {
    my ($self, $params, $attr) = @_;
 
-   my $_fix_params = $self->params_class->new(@{ $self->params_args || [] });
-   my $new_params = $_fix_params->expand_hash($params);
+   my $_fix_params = HTML::Forms::Params->new(@{ $self->params_args || [] });
+   my $new_params  = $_fix_params->expand_hash($params);
 
    $new_params = $new_params->{$self->name} if $self->html_prefix;
 

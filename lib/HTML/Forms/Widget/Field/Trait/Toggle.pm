@@ -52,6 +52,14 @@ has 'toggle_event' =>
    predicate => 'has_toggle_event',
    writer    => '_toggle_event';
 
+after 'after_build' => sub {
+   my $self = shift;
+
+   $self->add_element_class( $self->toggle_class ) if $self->has_toggle;
+
+   return;
+};
+
 around '_build_element_attr' => sub {
    my ($orig, $self) = @_;
 
@@ -72,14 +80,6 @@ before 'validate' => sub {
 };
 
 # Public methods
-sub BUILD {
-   my $self = shift;
-
-   $self->add_element_class( $self->toggle_class ) if $self->has_toggle;
-
-   return;
-}
-
 sub clear_disabled_fields {
    my $self = shift;
 

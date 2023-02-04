@@ -1,15 +1,27 @@
-package HTML::Forms::Field::Submit;
+package HTML::Forms::Widget::Field::Trait::Label;
 
-use HTML::Forms::Constants qw( FALSE );
-use Moo;
+use HTML::Forms::Constants qw( COLON FALSE SPC TRUE );
+use Moo::Role;
 
-extends 'HTML::Forms::Field::NoValue';
+requires qw( form );
 
-has '+do_label' => default => FALSE;
+after 'after_build' => sub {
+   my $self = shift;
+   my $form = $self->form;
 
-has '+widget' => default => 'Submit';
+   if ($form && $form->do_label_right) {
+      $self->merge_tags({ label_right => TRUE });
+   }
 
-has '+wrapper_class' => default => 'input-button';
+   if ($form && $form->do_label_colon) {
+      if ($self->get_tag('label_right')) {
+          $self->merge_tags({ label_before => COLON . SPC })
+      }
+      else { $self->merge_tags({ label_after => COLON }) }
+   }
+
+   return;
+};
 
 use namespace::autoclean;
 
@@ -23,11 +35,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Submit - One-line description of the modules purpose
+HTML::Forms::Widget::Field::Trait::Label - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Submit;
+   use HTML::Forms::Widget::Field::Trait::Label;
    # Brief but working code examples
 
 =head1 Description
@@ -68,11 +80,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

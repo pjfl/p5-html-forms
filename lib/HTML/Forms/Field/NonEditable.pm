@@ -1,12 +1,16 @@
 package HTML::Forms::Field::NonEditable;
 
-use HTML::Forms::Constants qw( META );
+use HTML::Forms::Constants qw( FALSE META );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::NoValue';
 
+has '+do_label' => default => FALSE;
+
 has '+widget' => default => 'Span';
+
+has '+wrapper_class' => default => 'input-immutable';
 
 use namespace::autoclean -except => META;
 

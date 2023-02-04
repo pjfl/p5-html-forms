@@ -1,6 +1,7 @@
 package HTML::Forms::Role::Captcha;
 
 use HTML::Forms::Constants qw( META );
+use HTML::Forms::Types     qw( Str );
 use Moo::Role;
 use HTML::Forms::Moo;
 
@@ -8,9 +9,10 @@ requires 'ctx';
 
 has_field 'captcha' => type => 'Captcha', label => 'Verification';
 
-sub captcha_image_url {
-   return '/captcha/image';
-}
+has 'captcha_image_url' =>
+   is      => 'lazy',
+   isa     => Str,
+   default => '/captcha/image';
 
 sub get_captcha {
    my $self = shift;

@@ -7,7 +7,9 @@ use Data::Clone            qw( clone );
 use DateTime::Duration;
 use HTML::Entities         qw( );
 use HTML::Forms::Constants qw( TRUE FALSE META NUL SPC );
-use Ref::Util              qw( is_arrayref is_blessed_ref is_hashref );
+use Ref::Util              qw( is_arrayref is_blessed_ref
+                               is_coderef is_hashref );
+use Scalar::Util           qw( blessed );
 
 our @EXPORT = qw( cc_widget convert_full_name duration_to_string
                   encode_only_entities get_meta has_some_value inflate_interval
@@ -140,10 +142,11 @@ sub encode_only_entities {
 }
 
 sub get_meta {
-   my $proto  = shift;
+   my $self   = shift;
+   my $class  = blessed $self || $self;
    my $method = META;
 
-   return $proto->can($method) ? $proto->$method : undef;
+   return $class->can($method) ? $class->$method : undef;
 }
 
 sub has_some_value {
@@ -173,6 +176,9 @@ sub has_some_value {
 
 sub inflate_interval {
    my $interval = shift;
+
+   $interval //= NUL;
+
    my @parts    = $interval =~ m{ (\d+ \s* \w+) }gmx;
    my %duration;
 
@@ -204,7 +210,7 @@ sub merge ($$) {
 
    my $lefttype  = is_hashref  $left  ? 'HASH'
                  : is_arrayref $left  ? 'ARRAY' : 'SCALAR';
-   my $righttype = is hashref  $right ? 'HASH'
+   my $righttype = is_hashref  $right ? 'HASH'
                  : is_arrayref $right ? 'ARRAY' : 'SCALAR';
 
    $left  = clone( $left );
@@ -234,7 +240,9 @@ sub process_attrs {
          else { $value = $attrs->{ $attr } }
       }
 
-      push @use_attrs, sprintf '%s="%s"', $attr, $value;
+      my $qc = $attr =~ m{ \A data\- }mx ? "'" : '"';
+
+      push @use_attrs, sprintf '%s=%s%s%s', $attr, $qc, $value, $qc;
    }
 
    my $output = join SPC, @use_attrs;

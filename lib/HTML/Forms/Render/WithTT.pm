@@ -1,7 +1,7 @@
 package HTML::Forms::Render::WithTT;
 
 use File::ShareDir;
-use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE SPC );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE TT_THEME SPC );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str Template );
 use HTML::Forms::Util      qw( process_attrs );
 use Scalar::Util           qw( weaken );
@@ -65,10 +65,27 @@ has 'tt_options' =>
    builder => sub { { TRIM => TRUE } },
    lazy    => TRUE;
 
+has 'tt_theme' =>
+   is      => 'rw',
+   isa     => Str,
+   builder => sub {
+      my $self  = shift;
+      my $theme = TT_THEME;
+
+      $theme = $self->default_form_class if $self->can('default_form_class');
+
+      return $theme;
+   },
+   lazy    => TRUE;
+
 has 'tt_template' =>
    is      => 'rw',
    isa     => Str,
-   builder => sub { 'classic/form.tt' },
+   builder => sub {
+      my $self = shift;
+
+      return $self->tt_theme . '/form.tt';
+   },
    lazy    => TRUE;
 
 has 'tt_vars' =>

@@ -1,14 +1,14 @@
 package HTML::Forms::Field::Interval;
 
-use HTML::Forms::Constants qw( META SPC TRUE );
-use HTML::Forms::Types     qw( ArrayRef Int Str Undef );
+use English                qw( -no_match_vars );
+use HTML::Forms::Constants qw( META NUL SPC TRUE );
+use HTML::Forms::Types     qw( ArrayRef HFsField Int Str Undef );
 use HTML::Forms::Util      qw( interval_to_string get_meta quote_single );
+use HTML::Forms::Field::Result;
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Hidden';
-with    'HTML::Forms::Fields';
-with    'HTML::Forms::InitResult';
 with    'HTML::Forms::Widget::Field::Trait::Toggle';
 
 my $DEFAULT_INTERVALS = [
@@ -35,6 +35,11 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
+has 'javascript' =>
+   is      => 'ro',
+   isa     => Str,
+   default => do { local $RS = undef; <DATA> };
+
 has 'period_class' =>
    is      => 'ro',
    isa     => Str,
@@ -48,39 +53,76 @@ has 'unit_class' =>
 has 'update_js_method' =>
    is      => 'ro',
    isa     => Str,
-   default => 'Util.updateInterval';
+   default => 'updateInterval';
 
 has '+do_label' => default => TRUE;
 
 has '+widget'   => default => 'Interval';
 
-sub BUILD {
-   my $self = shift;
-   my $meta = get_meta($self);
+has '+wrapper_class' => default => 'input-interval';
 
-   $self->_toggle_event('onchange');
-   $meta->add_to_field_list({
-      name          => 'period',
-      default       => $self->default_period,
-      element_attr  => {
-         javascript => $self->update_js('period'),
-         $self->toggle_config_key => $self->toggle_config_encoded,
-      },
-      element_class => $self->toggle_class . SPC . $self->period_class,
-      options       => $self->interval_options,
-      type          => 'Select'
-   });
-   $meta->add_to_field_list({
-      name          => 'unit',
-      default       => $self->default_unit,
-      element_attr  => { javascript => $self->update_js('unit'), size => 4, },
-      element_class => $self->unit_class,
-      type          => 'Integer'
-   });
-   $self->build_fields;
+has 'period' =>
+   is      => 'lazy',
+   isa     => HFsField,
+   builder => sub {
+      my $self    = shift;
+      my $class   = 'HTML::Forms::Field::Select';
+      my $options = {
+         default       => $self->default_period,
+         element_attr  => {
+            javascript => $self->update_js,
+            $self->toggle_config_key => $self->toggle_config_encoded,
+         },
+         element_class => $self->toggle_class . SPC . $self->period_class,
+         options       => $self->interval_options,
+         name          => $self->name . '-period',
+      };
+      my $field   = $self->parent->new_field_with_traits($class, $options);
+      my $result  = HTML::Forms::Field::Result->new(
+         name   => $self->name . '-period',
+         parent => $self->result
+      );
 
-   return;
-}
+      $result = $field->_result_from_object( $result, $self->default_period );
+      $self->result->add_result( $result );
+      return $field;
+   };
+
+has 'unit' =>
+   is      => 'lazy',
+   isa     => HFsField,
+   builder => sub {
+      my $self    = shift;
+      my $class   = 'HTML::Forms::Field::Integer';
+      my $options = {
+         default       => $self->default_unit,
+         element_attr  => {
+            javascript => $self->update_js,
+            size       => 4,
+         },
+         element_class => $self->unit_class,
+         name          => $self->name . '-unit',
+      };
+      my $field   = $self->parent->new_field_with_traits($class, $options);
+      my $result  = HTML::Forms::Field::Result->new(
+         name   => $self->name . '-unit',
+         parent => $self->result
+      );
+
+      $result = $field->_result_from_object( $result, $self->default_unit );
+      $self->result->add_result( $result );
+      return $field;
+   };
+
+around 'get_disabled_fields' => sub {
+   my ($orig, $self, $value) = @_;
+
+   $value //= $self->input;
+
+   my ($period) = $value =~ m{ \A \d+ \s* (\w+?) s? \z }mx;
+
+   return $orig->($self, $period);
+};
 
 sub default_period {
    my $self     = shift;
@@ -99,23 +141,13 @@ sub default_unit {
 }
 
 sub update_js {
-   my ($self, $field_name, $event) = @_;
+   my ($self, $event) = @_;
 
    $event //= 'onchange';
 
-   return sprintf '%s="%s(%s, %s)"', $event, $self->update_js_method,
-      quote_single($self->id), quote_single($field_name);
+   return sprintf '%s="%s(%s)"', $event, $self->update_js_method,
+      quote_single($self->id);
 }
-
-around 'get_disabled_fields' => sub {
-   my ($orig, $self, $value) = @_;
-
-   $value //= $self->input;
-
-   my ($period) = $value =~ m{ \A \d+ \s* (\w+?) s? \z }mx;
-
-   return $orig->($self, $period);
-};
 
 sub validate {
    my $self = shift;
@@ -130,8 +162,6 @@ sub validate {
 use namespace::autoclean -except => META;
 
 1;
-
-__END__
 
 =pod
 
@@ -207,3 +237,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # tab-width: 3
 # End:
 # vim: expandtab shiftwidth=3:
+
+__DATA__
+<script>
+   function updateInterval(field) {
+      var interval = document.getElementById(field + '-unit').value + ' '
+                   + document.getElementById(field + '-period').value + 's';
+      document.getElementById(field).value = interval;
+   }
+</script>

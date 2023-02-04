@@ -1,6 +1,6 @@
 package HTML::Forms::Field::PasswordConf;
 
-use HTML::Forms::Constants qw( META TRUE );
+use HTML::Forms::Constants qw( META NUL TRUE );
 use HTML::Forms::Types     qw( Str );
 use Moo;
 use HTML::Forms::Moo;
@@ -19,7 +19,9 @@ has '+required' => default => TRUE;
 
 has '+type_attr' => default => 'password';
 
-has '+widget' => 'Password';
+has '+widget' => default => 'Password';
+
+has '+wrapper_class' => default => 'input-password';
 
 our $class_messages = {
    required => 'Please enter a password confirmation',

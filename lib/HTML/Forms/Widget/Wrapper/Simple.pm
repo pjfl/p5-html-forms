@@ -1,14 +1,39 @@
 package HTML::Forms::Widget::Wrapper::Simple;
 
-use HTML::Forms::Types qw( Str );
+use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Util      qw( process_attrs );
+use Scalar::Util           qw( weaken );
 use Moo::Role;
 
-has 'html' => is => 'lazy', isa => Str;
+with 'HTML::Forms::Render::WithTT';
 
-sub render {
+# Private methods
+sub _build_default_tt_vars {
    my $self = shift;
 
-   return $self->html;
+   weaken $self;
+
+   my $attr = {
+      field         => $self,
+      get_tag       => sub { $self->get_tag( @_ ) },
+      localise      => sub { @_ },
+      multiple      => $self->can('fields') ? TRUE : FALSE,
+      process_attrs => \&process_attrs,
+   };
+
+   if (my $form = $self->form) {
+      weaken $form;
+      $attr->{form} = $form;
+      $attr->{localise} = sub { $form->localise( @_ ) };
+   }
+
+   return $attr;
+}
+
+sub _build_tt_template {
+   my $self = shift;
+
+   return $self->tt_theme . '/fields.tt';
 }
 
 use namespace::autoclean;

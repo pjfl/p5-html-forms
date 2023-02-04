@@ -11,6 +11,8 @@ has 'size' => is => 'lazy', isa => Int|Undef, default => 0;
 
 has '+widget' => default => 'Text';
 
+has '+wrapper_class' => default => 'input-text';
+
 use namespace::autoclean -except => META;
 
 1;

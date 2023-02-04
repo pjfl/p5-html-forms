@@ -5,8 +5,11 @@ use parent 'Exporter::Tiny';
 
 use Unexpected;
 
-our @EXPORT = qw( COMMA DOT EXCEPTION_CLASS FALSE META NUL SPC TRUE );
+our @EXPORT = qw( BANG COLON COMMA DOT EXCEPTION_CLASS FALSE META
+                  NUL SPC TRUE TT_THEME );
 
+sub BANG     () { q(!) }
+sub COLON    () { q(:) }
 sub COMMA    () { q(,) }
 sub DOT      () { q(.) }
 sub FALSE    () { 0    }
@@ -14,6 +17,7 @@ sub META     () { '_html_forms_meta' }
 sub NUL      () { q()  }
 sub SPC      () { q( ) }
 sub TRUE     () { 1    }
+sub TT_THEME () { 'classic' }
 
 sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
 

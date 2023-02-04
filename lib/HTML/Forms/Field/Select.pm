@@ -1,7 +1,7 @@
 package HTML::Forms::Field::Select;
 
 use HTML::Entities         qw( encode_entities );
-use HTML::Forms::Constants qw( FALSE META NUL TRUE );
+use HTML::Forms::Constants qw( DOT FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( Bool CodeRef HFsSelectOptions
                                Int Num Str Undef );
 use HTML::Forms::Util      qw( convert_full_name get_meta );
@@ -13,7 +13,11 @@ use Sub::HandlesVia;
 
 extends 'HTML::Forms::Field';
 
+has 'auto_widget_size' => is => 'ro', isa => Int, default => 0;
+
 has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;
+
+has 'empty_select' => is => 'rw', isa => Str;
 
 has 'has_many' => is => 'rw', isa => Str;
 
@@ -78,6 +82,8 @@ has '+input_without_param' =>
 
 has '+widget' => default => 'Select';
 
+has '+wrapper_class' => default => 'input-select';
+
 our $class_messages = {
    'select_invalid_value' => '[_1] is not a valid value',
    'select_not_multiple'  => 'This field does not take multiple values',
@@ -114,6 +120,7 @@ before 'value' => sub {
 sub BUILD {
    my $self = shift;
 
+   $self->select_widget;
    $self->build_options_method;
 
    if ($self->options && $self->has_options) {
@@ -185,6 +192,37 @@ sub get_class_messages {
 
 sub html_element {
    return 'select';
+}
+
+sub next_option_id {
+   my $self = shift;
+   my $id   = $self->id . DOT . $self->options_index;
+
+   $self->inc_options_index;
+   return $id;
+}
+
+sub select_widget {
+    my $self = shift;
+    my $size = $self->auto_widget_size;
+
+    return unless $self->widget eq 'Select' && $size;
+    return if scalar @{$self->options || []} > $size;
+
+    $self->hide_info(TRUE);
+
+    if ($self->multiple) {
+       $self->widget('CheckboxGroup');
+       $self->html5_type_attr('checkbox');
+       $self->type_attr('checkbox');
+    }
+    else {
+       $self->widget('RadioGroup');
+       $self->html5_type_attr('radio');
+       $self->type_attr('radio');
+    }
+
+    return;
 }
 
 sub _build_deflate_method {
@@ -269,11 +307,9 @@ sub _load_options {
 
    my $opts = is_arrayref $options[0] ? $options[0] : \@options;
 
-   if (is_hashref $opts->[0]) { $self->default_from_options($opts) }
+   $self->default_from_options($opts) if is_hashref $opts->[0];
 
-   $opts = $self->options($opts);
-
-   if ($opts) {
+   if ($opts = $self->options($opts)) {
       $opts = $self->sort_options($opts) if $self->has_sort_options_method;
       $self->options($opts);
    }

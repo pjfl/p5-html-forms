@@ -10,14 +10,14 @@ sub render_repeatable_js {
 
    return NUL unless $self->has_for_js;
 
-   my $for_js = $self->for_js;
-
    my (%html, %index, %level);
 
-   for my $key (keys %{$for_js}) {
-      $html{$key}  = $for_js->{$key}->{html};
-      $index{$key} = $for_js->{$key}->{index};
-      $level{$key} = $for_js->{$key}->{level};
+   for my $name (keys %{$self->for_js}) {
+      my $field = $self->for_js->{$name};
+
+      $html{$name}  = $field->{html};
+      $index{$name} = $field->{index};
+      $level{$name} = $field->{level};
    }
 
    my $html_str  = encode_json( \%html );
@@ -25,7 +25,7 @@ sub render_repeatable_js {
    my $level_str = encode_json( \%level );
    my $js        = do { local $RS = undef; <DATA> };
 
-   return sprintf $js, $html_str, $index_str, $level_str;
+   return sprintf "${js}", $html_str, $index_str, $level_str;
 }
 
 use namespace::autoclean;

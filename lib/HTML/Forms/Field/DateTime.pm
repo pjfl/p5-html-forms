@@ -1,7 +1,7 @@
 package HTML::Forms::Field::DateTime;
 
 use DateTime;
-use HTML::Forms::Constants qw( META );
+use HTML::Forms::Constants qw( META TRUE );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
 use Moo;
@@ -9,18 +9,22 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
-has '+widget' => default => 'Compound';
+has '+do_label' => default => TRUE;
+
+has '+do_wrapper' => default => TRUE;
 
 has '+inflate_default_method' => default => sub { \&datetime_inflate };
+
+has '+wrapper_class' => default => 'input-datetime';
 
 our $class_messages = {
    'datetime_invalid' => 'Not a valid DateTime',
 };
 
 sub datetime_inflate {
-   my ($self, $value) = @;
+   my ($self, $value) = @_;
 
-   return $value unlesss blessed $value eq 'DateTime';
+   return $value unless blessed $value eq 'DateTime';
 
    my %hash;
 
@@ -46,7 +50,7 @@ sub validate {
 
    for my $child ($self->all_fields) {
       next unless $child->value;
-      push @dt_params, ($child->accessor => $child->value);
+      push @dt_parms, ($child->accessor => $child->value);
    }
 
    my $dt;

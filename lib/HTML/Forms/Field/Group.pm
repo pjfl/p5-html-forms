@@ -1,6 +1,6 @@
 package HTML::Forms::Field::Group;
 
-use HTML::Forms::Constants qw( TRUE );
+use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( Str );
 use Moo;
 
@@ -8,18 +8,18 @@ extends 'HTML::Forms::Field::Compound';
 
 has 'description' => is => 'ro', isa => Str, predicate => 'has_description';
 
+has '+do_wrapper' => default => TRUE;
+
 has '+noupdate' => default => TRUE;
 
 has '+widget' => default => 'Group';
 
-has '+widget_wrapper' => default => 'none';
-
 sub _build_element_class {
-   return [ 'description' ];
+   return [ 'input-display input-field' ];
 }
 
 sub _build_wrapper_class {
-   return [ 'compound' ];
+   return [ 'input-compound' ];
 }
 
 use namespace::autoclean;

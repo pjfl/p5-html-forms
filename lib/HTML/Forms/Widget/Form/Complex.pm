@@ -1,28 +1,22 @@
 package HTML::Forms::Widget::Form::Complex;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use HTML::Forms::Types     qw( ArrayRef );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
-has 'default_field_traits' =>
-   is      => 'lazy',
-   isa     => ArrayRef,
-   builder => sub { [ qw( Toggle ) ] };
+sub renderx {
+   my ($self, %args) = @_;
 
-sub _build_field_traits {
-   my $self  = shift;
-   my @roles = ();
+   if (keys %args > 0) {
+      while (my ($key, $value) = each %args) {
+         throw "Invalid attribute '${key}' passed to renderx"
+            unless $self->can( $key );
 
-   for my $role_name (@{ $self->default_field_traits }) {
-      my $role = $self->get_widget_role( "Trait::${role_name}", 'Field' );
-
-      throw '[_1] widget [_2] not found', [ 'Field', $role_name ] unless $role;
-
-      push @roles, $role;
+         $self->$key( $value );
+      }
    }
 
-   return \@roles;
+   $self->render;
 }
 
 use namespace::autoclean;

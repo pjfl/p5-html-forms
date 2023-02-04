@@ -13,6 +13,8 @@ has '+type_attr' => default => 'submit';
 
 has '+widget' => default => 'Button';
 
+has '+wrapper_class' => default => 'button';
+
 sub _build_id {
    my $self   = shift;
    my $form   = $self->form;

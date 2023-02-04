@@ -14,6 +14,8 @@ has 'preserve_case' => is => 'rw', isa => Bool;
 
 has '+html5_type_attr' => default => 'email';
 
+has '+wrapper_class' => default => 'input-email';
+
 our $class_messages = {
    'email_format' => 'Email should be of the format [_1]',
 };

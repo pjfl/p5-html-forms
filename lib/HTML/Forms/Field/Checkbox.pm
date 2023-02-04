@@ -20,6 +20,8 @@ has '+type_attr'           => default => 'checkbox';
 
 has '+widget'              => default => 'Checkbox';
 
+has '+wrapper_class'       => default => 'input-checkbox';
+
 sub validate {
     my $self = shift;
 

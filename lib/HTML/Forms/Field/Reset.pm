@@ -1,17 +1,24 @@
-package HTML::Forms::Field::Submit;
+package HTML::Forms::Field::Reset;
 
-use HTML::Forms::Constants qw( FALSE );
+use HTML::Forms::Constants qw( FALSE META );
 use Moo;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::NoValue';
 
-has '+do_label' => default => FALSE;
+has '+html5_type_attr' => default => 'reset';
 
-has '+widget' => default => 'Submit';
+has '+type_attr' => default => 'reset';
+
+has '+value' => default => 'Reset';
+
+has '+widget' => default => 'Reset';
 
 has '+wrapper_class' => default => 'input-button';
 
-use namespace::autoclean;
+sub do_label { FALSE }
+
+use namespace::autoclean -except => META;
 
 1;
 
@@ -23,11 +30,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Submit - One-line description of the modules purpose
+HTML::Forms::Field::Reset - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Submit;
+   use HTML::Forms::Field::Reset;
    # Brief but working code examples
 
 =head1 Description
@@ -68,11 +75,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <pjfl@cpan.org> >>
+Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2023 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

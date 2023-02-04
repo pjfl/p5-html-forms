@@ -5,6 +5,8 @@ use Moo;
 
 extends 'HTML::Forms::Field::Checkbox';
 
+has '+wrapper_class' => default => 'input-boolean';
+
 around 'value' => sub {
    my ($orig, $self, @args) = @_;
 

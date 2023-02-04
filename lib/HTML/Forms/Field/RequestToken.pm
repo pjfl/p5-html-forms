@@ -1,11 +1,15 @@
 package HTML::Forms::Field::RequestToken;
 
 use Crypt::CBC;
+use Digest::SHA1           qw( sha1_hex );
+use English                qw( -no_match_vars );
 use MIME::Base64           qw( decode_base64 encode_base64 );
-use HTML::Forms::Constants qw( META NUL TRUE );
+use HTML::Forms::Constants qw( BANG META NUL TRUE );
 use HTML::Forms::Types     qw( Int Str );
+use Scalar::Util           qw( weaken );
 use Try::Tiny;
 use Type::Utils            qw( class_type );
+use User::pwent            qw( getpwuid );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -13,7 +17,7 @@ extends 'HTML::Forms::Field::Hidden';
 
 has 'cipher' =>
    is      => 'lazy',
-   isa     => class_type('Crpyt::CBC'),
+   isa     => class_type('Crypt::CBC'),
    builder => sub {
       my $self = shift;
 
@@ -21,49 +25,68 @@ has 'cipher' =>
          -cipher => $self->crypto_cipher_type,
          -header => 'salt',
          -key    => $self->crypto_key,
+         -pbkdf  =>'pbkdf2',
          -salt   => TRUE,
       );
    };
 
-has 'crypto_cipher_type' => is => 'rw', isa => Str, default => 'Blowfish';
+has 'crypto_cipher_type' => is => 'ro', isa => Str, default => 'Blowfish';
 
-has 'crypto_key' => is => 'rw', isa => Str, default => __FILE__;
+has 'crypto_key' => is => 'ro', isa => Str, builder => 'build_crypto_key';
 
-has 'expiration_time' => is => 'rw' isa => Int, default => 3600;
+has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
 
-has 'message' =>
-   is      => 'rw',
-   isa     => Str,
-   default => 'Form submission failed. Please try again.';
+has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';
 
-has 'token_prefix' =>
-   is      => 'lazy',
-   isa     => Str,
-   builder => sub {
-      my $self = shift;
-      my $form = $self->form or return NUL;
-      my $ctx  = $form->ctx or return NUL;
-      my $id   = $ctx->session->{id};
-
-      return $id ? "${id}|" : NUL;
-   };
-
-has '+default_method' => default => sub { \&_get_token };
+has '+default_method' => default => sub {
+   my $self = shift; weaken $self; return sub { $self->_get_token };
+};
 
 has '+required' => default => TRUE;
+
+our $class_messages = {
+   'token_fail' => 'Submission failed. [_1]. Please reload and try again.',
+};
+
+sub get_class_messages {
+   my $self = shift;
+
+   return { %{ $self->next::method }, %{ $class_messages  } };
+}
+
+sub build_crypto_key {
+   return sha1_hex( getpwuid($EUID)->name . __FILE__ );
+}
+
+sub build_token_prefix {
+   my $self = shift;
+   my $form = $self->form or return NUL;
+   my $ctx  = $form->ctx or return NUL;
+   my $id   = $ctx->session->{id} // NUL;
+
+   return $id;
+}
 
 sub validate {
    my ($self, $value) = @_;
 
-   $self->add_error($self->message) unless $self->_verify_token($value);
+   if (my $fail_reason = $self->_verify_token($value)) {
+      $self->add_error(
+         $self->get_message('token_fail'), $self->_localise($fail_reason)
+      );
+   }
 
    return;
 }
 
 sub _get_token {
-   my $self  = shift;
-   my $value = $self->token_prefix . (time + $self->expiration_time);
-   my $token = encode_base64($self->cipher->encrypt($value));
+   my $self   = shift;
+   my $prefix = $self->token_prefix;
+
+   $prefix .= BANG if $prefix;
+
+   my $value  = $prefix . (time + $self->expiration_time);
+   my $token  = encode_base64($self->cipher->encrypt($value));
 
    $token =~ s{[\s\r\n]+}{}gmx;
    return $token;
@@ -72,7 +95,7 @@ sub _get_token {
 sub _verify_token {
    my ($self, $token) = @_;
 
-   return unless $token;
+   return 'No token found' unless $token;
 
    my $value;
 
@@ -80,15 +103,17 @@ sub _verify_token {
       $value = $self->cipher->decrypt(decode_base64($token));
 
       if (my $prefix = $self->token_prefix) {
-         return unless $value =~ s{\A\Q$prefix\E}{}mx;
+         $prefix .= BANG;
+
+         return 'Bad token prefix' unless $value =~ s{\A\Q$prefix\E}{}mx;
       }
    }
    catch {};
 
-   return unless defined $value;
-   return unless $value =~ m{ \A \d+ \z }mx;
-   return if time > $value;
-   return TRUE;
+   return 'Bad token decrypt'    unless defined $value;
+   return 'Bad token time value' unless $value =~ m{ \A \d+ \z }mx;
+   return 'Request token to old' if time > $value;
+   return;
 }
 
 use namespace::autoclean -except => META;

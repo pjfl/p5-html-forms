@@ -1,35 +1,37 @@
 [% BLOCK button -%]
   <[% f.html_element %][%- process_attrs( f.attributes ) -%]
     type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-    value="[% f.value | html %]">[% f.label %]</[% f.html_element %]>
+      value="[% f.value | html %]">[% f.label %]</[% f.html_element %]>
 [% END -%]
 
 [% BLOCK captcha -%]
-  [% field = f -%]
-  [% IF field.captcha_type == 'local' -%]
-    [% PROCESS image f=field.image_attr -%]
-    [% PROCESS text f=field -%]
-  [% ELSE -%]
-    [% field.render -%]
-  [% END -%]
+[%   cfield = f -%]
+[%   IF cfield.captcha_type == 'local' -%]
+  [%   PROCESS image f=cfield.image_attr %]
+    [% PROCESS text f=cfield %]
+[%   ELSE -%]
+  [%   cfield.get_html -%]
+[%   END -%]
 [% END -%]
 
 [% BLOCK checkbox -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.checkbox_value | html -%]"
-    [%- IF f.fif == f.checkbox_value -%] checked="checked"[% END -%] />
+[%- process_attrs( f.attributes ); IF f.fif == f.checkbox_value -%]
+    checked="checked"[% END %] value="[% f.checkbox_value | html %]" />
 [% END -%]
 
 [% BLOCK checkbox_group -%]
-  [%- FOR option IN f.options -%]
-    [%- id = f.id _ loop.index -%]
-  <label class="checkbox" for="[% id %]">
+[%   FOR option IN f.options -%]
+[%   id = f.next_option_id -%]
+  <label[% process_attrs( f.label_attributes ) %] for="[% id %]">
     <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
-    [% FOR selval IN f.fif -%]
-      [% IF selval == option.value %] checked="checked"[% END -%]
-    [% END -%] value="[% option.value | html %]">[% option.label | html %]
-  </label>
-  [% END -%]
+[%-    FOR selval IN f.fif -%]
+[%      IF selval == option.value %] checked="checked"[% END -%]
+[%     END -%]
+[%     process_attrs( f.attributes ) -%]
+ value="[% option.value | html %]" />[% localise( option.label ) | html -%]
+</label>
+[%   END -%]
 [% END -%]
 
 [% BLOCK compound -%]
@@ -42,25 +44,25 @@
 [% END -%]
 
 [% BLOCK data_structure -%]
-  <div class="form-field-data-structure">
+  <div class="data-structure input-field">
     <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
       [%- process_attrs( f.attributes ) %] value="[% f.value | html %]" />
   </div>
 [% END -%]
 
 [% BLOCK group -%]
-  [% group_field = f -%]
-  [% IF group_field.has_description -%]
+[%   group_field = f -%]
+[%   IF group_field.has_description -%]
     <div[% process_attrs( group_field.attributes ) %]>
       <p>[% group_field.description | html %]</p>
     </div>
-  [% END -%]
-  [% FOR gfield IN group_field.sorted_fields -%]
-    [% NEXT UNLESS gfield.field_group == group_field.name -%]
-    [% WRAPPER "wrapper_${gfield.uwrapper}" f=gfield -%]
+[%   END -%]
+[%   FOR gfield IN form.sorted_fields -%]
+[%     NEXT UNLESS gfield.field_group == group_field.name -%]
+[%     WRAPPER "wrapper_${gfield.uwrapper}" f=gfield -%]
       [% PROCESS "${gfield.uwidget}" f=gfield %]
-    [% END -%]
-  [% END -%]
+[%     END -%]
+[%   END -%]
 [% END -%]
 
 [% BLOCK hidden -%]
@@ -73,32 +75,46 @@
 [% END -%]
 
 [% BLOCK interval -%]
-  [% interval_field = f -%]
-  [% PROCESS hidden f=interval_field -%]
-  <div class="input-group">
-    [% PROCESS text f=interval_field.subfield('unit') -%]
-    [% PROCESS select f=interval_field.subfield('period') -%]
-  </div>
+  [% ifield = f -%]
+  [% PROCESS hidden f=ifield %]
+  [% IF ifield.update_js_method == 'updateInterval'; ifield.javascript; END -%]
+    <div class="input-group">
+      [% PROCESS text f=ifield.unit %]
+      [% PROCESS select f=ifield.period %]
+    </div>
 [% END -%]
 
 [% BLOCK label -%]
-  <label[% process_attrs( f.label_attributes ) %] for="[% f.html_name %]">
-[%- f.loc_label | html -%]</label>
+[%   label_tag  = f.get_tag( 'label_tag' ) || 'label' -%]
+[%   label_text = f.loc_label | html -%]
+[%   IF label_tag != 'legend' -%]
+[%     label_text = f.get_tag('label_before') _ label_text _ f.get_tag( 'label_after' ) -%]
+[%   END -%]
+  <[% label_tag; process_attrs( f.label_attributes ); f.for_field %]>
+[%-  label_text -%]</[% label_tag %]>
+[% END -%]
+
+[% BLOCK no_render -%]
+[% END -%]
+
+[% BLOCK no_value -%]
+  [% f.html %]
 [% END -%]
 
 [% BLOCK password -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
+[%-  process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
 [% END -%]
 
 [% BLOCK radio_group -%]
 [%   FOR option IN f.options -%]
-       [%- id = f.id _ loop.index -%]
-  <label[% process_attrs( f.label_attributes ) %] for="[% id %]">
-    <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
-       [% IF option.value == f.fif %] checked="checked"[% END -%]
-      value="[% option.value | html %]" />[% option.label | html %]
-  </label>
+[%     id = f.next_option_id -%]
+    <label[% process_attrs( f.label_attributes ) %] for="[% id %]">
+      <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
+[%     process_attrs( f.attributes ) -%]
+[%     IF option.value == f.fif %] checked="checked"[% END -%]
+        value="[% option.value | html %]" />[% localise( option.label ) | html%]
+    </label>
 [%   END -%]
 [% END -%]
 
@@ -123,46 +139,61 @@
 
 [% BLOCK reset -%]
   <input type="reset" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.value | html %]" />
+[%-  process_attrs( f.attributes ) %] value="[% f.value | html %]" />
 [% END -%]
 
 [% BLOCK select -%]
   <[% f.html_element %] name="[% f.html_name %]" id="[% f.id %]"
-  [%- process_attrs( f.attributes ) -%]
-  [%- IF f.multiple %] multiple="multiple" size="[% f.size %]"[% END -%]>
-  [% FOR option IN f.options -%]
-    <option id="[% f.id %].[% loop.index %]" value="[% option.value | html %]"
-    [%- FOR selval IN f.fif -%]
-      [%- IF selval == option.value %] selected="selected"[% END -%]
-    [%- END -%]>
-    [%- option.label | html %]</option>
-  [% END -%]
-  </[% f.html_element %]>
+[%- process_attrs( f.attributes ) -%]
+[%- IF f.multiple %] multiple="multiple" size="[% f.size %]"[% END -%]>
+[%  IF f.empty_select -%]
+      <option id="[% f.next_option_id %]" value="">
+[%-     localise( f.empty_select ) | html %]</option>
+[%  END -%]
+[%  FOR option IN f.options -%]
+[%    IF option.group -%]
+    <optgroup label="[% localise( option.group ) %]">
+[%      FOR optgroup IN option.options -%]
+      [% PROCESS select_option selopt=optgroup %]
+[%      END -%]
+    </optgroup>
+[%    ELSE -%]
+      [% PROCESS select_option selopt=option %]
+[%    END -%]
+[%  END -%]
+    </[% f.html_element %]>
+[% END -%]
+
+[% BLOCK select_option -%]
+  <option id="[% f.next_option_id %]" value="[% selopt.value | html %]"
+[%-  IF option.disabled %] disabled="disabled"[% END -%]
+[%-  FOR selval IN f.fif -%]
+[%-    IF selval == selopt.value %] selected="selected"[% END -%]
+[%-  END -%]>[% localise( selopt.label ) | html %]</option>
 [% END -%]
 
 [% BLOCK span -%]
   <span id="[% f.id %][% process_attrs( f.element_attributes ) %]">
-    [% f.value %]</span>
+[%- f.value | html %]</span>
 [% END -%]
 
 [% BLOCK submit -%]
   <input type="submit" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.value | html %]" />
+[%-  process_attrs( f.attributes ) %] value="[% f.value | html %]" />
 [% END -%]
 
 [% BLOCK text -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.fif %]" />
+[%-  process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
 [% END -%]
 
 [% BLOCK textarea -%]
   <[% f.html_element %] name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) -%] rows="[% f.rows %]" cols="[% f.cols %]">
-    [% f.fif | html %]
-  </[% f.html_element %]>
+[%-   process_attrs( f.attributes ) %] rows="[% f.rows %]" cols="[% f.cols %]">
+    [% f.fif | html %]</[% f.html_element %]>
 [% END -%]
 
 [% BLOCK upload -%]
   <input type="file" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] />
+[%-  process_attrs( f.attributes ) %] />
 [% END -%]

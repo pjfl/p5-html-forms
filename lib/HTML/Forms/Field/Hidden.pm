@@ -13,6 +13,8 @@ has '+type_attr' => default => 'hidden';
 
 has '+widget' => default => 'Hidden';
 
+has '+wrapper_class' => default => 'input-hidden';
+
 use namespace::autoclean;
 
 1;

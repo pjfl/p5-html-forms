@@ -1,11 +1,17 @@
 package HTML::Forms::Field::Duration;
 
 use DateTime;
-use HTML::Forms::Constants qw( META );
+use HTML::Forms::Constants qw( META TRUE );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
+
+has '+do_label' => default => TRUE;
+
+has '+do_wrapper' => default => TRUE;
+
+has '+wrapper_class' => default => 'input-duration';
 
 our $class_messages = {
    'duration_invalid' => 'Invalid value for [_1]: [_2]',
@@ -35,7 +41,7 @@ sub validate {
       push @dur_parms, ($child->accessor => $child->value);
    }
 
-   my $duration = DateTime::Duration->(@dur_parms);
+   my $duration = DateTime::Duration->new(@dur_parms);
 
    $self->_set_value($duration);
    return;

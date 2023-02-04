@@ -130,7 +130,9 @@ sub _build_default_tt_vars {
 }
 
 sub _build_tt_template {
-   return 'classic/block.tt';
+   my $self = shift;
+
+   return $self->tt_theme . '/block.tt';
 }
 
 use namespace::autoclean;

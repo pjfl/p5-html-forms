@@ -1,0 +1,110 @@
+#!/usr/bin/env perl
+
+use English qw( -no_match_vars );
+use FindBin qw( $Bin );
+use File::Spec;
+
+BEGIN {
+   my $bind = $Bin; $bind = $1 if $bind =~ m{ \A ([^\$%&\*;<>\`|]+) \z }mx;
+   my $path = File::Spec->catfile( $bind, 'forms-localenv' );
+
+   (do $path or die $EVAL_ERROR || "Path ${path} not done\n") if -f $path;
+}
+
+{
+   package Test::Context;
+
+   use List::Util qw(pairs);
+   use Plack::Request;
+   use Moo;
+
+   has '_env' => is => 'ro', init_arg => 'env', required => 1;
+
+   has 'request'  => is => 'lazy', builder => sub {
+      Plack::Request->new(shift->_env)
+   };
+
+   has '_session' => is => 'lazy', builder => sub {
+      shift->_env->{'psgix.session'}
+   };
+
+   sub session {
+      my ($self, @args) = @_;
+
+      return $self->_session unless $args[0];
+
+      for my $pair (pairs @args) {
+         $self->_session->{$pair->key} = $pair->value;
+      }
+
+      return $self->_session;
+   }
+}
+
+use strictures;
+
+use Class::Load            qw( load_optional_class );
+use HTML::Forms::Constants qw( FALSE TRUE );
+use HTTP::Status           qw( HTTP_FOUND HTTP_OK );
+use Plack::Builder;
+
+use Data::Dumper; $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 1;
+$Data::Dumper::Sortkeys = sub { [ sort keys %{ $_[ 0 ] } ] };
+
+my $psgi_app = sub {
+   my $env     = shift;
+   my $context = Test::Context->new(env => $env);
+   my $req     = $context->request;
+   (my $name   = $req->path_info) =~ s{ \A / }{}mx;
+   my $class   = 'Forms::' . (ucfirst $name || 'TestMany');
+
+   load_optional_class($class);
+
+   my @parms   = (ctx => $context, params => ($req->parameters->mixed // {}));
+   my $form    = $class->new( @parms );
+
+   $form->process( posted => $req->method eq 'POST' ? TRUE : FALSE );
+
+   my $render = $form->render;
+   my $html   = "<html><head></head><body>\n${render}\n</body></html>";
+
+   return [ HTTP_OK, [ 'Content-Type' => 'text/html' ], [ $html ] ];
+};
+
+builder {
+   enable 'ContentLength';
+   enable 'FixMissingBodyInRedirect';
+   enable 'ConditionalGET';
+   enable 'Deflater',
+      content_type => [
+         qw( text/css text/html text/javascript application/javascript)
+      ],
+      vary_user_agent => TRUE;
+   enable 'Static',
+      path => qr{ \A / (?: css | favicon.ico | fonts | img | js | less ) }mx,
+      root => 'xt/var/root';
+   enable 'Static',
+      path => qr{ \A / static }mx, pass_through => TRUE,
+      root => 'xt/var/root';
+   enable 'Session::Cookie',
+      expires     => 7_776_000,
+      httponly    => TRUE,
+      path        => '/',
+      secret      => 'foo',
+      session_key => 'html_forms_session';
+   mount '/captcha/image' => builder {
+      sub {
+         my $env     = shift;
+         my $context = Test::Context->new(env => $env);
+         my $captcha = $context->session->{captcha};
+         my $image   = $captcha->{image};
+         my $type    = $captcha->{type};
+
+         return [ HTTP_OK, [ 'Content-Type' => $type ], [$image] ];
+      };
+   };
+   mount '/form' => builder { $psgi_app };
+   mount '/'     => builder {
+      sub { [ HTTP_FOUND, [ 'Location', '/form' ], [] ] }
+   };
+};

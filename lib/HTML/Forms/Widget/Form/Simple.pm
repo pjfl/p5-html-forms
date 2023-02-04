@@ -1,23 +1,6 @@
 package HTML::Forms::Widget::Form::Simple;
 
-use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use Unexpected::Functions  qw( throw );
 use Moo::Role;
-
-sub renderx {
-   my ($self, %args) = @_;
-
-   if (keys %args > 0) {
-      while (my ($key, $value) = each %args) {
-         throw "Invalid attribute '${key}' passed to renderx"
-            unless $self->can( $key );
-
-         $self->$key( $value );
-      }
-   }
-
-   $self->render;
-}
 
 use namespace::autoclean;
 

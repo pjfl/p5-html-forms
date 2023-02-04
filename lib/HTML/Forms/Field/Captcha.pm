@@ -1,10 +1,11 @@
 package HTML::Forms::Field::Captcha;
 
-use HTML::Forms::Constants qw( FALSE NUL TRUE );
+use HTML::Forms::Constants qw( FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Int LoadableClass Object Str );
 use JSON::MaybeXS          qw( decode_json );
 use List::Util             qw( first );
 use Moo;
+use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
@@ -74,13 +75,15 @@ has '+noupdate'      => default => TRUE;
 
 has '+widget'        => default => 'Captcha';
 
-has '+wrapper_class' => default => 'captcha';
+has '+wrapper_class' => default => 'input-captcha';
 
 our $class_messages = {
    'captcha_verify_failed' => 'Verification incorrect. Try again.',
 };
 
 # Public methods
+sub fif { }
+
 sub get_class_messages {
    my $self = shift;
 
@@ -92,7 +95,7 @@ sub get_default_value {
 
    return unless $self->captcha_type eq 'local';
 
-   my $captcha = $self->form->get_captcha;
+   my $captcha = $self->form->get_captcha if $self->form;
 
    if ($captcha) {
       if ($captcha->{validated}) {
@@ -114,13 +117,20 @@ sub get_default_value {
    return;
 }
 
-sub fif { }
+sub get_html {
+   my $self    = shift;
+   my $options = {};
+
+   $options->{theme} = $self->theme if $self->theme;
+
+   return $self->capture->get_html_v2($self->site_key, $options);
+}
 
 sub validate {
    my $self = shift;
 
    if ($self->captcha_type eq 'local') {
-      my $captcha = $self->form->get_captcha;
+      my $captcha = $self->form->get_captcha if $self->form;
 
       if ($captcha and $captcha->{rnd} eq $self->value) {
          $captcha->{validated} = TRUE;
@@ -149,15 +159,6 @@ sub _add_verify_error {
 
    $self->add_error($self->get_message('captcha_verify_failed'));
    return;
-}
-
-sub _build_html {
-   my $self    = shift;
-   my $options = {};
-
-   $options->{theme} = $self->theme if $self->theme;
-
-   return $self->capture->get_html_v2($self->site_key, $options);
 }
 
 sub _captcha_check {
@@ -204,11 +205,11 @@ sub _generate_captcha {
    };
 
    $self->image($image);
-   $self->form->set_captcha($captcha);
+   $self->form->set_captcha($captcha) if $self->form;
    return;
 }
 
-use namespace::autoclean;
+use namespace::autoclean -except => META;
 
 1;
 

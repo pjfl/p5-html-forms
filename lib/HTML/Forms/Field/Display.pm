@@ -8,6 +8,8 @@ extends 'HTML::Forms::Field::NoValue';
 
 has '+do_label' => default => FALSE;
 
+has '+wrapper_class' => default => 'input-display';
+
 sub _result_from_object {
    my ($self, $result, $value) = @_;
 

@@ -250,12 +250,12 @@ sub fields_set_value {
 sub new_field_with_traits {
    my ($self, $class, $field_attr) = @_;
 
-   my $traits = delete $field_attr->{traits} || [];
+   my $traits = $self->_resolve_traits( delete $field_attr->{traits} || [] );
 
    $class = Moo::Role->create_class_with_roles( $class, @{ $traits } )
       if scalar @{ $traits };
 
-   return $class->new( %{ $field_attr } );
+   return $class->new( $field_attr );
 }
 
 sub propagate_error {
@@ -277,8 +277,17 @@ sub propagate_error {
 sub sorted_fields {
    my $self = shift;
 
-   my @fields = sort { $a->order <=> $b->order }
-                grep { $_->is_active } $self->all_fields;
+   my @ordered = sort { $a->order <=> $b->order }
+                 grep { $_->is_active } $self->all_fields;
+   my @fields;
+
+   for my $field (grep {  _order_first( $_->type ) } @ordered) {
+      push @fields, $field;
+   }
+
+   for my $field (grep { !_order_first( $_->type ) } @ordered) {
+      push @fields, $field;
+   }
 
    return wantarray ? @fields : \@fields;
 }
@@ -414,11 +423,11 @@ sub _find_parent {
       else { throw 'Field [_1] has no parent', [ $field_attr->{name} ] }
    }
    elsif (my $parent_name = $field_attr->{field_group}) {
-      $parent = $self->field( $parent_name, undef, $self );
+      my $group = $self->field( $parent_name, undef, $self );
 
       throw 'Field [_1] has a parent which is not a Group field',
          [ $field_attr->{name} ]
-            unless $parent->isa( 'HTML::Forms::Field::Group' );
+         unless $group->isa( 'HTML::Forms::Field::Group' );
    }
    elsif (!($self->form && $self == $self->form)) { $parent = $self }
 
@@ -496,7 +505,7 @@ sub _merge_updates {
 
    # If there are field_traits at the form level, prepend them
    unshift @{ $field_attr->{traits} }, @{ $form->field_traits }
-      if $form and $form->has_field_traits;
+      if $form && $form->has_field_traits;
 
    # Use full_name for updates from form, name for updates from compound field
    my $full_name = delete $field_attr->{full_name} || $field_attr->{name};
@@ -528,9 +537,8 @@ sub _merge_updates {
       }
 
       # Merge widget tags into 'all' updates
-      $form->has_widget_tags and $all_updates = merge( $all_updates, {
-         tags => $self->form->widget_tags,
-      } );
+      $all_updates = merge( $all_updates, { tags => $self->form->widget_tags } )
+         if $form->has_widget_tags;
    }
 
    # Get updates from compound field update_subfields and widget_tags
@@ -646,6 +654,13 @@ sub _order_fields {
    }
 }
 
+sub _order_first {
+   my $type = lc shift;
+
+   return TRUE if $type eq 'hidden' || $type eq 'requesttoken';
+   return FALSE;
+}
+
 sub _process_field_array {
    my ($self, $fields) = @_;
 
@@ -678,6 +693,30 @@ sub _process_field_list {
       if is_arrayref $flist;
 
    return;
+}
+
+sub _resolve_traits {
+   my ($self, $traits) = @_;
+
+   return [ map {
+      my $orig = $_;
+
+      if (!ref $orig) {
+         my $transformed = $self->_transform_trait($orig);
+
+         load_optional_class($transformed);
+         $transformed;
+      }
+      else { $orig }
+   } @{$traits} ];
+}
+
+sub _transform_trait {
+   my ($self, $trait) = @_;
+
+   return $trait unless $trait =~ m{ \A [+](.+) \z }msx;
+
+   return $self->get_field_trait($1);
 }
 
 # Update, replace, or create field.  Create makes the field object and passes

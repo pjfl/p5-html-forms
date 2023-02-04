@@ -25,12 +25,6 @@ sub build_tags {
    return { wrapper => TRUE };
 }
 
-# TODO: Figure this out
-# Needs to render the "row" that AddElement will append to the control div
-sub _build_html {
-   return 'fill me in {index-1}';
-}
-
 use namespace::autoclean -except => META;
 
 1;

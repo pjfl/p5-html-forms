@@ -29,9 +29,13 @@ has '+deflate_method' => default => sub { _build_deflate_method( shift ) };
 has 'format' => is => 'lazy', isa => Str, default => '%Y-%m-%d';
 
 has 'format_error' =>
-   is      => 'ro',
+   is      => 'lazy',
    isa     => Str,
-   default => 'Please enter a date in the format yyyy-mm-dd';
+   builder => sub {
+      my $self = shift;
+
+      return 'Please enter a date in the format ' . $self->format;
+   };
 
 has '+html5_type_attr' => default => 'date';
 
@@ -40,6 +44,8 @@ has 'locale' => is => 'ro', isa => Str;
 has '+size' => default => 10;
 
 has 'time_zone' => is => 'rw', isa => Str, default => 'local';
+
+has '+wrapper_class' => default => 'input-date';
 
 before 'get_tag' => sub {
    my $self = shift;
@@ -78,8 +84,8 @@ sub get_class_messages {
 }
 
 sub validate {
-   my $self = shift;
-   my @options;
+   my $self    = shift;
+   my @options = ( on_error => 'croak' );
 
    push @options, locale => $self->locale if $self->locale;
    push @options, time_zone => $self->time_zone if $self->time_zone;
@@ -90,12 +96,12 @@ sub validate {
 
    try   { $dt = $strp->parse_datetime( $self->value ) }
    catch {
-      if ($strp->errmsg eq 'Your datetime does not match your pattern.') {
+      my $error = $strp->errmsg || $_;
+
+      if ($error =~ m{ not \s match }msx) {
          $self->add_error( $self->format_error );
       }
-      else {
-         $self->add_error( $strp->errmsg || $_ );
-      }
+      else { $self->add_error( $error ) }
    };
 
    return unless $dt;

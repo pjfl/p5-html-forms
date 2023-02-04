@@ -1,3 +1,22 @@
+[% BLOCK wrapper_checkbox -%]
+[%   label = f.loc_label | html -%]
+[%   output = '' -%]
+[%   IF f.get_tag( 'label_right' ) -%]
+[%     output = content _ label -%]
+[%   ELSE -%]
+[%     output = label _ "\n  " _ content _ '  ' -%]
+[%   END -%]
+[%   classes = [ 'checkbox' ] -%]
+[%   IF f.get_tag( 'inline' ); classes.push( 'inline' ); END -%]
+[%   lattrs = process_attrs( { 'class' => classes  } ) -%]
+[%   output = '<label' _ lattrs _ f.for_field _ ">" _ output _ '</label>'-%]
+[%   IF f.get_tag( 'checkbox_element_wrapper' ) -%]
+    <div class="checkbox">[% output %]</div>
+[%   ELSE -%]
+[%     output %]
+[%   END -%]
+[% END -%]
+
 [% BLOCK wrapper_fieldset -%]
   <fieldset[% process_attrs( f.wrapper_attributes )%]>
     <legend>[% f.label %]</legend>
@@ -14,27 +33,41 @@
 [%     f.get_tag( 'before_wrapper' ) -%]
   <[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) -%]>
 [%   END -%]
-    [% IF f.do_label; PROCESS label; END %]
+[%   IF f.do_label && !f.get_tag( 'label_right' ) && !f.is_checkbox -%]
+    [% PROCESS label %]
+[%   END -%]
 [%   f.get_tag( 'before_element' ) -%]
 [%   IF f.get_tag( 'controls_div' ) -%]
     <div class="controls">
 [%   ELSIF f.has_element_wrapper_class -%]
-       <div[% process_attrs( f.element_wrapper_attributes )%]>
+       <div[% process_attrs( f.element_wrapper_attributes ) %]>
 [%   END -%]
-  [% content -%]
+[%   IF f.is_checkbox && !f.get_tag( 'no_wrapped_label' ) -%]
+    [% WRAPPER "wrapper_checkbox" -%]
+  [%     content -%]
+[%     END -%]
+[%   ELSE -%]
+  [%   content -%]
+[%   END -%]
 [%   IF f.get_tag( 'controls_div' ) || f.has_element_wrapper_class -%]
        </div>
 [%   END -%]
 [%   f.get_tag( 'after_element' ) -%]
+[%   IF f.do_label && f.get_tag( 'label_right' ) && !f.is_checkbox -%]
+    [% PROCESS label %]
+[%   END -%]
 [%   UNLESS f.get_tag( 'no_errors' ) -%]
-[%     error_class = f.get_tag( 'error_class' ) || 'error_message' -%]
+[%     error_class = f.get_tag( 'error_class' ) || 'alert alert-error' -%]
 [%     FOR error IN f.result.all_errors -%]
     <span class="[% error_class %]">[% localise( error ) %]</span>
 [%     END -%]
-[%     warning_class = f.get_tag( 'warning_class' ) || 'warning_message' -%]
+[%     warning_class = f.get_tag( 'warning_class' ) || 'alert alert-warning' -%]
 [%     FOR warning IN f.result.all_warnings -%]
     <span class="[% warning_class %]">[% localise( warning ) %]</span>
 [%     END -%]
+[%   END -%]
+[%   IF f.info && !f.hide_info -%]
+    <div class="alert alert-info">[% f.info %]</div>
 [%   END -%]
 [%   IF f.do_wrapper -%]
   </[% f.wrapper_tag %]>
@@ -44,7 +77,7 @@
 
 [% BLOCK wrapper_wrap_label -%]
 <[% f.wrapper_tag %][% process_attrs( f.wrapper_attributes ) %]>
-  <label[% process_attrs( f.label_attributes ) %] for="[% f.html_name %]">
+  <label[% process_attrs( f.label_attributes ) %] for="[% f.id %]">
     [% content -%][%- f.label %]
   </label>
 </[% f.wrapper_tag %]>

@@ -11,6 +11,8 @@ has 'rows'    => is => 'rw', isa => Int;
 
 has '+widget' => default => 'Textarea';
 
+has '+wrapper_class' => default => 'input-textarea';
+
 sub html_element {
    return 'textarea';
 }

@@ -15,9 +15,11 @@ has 'currency_symbol' => is => 'ro', isa => Str, default => '£';
 
 has '+html5_type_attr' => default => 'number';
 
+has '+wrapper_class' => default => 'input-money';
+
 our $class_messages = {
    'money_convert' => 'Value cannot be converted to money',
-   'money_real'    => 'Value must be a real number'
+   'money_real'    => 'Must be a real number with only two fractional digits',
 };
 
 sub get_class_messages {
@@ -41,8 +43,8 @@ apply([
          my ($value, $field) = @_;
 
          return $field->allow_commas
-            ? $value =~ m{ \A [-+]? (?:\d+|\d{1,3}(,\d{3})*) (?:\.\d+)? \z }mx
-            : $value =~ m{ \A [-+]? \d+ (?:\.\d+)? \z }mx;
+            ? $value =~ m{ \A [-+]? (?:\d+|\d{1,3}(,\d{3})*) (?:\.\d{2})? \z }mx
+            : $value =~ m{ \A [-+]? \d+ (?:\.\d{2})? \z }mx;
       },
       message => sub {
          my ($value, $field) = @_;

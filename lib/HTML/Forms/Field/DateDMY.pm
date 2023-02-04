@@ -4,7 +4,7 @@ use HTML::Forms::Constants qw( META );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms:Field::Date';
+extends 'HTML::Forms::Field::Date';
 
 has '+format' => default => '%d/%m/%Y';
 

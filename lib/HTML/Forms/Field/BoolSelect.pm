@@ -8,6 +8,8 @@ extends 'HTML::Forms::Field::Select';
 
 has '+empty_select' => default => 'Select One';
 
+has '+wrapper_class' => default => 'input-boolean_select';
+
 sub build_options {
    return [
       { value => TRUE,  label => 'True' },

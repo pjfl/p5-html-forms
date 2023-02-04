@@ -6,6 +6,8 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Select';
 
+has '+wrapper_class' => default => 'input-select_month';
+
 sub build_options {
    my $value  = 1;
    my @months = qw( January February March April May June July August September

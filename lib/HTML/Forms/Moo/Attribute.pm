@@ -3,7 +3,7 @@ package HTML::Forms::Moo::Attribute;
 use HTML::Forms::Types qw( Str );
 use Moo;
 
-has 'default' => is => 'ro', isa => Str;
+has 'default' => is => 'ro', isa => Str, predicate => 'has_default';
 
 use namespace::autoclean;
 

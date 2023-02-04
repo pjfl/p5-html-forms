@@ -14,6 +14,8 @@ has '+range_start' => default => 1;
 
 has '+range_end' => default => 10;
 
+has '+wrapper_class' => default => 'input-select_integer';
+
 sub build_options {
    my $self  = shift;
    my $start = $self->range_start;

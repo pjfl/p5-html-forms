@@ -19,6 +19,7 @@ use MooX::HandlesVia;
 use HTML::Forms::Moo;
 
 has [ 'disabled',
+      'hide_info',
       'is_contains',
       'no_value_if_empty',
       'not_nullable',
@@ -76,8 +77,6 @@ has 'element_wrapper_class' =>
       has_element_wrapper_class  => 'count',
    };
 
-has 'field_group' => is => 'ro', isa => Str, default => NUL;
-
 has 'fif_from_value' => is => 'ro', isa => Str;
 
 has 'form'   =>
@@ -98,7 +97,7 @@ has 'html_name' =>
    },
    lazy    => TRUE;
 
-has 'html5_type_attr' => is => 'ro', isa => Str, default => 'text';
+has 'html5_type_attr' => is => 'rw', isa => Str, default => 'text';
 
 has 'id'   =>
    is      => 'rw',
@@ -107,6 +106,8 @@ has 'id'   =>
    lazy    => TRUE;
 
 has 'inactive' => is => 'rw', isa => Bool, clearer => 'clear_inactive';
+
+has 'info' => is => 'rw', isa => Str;
 
 has 'init_value' =>
    is        => 'rw',
@@ -327,6 +328,7 @@ sub BUILD {
    $self->add_action( $self->trim ) if $self->trim;
    $self->_build_apply_list;
    $self->add_action( @{ $params->{apply} } ) if $params->{apply};
+   $self->after_build;
 
    return;
 }
@@ -375,9 +377,9 @@ sub add_error {
 sub add_standard_element_classes {
    my ($self, $result, $class) = @_;
 
-   push @{$class}, 'error'    if $result && $result->has_errors;
-   push @{$class}, 'warning'  if $result && $result->has_warnings;
-   push @{$class}, 'disabled' if $self->disabled;
+   push @{$class}, 'error' if $result && $result->has_errors;
+   push @{$class}, 'warning'     if $result && $result->has_warnings;
+   push @{$class}, 'disabled'    if $self->disabled;
    return;
 }
 
@@ -396,13 +398,14 @@ sub add_standard_label_classes {
 sub add_standard_wrapper_classes {
    my ($self, $result, $class) = @_;
 
-   push @{$class}, 'error'
+   push @{$class}, 'input-error'
       if $result->has_error_results || $result->has_errors;
-
-   push @{$class}, 'warning' if $result->has_warnings;
-
+   push @{$class}, 'input-warning' if $result->has_warnings;
+   push @{$class}, 'input-field';
    return;
 }
+
+sub after_build {}
 
 sub attributes {
    return shift->element_attributes(@_);
@@ -584,6 +587,15 @@ sub fif {
    return NUL;
 }
 
+sub for_field {
+   my $self      = shift;
+   my $label_tag = $self->get_tag( 'label_tag' ) || 'label';
+
+   return NUL if $label_tag ne 'label';
+
+   return ' for="' . $self->id . '"';
+}
+
 sub full_accessor {
    my $self   = shift;
    my $parent = $self->parent;
@@ -710,6 +722,12 @@ sub is_active {
    return !$self->is_inactive;
 }
 
+sub is_checkbox {
+   my $self = shift;
+
+   return lc $self->widget eq 'checkbox' ? TRUE : FALSE;
+}
+
 sub is_form { FALSE }
 
 sub is_inactive {
@@ -834,8 +852,11 @@ sub wrapper_attributes {
 
 sub wrapper_tag {
    my $self = shift;
+   my $tag  = $self->get_tag('wrapper_tag');
 
-   return $self->get_tag( 'wrapper_tag' ) || 'div';
+   $tag ||= $self->has_flag('is_repeatable') ? 'fieldset' : 'div';
+
+   return $tag;
 }
 
 # Private methods

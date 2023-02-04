@@ -10,6 +10,8 @@ has '+size' => default => 8;
 
 has '+html5_type_attr' => default => 'number';
 
+has '+wrapper_class' => default => 'input-integer';
+
 our $class_messages = {
     'integer_needed' => 'Value must be an integer',
 };

@@ -13,7 +13,7 @@ has 'item' =>
    lazy    => TRUE,
    trigger => sub { shift->set_item( @_ ) };
 
-has 'item_class' => is  => 'rw', isa => Str;
+has 'item_class' => is  => 'rwp', isa => Str;
 
 has 'item_id' =>
     is      => 'rw',
@@ -31,7 +31,7 @@ sub guess_field_type {
 sub lookup_options { }
 
 sub set_item {
-    my ($self, $item) = @_; $self->item_class( blessed $item );
+    my ($self, $item) = @_; $self->_set_item_class( blessed $item );
 }
 
 sub set_item_id { }

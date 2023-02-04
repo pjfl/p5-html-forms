@@ -21,6 +21,16 @@ sub apply_widget_role {
    return;
 }
 
+sub get_field_trait {
+   my ($self, $trait) = @_;
+
+   my $role = $self->get_widget_role( "Trait::${trait}", 'Field' );
+
+   throw '[_1] widget [_2] not found', [ 'Field::Trait', $trait ] unless $role;
+
+   return $role;
+}
+
 sub get_widget_role {
    my ($self, $widget_name, $dir) = @_;
 
