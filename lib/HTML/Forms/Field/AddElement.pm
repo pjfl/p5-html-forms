@@ -25,8 +25,8 @@ around 'element_attributes' => sub {
 
    my $attr = $orig->($self, $result);
 
-   push @{$attr->{class}}, ('add_element', 'btn');
-   $attr->{'data-rep-id'} = $field->id;
+   push @{$attr->{class}}, ('add-repeatable', 'input-button');
+   $attr->{'data-repeatable-id'} = $field->id;
    $attr->{id} = $self->id;
 
    return $attr;

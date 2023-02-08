@@ -1,68 +1,25 @@
 package HTML::Forms::Field::DateTime;
 
-use DateTime;
-use HTML::Forms::Constants qw( META TRUE );
-use Scalar::Util           qw( blessed );
-use Try::Tiny;
+use HTML::Forms::Constants qw( META );
+use HTML::Forms::Types     qw( Str );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Compound';
+extends 'HTML::Forms::Field::Date';
 
-has '+do_label' => default => TRUE;
+has '+default' => default => sub { shift->_now_dt->truncate( to => 'minute' ) };
 
-has '+do_wrapper' => default => TRUE;
+has '+format' => is => 'lazy', isa => Str, default => '%Y-%m-%dT%H:%M';
 
-has '+inflate_default_method' => default => sub { \&datetime_inflate };
+has '+html5_type_attr' => default => 'datetime-local';
+
+has '+pattern' => default => '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}';
+
+has '+size' => default => 19;
+
+has '+type_attr' => default => 'datetime-local';
 
 has '+wrapper_class' => default => 'input-datetime';
-
-our $class_messages = {
-   'datetime_invalid' => 'Not a valid DateTime',
-};
-
-sub datetime_inflate {
-   my ($self, $value) = @_;
-
-   return $value unless blessed $value eq 'DateTime';
-
-   my %hash;
-
-   for my $field ($self->all_fields) {
-      my $method = $field->name;
-
-      $hash{$method} = $value->$method;
-   }
-
-   return \%hash;
-}
-
-sub get_class_messages {
-   my $self = shift;
-
-   return { %{ $self->next::method }, %{ $class_messages  } };
-}
-
-sub validate {
-   my $self = shift;
-
-   my @dt_parms;
-
-   for my $child ($self->all_fields) {
-      next unless $child->value;
-      push @dt_parms, ($child->accessor => $child->value);
-   }
-
-   my $dt;
-
-   try   { $dt = DateTime->new(@dt_parms) }
-   catch { $self->add_error( $self->get_message('datetime_invalid') ) };
-
-   if ($dt) { $self->_set_value($dt) }
-   else { $self->set_value({ @dt_parms }) }
-
-   return;
-}
 
 use namespace::autoclean -except => META;
 

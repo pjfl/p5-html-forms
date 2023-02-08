@@ -17,8 +17,8 @@ around 'element_attributes' => sub {
 
    my $attr = $orig->($self, $result);
 
-   push @{$attr->{class}}, ('rm_element', 'btn');
-   $attr->{'data-rep-elem-id'} = $self->parent->id;
+   push @{$attr->{class}}, ('remove-repeatable', 'input-button');
+   $attr->{'data-repeatable-element-id'} = $self->parent->id;
    $attr->{id} = $self->id;
 
    return $attr;

@@ -320,6 +320,7 @@ with 'HTML::Forms::Widget::ApplyRole';
 sub BUILD {
    my ($self, $params) = @_;
 
+   $self->before_build;
    $self->merge_tags( $self->wrapper_tags ) if $self->has_wrapper_tags;
    $self->build_default_method;
    $self->validate_method;
@@ -377,9 +378,9 @@ sub add_error {
 sub add_standard_element_classes {
    my ($self, $result, $class) = @_;
 
-   push @{$class}, 'error' if $result && $result->has_errors;
-   push @{$class}, 'warning'     if $result && $result->has_warnings;
-   push @{$class}, 'disabled'    if $self->disabled;
+   push @{$class}, 'error'    if $result && $result->has_errors;
+   push @{$class}, 'warning'  if $result && $result->has_warnings;
+   push @{$class}, 'disabled' if $self->disabled;
    return;
 }
 
@@ -409,6 +410,13 @@ sub after_build {}
 
 sub attributes {
    return shift->element_attributes(@_);
+}
+
+sub before_build {
+   my $self = shift;
+
+   $self->add_label_class('field-label');
+   return;
 }
 
 sub build_element_wrapper_class { [] }
@@ -839,8 +847,8 @@ sub wrapper_attributes {
 
    $attr->{class} = $class if scalar @{ $class };
 
-   $attr->{id} = $self->id if $self->has_flag( 'is_compound' )
-      && !exists $attr->{id} && !$self->get_tag( 'no_wrapper_id' );
+   $attr->{id} = 'field_' . $self->id
+      if !exists $attr->{id} && !$self->get_tag( 'no_wrapper_id' );
 
    return $attr unless $self->form;
 

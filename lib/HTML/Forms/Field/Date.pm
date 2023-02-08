@@ -2,8 +2,8 @@ package HTML::Forms::Field::Date;
 
 use DateTime;
 use DateTime::Format::Strptime;
-use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL TRUE );
-use HTML::Forms::Types     qw( CodeRef Str );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL TRUE );
+use HTML::Forms::Types     qw( Bool CodeRef Str );
 use Ref::Util              qw( is_coderef );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
@@ -11,6 +11,8 @@ use Unexpected::Functions  qw( throw );
 use Moo;
 
 extends 'HTML::Forms::Field::Text';
+
+has 'clearable' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'date_end' =>
    is      => 'lazy',
@@ -37,13 +39,19 @@ has 'format_error' =>
       return 'Please enter a date in the format ' . $self->format;
    };
 
-has '+html5_type_attr' => default => 'date';
-
 has 'locale' => is => 'ro', isa => Str;
+
+has 'pattern' => is => 'ro', isa => Str, default => '\d{4}-\d{2}-\d{2}';
+
+has 'time_zone' => is => 'rw', isa => Str, default => 'local';
+
+has '+default' => default => sub { shift->_now_dt->truncate( to => 'day' ) };
+
+has '+html5_type_attr' => default => 'date';
 
 has '+size' => default => 10;
 
-has 'time_zone' => is => 'rw', isa => Str, default => 'local';
+has '+type_attr' => default => 'date';
 
 has '+wrapper_class' => default => 'input-date';
 
@@ -61,6 +69,32 @@ before 'get_tag' => sub {
    }
 
    return;
+};
+
+around 'add_standard_element_classes' => sub {
+   my ($orig, $self, $result, $classes) = @_;
+
+   $orig->($self, $result, $classes);
+
+   push @{$classes}, 'clearable' if $self->clearable;
+
+   return;
+};
+
+around 'element_attributes' => sub {
+   my ($orig, $self, $result) = @_;
+
+   my $attr = $orig->($self, $result);
+
+   $attr->{'max'} = is_coderef $self->date_end
+      ? $self->date_end->() : $self->date_end if $self->date_end;
+
+   $attr->{'min'} = is_coderef $self->date_start
+      ? $self->date_start->() : $self->date_start if $self->date_start;
+
+   $attr->{'pattern'} = $self->pattern;
+
+   return $attr;
 };
 
 after 'init_value' => sub {
@@ -195,6 +229,16 @@ sub _get_strf_format {
    $format =~ s/\%5/\%{day_of_month}/g,
 
    return $format;
+}
+
+sub _now_dt {
+   my $self = shift;
+   my $args = {};
+
+   $args->{locale}    = $self->locale    if $self->locale;
+   $args->{time_zone} = $self->time_zone if $self->time_zone;
+
+   return DateTime->now( %{ $args } );
 }
 
 use namespace::autoclean;

@@ -1,12 +1,10 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 6 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 7 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
-use HTML::Forms::Params;
-use HTML::Forms::Result;
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField HFsResult
                                LoadableClass Object Str Undef );
@@ -16,6 +14,8 @@ use Ref::Util              qw( is_arrayref is_blessed_ref
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
 use Unexpected::Functions  qw( inflate_placeholders throw );
+use HTML::Forms::Params;
+use HTML::Forms::Result;
 use Moo::Role ();
 use Moo;
 use MooX::HandlesVia;
@@ -63,6 +63,7 @@ has [ 'did_init_obj',
       'do_label_colon',
       'do_label_right',
       'processed',
+      'render_js_after',
       'use_init_obj_when_no_accessor_in_item',
       'verbose' ] => is  => 'rw', isa => Bool, default => FALSE;
 

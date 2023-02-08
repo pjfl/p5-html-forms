@@ -1,18 +1,25 @@
-package HTML::Forms::Field::DateDMY;
+package HTML::Forms::Role::MinimalCSS;
 
-use HTML::Forms::Constants qw( META );
-use Moo;
-use HTML::Forms::Moo;
+use English                qw( -no_match_vars );
+use HTML::Forms::Constants qw( NUL );
+use HTML::Forms::Types     qw( Str );
+use Moo::Role;
 
-extends 'HTML::Forms::Field::Date';
+my $CSS = do { local $RS = undef; <DATA> };
 
-has '+format' => default => '%d/%m/%Y';
+has 'css' => is => 'ro', isa => Str, default => $CSS;
 
-use namespace::autoclean -except => META;
+before 'before_build' => sub {
+   my $self   = shift;
+   my $before = $self->get_tag('before') || NUL;
+
+   $self->set_tag( before => $before . $self->css );
+   return;
+};
+
+use namespace::autoclean;
 
 1;
-
-__END__
 
 =pod
 
@@ -20,11 +27,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::DateDMY - Generates markup for and processes input from HTML forms
+HTML::Forms::Role::MinimalCSS - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::DateDMY;
+   use HTML::Forms::Role::MinimalCSS;
    # Brief but working code examples
 
 =head1 Description
@@ -85,3 +92,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # tab-width: 3
 # End:
 # vim: expandtab shiftwidth=3:
+
+__DATA__
+<style>
+form.classic .field-label {
+  display: inline-block;
+  width: 150px;
+}
+form.classic .input-duration .input-field {
+  display: inline-block;
+}
+form.classic .input-interval .input-group {
+  display: inline-block;
+}
+</style>

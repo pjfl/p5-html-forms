@@ -5,6 +5,19 @@ use HTML::Forms::Constants qw( NUL );
 use JSON::MaybeXS          qw( encode_json );
 use Moo::Role;
 
+my $JAVASCRIPT = do { local $RS = undef; <DATA> };
+
+before 'render' => sub {
+   my $self = shift;
+
+   return unless $self->render_js_after;
+
+   my $after = $self->get_tag('after');
+
+   $self->set_tag( after => $after . $self->render_repeatable_js );
+   return;
+};
+
 sub render_repeatable_js {
    my $self = shift;
 
@@ -23,9 +36,8 @@ sub render_repeatable_js {
    my $html_str  = encode_json( \%html );
    my $index_str = encode_json( \%index );
    my $level_str = encode_json( \%level );
-   my $js        = do { local $RS = undef; <DATA> };
 
-   return sprintf "${js}", $html_str, $index_str, $level_str;
+   return sprintf "${JAVASCRIPT}", $html_str, $index_str, $level_str;
 }
 
 use namespace::autoclean;
@@ -106,39 +118,45 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 
 __DATA__
 <script>
-$(document).ready(function() {
-   var rep_html  = %s;
-   var rep_index = %s;
-   var rep_level = %s;
-   $('.add_element').click(function() {
-      // get the repeatable id
-      var data_rep_id = $(this).attr('data-rep-id');
-      // create a regex out of index placeholder
-      var level = rep_level[data_rep_id]
-      var re = new RegExp('\{index-' + level + '\}',"g");
-      // replace the placeholder in the html with the index
-      var index = rep_index[data_rep_id];
-      var html = rep_html[data_rep_id];
-      html = html.replace(re, index);
-      // escape dots in element id
-      var esc_rep_id = data_rep_id.replace(/[.]/g, '\\\\.');
-      // append new element in the 'controls' div of the repeatable
-      var rep_controls = $('#' + esc_rep_id + ' > .controls');
-      rep_controls.append(html);
-      // increment index of repeatable fields
-      index++;
-      rep_index[data_rep_id] = index;
-   });
-
-   $(document).on('click', '.rm_element', function(event) {
-      cont = confirm('Remove?');
-      if (cont) {
-         var id = $(this).attr('data-rep-elem-id');
-         var esc_id = id.replace(/[.]/g, '\\\\.');
-         var rm_elem = $('#' + esc_id);
-         rm_elem.remove();
-      }
-      event.preventDefault();
-   });
-});
+   if (!window.HForms) window.HForms = {};
+   HForms.Repeatable = (function() {
+      const addRemoveHandlers = function() {
+         const rmElems = document.getElementsByClassName('remove-repeatable');
+         for (const el of rmElems) {
+            el.onclick = function(event) {
+               if (confirm('Remove?')) {
+                  const repElemId = this.dataset.repeatableElementId;
+                  document.getElementById('field_' + repElemId).remove();
+               }
+               event.preventDefault();
+            }.bind(el);
+         };
+      };
+      const addAddHandlers = function(htmls, indexes, levels) {
+         const addElems = document.getElementsByClassName('add-repeatable');
+         for (const el of addElems) {
+            el.onclick = function(event) {
+               const repId    = this.dataset.repeatableId;
+               const html     = htmls[repId];
+               let   index    = indexes[repId];
+               const level    = levels[repId]
+               const wrapper  = document.getElementById('field_' + repId);
+               const controls = wrapper.getElementsByClassName('controls');
+               const re       = new RegExp('\{index-' + level + '\}',"g");
+               controls[0].innerHTML += html.replace(re, index);
+               index++;
+               indexes[repId] = index;
+               addRemoveHandlers();
+               event.preventDefault();
+            }.bind(el);
+         }
+      };
+      return {
+         initialise: function(htmls, indexes, levels) {
+            addAddHandlers(htmls, indexes, levels);
+            addRemoveHandlers();
+         }
+      };
+   })();
+   HForms.Repeatable.initialise(%s, %s, %s);
 </script>

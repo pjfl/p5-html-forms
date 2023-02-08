@@ -22,6 +22,13 @@ has '+widget'              => default => 'Checkbox';
 
 has '+wrapper_class'       => default => 'input-checkbox';
 
+around 'after_build' => sub {
+   my ($orig, $self) = @_;
+
+   $self->add_label_class('label-checkbox');
+   return;
+};
+
 sub validate {
     my $self = shift;
 

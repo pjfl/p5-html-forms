@@ -6,15 +6,17 @@ use HTML::Forms::Util      qw( get_meta );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
+has '+error_message' =>
+   is      => 'rw',
+   default => 'Please fix the errors below';
+
 has '+messages_before_start' => is => 'ro', default => TRUE;
+
+has '+render_js_after' => is => 'rw', default => TRUE;
 
 has '+success_message' =>
    is      => 'rw',
    default => 'The form was successfully submitted';
-
-has '+error_message' =>
-   is      => 'rw',
-   default => 'Please fix the errors below';
 
 has 'default_field_traits' =>
    is      => 'ro',

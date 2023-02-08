@@ -1,8 +1,8 @@
 package HTML::Forms::Field::Interval;
 
 use English                qw( -no_match_vars );
-use HTML::Forms::Constants qw( META NUL SPC TRUE );
-use HTML::Forms::Types     qw( ArrayRef HFsField Int Str Undef );
+use HTML::Forms::Constants qw( DOT META NUL SPC TRUE );
+use HTML::Forms::Types     qw( ArrayRef HashRef HFsField Int Str Undef );
 use HTML::Forms::Util      qw( interval_to_string get_meta quote_single );
 use HTML::Forms::Field::Result;
 use Moo;
@@ -18,6 +18,8 @@ my $DEFAULT_INTERVALS = [
    { value => 'mon',  label => 'Months' },
    { value => 'year', label => 'Years'  },
 ];
+
+my $JAVASCRIPT = do { local $RS = undef; <DATA> };
 
 has 'interval_options' =>
    is      => 'ro',
@@ -35,15 +37,17 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
-has 'javascript' =>
-   is      => 'ro',
-   isa     => Str,
-   default => do { local $RS = undef; <DATA> };
+has 'javascript' => is => 'ro', isa => Str, default => $JAVASCRIPT;
 
 has 'period_class' =>
    is      => 'ro',
    isa     => Str,
    default => 'input input--select';
+
+has '_toggle_copy' =>
+   is      => 'lazy',
+   isa     => HashRef[ArrayRef],
+   default => sub { my $self = shift; return { %{ $self->toggle } } };
 
 has 'unit_class' =>
    is      => 'ro',
@@ -51,9 +55,11 @@ has 'unit_class' =>
    default => 'input input--text input--autosize';
 
 has 'update_js_method' =>
-   is      => 'ro',
+   is      => 'lazy',
    isa     => Str,
-   default => 'updateInterval';
+   default => sub { shift->_js_package . DOT . 'updateInterval' };
+
+has '_js_package' => is => 'ro', isa => Str, default => 'HForms.Util';
 
 has '+do_label' => default => TRUE;
 
@@ -69,13 +75,12 @@ has 'period' =>
       my $class   = 'HTML::Forms::Field::Select';
       my $options = {
          default       => $self->default_period,
-         element_attr  => {
-            javascript => $self->update_js,
-            $self->toggle_config_key => $self->toggle_config_encoded,
-         },
-         element_class => $self->toggle_class . SPC . $self->period_class,
+         element_attr  => { javascript => $self->update_js },
+         element_class => $self->period_class,
          options       => $self->interval_options,
          name          => $self->name . '-period',
+         toggle        => $self->_toggle_copy,
+         traits        => [ '+Toggle' ],
       };
       my $field   = $self->parent->new_field_with_traits($class, $options);
       my $result  = HTML::Forms::Field::Result->new(
@@ -113,6 +118,34 @@ has 'unit' =>
       $self->result->add_result( $result );
       return $field;
    };
+
+before 'before_build' => sub {
+   my $self = shift;
+
+   if ($self->has_toggle) {
+      $self->_toggle_copy;
+      $self->clear_toggle;
+   }
+
+   return;
+};
+
+after 'after_build' => sub {
+   my $self = shift;
+   my $form = $self->form or return;
+
+   return unless $form->render_js_after;
+
+   my $after   = $form->get_tag('after');
+   my $method  = $self->update_js_method;
+   my $package = $self->_js_package;
+
+   return unless $method =~ m{ \A $package }mx;
+   return if     $after  =~ m{ $package \s+ = }mx;
+
+   $form->set_tag( after => $after . $self->javascript );
+   return;
+};
 
 around 'get_disabled_fields' => sub {
    my ($orig, $self, $value) = @_;
@@ -240,9 +273,28 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 
 __DATA__
 <script>
-   function updateInterval(field) {
-      var interval = document.getElementById(field + '-unit').value + ' '
-                   + document.getElementById(field + '-period').value + 's';
-      document.getElementById(field).value = interval;
-   }
+   if (!window.HForms) window.HForms = {};
+   if (!HForms.Util) HForms.Util = {};
+   HForms.Util = (function () {
+      const onReady = function(callback) {
+         if (document.readyState != 'loading') callback();
+         else if (document.addEventListener)
+            document.addEventListener('DOMContentLoaded', callback);
+         else document.attachEvent('onreadystatechange', function() {
+            if (document.readyState == 'complete') callback();
+         });
+      };
+      const updateInterval = function(field) {
+         const hidden = document.getElementById(field);
+         const period = document.getElementById(field + '-period');
+         hidden.value = document.getElementById(field + '-unit').value
+                      + ' ' + period.value;
+         if (period.dataset.toggleConfig) HForms.Toggle.toggleFields(period);
+      };
+
+      return {
+         onReady: onReady,
+         updateInterval: updateInterval
+      };
+   })();
 </script>

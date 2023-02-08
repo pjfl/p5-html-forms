@@ -75,9 +75,11 @@
 [% END -%]
 
 [% BLOCK interval -%]
-  [% ifield = f -%]
+[%   ifield = f -%]
   [% PROCESS hidden f=ifield %]
-  [% IF ifield.update_js_method == 'updateInterval'; ifield.javascript; END -%]
+[%   IF ifield.update_js_method == 'HFs.updateInterval' && !form.render_js_after -%]
+  [% ifield.javascript %]
+[%   END -%]
     <div class="input-group">
       [% PROCESS text f=ifield.unit %]
       [% PROCESS select f=ifield.period %]
@@ -113,21 +115,21 @@
       <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
 [%     process_attrs( f.attributes ) -%]
 [%     IF option.value == f.fif %] checked="checked"[% END -%]
-        value="[% option.value | html %]" />[% localise( option.label ) | html%]
-    </label>
+        value="[% option.value | html %]" />[% localise( option.label ) | html -%]
+</label>
 [%   END -%]
 [% END -%]
 
 [% BLOCK repeatable -%]
-  [% repeatable_field = f -%]
-  [% IF repeatable_field.setup_for_js -%]
+[%   repeatable_field = f -%]
+[%   IF repeatable_field.setup_for_js && !form.render_js_after -%]
     [% form.render_repeatable_js %]
-  [% END -%]
-  [% FOR rfield IN repeatable_field.sorted_fields -%]
+[%   END -%]
+[%   FOR rfield IN repeatable_field.sorted_fields -%]
     [% WRAPPER "wrapper_${rfield.uwrapper}" f=rfield -%]
       [% PROCESS "${rfield.uwidget}" f=rfield %]
     [% END -%]
-  [% END -%]
+[%   END -%]
 [% END -%]
 
 [% BLOCK repeatable_control -%]

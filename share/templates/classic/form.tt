@@ -1,9 +1,7 @@
 [% PROCESS classic/field.tt %]
 [% PROCESS classic/wrapper.tt %]
-[% IF form.messages_before_start; PROCESS form_messages; END %]
 [% PROCESS form_start %]
-  [% IF !form.messages_before_start; PROCESS form_messages; END -%]
-[%   PROCESS form_information %]
+  [% PROCESS form_information %]
 [%   FOR form_field IN form.sorted_fields -%]
 [%     NEXT IF form_field.field_group -%]
   [%   WRAPPER "wrapper_${form_field.uwrapper}" f=form_field -%]
@@ -13,12 +11,14 @@
 [% PROCESS form_end %]
 
 [% BLOCK form_start -%]
-[%   get_tag( 'before' ) %]
+[%   get_tag( 'before' ) -%]
+[%   IF form.messages_before_start; PROCESS form_messages; END %]
 [%   wtag = get_tag( 'wrapper_tag' ) || 'fieldset' -%]
 [%   IF wtag != 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
 <form[% process_attrs( form.attributes ) %]>
 [%   IF wtag == 'fieldset'; PROCESS form_wrapper_start tag=wtag; END -%]
-[%   get_tag( 'after_start' ) %]
+  [% IF !form.messages_before_start; PROCESS form_messages; END -%]
+  [% get_tag( 'after_start' ) %]
 [% END -%]
 
 [% BLOCK form_wrapper_start -%]
@@ -35,7 +35,7 @@
 [% BLOCK form_information -%]
 [%   IF form.has_info_message && form.info_message -%]
 [%     info_class = get_tag( 'info_class' ) || 'alert alert-info' -%]
-  <div class="[% info_class %]">[% localise( form.info_message ) %]</div>
+<div class="[% info_class %]">[% localise( form.info_message ) %]</div>
 [%   END -%]
 [% END -%]
 
@@ -65,7 +65,7 @@
 [%   IF wtag == 'fieldset'; PROCESS form_wrapper_end tag=wtag; END %]
 </form>
 [%   IF wtag != 'fieldset'; PROCESS form_wrapper_end tag=wtag; END %]
-[%   get_tag( 'after' ) %]
+[%-  get_tag( 'after' ) -%]
 [% END -%]
 
 [% BLOCK form_wrapper_end -%]

@@ -6,9 +6,8 @@
 [%   ELSE -%]
 [%     output = label _ "\n  " _ content _ '  ' -%]
 [%   END -%]
-[%   classes = [ 'checkbox' ] -%]
-[%   IF f.get_tag( 'inline' ); classes.push( 'inline' ); END -%]
-[%   lattrs = process_attrs( { 'class' => classes  } ) -%]
+[%   IF f.get_tag( 'inline' ); f.add_label_class( 'inline' ); END -%]
+[%   lattrs = process_attrs( f.label_attributes ) -%]
 [%   output = '<label' _ lattrs _ f.for_field _ ">" _ output _ '</label>'-%]
 [%   IF f.get_tag( 'checkbox_element_wrapper' ) -%]
     <div class="checkbox">[% output %]</div>

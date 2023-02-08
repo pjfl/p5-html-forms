@@ -34,7 +34,7 @@ has 'init_contains' =>
 has 'instance_wrapper_class' =>
    is      => 'ro',
    isa     => Str,
-   default => 'hfs-repinst';
+   default => 'input-repeatable';
 
 has 'is_repeatable'  => is => 'ro', isa => Bool, default => TRUE;
 
@@ -321,11 +321,11 @@ sub _setup_for_js {
 
    return unless $self->form;
 
-   my $full_name = $self->full_name;
+   my $full_name   = $self->full_name;
    my $index_level =()= $full_name =~ /{index\d+}/g; $index_level++;
-   my $field_name = "{index-$index_level}";
-   my $field = $self->_add_extra( $field_name );
-   my $rendered = $field->render;
+   my $field_name  = "{index-$index_level}";
+   my $field       = $self->_add_extra( $field_name );
+   my $rendered    = $field->render;
 
    # Remove extra result & field, now that it's rendered
    $self->result->_pop_result;
@@ -333,7 +333,7 @@ sub _setup_for_js {
    # Set the information in the form
    # $self->index is the index of the next instance
    $self->form->set_for_js( $self->full_name, {
-      index => $self->index, html => $rendered, level => $index_level
+      html => $rendered, index => $self->index, level => $index_level
    } );
 
    return;

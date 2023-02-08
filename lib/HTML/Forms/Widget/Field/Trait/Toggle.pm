@@ -4,6 +4,7 @@ use HTML::Forms::Constants qw( TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities );
 use JSON::MaybeXS          qw( encode_json );
+use List::Util             qw( first );
 use Moo::Role;
 use MooX::HandlesVia;
 
@@ -15,7 +16,8 @@ has 'toggle' =>
    builder     => sub { {} },
    handles_via => 'Hash',
    handles     => {
-      has_toggle => 'count',
+      clear_toggle => 'clear',
+      has_toggle   => 'count',
    };
 
 has 'toggle_class' => is => 'ro', isa => Str, default => 'toggle';
@@ -55,20 +57,16 @@ has 'toggle_event' =>
 after 'after_build' => sub {
    my $self = shift;
 
-   $self->add_element_class( $self->toggle_class ) if $self->has_toggle;
+   return unless $self->has_toggle;
 
+   $self->set_element_attr(
+      $self->toggle_config_key, $self->toggle_config_encoded
+   );
+
+   return if first { $_ eq $self->toggle_class } @{$self->element_class};
+
+   $self->add_element_class( $self->toggle_class );
    return;
-};
-
-around '_build_element_attr' => sub {
-   my ($orig, $self) = @_;
-
-   my $attr = $orig->( $self );
-
-   $attr->{$self->toggle_config_key} = $self->toggle_config_encoded
-      if $self->has_toggle;
-
-   return $attr;
 };
 
 before 'validate' => sub {

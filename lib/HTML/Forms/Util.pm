@@ -5,7 +5,7 @@ use parent 'Exporter::Tiny';
 
 use Data::Clone            qw( clone );
 use DateTime::Duration;
-use HTML::Entities         qw( );
+use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( TRUE FALSE META NUL SPC );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
@@ -240,9 +240,11 @@ sub process_attrs {
          else { $value = $attrs->{ $attr } }
       }
 
-      my $qc = $attr =~ m{ \A data\- }mx ? "'" : '"';
+      if ($attr =~ m{ \A data\- }mx) {
+         $value = encode_entities($value, '<>&"');
+      }
 
-      push @use_attrs, sprintf '%s=%s%s%s', $attr, $qc, $value, $qc;
+      push @use_attrs, sprintf '%s="%s"', $attr, $value;
    }
 
    my $output = join SPC, @use_attrs;
