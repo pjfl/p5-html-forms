@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Javascript mow has its own package deps system
           - Added time with zone field
           - Toggle js working
           - Test forms server and TestMany field types

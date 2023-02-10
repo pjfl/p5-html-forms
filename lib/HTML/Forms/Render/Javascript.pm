@@ -1,6 +1,6 @@
 package HTML::Forms::Render::Javascript;
 
-use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS FALSE TRUE );
+use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef CodeRef HashRef Str );
 use Path::Tiny             qw( path );
 use Ref::Util              qw( is_coderef );
@@ -33,8 +33,23 @@ has '_wanted_packages' =>
 
 before 'render' => sub {
    my $self = shift;
+   my @dependencies;
 
-   for my $package (@{$self->_wanted_packages}) {
+   if ($self->render_js_after) {
+      for my $package (@{$self->_wanted_packages}) {
+         if (!is_coderef $package) {
+            next if $self->_has_package($package);
+
+            $self->_load_package($package);
+            throw UnknownPackage, [$package]
+               unless $self->_has_package($package);
+
+            push @dependencies, @{_dependencies($self->_packages->{$package})};
+         }
+      }
+   }
+
+   for my $package (@dependencies, @{$self->_wanted_packages}) {
       my $after = $self->get_tag('after');
       my $js;
 
@@ -80,6 +95,13 @@ sub _contains_package {
    my ($package, $js) = @_;
 
    return $js =~ m{ ^ // \s+ Package \s+ \Q$package\E }imx ? TRUE : FALSE;
+}
+
+sub _dependencies {
+   my $js = shift;
+   my ($dependencies) = $js =~ m{ ^ // \s+ Dependencies \s+ (.+) $ }imx;
+
+   return [ split m{ \s }mx, $dependencies // NUL ];
 }
 
 sub _to_pathname {

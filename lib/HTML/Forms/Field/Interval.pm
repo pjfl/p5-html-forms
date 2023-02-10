@@ -120,10 +120,7 @@ before 'before_build' => sub {
       my $method  = $self->update_js_method;
       my $package = $self->_js_package;
 
-      if ($method =~ m{ \A $package }mx) {
-         $form->load_js_package('HForms.Util');
-         $form->load_js_package($package);
-      }
+      $form->load_js_package($package) if $method =~ m{ \A $package }mx;
    }
 
    if ($self->has_toggle) {

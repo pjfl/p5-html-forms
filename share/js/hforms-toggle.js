@@ -1,4 +1,5 @@
 // Package HForms.Toggle
+// Dependencies HForms.Util
 if (!window.HForms) window.HForms = {};
 HForms.Toggle = (function() {
    const animate = function(el, method) {

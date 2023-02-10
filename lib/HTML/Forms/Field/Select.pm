@@ -129,7 +129,12 @@ sub BUILD {
    }
 
    $self->input_without_param;
-   $self->add_label_class('select-multiple') if $self->multiple;
+
+   if ($self->multiple) {
+      $self->add_label_class('select-multiple');
+      $self->add_element_class('select-multiple');
+   }
+
    return;
 }
 

@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 8 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 9 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -61,6 +61,7 @@ Defines the following attributes;
 has [ 'did_init_obj',
       'do_form_wrapper',
       'do_label_colon',
+      'do_label_colon_right',
       'do_label_right',
       'processed',
       'render_js_after',

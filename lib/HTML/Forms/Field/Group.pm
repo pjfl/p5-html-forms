@@ -19,7 +19,7 @@ sub _build_element_class {
 }
 
 sub _build_wrapper_class {
-   return [ 'input-compound' ];
+   return [ 'compound-field' ];
 }
 
 use namespace::autoclean;

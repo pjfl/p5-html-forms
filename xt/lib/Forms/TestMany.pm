@@ -18,7 +18,6 @@ has '+info_message'        => default => 'You know what to do';
 
 # TODO: Test repeatable field post
 # TODO: Fix interval result from post
-# TODO: Time with zone
 has_field 'single_boolean' => type => 'Boolean',
    info => 'Each field comes with its own helpful information';
 

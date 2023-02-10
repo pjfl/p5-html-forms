@@ -68,10 +68,8 @@ after 'after_build' => sub {
 
    my $form = $self->form;
 
-   if ($form && $form->can('load_js_package')) {
-      $form->load_js_package('HForms.Util');
-      $form->load_js_package('HForms.Toggle');
-   }
+   $form->load_js_package('HForms.Toggle')
+      if $form && $form->can('load_js_package');
 
    return;
 };

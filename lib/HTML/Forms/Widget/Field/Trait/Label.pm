@@ -31,7 +31,10 @@ sub _colon {
    my $self  = shift;
    my $class = $self->get_tag('label_right') ? 'before' : 'after';
 
-   return $self->_html->span({ class => "label-sep-${class}" }, COLON );
+   $class  = "label-sep-${class}";
+   $class .= ' label-sep-right' if $self->form->do_label_colon_right;
+
+   return $self->_html->span({ class => $class }, COLON );
 }
 
 use namespace::autoclean;

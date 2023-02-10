@@ -122,11 +122,14 @@ form.classic .input-money input,
 form.classic .input-number input {
   text-align: right;
 }
-form.classic .field-label .label-sep-after {
+form.classic .field-label .label-sep-right {
   float: right;
 }
 form.classic .input-duration .option-label .label-sep-after,
 form.classic .input-duration .option-label .label-sep-before {
   display: none;
+}
+form.classic select.select-multiple option {
+  width: 100px;
 }
 </style>

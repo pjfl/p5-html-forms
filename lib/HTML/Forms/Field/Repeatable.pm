@@ -55,7 +55,6 @@ after 'after_build' => sub {
    my $form = $self->form;
 
    if ($form && $form->can('load_js_package')) {
-      $form->load_js_package('HForms.Util');
       $form->load_js_package($self->_js_package);
       $form->load_js_package(sub { $self->render_repeatable_js });
    }

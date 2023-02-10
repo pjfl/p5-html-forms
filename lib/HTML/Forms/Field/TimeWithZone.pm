@@ -1,9 +1,11 @@
 package HTML::Forms::Field::TimeWithZone;
 
 use DateTime::TimeZone;
-use HTML::Forms::Constants qw( DOT META TIME_RE TRUE );
+use HTML::Forms::Constants qw( DOT META NUL TIME_RE TRUE );
 use HTML::Forms::Types     qw( HFsField Maybe Str );
 use HTML::Forms::Util      qw( quote_single );
+use HTML::Forms::Field::Hour;
+use HTML::Forms::Field::Minute;
 use HTML::Forms::Field::Select;
 use Moo;
 use HTML::Forms::Moo;
@@ -123,7 +125,7 @@ has '_zone' =>
    isa     => Maybe[Str],
    default => sub {
       my $self    = shift;
-      my $tmwz    = $self->fif or return 'local';
+      my $tmwz    = $self->fif or return NUL;
       my $time_re = TIME_RE;
       my ($zone)  = $tmwz =~ m{ \A $time_re \s (.+) \z }mx;
 
@@ -134,9 +136,8 @@ before 'before_build' => sub {
    my $self = shift;
    my $form = $self->form;
 
-   if ($form && $form->can('load_js_package')) {
-      $form->load_js_package($self->_js_package);
-   }
+   $form->load_js_package($self->_js_package)
+      if $form && $form->can('load_js_package');
 
    return;
 };

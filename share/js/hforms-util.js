@@ -13,7 +13,6 @@ HForms.Util = (function () {
 		const hours = document.getElementById(id + '_hours').value;
 		const mins  = document.getElementById(id + '_mins').value;
 		const zone  = document.getElementById(id + '_zone').value;
-
 		document.getElementById(id).value = hours + ':' + mins + ' ' + zone;
 	};
 
