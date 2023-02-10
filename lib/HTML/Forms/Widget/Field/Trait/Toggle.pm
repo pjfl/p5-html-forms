@@ -63,9 +63,16 @@ after 'after_build' => sub {
       $self->toggle_config_key, $self->toggle_config_encoded
    );
 
-   return if first { $_ eq $self->toggle_class } @{$self->element_class};
+   $self->add_element_class( $self->toggle_class )
+      unless first { $_ eq $self->toggle_class } @{$self->element_class};
 
-   $self->add_element_class( $self->toggle_class );
+   my $form = $self->form;
+
+   if ($form && $form->can('load_js_package')) {
+      $form->load_js_package('HForms.Util');
+      $form->load_js_package('HForms.Toggle');
+   }
+
    return;
 };
 

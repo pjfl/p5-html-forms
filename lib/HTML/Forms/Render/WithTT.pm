@@ -1,7 +1,6 @@
 package HTML::Forms::Render::WithTT;
 
-use File::ShareDir;
-use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE TT_THEME SPC );
+use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS TRUE TT_THEME SPC );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str Template );
 use HTML::Forms::Util      qw( process_attrs );
 use Scalar::Util           qw( weaken );
@@ -33,10 +32,7 @@ has 'tt_config' =>
 
       return {
          %{ $self->tt_options },
-         INCLUDE_PATH => [
-            @{ $self->tt_include_path },
-            File::ShareDir::dist_dir( 'HTML-Forms' ) . '/templates/'
-         ],
+         INCLUDE_PATH => [ @{$self->tt_include_path}, DISTDIR . '/templates/' ],
       };
    },
    lazy    => TRUE;

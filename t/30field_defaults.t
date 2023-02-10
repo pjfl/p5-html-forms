@@ -285,7 +285,6 @@ is $form->field( 'foo' )->fif, 'foo_from_obj',
    extends 'HTML::Forms';
 
    with 'HTML::Forms::Render::WithTT';
-   with 'HTML::Forms::Render::RepeatableJs';
 
    has '+name' => default => 'testform';
    has_field 'foo';

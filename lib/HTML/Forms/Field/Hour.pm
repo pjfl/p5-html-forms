@@ -6,6 +6,8 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::IntRange';
 
+has '+label_format' => default => '%02d';
+
 has '+range_start' => default => 0;
 
 has '+range_end' => default => 23;

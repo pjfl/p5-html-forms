@@ -6,8 +6,8 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms';
 with    'HTML::Forms::Role::Defaults';
-with    'HTML::Forms::Render::WithTT';
-with    'HTML::Forms::Render::RepeatableJs';
+with    'HTML::Forms::Role::MinimalCSS';
+with    'HTML::Forms::Render::Javascript';
 
 has '+title'               => default => 'Test Repeatable Field';
 has '+default_wrapper_tag' => default => 'fieldset';
@@ -17,7 +17,7 @@ has '+info_message'        => default => 'You know what to do';
 has_field 'subject_name' => label => 'Name';
 
 has_field 'repeat'        => type => 'Repeatable',
-   do_wrapper => TRUE, setup_for_js => TRUE, tags => { controls_div => 1 };
+   do_wrapper => TRUE, tags => { controls_div => 1 };
 has_field 'repeat.age'    => type => 'PosInteger';
 has_field 'repeat.sex'    => type => 'Select', auto_widget_size => 3;
 has_field 'repeat.remove' => type => 'RmElement';

@@ -1,27 +1,27 @@
-package HTML::Forms::Field::DateTime;
+package HTML::Forms::Manager;
 
-use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH META TIME_FMT TIME_MATCH );
+use Class::Load qw( load_optional_class );
+use HTML::Forms::Constants qw( TRUE );
 use HTML::Forms::Types     qw( Str );
 use Moo;
-use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Date';
+has 'namespace' => is => 'ro', isa => Str, required => TRUE;
 
-has '+default' => default => sub { shift->_now_dt->truncate( to => 'minute' ) };
+sub new_with_context {
+   my ($self, $name, $options) = @_;
 
-has '+format' => is => 'lazy', isa => Str, default => DATE_FMT . 'T' . TIME_FMT;
+   my $context = $options->{context};
+   my $params  = { %{$options->{parameters} // {}} };
+   my $class   = $self->namespace . '::' . $name;
 
-has '+html5_type_attr' => default => 'datetime-local';
+   $params->{ctx} = $context;
+   $params->{params} = { %{$context->request->body_parameters // {}} };
+   load_optional_class($class);
 
-has '+pattern' => default => DATE_MATCH . 'T' . TIME_MATCH;
+   return $class->new($params);
+}
 
-has '+size' => default => 19;
-
-has '+type_attr' => default => 'datetime-local';
-
-has '+wrapper_class' => default => 'input-datetime';
-
-use namespace::autoclean -except => META;
+use namespace::autoclean;
 
 1;
 
@@ -33,11 +33,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::DateTime - Generates markup for and processes input from HTML forms
+HTML::Forms::Manager - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::DateTime;
+   use HTML::Forms::Manager;
    # Brief but working code examples
 
 =head1 Description

@@ -3,25 +3,35 @@ package HTML::Forms::Constants;
 use strictures;
 use parent 'Exporter::Tiny';
 
-use Unexpected;
+use File::ShareDir;
+use HTML::Forms::Exception;
 
-our @EXPORT = qw( BANG COLON COMMA DOT EXCEPTION_CLASS FALSE META
-                  NUL SPC TRUE TT_THEME );
+our @EXPORT = qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR DOT
+                  EXCEPTION_CLASS FALSE META NBSP NUL SPC TIME_FMT
+                  TIME_MATCH TIME_RE TRUE TT_THEME );
 
 sub BANG     () { q(!) }
 sub COLON    () { q(:) }
 sub COMMA    () { q(,) }
+sub DISTDIR  () { File::ShareDir::dist_dir('HTML-Forms') }
 sub DOT      () { q(.) }
 sub FALSE    () { 0    }
 sub META     () { '_html_forms_meta' }
+sub NBSP     () { '&nbsp;' }
 sub NUL      () { q()  }
 sub SPC      () { q( ) }
 sub TRUE     () { 1    }
 sub TT_THEME () { 'classic' }
 
+sub DATE_FMT        () { '%Y-%m-%d' }
+sub DATE_MATCH      () { '\d{4}-\d{2}-\d{2}' }
+sub DATE_RE         () { qr{ \d{4}-\d{2}-\d{2} }mx }
+sub TIME_FMT        () { '%H:%M' }
+sub TIME_MATCH      () { '\d{2}:\d{2}' }
+sub TIME_RE         () { qr{ \d{2}:\d{2} }mx }
 sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
 
-my $exception_class = 'Unexpected';
+my $exception_class = 'HTML::Forms::Exception';
 
 sub Exception_Class {
    my ($self, $class) = @_;

@@ -1,10 +1,11 @@
 package HTML::Forms::Field::Interval;
 
-use English                qw( -no_match_vars );
 use HTML::Forms::Constants qw( DOT META NUL SPC TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef HFsField Int Str Undef );
 use HTML::Forms::Util      qw( interval_to_string get_meta quote_single );
+use HTML::Forms::Field::Integer;
 use HTML::Forms::Field::Result;
+use HTML::Forms::Field::Select;
 use Moo;
 use HTML::Forms::Moo;
 
@@ -19,11 +20,15 @@ my $DEFAULT_INTERVALS = [
    { value => 'year', label => 'Years'  },
 ];
 
-my $JAVASCRIPT = do { local $RS = undef; <DATA> };
+has '+do_label' => default => TRUE;
+
+has '+widget'   => default => 'Interval';
+
+has '+wrapper_class' => default => 'input-interval';
 
 has 'interval_options' =>
    is      => 'ro',
-   isa     => ArrayRef,
+   isa     => ArrayRef[HashRef],
    builder => sub { $DEFAULT_INTERVALS };
 
 has 'interval_string' =>
@@ -37,35 +42,24 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
-has 'javascript' => is => 'ro', isa => Str, default => $JAVASCRIPT;
-
 has 'period_class' =>
    is      => 'ro',
    isa     => Str,
-   default => 'input input--select';
+   default => 'input-select';
 
 has '_toggle_copy' =>
    is      => 'lazy',
    isa     => HashRef[ArrayRef],
    default => sub { my $self = shift; return { %{ $self->toggle } } };
 
-has 'unit_class' =>
-   is      => 'ro',
-   isa     => Str,
-   default => 'input input--text input--autosize';
+has 'unit_class' => is => 'ro', isa => Str, default => 'input-text';
 
 has 'update_js_method' =>
    is      => 'lazy',
    isa     => Str,
    default => sub { shift->_js_package . DOT . 'updateInterval' };
 
-has '_js_package' => is => 'ro', isa => Str, default => 'HForms.Util';
-
-has '+do_label' => default => TRUE;
-
-has '+widget'   => default => 'Interval';
-
-has '+wrapper_class' => default => 'input-interval';
+has '_js_package' => is => 'ro', isa => Str, default => 'HForms.Toggle';
 
 has 'period' =>
    is      => 'lazy',
@@ -77,6 +71,7 @@ has 'period' =>
          default       => $self->default_period,
          element_attr  => { javascript => $self->update_js },
          element_class => $self->period_class,
+         form          => $self->form,
          options       => $self->interval_options,
          name          => $self->name . '-period',
          toggle        => $self->_toggle_copy,
@@ -101,12 +96,10 @@ has 'unit' =>
       my $class   = 'HTML::Forms::Field::Integer';
       my $options = {
          default       => $self->default_unit,
-         element_attr  => {
-            javascript => $self->update_js,
-            size       => 4,
-         },
+         element_attr  => { javascript => $self->update_js },
          element_class => $self->unit_class,
          name          => $self->name . '-unit',
+         size          => 4,
       };
       my $field   = $self->parent->new_field_with_traits($class, $options);
       my $result  = HTML::Forms::Field::Result->new(
@@ -121,29 +114,23 @@ has 'unit' =>
 
 before 'before_build' => sub {
    my $self = shift;
+   my $form = $self->form;
+
+   if ($form && $form->can('load_js_package')) {
+      my $method  = $self->update_js_method;
+      my $package = $self->_js_package;
+
+      if ($method =~ m{ \A $package }mx) {
+         $form->load_js_package('HForms.Util');
+         $form->load_js_package($package);
+      }
+   }
 
    if ($self->has_toggle) {
       $self->_toggle_copy;
       $self->clear_toggle;
    }
 
-   return;
-};
-
-after 'after_build' => sub {
-   my $self = shift;
-   my $form = $self->form or return;
-
-   return unless $form->render_js_after;
-
-   my $after   = $form->get_tag('after');
-   my $method  = $self->update_js_method;
-   my $package = $self->_js_package;
-
-   return unless $method =~ m{ \A $package }mx;
-   return if     $after  =~ m{ $package \s+ = }mx;
-
-   $form->set_tag( after => $after . $self->javascript );
    return;
 };
 
@@ -270,31 +257,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # tab-width: 3
 # End:
 # vim: expandtab shiftwidth=3:
-
-__DATA__
-<script>
-   if (!window.HForms) window.HForms = {};
-   if (!HForms.Util) HForms.Util = {};
-   HForms.Util = (function () {
-      const onReady = function(callback) {
-         if (document.readyState != 'loading') callback();
-         else if (document.addEventListener)
-            document.addEventListener('DOMContentLoaded', callback);
-         else document.attachEvent('onreadystatechange', function() {
-            if (document.readyState == 'complete') callback();
-         });
-      };
-      const updateInterval = function(field) {
-         const hidden = document.getElementById(field);
-         const period = document.getElementById(field + '-period');
-         hidden.value = document.getElementById(field + '-unit').value
-                      + ' ' + period.value;
-         if (period.dataset.toggleConfig) HForms.Toggle.toggleFields(period);
-      };
-
-      return {
-         onReady: onReady,
-         updateInterval: updateInterval
-      };
-   })();
-</script>

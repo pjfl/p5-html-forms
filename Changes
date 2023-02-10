@@ -1,5 +1,7 @@
 Revision history for HTML::Forms
 
+          - Added time with zone field
+          - Toggle js working
           - Test forms server and TestMany field types
           - Added more field types
           - Moved namespace::autoclean to end of code

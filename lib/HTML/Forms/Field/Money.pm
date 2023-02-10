@@ -3,7 +3,7 @@ package HTML::Forms::Field::Money;
 use utf8;
 
 use HTML::Forms::Constants qw( FALSE META );
-use HTML::Forms::Types     qw( Bool Str );
+use HTML::Forms::Types     qw( Bool Int Str );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -12,6 +12,8 @@ extends 'HTML::Forms::Field::Text';
 has 'allow_commas' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'currency_symbol' => is => 'ro', isa => Str, default => '£';
+
+has 'size' => is => 'ro', isa => Int, default => 8;
 
 has '+html5_type_attr' => default => 'number';
 

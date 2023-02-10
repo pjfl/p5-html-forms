@@ -6,17 +6,21 @@ use HTML::Forms::Util      qw( get_meta );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
+with 'HTML::Forms::Render::WithTT';
+
+has '+enctype' => is => 'rw', default => 'multipart/form-data';
+
 has '+error_message' =>
    is      => 'rw',
    default => 'Please fix the errors below';
 
 has '+messages_before_start' => is => 'ro', default => TRUE;
 
-has '+render_js_after' => is => 'rw', default => TRUE;
-
 has '+success_message' =>
    is      => 'rw',
    default => 'The form was successfully submitted';
+
+has 'default_charset' => is => 'ro', isa => Str, default => 'utf-8';
 
 has 'default_field_traits' =>
    is      => 'ro',
@@ -48,11 +52,32 @@ has 'default_request_token' => is => 'ro', isa => Str, default => 'no_replay';
 
 has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'div';
 
+around 'html_attributes' => sub {
+   my ($orig, $self, $obj, $type, $attrs, $result) = @_;
+
+   $attrs = $orig->($self, $obj, $type, $attrs, $result);
+
+   if ($type eq 'label') {
+      my $class = $obj->parent->isa('HTML::Forms')
+         ? 'field-label' : 'option-label';
+      push @{$attrs->{class}}, $class;
+   }
+
+   if ($type eq 'wrapper') {
+      pop @{$attrs->{class}} if $obj->get_tag('label_right')
+         && $obj->parent->isa('HTML::Forms::Field::Duration')
+         && $attrs->{class}->[-1] eq 'label-right';
+   }
+
+   return $attrs;
+};
+
 sub before_build {
    my $self = shift;
 
    $self->set_tag( legend => $self->default_form_legend );
    $self->set_tag( wrapper_tag => $self->default_wrapper_tag );
+   $self->set_form_element_attr( 'accept-charset' => $self->default_charset );
    $self->add_form_element_class( $self->default_form_class );
    $self->add_form_wrapper_class( $self->default_form_wrapper_class );
 

@@ -43,7 +43,7 @@ BEGIN {
 
 use strictures;
 
-use Class::Load            qw( load_optional_class );
+use HTML::Forms::Manager;
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTTP::Status           qw( HTTP_FOUND HTTP_OK );
 use Plack::Builder;
@@ -51,19 +51,27 @@ use Plack::Builder;
 use Data::Dumper; $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = sub { [ sort keys %{ $_[ 0 ] } ] };
 
+my $form_manager = HTML::Forms::Manager->new( namespace => 'Forms' );
+
+my $get_form_name = sub {
+   my $request = shift;
+   (my $name  = $request->path_info) =~ s{ \A / }{}mx;
+
+   return (ucfirst $name || 'TestMany');
+};
+
 my $psgi_app = sub {
    my $env     = shift;
    my $context = Test::Context->new(env => $env);
-   my $req     = $context->request;
-   (my $name   = $req->path_info) =~ s{ \A / }{}mx;
-   my $class   = 'Forms::' . (ucfirst $name || 'TestMany');
+   my $request = $context->request;
+   my $name    = $get_form_name->($request);
+   my $options = {
+      context    => $context,
+      parameters => $request->query_parameters,
+   };
+   my $form = $form_manager->new_with_context($name, $options);
 
-   load_optional_class($class);
-
-   my @parms   = (ctx => $context, params => ($req->parameters->mixed // {}));
-   my $form    = $class->new( @parms );
-
-   $form->process( posted => $req->method eq 'POST' ? TRUE : FALSE );
+   $form->process( posted => $request->method eq 'POST' );
 
    my $render = $form->render;
    my $html   = "<!DOCTYPE html><head></head><body>\n${render}\n</body></html>";

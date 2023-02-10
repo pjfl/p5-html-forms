@@ -6,7 +6,7 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Select';
 
-has '+wrapper_class' => default => 'input-select_month';
+has '+wrapper_class' => default => 'input-select-month';
 
 sub build_options {
    my $value  = 1;

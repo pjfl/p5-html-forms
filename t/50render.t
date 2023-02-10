@@ -36,8 +36,8 @@ $form->add_tt_include_path( 'frodo' );
 is $form->tt_include_path->[ 1 ], 'frodo', 'adds extra include paths';
 
 is $form->render,
-   "<form id=\"test_tt\" method=\"post\">\n  <div class=\"form_messages\">\n  "
- . "</div>\n</form>",
+   "<form id=\"test_tt\" method=\"post\">\n  <div class=\"form-messages\">\n"
+ . "</div>\n  \n</form>",
    'renders default form';
 
 my $options = [ { label => 'One', value => 1 },
@@ -98,13 +98,13 @@ $form = HTML::Forms->new_with_traits(
          ],
          type          => 'DataStructure',
       },
-      'datepicky' => {
+      'datey' => {
          clearable => 1,
-         type      => 'DatePicker',
+         type      => 'Date',
       },
-      'datetimepicky' => {
+      'datetimey' => {
          datetime  => 1,
-         type      => 'DatePicker',
+         type      => 'DateTime',
       },
       'buttony' => {
          default   => 'submit_form',

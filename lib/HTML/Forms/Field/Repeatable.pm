@@ -1,12 +1,14 @@
 package HTML::Forms::Field::Repeatable;
 
-use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Constants qw( DOT FALSE META NUL TRUE );
+use HTML::Forms::Types     qw( Bool HashRef HFsField Int Str );
+use HTML::Forms::Util      qw( merge );
+use JSON::MaybeXS          qw( encode_json );
+use Ref::Util              qw( is_arrayref );
+use Scalar::Util           qw( weaken );
 use HTML::Forms::Field::Repeatable::Instance;
 use HTML::Forms::Field::PrimaryKey;
 use HTML::Forms::Field::Result;
-use HTML::Forms::Types     qw( Bool HashRef HFsField Int Str );
-use HTML::Forms::Util      qw( merge );
-use Ref::Util              qw( is_arrayref );
 use Moo;
 use MooX::HandlesVia;
 use HTML::Forms::Moo;
@@ -38,13 +40,28 @@ has 'instance_wrapper_class' =>
 
 has 'is_repeatable'  => is => 'ro', isa => Bool, default => TRUE;
 
+has '_js_package'    => is => 'ro', isa => Str, default => 'HForms.Repeatable';
+
 has 'num_extra'      => is => 'rw', isa => Int, default => 0;
 
 has 'num_when_empty' => is => 'rw', isa => Int, default => 1;
 
-has 'setup_for_js'   => is => 'rw', isa => Bool;
+has 'setup_for_js'   => is => 'rw', isa => Bool, default => TRUE;
 
 has '+widget'        => default => 'Repeatable';
+
+after 'after_build' => sub {
+   my $self = shift; weaken $self;
+   my $form = $self->form;
+
+   if ($form && $form->can('load_js_package')) {
+      $form->load_js_package('HForms.Util');
+      $form->load_js_package($self->_js_package);
+      $form->load_js_package(sub { $self->render_repeatable_js });
+   }
+
+   return;
+};
 
 # Public methods
 sub add_extra {
@@ -166,6 +183,30 @@ sub init_state {
 
    $self->clear_fields;
    return;
+}
+
+sub render_repeatable_js {
+   my $self = shift;
+   my $form = $self->form or return;
+
+   return NUL unless $form->has_for_js;
+
+   my (%html, %index, %level);
+
+   for my $name (keys %{$form->for_js}) {
+      my $field = $form->for_js->{$name};
+
+      $html{$name}  = $field->{html};
+      $index{$name} = $field->{index};
+      $level{$name} = $field->{level};
+   }
+
+   my $html_str  = encode_json( \%html );
+   my $index_str = encode_json( \%index );
+   my $level_str = encode_json( \%level );
+   my $js        = $self->_js_package . DOT . 'initialise(%s, %s, %s)';
+
+   return sprintf "${js}", $html_str, $index_str, $level_str;
 }
 
 # Private methods

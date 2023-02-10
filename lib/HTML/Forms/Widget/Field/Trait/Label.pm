@@ -1,9 +1,13 @@
 package HTML::Forms::Widget::Field::Trait::Label;
 
-use HTML::Forms::Constants qw( COLON FALSE SPC TRUE );
+use HTML::Forms::Constants qw( COLON FALSE NBSP TRUE );
+use HTML::Forms::Types     qw( Object );
+use HTML::Tiny;
 use Moo::Role;
 
 requires qw( form );
+
+has '_html' => is => 'lazy', isa => Object, builder => sub { HTML::Tiny->new };
 
 after 'after_build' => sub {
    my $self = shift;
@@ -15,13 +19,20 @@ after 'after_build' => sub {
 
    if ($form && $form->do_label_colon) {
       if ($self->get_tag('label_right')) {
-          $self->merge_tags({ label_before => COLON . SPC })
+          $self->merge_tags({ label_before => $self->_colon . NBSP })
       }
-      else { $self->merge_tags({ label_after => COLON }) }
+      else { $self->merge_tags({ label_after => $self->_colon }) }
    }
 
    return;
 };
+
+sub _colon {
+   my $self  = shift;
+   my $class = $self->get_tag('label_right') ? 'before' : 'after';
+
+   return $self->_html->span({ class => "label-sep-${class}" }, COLON );
+}
 
 use namespace::autoclean;
 

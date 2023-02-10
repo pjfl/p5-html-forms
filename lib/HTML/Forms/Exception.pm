@@ -1,27 +1,28 @@
-package HTML::Forms::Field::DateTime;
+package HTML::Forms::Exception;
 
-use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH META TIME_FMT TIME_MATCH );
-use HTML::Forms::Types     qw( Str );
+use Unexpected::Functions qw( has_exception );
 use Moo;
-use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::Date';
+extends q(Unexpected);
+with    q(Unexpected::TraitFor::ExceptionClasses);
 
-has '+default' => default => sub { shift->_now_dt->truncate( to => 'minute' ) };
+my $class = __PACKAGE__;
 
-has '+format' => is => 'lazy', isa => Str, default => DATE_FMT . 'T' . TIME_FMT;
+has_exception $class;
 
-has '+html5_type_attr' => default => 'datetime-local';
+has_exception 'NotFound' => parent => [$class],
+   error => 'Path [_1] not found. [_2]';
 
-has '+pattern' => default => DATE_MATCH . 'T' . TIME_MATCH;
+has_exception 'PackageUndefined' => parent => [$class],
+   error => 'Package [_1] not defined in [_2].';
 
-has '+size' => default => 19;
+has_exception 'ReadFailed' => parent => [$class],
+   error => 'Path [_1] read failed. [_2]';
 
-has '+type_attr' => default => 'datetime-local';
+has_exception 'UnknownPackage' => parent => [$class],
+   error => 'Package [_1] not found.';
 
-has '+wrapper_class' => default => 'input-datetime';
-
-use namespace::autoclean -except => META;
+use namespace::autoclean;
 
 1;
 
@@ -33,11 +34,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::DateTime - Generates markup for and processes input from HTML forms
+HTML::Forms::Exception - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::DateTime;
+   use HTML::Forms::Exception;
    # Brief but working code examples
 
 =head1 Description

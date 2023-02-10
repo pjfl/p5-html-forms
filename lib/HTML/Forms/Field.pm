@@ -403,6 +403,7 @@ sub add_standard_wrapper_classes {
       if $result->has_error_results || $result->has_errors;
    push @{$class}, 'input-warning' if $result->has_warnings;
    push @{$class}, 'input-field';
+   push @{$class}, 'label-right' if $self->get_tag('label_right');
    return;
 }
 
@@ -412,12 +413,7 @@ sub attributes {
    return shift->element_attributes(@_);
 }
 
-sub before_build {
-   my $self = shift;
-
-   $self->add_label_class('field-label');
-   return;
-}
+sub before_build {}
 
 sub build_element_wrapper_class { [] }
 
@@ -515,32 +511,34 @@ sub element_attributes {
 
    my $attr = {};
 
-   if ($self->form && $self->form->has_flag( 'is_html5' )) {
+   if ($self->form && $self->form->has_flag('is_html5')) {
       $attr->{required} = 'required'    if $self->required;
       $attr->{min} = $self->range_start if defined $self->range_start;
       $attr->{max} = $self->range_end   if defined $self->range_end;
    }
 
    for my $dep_attr ('disabled', 'readonly') {
-      $attr->{ $dep_attr } = $dep_attr if $self->$dep_attr;
+      $attr->{$dep_attr} = $dep_attr if $self->$dep_attr;
    }
 
    for my $dep_attr ('style', 'tabindex', 'title') {
-      $attr->{ $dep_attr } = $self->$dep_attr if defined $self->$dep_attr;
+      $attr->{$dep_attr} = $self->$dep_attr if defined $self->$dep_attr;
    }
 
-   $attr = { %{ $attr }, %{ $self->element_attr } };
+   $attr->{size} = $self->size if $self->can('size') && $self->size;
 
-   my $class = [ @{ $self->element_class } ];
+   $attr = { %{$attr}, %{$self->element_attr} };
 
-   $self->add_standard_element_classes( $result, $class );
+   my $class = [ @{$self->element_class} ];
 
-   $attr->{class} = $class if scalar @{ $class };
+   $self->add_standard_element_classes($result, $class);
+
+   $attr->{class} = $class if scalar @{$class};
 
    return $attr unless $self->form;
 
    my $mod_attr
-      = $self->form->html_attributes( $self, 'element', $attr, $result );
+      = $self->form->html_attributes($self, 'element', $attr, $result);
 
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }

@@ -8,8 +8,7 @@ extends 'HTML::Forms';
 with    'HTML::Forms::Role::Captcha';
 with    'HTML::Forms::Role::Defaults';
 with    'HTML::Forms::Role::MinimalCSS';
-with    'HTML::Forms::Render::WithTT';
-with    'HTML::Forms::Render::ToggleJs';
+with    'HTML::Forms::Render::Javascript';
 
 has '+title'               => default => 'Test Many Fields';
 has '+default_wrapper_tag' => default => 'fieldset';
@@ -18,8 +17,8 @@ has '+do_label_colon'      => default => TRUE;
 has '+info_message'        => default => 'You know what to do';
 
 # TODO: Test repeatable field post
-# TODO: Test Toggle - write js first
 # TODO: Fix interval result from post
+# TODO: Time with zone
 has_field 'single_boolean' => type => 'Boolean',
    info => 'Each field comes with its own helpful information';
 
@@ -30,11 +29,11 @@ has_field 'plain_checkbox' => type => 'Checkbox', checkbox_value => 'foo';
 has_field 'multi_checkbox' => type => 'Select', multiple => TRUE,
    auto_widget_size => 3;
 
-has_field 'date_only' => type => 'Date', wrapper_class => ['toggle'];
+has_field 'date_only' => type => 'Date';
 
-has_field 'date_and_time' => type => 'DateTime', wrapper_class => ['toggle'];
+has_field 'date_and_time' => type => 'DateTime';
 
-has_field 'duration' => type => 'Duration', wrapper_class => ['toggle'];
+has_field 'duration' => type => 'Duration';
 has_field 'duration.hours'   => type => 'Hour', tags => { label_right => TRUE };
 has_field 'duration.minutes' => type => 'Minute', tags => { label_right => TRUE };
 
@@ -44,6 +43,8 @@ has_field 'time_period' => type => 'Interval', default => '2 days',
       day  => [ 'date_only' ],
       week => [ 'date_and_time' ],
    };
+
+has_field 'time_with_zone' => type => 'TimeWithZone';
 
 has_field 'year'       => type => 'Year';
 
@@ -76,7 +77,7 @@ has_field 'positive_integer'  => type => 'PosInteger';
 
 has_field 'floating_number'   => type => 'Float';
 
-has_field 'Money'             => type => 'Money';
+has_field 'money'             => type => 'Money';
 
 has_field 'simple_text'       => label => 'Plain Text',
    element_attr => { placeholder => 'Fill me in' };
@@ -92,7 +93,7 @@ has_field 'password_conf'     => type => 'PasswordConf', label => 'and again',
 
 has_field 'file_upload'       => type => 'Upload';
 
-has_field 'am_robot'          => type => 'Captcha', disabled => TRUE;
+has_field 'i_am_robot'        => type => 'Captcha', disabled => TRUE;
 
 has_field 'reorder_by_type'   => type => 'Hidden', default => 'secret';
 

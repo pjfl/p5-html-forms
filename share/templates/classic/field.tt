@@ -1,13 +1,13 @@
 [% BLOCK button -%]
   <[% f.html_element %][%- process_attrs( f.attributes ) -%]
-    type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-      value="[% f.value | html %]">[% f.label %]</[% f.html_element %]>
+ type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
+ value="[% f.value | html %]">[% f.label %]</[% f.html_element %]>
 [% END -%]
 
 [% BLOCK captcha -%]
 [%   cfield = f -%]
 [%   IF cfield.captcha_type == 'local' -%]
-  [%   PROCESS image f=cfield.image_attr %]
+[%   PROCESS image f=cfield.image_attr %]
     [% PROCESS text f=cfield %]
 [%   ELSE -%]
   [%   cfield.get_html -%]
@@ -17,20 +17,19 @@
 [% BLOCK checkbox -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
 [%- process_attrs( f.attributes ); IF f.fif == f.checkbox_value -%]
-    checked="checked"[% END %] value="[% f.checkbox_value | html %]" />
+ checked="checked"[% END %] value="[% f.checkbox_value | html %]" />
 [% END -%]
 
 [% BLOCK checkbox_group -%]
 [%   FOR option IN f.options -%]
 [%   id = f.next_option_id -%]
-  <label[% process_attrs( f.label_attributes ) %] for="[% id %]">
+  <label class="option-label" for="[% id %]">
     <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
 [%-    FOR selval IN f.fif -%]
 [%      IF selval == option.value %] checked="checked"[% END -%]
 [%     END -%]
 [%     process_attrs( f.attributes ) -%]
- value="[% option.value | html %]" />[% localise( option.label ) | html -%]
-</label>
+ value="[% option.value | html %]" />[% localise( option.label ) | html -%]</label>
 [%   END -%]
 [% END -%]
 
@@ -67,7 +66,7 @@
 
 [% BLOCK hidden -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
-    [%- process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
+[%- process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
 [% END -%]
 
 [% BLOCK image -%]
@@ -77,9 +76,6 @@
 [% BLOCK interval -%]
 [%   ifield = f -%]
   [% PROCESS hidden f=ifield %]
-[%   IF ifield.update_js_method == 'HFs.updateInterval' && !form.render_js_after -%]
-  [% ifield.javascript %]
-[%   END -%]
     <div class="input-group">
       [% PROCESS text f=ifield.unit %]
       [% PROCESS select f=ifield.period %]
@@ -94,7 +90,7 @@
 [%   END -%]
   <[% label_tag; process_attrs( f.label_attributes ); f.for_field %]>
 [%-  label_text -%]</[% label_tag %]>
-[% END -%]
+[%- END -%]
 
 [% BLOCK no_render -%]
 [% END -%]
@@ -111,20 +107,16 @@
 [% BLOCK radio_group -%]
 [%   FOR option IN f.options -%]
 [%     id = f.next_option_id -%]
-    <label[% process_attrs( f.label_attributes ) %] for="[% id %]">
-      <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
-[%     process_attrs( f.attributes ) -%]
-[%     IF option.value == f.fif %] checked="checked"[% END -%]
-        value="[% option.value | html %]" />[% localise( option.label ) | html -%]
-</label>
+  <label class="option-label" for="[% id %]">
+    <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
+[%-    process_attrs( f.attributes ) -%]
+[%-    IF option.value == f.fif %] checked="checked"[% END -%]
+ value="[% option.value | html %]" />[% localise( option.label ) | html -%]</label>
 [%   END -%]
 [% END -%]
 
 [% BLOCK repeatable -%]
 [%   repeatable_field = f -%]
-[%   IF repeatable_field.setup_for_js && !form.render_js_after -%]
-    [% form.render_repeatable_js %]
-[%   END -%]
 [%   FOR rfield IN repeatable_field.sorted_fields -%]
     [% WRAPPER "wrapper_${rfield.uwrapper}" f=rfield -%]
       [% PROCESS "${rfield.uwidget}" f=rfield %]
@@ -192,7 +184,16 @@
 [% BLOCK textarea -%]
   <[% f.html_element %] name="[% f.html_name %]" id="[% f.id %]"
 [%-   process_attrs( f.attributes ) %] rows="[% f.rows %]" cols="[% f.cols %]">
-    [% f.fif | html %]</[% f.html_element %]>
+[%-   f.fif | html %]</[% f.html_element %]>
+[% END -%]
+
+[% BLOCK time_with_zone -%]
+[%   twzfield = f -%]
+  [% PROCESS hidden f=twzfield %]
+    <div class="input-group">
+      [% PROCESS select f=twzfield.hours %]:[% PROCESS select f=twzfield.mins %]
+      [% PROCESS select f=twzfield.zone %]
+    </div>
 [% END -%]
 
 [% BLOCK upload -%]

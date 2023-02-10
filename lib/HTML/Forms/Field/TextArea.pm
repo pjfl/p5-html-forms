@@ -5,13 +5,20 @@ use Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-has 'cols'    => is => 'rw', isa => Int;
+has 'cols'    => is => 'rw', isa => Int, default => 28;
 
 has 'rows'    => is => 'rw', isa => Int;
 
 has '+widget' => default => 'Textarea';
 
 has '+wrapper_class' => default => 'input-textarea';
+
+sub BUILD {
+   my $self = shift;
+
+   $self->add_label_class('input-textarea');
+   return;
+}
 
 sub html_element {
    return 'textarea';

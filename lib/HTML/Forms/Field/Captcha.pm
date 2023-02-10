@@ -60,6 +60,8 @@ has 'response_key' =>
    isa     => Str,
    default => 'g-recaptcha-response';
 
+has 'size'       => is => 'ro', isa => Int, default => 8;
+
 has 'scramble'   => is => 'rw', isa => Int, default => 0;
 
 has 'secret_key' => is => 'rw', isa => Str, default => NUL;

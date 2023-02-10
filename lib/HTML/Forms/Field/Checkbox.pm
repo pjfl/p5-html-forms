@@ -1,16 +1,16 @@
 package HTML::Forms::Field::Checkbox;
 
-use HTML::Forms::Constants qw( META );
+use HTML::Forms::Constants qw( FALSE META TRUE );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
-has 'checkbox_value'       => is => 'rw', default => 1;
+has 'checkbox_value'       => is => 'rw', default => TRUE;
 
 has '+html5_type_attr'     => default => 'checkbox';
 
-has '+input_without_param' => default => 0;
+has '+input_without_param' => default => FALSE;
 
 has 'option_label'         => is => 'rw';
 

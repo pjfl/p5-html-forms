@@ -14,7 +14,7 @@ has '+range_start' => default => 1;
 
 has '+range_end' => default => 10;
 
-has '+wrapper_class' => default => 'input-select_integer';
+has '+wrapper_class' => default => 'input-select-integer';
 
 sub build_options {
    my $self  = shift;
@@ -34,7 +34,8 @@ sub build_options {
    throw 'IntRange needs [_1]', ['label_format'] unless $format;
 
    return [
-      map { { label => $_, value => sprintf $format, $_ } } $start .. $end
+      map { { label => $_, value => $_ } }
+      map { sprintf $format, $_ } $start .. $end
    ];
 }
 

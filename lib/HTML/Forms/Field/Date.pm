@@ -2,7 +2,8 @@ package HTML::Forms::Field::Date;
 
 use DateTime;
 use DateTime::Format::Strptime;
-use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL TRUE );
+use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH EXCEPTION_CLASS
+                               FALSE NUL TRUE );
 use HTML::Forms::Types     qw( Bool CodeRef Str );
 use Ref::Util              qw( is_coderef );
 use Scalar::Util           qw( blessed );
@@ -28,7 +29,7 @@ has 'date_start' =>
 
 has '+deflate_method' => default => sub { _build_deflate_method( shift ) };
 
-has 'format' => is => 'lazy', isa => Str, default => '%Y-%m-%d';
+has 'format' => is => 'lazy', isa => Str, default => DATE_FMT;
 
 has 'format_error' =>
    is      => 'lazy',
@@ -41,7 +42,7 @@ has 'format_error' =>
 
 has 'locale' => is => 'ro', isa => Str;
 
-has 'pattern' => is => 'ro', isa => Str, default => '\d{4}-\d{2}-\d{2}';
+has 'pattern' => is => 'ro', isa => Str, default => DATE_MATCH;
 
 has 'time_zone' => is => 'rw', isa => Str, default => 'local';
 
@@ -144,7 +145,7 @@ sub validate {
    $self->_set_value( $dt );
 
    my $val_strp = DateTime::Format::Strptime->new(
-      pattern => '%Y-%m-%d', time_zone => 'local'
+      pattern => DATE_FMT, time_zone => 'local'
    );
 
    if (my $date_start = $self->date_start) {

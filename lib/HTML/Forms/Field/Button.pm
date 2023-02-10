@@ -13,7 +13,7 @@ has '+type_attr' => default => 'submit';
 
 has '+widget' => default => 'Button';
 
-has '+wrapper_class' => default => 'button';
+has '+wrapper_class' => default => 'input-button';
 
 sub _build_id {
    my $self   = shift;
