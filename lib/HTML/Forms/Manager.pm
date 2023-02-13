@@ -1,24 +1,59 @@
 package HTML::Forms::Manager;
 
-use Class::Load qw( load_optional_class );
-use HTML::Forms::Constants qw( TRUE );
+use Class::Load            qw( load_optional_class );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE );
 use HTML::Forms::Types     qw( Str );
+use Scalar::Util           qw( blessed );
+use Type::Utils            qw( class_type );
+use Unexpected::Functions  qw( throw Unspecified );
 use Moo;
 
 has 'namespace' => is => 'ro', isa => Str, required => TRUE;
 
+has 'schema' =>
+   is        => 'ro',
+   isa       => class_type('DBIx::Class::Schema'),
+   predicate => 'has_schema';
+
 sub new_with_context {
    my ($self, $name, $options) = @_;
 
-   my $context = $options->{context};
-   my $params  = { %{$options->{parameters} // {}} };
-   my $class   = $self->namespace . '::' . $name;
+   my $class = $self->namespace . '::' . $name;
 
-   $params->{ctx} = $context;
-   $params->{params} = { %{$context->request->body_parameters // {}} };
    load_optional_class($class);
 
-   return $class->new($params);
+   my $context = $options->{context};
+
+   throw Unspecified, ['context'] unless $context;
+   throw 'Not an object reference [_1]', ['context'] unless blessed($context);
+   throw 'Context object has no request method' unless $context->can('request');
+
+   my $args = { %{$options} };
+
+   $args->{params} //= _get_body_parameters($context)
+      if lc $context->request->method eq 'post';
+
+   $args->{schema} //= $self->schema if $self->has_schema;
+
+   return $class->new($args);
+}
+
+sub _get_body_parameters {
+   my $context = shift;
+   my $request = $context->request;
+
+   return { %{$request->body_parameters->mixed // {}} }
+      if $request->isa('Plack::Request');
+
+   return { %{$request->body_parameters // {}} }
+      if $request->isa('Catalyst::Request');
+
+   return { %{$request->body_params->() // {}} }
+      if $request->isa('Web::ComposableRequest::Base');
+
+   return $request->parameters if $request->can('parameters');
+
+   return {};
 }
 
 use namespace::autoclean;

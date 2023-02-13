@@ -67,11 +67,11 @@ if (-d $libdir) {
    lib->import( $libdir );
 }
 
-my $xtlib = catdir( $bindir, 'lib' );
+my $hfslib = catdir( dirname($basedir), 'lib' );
 
-if (-d $xtlib) {
-   extend( 'PERL5LIB', $xtlib );
-   lib->import( $xtlib );
+if (-d $hfslib) {
+   extend( 'PERL5LIB', $hfslib );
+   lib->import( $hfslib );
 }
 
 exec @ARGV if !$was_called && @ARGV;

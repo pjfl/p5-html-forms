@@ -24,9 +24,7 @@ BEGIN {
       Plack::Request->new(shift->_env)
    };
 
-   has '_session' => is => 'lazy', builder => sub {
-      shift->_env->{'psgix.session'}
-   };
+   has '_session' => is => 'lazy', builder => sub { shift->request->session };
 
    sub session {
       my ($self, @args) = @_;
@@ -44,7 +42,7 @@ BEGIN {
 use strictures;
 
 use HTML::Forms::Manager;
-use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Constants qw( FALSE SECRET TRUE );
 use HTTP::Status           qw( HTTP_FOUND HTTP_OK );
 use Plack::Builder;
 
@@ -60,23 +58,27 @@ my $get_form_name = sub {
    return (ucfirst $name || 'TestMany');
 };
 
-my $psgi_app = sub {
+my $form_app = sub {
    my $env     = shift;
    my $context = Test::Context->new(env => $env);
    my $request = $context->request;
    my $name    = $get_form_name->($request);
    my $options = {
-      context    => $context,
-      parameters => $request->query_parameters,
+      %{$request->query_parameters->mixed // {}},
+      context  => $context,
    };
    my $form = $form_manager->new_with_context($name, $options);
 
    $form->process( posted => $request->method eq 'POST' );
 
-   my $render = $form->render;
-   my $html   = "<!DOCTYPE html><head></head><body>\n${render}\n</body></html>";
+   my $body     = $form->render;
+   my $header   = '<head></head>';
+   my $response = $request->new_response(HTTP_OK);
 
-   return [ HTTP_OK, [ 'Content-Type' => 'text/html' ], [ $html ] ];
+   $response->content_type('text/html');
+   $response->body("<!DOCTYPE html>${header}<body>\n${body}\n</body></html>");
+
+   return $response->finalize;
 };
 
 builder {
@@ -91,29 +93,26 @@ builder {
    enable 'Static',
       path => qr{ \A / (?: css | favicon.ico | fonts | img | js | less ) }mx,
       root => 'xt/var/root';
-   enable 'Static',
-      path => qr{ \A / static }mx, pass_through => TRUE,
-      root => 'xt/var/root';
    enable 'Session::Cookie',
       expires     => 7_776_000,
       httponly    => TRUE,
       path        => '/',
       samesite    => 'None',
-      secret      => 'foo',
+      secret      => SECRET,
       secure      => TRUE,
       session_key => 'html_forms_session';
-   mount '/captcha/image' => builder {
-      sub {
-         my $env     = shift;
-         my $context = Test::Context->new(env => $env);
-         my $captcha = $context->session->{captcha};
-         my $image   = $captcha->{image};
-         my $type    = $captcha->{type};
+   mount '/captcha/image' => builder { sub {
+      my $env      = shift;
+      my $context  = Test::Context->new(env => $env);
+      my $captcha  = $context->session->{captcha};
+      my $response = $context->request->new_response(HTTP_OK);
 
-         return [ HTTP_OK, [ 'Content-Type' => $type ], [$image] ];
-      };
-   };
-   mount '/form' => builder { $psgi_app };
+      $response->content_type($captcha->{type});
+      $response->body($captcha->{image});
+
+      return $response->finalize;
+   } };
+   mount '/form' => builder { $form_app };
    mount '/'     => builder {
       sub { [ HTTP_FOUND, [ 'Location', '/form' ], [] ] }
    };

@@ -6,7 +6,7 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms';
 with    'HTML::Forms::Role::Defaults';
-with    'HTML::Forms::Role::MinimalCSS';
+with    'HTML::Forms::Render::MinimalCSS';
 with    'HTML::Forms::Render::Javascript';
 
 has '+title'               => default => 'Test Repeatable Field';

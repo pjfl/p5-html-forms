@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 9 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 10 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -94,10 +94,10 @@ has 'active'   =>
       has_active   => 'count',
    };
 
-has 'ctx' =>
+has 'context' =>
    is        => 'rw',
-   clearer   => 'clear_ctx',
-   predicate => 'has_ctx',
+   clearer   => 'clear_context',
+   predicate => 'has_context',
    weak_ref  => TRUE;
 
 has 'default_locale' => is => 'ro', isa => Str, default => 'en';
@@ -558,7 +558,7 @@ sub clear {
    $self->clear_posted;
    $self->clear_item;
    $self->clear_init_object;
-   $self->clear_ctx;
+   $self->clear_context;
    $self->processed(FALSE);
    $self->did_init_obj(FALSE);
    $self->clear_result;

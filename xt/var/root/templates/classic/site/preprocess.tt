@@ -1,0 +1,1 @@
+MACRO ucfirst(content) content | ucfirst;

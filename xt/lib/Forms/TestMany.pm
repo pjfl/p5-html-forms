@@ -7,7 +7,7 @@ use HTML::Forms::Moo;
 extends 'HTML::Forms';
 with    'HTML::Forms::Role::Captcha';
 with    'HTML::Forms::Role::Defaults';
-with    'HTML::Forms::Role::MinimalCSS';
+with    'HTML::Forms::Render::MinimalCSS';
 with    'HTML::Forms::Render::Javascript';
 
 has '+title'               => default => 'Test Many Fields';
@@ -38,18 +38,20 @@ has_field 'duration.minutes' => type => 'Minute', tags => { label_right => TRUE 
 
 has_field 'time_period' => type => 'Interval', default => '2 days',
    toggle => {
-      hour => [ 'duration' ],
-      day  => [ 'date_only' ],
-      week => [ 'date_and_time' ],
+      hour => [ qw( day weekday month year ) ],
+      day  => [ 'day' ],
+      week => [ 'weekday' ],
+      mon  => [ 'month' ],
+      year => [ 'year' ],
    };
 
 has_field 'time_with_zone' => type => 'TimeWithZone';
 
+has_field 'month_name' => type => 'MonthName';
+
 has_field 'year'       => type => 'Year';
 
 has_field 'month'      => type => 'Month';
-
-has_field 'month_name' => type => 'MonthName';
 
 has_field 'weekday'    => type => 'Weekday';
 

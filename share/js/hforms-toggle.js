@@ -2,6 +2,9 @@
 // Dependencies HForms.Util
 if (!window.HForms) window.HForms = {};
 HForms.Toggle = (function() {
+   const dsName = 'toggleConfig';
+   const triggerClass = 'toggle';
+   const idPrefix = HForms.Util.wrapperIdPrefix;
    const animate = function(el, method) {
       const options = { duration: 800, fill: 'forwards' };
       if (method == 'hide') {
@@ -14,15 +17,9 @@ HForms.Toggle = (function() {
          el.animate({ opacity: 1 }, options);
       }
    };
-   const filterChecked = function(els) {
-      const checked = [];
-      if (!els || els.length < 1) return checked;
-      for (const el of els) { if (el.checked) checked.push(el); }
-      return checked;
-   }
    const fireHandler = function(el) {
       const tagName = el.tagName.toLowerCase();
-      const type    = el.type ? el.type.toLowerCase() : '';
+      const type = el.type ? el.type.toLowerCase() : '';
       if (type != 'radio') {
          if (tagName == 'button' || type == 'submit') return;
          if (tagName == 'select' || type == 'hidden' || type == 'text') {
@@ -32,9 +29,9 @@ HForms.Toggle = (function() {
       }
       else {
          const buttons = document.getElementsByName(el.name);
-         const checkedButtons = [];
          if (buttons.length) {
-            checkedButtons.push(...filterChecked(buttons));
+            const checkedButtons = [];
+            checkedButtons.push(...buttons.filter(button => button.checked));
             if (!checkedButtons.length) checkedButtons.push(buttons[0]);
             if (checkedButtons[0].onclick) checkedButtons[0].onclick();
          }
@@ -90,24 +87,25 @@ HForms.Toggle = (function() {
    let pageLoading = true;
    let turningOff  = false;
    const toggleFields = function(el) {
-      const dataset       = JSON.parse(el.dataset.toggleConfig);
-      const config        = dataset['config'];
+      const config        = JSON.parse(el.dataset[dsName])['config'];
       const turnTheseOff  = [];
       const turnTheseOn   = [];
       const updateElement = function(field, method) {
-         const el = document.getElementById('field_' + field);
-         if (el.classList.contains('toggle')) {
-            if (method == 'show') turnTheseOn.push(el);
-            else turnTheseOff.push(el);
+         const el = document.getElementById(idPrefix + field);
+         if (el) {
+            if (el.classList.contains(triggerClass)) {
+               if (method == 'show') turnTheseOn.push(el);
+               else turnTheseOff.push(el);
+            }
+            if (pageLoading) {
+               if (method == 'hide') el.style.display = 'none';
+               else el.style.display = '';
+            }
+            else animate(el, method);
          }
-         if (pageLoading) {
-            if (method == 'hide') el.style.display = 'none';
-            else el.style.display = '';
-         }
-         else animate(el, method);
       };
       const tagName = el.tagName.toLowerCase();
-      const type    = el.type ? el.type.toLowerCase() : '';
+      const type = el.type ? el.type.toLowerCase() : '';
       const enabledFields
             = type    in getEnabled ? getEnabled[type](el, config)
             : tagName in getEnabled ? getEnabled[tagName](el, config)
@@ -131,16 +129,16 @@ HForms.Toggle = (function() {
    };
    const updateInterval = function(field) {
       const hidden = document.getElementById(field);
-      const period = document.getElementById(field + '-period');
-      hidden.value = document.getElementById(field + '-unit').value
+      const period = document.getElementById(field + '_period');
+      hidden.value = document.getElementById(field + '_unit').value
                    + ' ' + period.value;
-      if (period.dataset.toggleConfig) toggleFields(period);
+      if (period.dataset[dsName]) toggleFields(period);
    };
 
    return {
       initialise: function() {
          HForms.Util.onReady(function() {
-            fireHandlers(document.getElementsByClassName('toggle'));
+            fireHandlers(document.getElementsByClassName(triggerClass));
             pageLoading = false;
          });
       },

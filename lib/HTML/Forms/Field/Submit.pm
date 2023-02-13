@@ -7,6 +7,8 @@ extends 'HTML::Forms::Field::NoValue';
 
 has '+do_label' => default => FALSE;
 
+has '+value' => default => 'Submit';
+
 has '+widget' => default => 'Submit';
 
 has '+wrapper_class' => default => 'input-button';

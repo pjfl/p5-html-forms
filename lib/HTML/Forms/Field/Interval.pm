@@ -73,13 +73,13 @@ has 'period' =>
          element_class => $self->period_class,
          form          => $self->form,
          options       => $self->interval_options,
-         name          => $self->name . '-period',
+         name          => $self->name . '_period',
          toggle        => $self->_toggle_copy,
          traits        => [ '+Toggle' ],
       };
       my $field   = $self->parent->new_field_with_traits($class, $options);
       my $result  = HTML::Forms::Field::Result->new(
-         name   => $self->name . '-period',
+         name   => $self->name . '_period',
          parent => $self->result
       );
 
@@ -98,12 +98,12 @@ has 'unit' =>
          default       => $self->default_unit,
          element_attr  => { javascript => $self->update_js },
          element_class => $self->unit_class,
-         name          => $self->name . '-unit',
+         name          => $self->name . '_unit',
          size          => 4,
       };
       my $field   = $self->parent->new_field_with_traits($class, $options);
       my $result  = HTML::Forms::Field::Result->new(
-         name   => $self->name . '-unit',
+         name   => $self->name . '_unit',
          parent => $self->result
       );
 

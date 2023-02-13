@@ -16,29 +16,36 @@ has 'item' =>
 has 'item_class' => is  => 'rwp', isa => Str;
 
 has 'item_id' =>
-    is      => 'rw',
-    clearer => 'clear_item_id',
-    trigger => sub { shift->set_item_id( @_ ) };
+   is      => 'rw',
+   clearer => 'clear_item_id',
+   trigger => sub { shift->set_item_id( @_ ) };
 
 sub build_item { return }
 
-sub clear_model { }
+sub clear_model {}
 
 sub guess_field_type {
-    throw "Don't know how to determine field type of [_1]", [ $_[ 1 ] ];
+   # Not used. Was called by Model::CDBI
+   throw "Don't know how to determine field type of [_1]", [ $_[1] ];
 }
 
-sub lookup_options { }
+sub lookup_options {
+   # Called by Field::Select when no options available
+}
 
 sub set_item {
-    my ($self, $item) = @_; $self->_set_item_class( blessed $item );
+   my ($self, $item) = @_; $self->_set_item_class( blessed $item ); return;
 }
 
-sub set_item_id { }
+sub set_item_id {}
 
-sub update_model { }
+sub update_model {
+   # Called by Forms::process if form was posted and it validated
+}
 
-sub validate_model { }
+sub validate_model {
+   # Called by Forms::validate_form as part of form validation
+}
 
 use namespace::autoclean;
 

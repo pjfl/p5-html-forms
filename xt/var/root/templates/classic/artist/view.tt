@@ -1,0 +1,2 @@
+Template artist/view should show detail of one artist<br/>
+Name: [% artist.name %]

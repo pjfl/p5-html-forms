@@ -22,3 +22,8 @@ README.pod
 t/ipc_srlock*
 *.tar.gz
 HTML-Forms-*
+xt/var/root/css
+xt/var/root/js
+xt/var/tmp
+lib/HTML/Forms/Model/DBIC.pm
+lib/HTML/Forms/Role/Model

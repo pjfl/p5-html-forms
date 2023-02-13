@@ -1,7 +1,8 @@
 package HTML::Forms::Render::Javascript;
 
 use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS FALSE NUL TRUE );
-use HTML::Forms::Types     qw( ArrayRef CodeRef HashRef Str );
+use HTML::Forms::Types     qw( ArrayRef CodeRef HashRef Object Str );
+use HTML::Tiny;
 use Path::Tiny             qw( path );
 use Ref::Util              qw( is_coderef );
 use Try::Tiny;
@@ -11,6 +12,8 @@ use Moo::Role;
 use MooX::HandlesVia;
 
 has '+render_js_after' => is => 'rw', default => TRUE;
+
+has '_html' => is => 'ro', isa => Object, default => sub { HTML::Tiny->new };
 
 has '_packages' =>
    is          => 'ro',
@@ -64,7 +67,7 @@ before 'render' => sub {
       }
       else { $js = $package->() }
 
-      $self->set_tag( after => $after . _wrap_script($js) );
+      $self->set_tag( after => $after . $self->_wrap_script($js) );
    }
 
    return;
@@ -73,7 +76,7 @@ before 'render' => sub {
 sub _load_package {
    my ($self, $package) = @_;
 
-   my $path = [ DISTDIR, 'js', _to_pathname($package) ];
+   my $path = [ DISTDIR, 'js', _to_filename($package) ];
    my $file;
 
    try   { $file = path(@{$path})->assert(sub { $_->exists }) }
@@ -94,7 +97,7 @@ sub _load_package {
 sub _contains_package {
    my ($package, $js) = @_;
 
-   return $js =~ m{ ^ // \s+ Package \s+ \Q$package\E }imx ? TRUE : FALSE;
+   return $js =~ m{ // \s+ Package \s+ \Q$package\E }imx ? TRUE : FALSE;
 }
 
 sub _dependencies {
@@ -104,18 +107,12 @@ sub _dependencies {
    return [ split m{ \s }mx, $dependencies // NUL ];
 }
 
-sub _to_pathname {
-   my $package = lc shift;
-
-   $package =~ s{ \. }{-}gmx;
-
-   return "${package}.js";
+sub _to_filename {
+   my $file = lc shift; $file =~ s{ \. }{-}gmx; return "${file}.js";
 }
 
 sub _wrap_script {
-   my $js = shift;
-
-   return "<script>\n${js}</script>\n";
+   my ($self, $js) = @_; return $self->_html->script("\n${js}") . "\n";
 }
 
 use namespace::autoclean;

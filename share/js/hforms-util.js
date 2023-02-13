@@ -9,15 +9,17 @@ HForms.Util = (function () {
          if (document.readyState == 'complete') callback();
       });
    };
-	const updateTimeWithZone = function(id) {
-		const hours = document.getElementById(id + '_hours').value;
-		const mins  = document.getElementById(id + '_mins').value;
-		const zone  = document.getElementById(id + '_zone').value;
-		document.getElementById(id).value = hours + ':' + mins + ' ' + zone;
-	};
+   const updateTimeWithZone = function(id) {
+      const hours = document.getElementById(id + '_hours').value;
+      const mins  = document.getElementById(id + '_mins').value;
+      const zone  = document.getElementById(id + '_zone').value;
+      document.getElementById(id).value = hours + ':' + mins + ' ' + zone;
+   };
+   const wrapperIdPrefix = 'field_';
 
    return {
       onReady: onReady,
-      updateTimeWithZone: updateTimeWithZone
+      updateTimeWithZone: updateTimeWithZone,
+      wrapperIdPrefix: wrapperIdPrefix
    };
 })();

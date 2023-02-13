@@ -2,13 +2,14 @@
 // Dependencies HForms.Util
 if (!window.HForms) window.HForms = {};
 HForms.Repeatable = (function() {
+   const idPrefix = HForms.Util.wrapperIdPrefix;
    const addRemoveHandlers = function() {
       const rmElems = document.getElementsByClassName('remove-repeatable');
       for (const el of rmElems) {
          el.onclick = function(event) {
             const repElemId = this.dataset.repeatableElementId;
             if (repElemId) {
-               const field = document.getElementById('field_' + repElemId);
+               const field = document.getElementById(idPrefix + repElemId);
                if (field && confirm('Remove?')) field.remove();
             }
             event.preventDefault();
@@ -21,7 +22,7 @@ HForms.Repeatable = (function() {
          el.onclick = function(event) {
             const repId = this.dataset.repeatableId;
             if (repId) {
-               const wrapper = document.getElementById('field_' + repId);
+               const wrapper = document.getElementById(idPrefix + repId);
                if (wrapper) {
                   const controls = wrapper.getElementsByClassName('controls');
                   if (controls) {

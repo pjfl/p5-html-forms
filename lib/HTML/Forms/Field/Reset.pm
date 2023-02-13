@@ -6,7 +6,7 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::NoValue';
 
-has '+html5_type_attr' => default => 'reset';
+has '+do_label' => default => FALSE;
 
 has '+type_attr' => default => 'reset';
 
@@ -15,8 +15,6 @@ has '+value' => default => 'Reset';
 has '+widget' => default => 'Reset';
 
 has '+wrapper_class' => default => 'input-button';
-
-sub do_label { FALSE }
 
 use namespace::autoclean -except => META;
 

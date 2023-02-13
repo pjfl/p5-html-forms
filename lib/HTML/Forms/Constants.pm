@@ -3,11 +3,14 @@ package HTML::Forms::Constants;
 use strictures;
 use parent 'Exporter::Tiny';
 
+use Digest::SHA1 qw( sha1_hex );
+use English      qw( -no_match_vars );
 use File::ShareDir;
 use HTML::Forms::Exception;
+use User::pwent  qw( getpwuid );
 
 our @EXPORT = qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR DOT
-                  EXCEPTION_CLASS FALSE META NBSP NUL SPC TIME_FMT
+                  EXCEPTION_CLASS FALSE META NBSP NUL SECRET SPC TIME_FMT
                   TIME_MATCH TIME_RE TRUE TT_THEME );
 
 sub BANG     () { q(!) }
@@ -19,6 +22,7 @@ sub FALSE    () { 0    }
 sub META     () { '_html_forms_meta' }
 sub NBSP     () { '&nbsp;' }
 sub NUL      () { q()  }
+sub SECRET   () { sha1_hex( getpwuid($EUID)->name . __FILE__ ) }
 sub SPC      () { q( ) }
 sub TRUE     () { 1    }
 sub TT_THEME () { 'classic' }

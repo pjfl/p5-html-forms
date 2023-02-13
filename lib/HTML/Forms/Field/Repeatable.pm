@@ -15,6 +15,8 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
+has '+widget' => default => 'Repeatable';
+
 has 'auto_id' => is => 'rw', isa => Bool, default => FALSE;
 
 has 'contains' =>
@@ -47,8 +49,6 @@ has 'num_extra'      => is => 'rw', isa => Int, default => 0;
 has 'num_when_empty' => is => 'rw', isa => Int, default => 1;
 
 has 'setup_for_js'   => is => 'rw', isa => Bool, default => TRUE;
-
-has '+widget'        => default => 'Repeatable';
 
 after 'after_build' => sub {
    my $self = shift; weaken $self;

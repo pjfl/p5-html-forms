@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <title>[% config.name %]</title>
+   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="description" content="[% config.name %]">
+   <meta name="keywords" content="[% config.name %]">
+   <meta name="generator" content="[% config.name %] v[% version %]">
+   <link href="/favicon.ico" rel="shortcut icon">
+   <link href="/css/hforms-minimal.css" rel="stylesheet" type="text/css">
+   <script src="/js/hforms-util.js"></script>
+   <script src="/js/hforms-repeatable.js"></script>
+   <script src="/js/hforms-toggle.js"></script>
+</head>
+<body id="body">
+   [% content -%]
+</body>
+</html>

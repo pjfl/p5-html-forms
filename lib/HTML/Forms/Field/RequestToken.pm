@@ -1,15 +1,12 @@
 package HTML::Forms::Field::RequestToken;
 
 use Crypt::CBC;
-use Digest::SHA1           qw( sha1_hex );
-use English                qw( -no_match_vars );
 use MIME::Base64           qw( decode_base64 encode_base64 );
-use HTML::Forms::Constants qw( BANG META NUL TRUE );
+use HTML::Forms::Constants qw( BANG META NUL SECRET TRUE );
 use HTML::Forms::Types     qw( Int Str );
 use Scalar::Util           qw( weaken );
 use Try::Tiny;
 use Type::Utils            qw( class_type );
-use User::pwent            qw( getpwuid );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -55,13 +52,13 @@ sub get_class_messages {
 }
 
 sub build_crypto_key {
-   return sha1_hex( getpwuid($EUID)->name . __FILE__ );
+   return SECRET;
 }
 
 sub build_token_prefix {
    my $self = shift;
    my $form = $self->form or return NUL;
-   my $ctx  = $form->ctx or return NUL;
+   my $ctx  = $form->context or return NUL;
    my $id   = $ctx->session->{id} // NUL;
 
    return $id;

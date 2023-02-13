@@ -5,7 +5,7 @@ use HTML::Forms::Types     qw( Str );
 use Moo::Role;
 use HTML::Forms::Moo;
 
-requires 'ctx';
+requires 'context';
 
 has_field 'captcha' => type => 'Captcha', label => 'Verification';
 
@@ -17,17 +17,17 @@ has 'captcha_image_url' =>
 sub get_captcha {
    my $self = shift;
 
-   return unless $self->ctx;
+   return unless $self->context;
 
-   return $self->ctx->session->{captcha};
+   return $self->context->session->{captcha};
 }
 
 sub set_captcha {
    my ($self, $captcha) = @_;
 
-   return unless $self->ctx;
+   return unless $self->context;
 
-   return $self->ctx->session( captcha => $captcha );
+   return $self->context->session( captcha => $captcha );
 }
 
 use namespace::autoclean -except => META;
