@@ -25,7 +25,7 @@ sub _build__templater {
       COMPILE_EXT  => 'c',
       ENCODING     => 'utf8',
       INCLUDE_PATH => [$self->templates->pathname],
-      PREPROCESS   => $config->skin . '/site/preprocess.tt',
+      PRE_PROCESS  => $config->skin . '/site/preprocess.tt',
       RELATIVE     => TRUE,
       WRAPPER      => $config->skin . '/site/wrapper.tt',
    };

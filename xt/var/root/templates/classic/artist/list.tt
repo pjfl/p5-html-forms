@@ -1,2 +1,4 @@
 Template artist/list should show table of artists
-[% table.render %]
+[% table.render %]<br/>
+[% button({ text => 'Create Artist', url => create_uri }) %]<br/>
+

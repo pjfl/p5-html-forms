@@ -2,6 +2,7 @@ package MCat::Model;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL );
 use HTML::Forms::Util      qw( trim );
+use HTML::StateTable::Constants qw( RENDERER_PREFIX );
 use HTTP::Status           qw( HTTP_OK );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
@@ -28,7 +29,7 @@ has 'table' =>
    isa     => class_type('HTML::StateTable::Manager'),
    builder => sub {
       my $self    = shift;
-      my $options = { namespace => 'MCat::Table' };
+      my $options = { namespace => 'MCat::Table', renderer_class => 'Table' };
 
       return HTML::StateTable::Manager->new($options);
    };
@@ -44,8 +45,10 @@ sub exception_handler {
 
    $self->log->error($message);
 
+   my $code = $exception->code // 0;
+
    return {
-      code      => $exception->code > HTTP_OK ? $exception->code : HTTP_OK,
+      code      => $code > HTTP_OK ? $code : HTTP_OK,
       exception => $exception,
       message   => $message,
       template  => { layout => 'exception' },

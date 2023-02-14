@@ -1,6 +1,7 @@
 package HTML::Forms::Exception;
 
 use HTML::Forms::Types    qw( Int );
+use HTTP::Status          qw( HTTP_NOT_FOUND );
 use Unexpected::Functions qw( has_exception );
 use Moo;
 
@@ -28,6 +29,9 @@ has_exception 'UnknownPackage' => parent => [$class],
 
 has_exception 'PageNotFound' => parent => [$class],
    error => 'Page [_1] not found';
+
+has_exception 'UnknownArtist' => parent => [$class],
+   error => 'Artist [_1] not found', rv => HTTP_NOT_FOUND;
 
 use namespace::autoclean;
 

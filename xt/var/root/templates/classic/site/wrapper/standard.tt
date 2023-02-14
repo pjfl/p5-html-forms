@@ -1,1 +1,4 @@
+[% FOR message IN messages %]
+   <div class="messages">[% message %]</div>
+[% END %]
 [% content %]

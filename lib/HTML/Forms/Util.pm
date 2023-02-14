@@ -10,11 +10,14 @@ use HTML::Forms::Constants qw( TRUE FALSE META NUL SPC );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
+use URI::Escape            qw( );
+use URI::http;
+use URI::https;
 
 our @EXPORT = qw( cc_widget convert_full_name duration_to_string
                   encode_only_entities get_meta has_some_value inflate_interval
-                  interval_to_string merge process_attrs quote_single
-                  trim ucc_widget );
+                  interval_to_string merge new_uri process_attrs quote_single
+                  redirect trim ucc_widget uri_escape );
 
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
@@ -76,6 +79,11 @@ my $PERIOD_CONVERSION = {
    months => { years => 12, },
    years  => {},
 };
+
+my $reserved   = q(;/?:@&=+$,[]);
+my $mark       = q(-_.!~*'());                                   #'; emacs
+my $unreserved = "A-Za-z0-9\Q${mark}\E%\#";
+my $uric       = quotemeta( $reserved ) . '\p{isAlpha}' . $unreserved;
 
 # Public functions
 sub cc_widget ($) {
@@ -219,6 +227,10 @@ sub merge ($$) {
    return $MATRIX->{ $lefttype }{ $righttype }->( $left, $right );
 }
 
+sub new_uri ($$) {
+   my $v = uri_escape($_[1]); return bless \$v, 'URI::'.$_[0];
+}
+
 # This is a function for processing various attribute flavors
 sub process_attrs {
    my $attrs = shift;
@@ -262,6 +274,10 @@ sub quote_single ($) {
   return qq('$_');
 }
 
+sub redirect ($$) {
+   return { redirect => { location => $_[0], message  => $_[1] } };
+}
+
 sub trim (;$$) {
    my $chars = $_[1] // " \t";
    (my $value = $_[0] // q()) =~ s{ \A [$chars]+ }{}mx;
@@ -284,6 +300,14 @@ sub ucc_widget ($) {
    }
 
    return $widget;
+}
+
+sub uri_escape ($;$) {
+   my ($v, $pattern) = @_; $pattern //= $uric;
+
+   $v =~ s{([^$pattern])}{ URI::Escape::uri_escape_utf8($1) }ego;
+   utf8::downgrade( $v );
+   return $v;
 }
 
 # Private functions

@@ -1,2 +1,6 @@
 Template artist/view should show detail of one artist<br/>
-Name: [% artist.name %]
+Id: [% artist.id %]<br/>
+Name: [% artist.name %]<br/>
+[% button({ text => 'Edit Artist', url => edit_uri }) %]<br/>
+[% form_button({ content => 'Delete Artist', url => delete_uri }) %]<br/>
+[% button({ text => 'List Artists', url => list_uri }) %]<br/>
