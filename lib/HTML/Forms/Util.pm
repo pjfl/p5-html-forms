@@ -14,7 +14,7 @@ use Scalar::Util           qw( blessed );
 our @EXPORT = qw( cc_widget convert_full_name duration_to_string
                   encode_only_entities get_meta has_some_value inflate_interval
                   interval_to_string merge process_attrs quote_single
-                  ucc_widget );
+                  trim ucc_widget );
 
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
@@ -260,6 +260,15 @@ sub quote_single ($) {
   s{ ([\\']) }{\\$1}gmx; #'])}emacs
 
   return qq('$_');
+}
+
+sub trim (;$$) {
+   my $chars = $_[1] // " \t";
+   (my $value = $_[0] // q()) =~ s{ \A [$chars]+ }{}mx;
+
+   chomp $value;
+   $value =~ s{ [$chars]+ \z }{}mx;
+   return $value;
 }
 
 sub ucc_widget ($) {

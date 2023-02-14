@@ -21,22 +21,23 @@ sub create {
 sub delete {
    my ($self, $context) = @_;
 
-   my $id     = $context->request->uri_params->(0);
+   my $id     = $context->request->args->[0];
    my $rs     = $context->schema->resultset('Artist');
    my $artist = $rs->find($id);
 
-   $artist->delete;
+   $artist->delete if $artist;
 
-   return { redirect => 'artist/list' };
+   return {
+      redirect => { location => 'artist/list', message => 'Artist deleted' }
+   };
 }
 
 sub edit {
    my ($self, $context) = @_;
 
-   my $id      = $context->request->uri_params->(0);
+   my $id      = $context->request->args->[0];
    my $rs      = $context->schema->resultset('Artist');
-   my $artist  = $rs->find($id);
-   my $options = { context => $context, item => $artist };
+   my $options = { context => $context, item => $rs->find($id) };
    my $form    = $self->form->new_with_context('Artist', $options);
 
    $form->process( posted => $context->posted );
@@ -47,14 +48,16 @@ sub edit {
 sub list {
    my ($self, $context) = @_;
 
+   my $options = { context => $context };
+   my $table   = $self->table->new_with_context('Artist', $options);
 
-   return {};
+   return { table => $table };
 }
 
 sub view {
    my ($self, $context) = @_;
 
-   my $id = $context->request->uri_params->(0);
+   my $id = $context->request->args->[0];
    my $rs = $context->schema->resultset('Artist');
 
    return { artist => $rs->find($id) };

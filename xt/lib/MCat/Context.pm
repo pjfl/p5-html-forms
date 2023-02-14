@@ -1,8 +1,7 @@
 package MCat::Context;
 
 use HTML::Forms::Constants qw( FALSE TRUE );
-use HTML::Forms::Types     qw( Bool Str );
-use List::Util             qw( pairs );
+use HTML::Forms::Types     qw( Bool HashRef Str );
 use JSON::MaybeXS          qw( encode_json );
 use Type::Utils            qw( class_type );
 use MCat::Schema;
@@ -19,9 +18,7 @@ has 'messages' => is => 'lazy', isa => Str, builder => sub {
 };
 
 has 'posted' => is => 'lazy', isa => Bool, builder => sub {
-   my $self = shift;
-
-   $self->request->method eq 'post' ? TRUE : FALSE
+   my $self = shift; return lc $self->request->method eq 'post' ? TRUE : FALSE;
 };
 
 has 'request' =>
@@ -37,6 +34,10 @@ has 'schema'  => is => 'lazy', isa => class_type('MCat::Schema'),
 
       return MCat::Schema->connect(@{$self->config->connect_info});
    };
+
+has 'stash' => is => 'ro', isa => HashRef, default => sub { {} };
+
+sub view { TRUE }
 
 use namespace::autoclean;
 

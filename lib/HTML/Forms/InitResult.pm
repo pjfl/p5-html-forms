@@ -2,7 +2,7 @@ package HTML::Forms::InitResult;
 
 use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Field::Result;
-use Ref::Util              qw( is_arrayref is_hashref );
+use Ref::Util              qw( is_arrayref is_plain_hashref );
 use Scalar::Util           qw( blessed );
 use Moo::Role;
 
@@ -60,7 +60,7 @@ sub _result_from_fields {
       my $value = @values > 1 ? \@values : shift @values;
 
       return $self->_result_from_object( $self_result, $value )
-         if blessed $value || is_hashref $value;
+         if blessed $value || is_plain_hashref $value;
 
       if (defined $value) {
          $self->init_value( $value );
@@ -102,7 +102,7 @@ sub _result_from_input {
 
    $self_result->_set_input( $input );
 
-   if (is_hashref $input) {
+   if (is_plain_hashref $input) {
       for my $field ($self->sorted_fields) {
          next if $field->inactive && !$field->_active;
 
@@ -143,8 +143,8 @@ sub _result_from_object {
          name => $field->name, parent => $self_result
       );
 
-      if ((is_hashref $item and not exists $item->{ $field->accessor } )
-          or (blessed $item and not $item->can( $field->accessor ))) {
+      if ((is_plain_hashref $item && !exists $item->{ $field->accessor } )
+          || (blessed $item && !$item->can( $field->accessor ))) {
          my $found = FALSE;
 
          if ($field->form->use_init_obj_when_no_accessor_in_item) {

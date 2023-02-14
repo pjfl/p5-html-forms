@@ -1,5 +1,7 @@
 Revision history for HTML::Forms
 
+          - MCat forms working
+          - Added MCat server
           - Javascript mow has its own package deps system
           - Added time with zone field
           - Toggle js working

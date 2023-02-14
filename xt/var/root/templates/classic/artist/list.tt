@@ -1,1 +1,2 @@
 Template artist/list should show table of artists
+[% table.render %]

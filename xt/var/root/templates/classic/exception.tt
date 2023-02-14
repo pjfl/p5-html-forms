@@ -1,0 +1,3 @@
+Message: [% exception.unleaded | html %]<br/>
+Thrown: [% exception.leader %]<br/>
+Code: [% code %]<br/>

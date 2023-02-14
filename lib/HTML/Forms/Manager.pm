@@ -46,10 +46,8 @@ sub _get_body_parameters {
       if $request->isa('Plack::Request');
 
    return { %{$request->body_parameters // {}} }
-      if $request->isa('Catalyst::Request');
-
-   return { %{$request->body_params->() // {}} }
-      if $request->isa('Web::ComposableRequest::Base');
+      if $request->isa('Catalyst::Request')
+      || $request->isa('Web::ComposableRequest::Base');
 
    return $request->parameters if $request->can('parameters');
 

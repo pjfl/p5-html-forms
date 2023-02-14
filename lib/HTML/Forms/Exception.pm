@@ -1,10 +1,14 @@
 package HTML::Forms::Exception;
 
+use HTML::Forms::Types    qw( Int );
 use Unexpected::Functions qw( has_exception );
 use Moo;
 
 extends q(Unexpected);
+with    q(Unexpected::TraitFor::ErrorLeader);
 with    q(Unexpected::TraitFor::ExceptionClasses);
+
+has 'code' => is => 'ro', isa => Int;
 
 my $class = __PACKAGE__;
 
@@ -21,6 +25,9 @@ has_exception 'ReadFailed' => parent => [$class],
 
 has_exception 'UnknownPackage' => parent => [$class],
    error => 'Package [_1] not found.';
+
+has_exception 'PageNotFound' => parent => [$class],
+   error => 'Page [_1] not found';
 
 use namespace::autoclean;
 

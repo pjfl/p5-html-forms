@@ -12,7 +12,7 @@ has '+default_wrapper_tag' => default => 'fieldset';
 has '+do_form_wrapper'     => default => TRUE;
 has '+info_message'        => default => 'You know what to do';
 
-has_field 'artist_name' => label => 'Name', accessor => 'name';
+has_field 'name', required => 1;
 
 has_field 'submit' => type => 'Submit';
 

@@ -42,8 +42,9 @@ has 'name' => is => 'ro', isa => Str, required => TRUE;
 
 has 'prefix' => is => 'ro', isa => Str, default => 'mcat';
 
-has 'request_roles'   => is => 'ro',   isa => ArrayRef[Str],
-   builder => sub { [ 'L10N', 'Session', 'JSON', 'Cookie' ] };
+has 'request_roles' => is => 'ro', isa => ArrayRef[Str], builder => sub {
+   return [ 'L10N', 'Session', 'JSON', 'Cookie', 'Headers', 'Compat' ];
+};
 
 has 'root' => is => 'lazy', isa => Object,
    default => sub { io[shift->basedir, 'var/root'] };
