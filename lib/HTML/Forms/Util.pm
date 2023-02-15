@@ -6,18 +6,21 @@ use parent 'Exporter::Tiny';
 use Data::Clone            qw( clone );
 use DateTime::Duration;
 use HTML::Entities         qw( encode_entities );
-use HTML::Forms::Constants qw( TRUE FALSE META NUL SPC );
+use HTML::Forms::Constants qw( BANG CIPHER TRUE FALSE META NUL SPC );
+use MIME::Base64           qw( decode_base64 encode_base64 );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
+use Try::Tiny;
 use URI::Escape            qw( );
 use URI::http;
 use URI::https;
 
 our @EXPORT = qw( cc_widget convert_full_name duration_to_string
-                  encode_only_entities get_meta has_some_value inflate_interval
-                  interval_to_string merge new_uri process_attrs quote_single
-                  redirect trim ucc_widget uri_escape );
+                  encode_only_entities get_meta get_token has_some_value
+                  inflate_interval interval_to_string merge new_uri
+                  process_attrs quote_single redirect trim ucc_widget
+                  uri_escape verify_token );
 
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
@@ -155,6 +158,18 @@ sub get_meta {
    my $method = META;
 
    return $class->can($method) ? $class->$method : undef;
+}
+
+sub get_token ($$) {
+   my ($expires, $prefix) = @_;
+
+   $prefix .= BANG if $prefix;
+
+   my $value = $prefix . (time + $expires);
+   my $token = encode_base64(CIPHER->encrypt($value));
+
+   $token =~ s{[\s\r\n]+}{}gmx;
+   return $token;
 }
 
 sub has_some_value {
@@ -308,6 +323,30 @@ sub uri_escape ($;$) {
    $v =~ s{([^$pattern])}{ URI::Escape::uri_escape_utf8($1) }ego;
    utf8::downgrade( $v );
    return $v;
+}
+
+sub verify_token ($$) {
+   my ($token, $prefix) = @_;
+
+   return 'No token found' unless $token;
+
+   my $value;
+
+   try {
+      $value = CIPHER->decrypt(decode_base64($token));
+
+      if ($prefix) {
+         $prefix .= BANG;
+
+         return 'Bad token prefix' unless $value =~ s{\A\Q$prefix\E}{}mx;
+      }
+   }
+   catch {};
+
+   return 'Bad token decrypt'    unless defined $value;
+   return 'Bad token time value' unless $value =~ m{ \A \d+ \z }mx;
+   return 'Request token to old' if time > $value;
+   return;
 }
 
 # Private functions

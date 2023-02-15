@@ -1,42 +1,24 @@
 package HTML::Forms::Field::RequestToken;
 
-use Crypt::CBC;
-use MIME::Base64           qw( decode_base64 encode_base64 );
-use HTML::Forms::Constants qw( BANG META NUL SECRET TRUE );
+use HTML::Forms::Constants qw( META NUL TRUE );
 use HTML::Forms::Types     qw( Int Str );
-use Scalar::Util           qw( weaken );
-use Try::Tiny;
-use Type::Utils            qw( class_type );
+use HTML::Forms::Util      qw( get_token verify_token );
+use Scalar::Util           qw( blessed );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Hidden';
 
-has 'cipher' =>
-   is      => 'lazy',
-   isa     => class_type('Crypt::CBC'),
-   builder => sub {
-      my $self = shift;
-
-      return Crypt::CBC->new(
-         -cipher => $self->crypto_cipher_type,
-         -header => 'salt',
-         -key    => $self->crypto_key,
-         -pbkdf  =>'pbkdf2',
-         -salt   => TRUE,
-      );
-   };
-
-has 'crypto_cipher_type' => is => 'ro', isa => Str, default => 'Blowfish';
-
-has 'crypto_key' => is => 'ro', isa => Str, builder => 'build_crypto_key';
-
 has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
 
 has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';
 
-has '+default_method' => default => sub {
-   my $self = shift; weaken $self; return sub { $self->_get_token };
+has '+default_method' => builder => sub {
+   my $self    = shift;
+   my $expires = $self->expiration_time;
+   my $prefix  = $self->token_prefix;
+
+   return sub { get_token($expires, $prefix) };
 };
 
 has '+required' => default => TRUE;
@@ -45,21 +27,25 @@ our $class_messages = {
    'token_fail' => 'Submission failed. [_1]. Please reload and try again.',
 };
 
+sub BUILD {
+   my $self = shift;
+
+   $self->default_method;
+   return;
+}
+
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages  } };
 }
 
-sub build_crypto_key {
-   return SECRET;
-}
-
 sub build_token_prefix {
-   my $self = shift;
-   my $form = $self->form or return NUL;
-   my $ctx  = $form->context or return NUL;
-   my $id   = $ctx->session->{id} // NUL;
+   my $self    = shift;
+   my $form    = $self->form or return NUL;
+   my $ctx     = $form->context or return NUL;
+   my $session = $ctx->session;
+   my $id      = (blessed $session->id ? $session->id : $session->{id}) // NUL;
 
    return $id;
 }
@@ -67,49 +53,12 @@ sub build_token_prefix {
 sub validate {
    my ($self, $value) = @_;
 
-   if (my $fail_reason = $self->_verify_token($value)) {
-      $self->add_error(
-         $self->get_message('token_fail'), $self->_localise($fail_reason)
-      );
+   if (my $fail_reason = verify_token($value, $self->token_prefix)) {
+      my $message = $self->get_message('token_fail');
+
+      $self->add_error($message, $self->_localise($fail_reason));
    }
 
-   return;
-}
-
-sub _get_token {
-   my $self   = shift;
-   my $prefix = $self->token_prefix;
-
-   $prefix .= BANG if $prefix;
-
-   my $value  = $prefix . (time + $self->expiration_time);
-   my $token  = encode_base64($self->cipher->encrypt($value));
-
-   $token =~ s{[\s\r\n]+}{}gmx;
-   return $token;
-}
-
-sub _verify_token {
-   my ($self, $token) = @_;
-
-   return 'No token found' unless $token;
-
-   my $value;
-
-   try {
-      $value = $self->cipher->decrypt(decode_base64($token));
-
-      if (my $prefix = $self->token_prefix) {
-         $prefix .= BANG;
-
-         return 'Bad token prefix' unless $value =~ s{\A\Q$prefix\E}{}mx;
-      }
-   }
-   catch {};
-
-   return 'Bad token decrypt'    unless defined $value;
-   return 'Bad token time value' unless $value =~ m{ \A \d+ \z }mx;
-   return 'Request token to old' if time > $value;
    return;
 }
 

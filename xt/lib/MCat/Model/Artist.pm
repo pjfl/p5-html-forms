@@ -2,7 +2,7 @@ package MCat::Model::Artist;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
 use HTML::Forms::Util      qw( redirect );
-use Unexpected::Functions  qw( exception UnknownArtist );
+use Unexpected::Functions  qw( exception UnknownArtist Unspecified );
 use Web::Simple;
 
 extends 'MCat::Model';
@@ -13,57 +13,59 @@ has '+moniker' => default => 'artist';
 sub create {
    my ($self, $context) = @_;
 
-   my $request = $context->request;
    my $options = { context => $context, item_class => 'Artist' };
    my $form    = $self->form->new_with_context('Artist', $options);
 
    if ($form->process( posted => $context->posted )) {
-      my $uri  = $request->uri_for('artist/*', [$form->item->id]);
-      my $name = $form->item->name;
+      my $artistid    = $form->item->id;
+      my $view_artist = $context->request->uri_for('artist/*', [$artistid]);
 
-      return redirect $uri, ['Artist [_1] created', $name];
+      return redirect $view_artist, ['Artist [_1] created', $form->item->name];
    }
 
-   return { form => $form, list_uri => $request->uri_for('artist') };
+   return { form => $form };
 }
 
 sub delete {
-   my ($self, $context) = @_;
+   my ($self, $context, $artistid) = @_;
 
-   my $request = $context->request;
-   my $id      = $request->args->[0];
-   my $artist  = $context->model('Artist')->find($id);
+   my $stash = $self->is_token_bad($context);
 
-   unless ($artist) {
-      my $exception = exception UnknownArtist, [$id];
+   return $stash if $stash;
+   return $self->error($context, Unspecified, ['artistid']) unless $artistid;
 
-      return $self->exception_handler($request, $exception);
-   }
+   my $artist = $context->model('Artist')->find($artistid);
+
+   return $self->error($context, UnknownArtist, [$artistid]) unless $artist;
 
    my $name = $artist->name;
 
    $artist->delete;
 
-   return redirect $request->uri_for('artist'), ['Artist [_1] deleted', $name];
+   my $list_artists = $context->request->uri_for('artist');
+
+   return redirect $list_artists, ['Artist [_1] deleted', $name];
 }
 
 sub edit {
-   my ($self, $context) = @_;
+   my ($self, $context, $artistid) = @_;
 
-   my $request  = $context->request;
-   my $id       = $request->args->[0];
-   my $rs       = $context->model('Artist');
-   my $options  = { context => $context, item => $rs->find($id) };
-   my $form     = $self->form->new_with_context('Artist', $options);
+   return $self->error($context, Unspecified, ['artistid']) unless $artistid;
+
+   my $artist = $context->model('Artist')->find($artistid);
+
+   return $self->error($context, UnknownArtist, [$artistid]) unless $artist;
+
+   my $options = { context => $context, item => $artist };
+   my $form    = $self->form->new_with_context('Artist', $options);
 
    if ($form->process( posted => $context->posted )) {
-      my $view_uri = $request->uri_for('artist/*', [$id]);
-      my $name     = $form->item->name;
+      my $view_artist = $context->request->uri_for('artist/*', [$artistid]);
 
-      return redirect $view_uri, ['Artist [_1] updated', $name];
+      return redirect $view_artist, ['Artist [_1] updated', $form->item->name];
    }
 
-   return { form => $form, list_uri => $request->uri_for('artist') };
+   return { form => $form };
 }
 
 sub list {
@@ -71,23 +73,24 @@ sub list {
 
    my $options = { context => $context, resultset => $context->model('Artist')};
 
-   return {
-      create_uri => $context->request->uri_for('artist/create'),
-      table      => $self->table->new_with_context('Artist', $options),
-   };
+   return { table => $self->table->new_with_context('Artist', $options) };
 }
 
 sub view {
-   my ($self, $context) = @_;
+   my ($self, $context, $artistid) = @_;
 
-   my $request = $context->request;
-   my $id      = $request->args->[0];
+   return $self->error($context, Unspecified, ['artistid']) unless $artistid;
+
+   my $artist = $context->model('Artist')->find($artistid);
+
+   return $self->error($context, UnknownArtist, [$artistid]) unless $artist;
+
+   my $cd_rs   = $context->model('Cd')->search({ artistid => $artistid });
+   my $options = { context => $context, resultset => $cd_rs };
 
    return {
-      artist     => $context->model('Artist')->find($id),
-      delete_uri => $request->uri_for('artist/*/delete', [$id]),
-      edit_uri   => $request->uri_for('artist/*/edit',   [$id]),
-      list_uri   => $request->uri_for('artist'),
+      artist => $artist,
+      table  => $self->table->new_with_context('Cd', $options)
    };
 }
 

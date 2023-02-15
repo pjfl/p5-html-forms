@@ -51,7 +51,7 @@ has '_active' =>
 has 'default' => is => 'rw', lazy => TRUE;
 
 has 'default_method' =>
-   is          => 'ro',
+   is          => 'lazy',
    isa         => CodeRef,
    handles_via => 'Code',
    handles     => { _default => 'execute', },

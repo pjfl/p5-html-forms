@@ -15,6 +15,6 @@
    <script src="/js/hforms-toggle.js"></script>
 </head>
 <body id="body">
-   [% content -%]
+[% content -%]
 </body>
 </html>

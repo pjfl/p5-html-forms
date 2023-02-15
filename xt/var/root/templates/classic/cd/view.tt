@@ -1,0 +1,15 @@
+CD Id: [% cd.cdid %]<br/>
+Title: [% cd.title %]<br/>
+[% button({
+      text => 'Edit CD',
+      url  => uri_for('cd/*/edit', [cd.cdid])
+   })
+%]<br/>
+[% form_button({
+      content => 'Delete CD',
+      url     => uri_for('cd/*/delete', [cd.cdid])
+   })
+%]<br/>
+[% button({ text => 'List CDs', url => uri_for('artist/*/cd', [cd.artistid.id]) }) %]<br/>
+[% table.render %]<br/>
+[% button({ text => 'Create Tracks', url => uri_for('cd/*/track/create', [cd.cdid]) }) %]<br/>

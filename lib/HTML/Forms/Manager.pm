@@ -30,7 +30,7 @@ sub new_with_context {
 
    my $args = { %{$options} };
 
-   $args->{params} //= _get_body_parameters($context)
+   $args->{params} //= $self->get_body_parameters($context)
       if lc $context->request->method eq 'post';
 
    $args->{schema} //= $self->schema if $self->has_schema;
@@ -38,8 +38,9 @@ sub new_with_context {
    return $class->new($args);
 }
 
-sub _get_body_parameters {
-   my $context = shift;
+sub get_body_parameters {
+   my ($self, $context) = @_;
+
    my $request = $context->request;
 
    return { %{$request->body_parameters->mixed // {}} }

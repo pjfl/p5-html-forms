@@ -1,12 +1,12 @@
 package MCat::Model;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL );
-use HTML::Forms::Util      qw( trim );
+use HTML::Forms::Util      qw( verify_token trim );
 use HTML::StateTable::Constants qw( RENDERER_PREFIX );
 use HTTP::Status           qw( HTTP_OK );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
-use Unexpected::Functions  qw( throw );
+use Unexpected::Functions  qw( exception throw BadToken );
 use HTML::Forms::Manager;
 use HTML::StateTable::Manager;
 use MCat::Context;
@@ -38,6 +38,25 @@ sub allowed {
    my ($self, $context, $method) = @_; return $method;
 }
 
+sub is_token_bad {
+   my ($self, $context) = @_;
+
+   my $token = $self->form->get_body_parameters($context)->{_verify};
+
+   return $self->exception_handler($context->request, exception BadToken)
+      unless verify_token NUL, $token;
+
+   return;
+}
+
+sub error {
+   my ($self, $context, $class, @args) = @_;
+
+   my $exception = exception $class, @args;
+
+   return $self->exception_handler($context->request, $exception);
+}
+
 sub exception_handler {
    my ($self, $request, $exception) = @_;
 
@@ -67,7 +86,7 @@ sub execute {
 
    $method = $self->allowed($context, $method);
 
-   my $stash = $self->$method($context);
+   my $stash = $self->$method($context, @{$request->args});
 
    $stash->{code} //= HTTP_OK unless exists $stash->{redirect};
    $stash->{messages} = $context->messages;

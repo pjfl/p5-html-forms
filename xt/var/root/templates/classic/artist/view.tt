@@ -1,6 +1,15 @@
-Template artist/view should show detail of one artist<br/>
-Id: [% artist.id %]<br/>
+Artist Id: [% artist.id %]<br/>
 Name: [% artist.name %]<br/>
-[% button({ text => 'Edit Artist', url => edit_uri }) %]<br/>
-[% form_button({ content => 'Delete Artist', url => delete_uri }) %]<br/>
-[% button({ text => 'List Artists', url => list_uri }) %]<br/>
+[% button({
+      text => 'Edit Artist',
+      url  => uri_for('artist/*/edit', [artist.id])
+   })
+%]<br/>
+[% form_button({
+      content => 'Delete Artist',
+      url     => uri_for('artist/*/delete', [artist.id])
+   })
+%]<br/>
+[% button({ text => 'List Artists', url => uri_for('artist') }) %]<br/>
+[% table.render %]<br/>
+[% button({ text => 'Create CD', url => uri_for('artist/*/cd/create', [artist.id]) }) %]<br/>

@@ -33,6 +33,12 @@ has_exception 'PageNotFound' => parent => [$class],
 has_exception 'UnknownArtist' => parent => [$class],
    error => 'Artist [_1] not found', rv => HTTP_NOT_FOUND;
 
+has_exception 'BadToken' => parent => [$class],
+   error => 'CSRF token verification failed or token too old';
+
+has_exception 'UnknownCd' => parent => [$class],
+   error => 'CD [_1] not found';
+
 use namespace::autoclean;
 
 1;

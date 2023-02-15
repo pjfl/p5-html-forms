@@ -1,0 +1,2 @@
+[% form.render %]
+[% button({ text => 'List CDs', url => uri_for('cd') }) %]<br/>

@@ -1,2 +1,2 @@
 [% form.render %]
-[% button({ text => 'List Artists', url => list_uri }) %]<br/>
+[% button({ text => 'List Artists', url => uri_for('artist') }) %]<br/>

@@ -48,7 +48,7 @@ has 'default_form_wrapper_class' =>
    isa     => Str,
    default => 'form-wrapper';
 
-has 'default_request_token' => is => 'ro', isa => Str, default => 'no_replay';
+has 'default_request_token' => is => 'ro', isa => Str, default => '_verify';
 
 has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'div';
 
