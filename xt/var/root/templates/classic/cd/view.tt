@@ -13,4 +13,4 @@ Released: [% cd.year.strftime('%d %b %Y') %]<br/>
 %]<br/>
 [% table.render %]<br/>
 [% button({ text => 'Create Tracks', url => uri_for_action('track/create', [cd.cdid]) }) %]<br/>
-[% button({ text => 'View Artist', url => uri_for_action('artist/view', [cd.artistid.id]) }) %]<br/>
+[% button({ text => 'View Artist', url => uri_for_action('artist/view', [cd.artist.id]) }) %]<br/>

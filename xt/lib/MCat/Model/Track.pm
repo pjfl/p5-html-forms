@@ -53,9 +53,9 @@ sub delete {
 
    $track->delete;
 
-   my $track_list = $context->uri_for_action('track/list', [$cdid]);
+   my $cd_view = $context->uri_for_action('cd/view', [$cdid]);
 
-   $context->stash( redirect $track_list, ['Track [_1] deleted', $title] );
+   $context->stash( redirect $cd_view, ['Track [_1] deleted', $title] );
    return;
 }
 
@@ -68,7 +68,7 @@ sub edit {
 
    return $self->error($context, UnknownTrack, [$trackid]) unless $track;
 
-   my $cdid    = $track->cdid->cdid;
+   my $cdid    = $track->cd->cdid;
    my $options = { cdid => $cdid, context => $context, item => $track };
    my $form    = $self->form->new_with_context('Track', $options);
 

@@ -9,9 +9,11 @@ extends 'Unexpected';
 with    'Unexpected::TraitFor::ErrorLeader';
 with    'Unexpected::TraitFor::ExceptionClasses';
 
-has 'rv' => is => 'ro', isa => Int;
+has 'rv' => is => 'ro', isa => Int, default => 1;
 
 my $class = __PACKAGE__;
+
+has '+class' => default => $class;
 
 has_exception $class;
 

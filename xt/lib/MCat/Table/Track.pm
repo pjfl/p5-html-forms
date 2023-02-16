@@ -8,11 +8,16 @@ extends 'HTML::StateTable';
 
 set_table_name 'track';
 
-has_column 'trackid' => label => 'ID';
+has_column 'trackid' => label => 'Track ID';
 
 has_column 'cdid' => label => 'CD ID';
 
-has_column 'title';
+has_column 'title' => link => sub {
+   my $self    = shift;
+   my $context = $self->table->context;
+
+   return  $context->uri_for_action('track/view', [$self->result->trackid]);
+};
 
 use namespace::autoclean -except => TABLE_META;
 

@@ -101,7 +101,7 @@ Related object: L<MCat::Schema::Result::Cd>
 =cut
 
 __PACKAGE__->belongs_to(
-  "cdid",
+  "cd",
   "MCat::Schema::Result::Cd",
   { cdid => "cdid" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },

@@ -108,7 +108,7 @@ Related object: L<MCat::Schema::Result::Artist>
 =cut
 
 __PACKAGE__->belongs_to(
-  "artistid",
+  "artist",
   "MCat::Schema::Result::Artist",
   { artistid => "artistid" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "CASCADE" },

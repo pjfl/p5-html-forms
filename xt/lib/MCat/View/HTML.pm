@@ -42,13 +42,10 @@ sub _build__templater {
 sub _add_tt_defaults {
    my ($self, $context) = @_; weaken $context;
 
-   my $request        = $context->request; weaken $request;
-   my $uri_for        = sub { $request->uri_for(@_) };
    my $uri_for_action = sub { $context->uri_for_action(@_) };
    my $stash          = {
       get_token      => \&get_token,
       process_attrs  => \&process_attrs,
-      uri_for        => $uri_for,
       uri_for_action => $uri_for_action,
       %{$context->stash},
    };

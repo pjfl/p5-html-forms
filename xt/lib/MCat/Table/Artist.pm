@@ -14,9 +14,9 @@ has_column 'name' =>
    label => 'Artist Name',
    link  => sub {
       my $self    = shift;
-      my $request = $self->table->context->request;
+      my $context = $self->table->context;
 
-      return  $request->uri_for('artist/*', [$self->result->id]);
+      return  $context->uri_for_action('artist/view', [$self->result->id]);
    };
 
 use namespace::autoclean -except => TABLE_META;

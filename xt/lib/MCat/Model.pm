@@ -2,7 +2,6 @@ package MCat::Model;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL TRUE );
 use HTML::Forms::Util      qw( verify_token );
-use HTML::StateTable::Constants qw( RENDERER_PREFIX );
 use HTTP::Status           qw( HTTP_OK );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
@@ -17,9 +16,10 @@ has 'form' =>
    is      => 'lazy',
    isa     => class_type('HTML::Forms::Manager'),
    builder => sub {
-      my $self    = shift;
-      my $schema  = MCat::Schema->connect(@{$self->config->connect_info});
-      my $options = { namespace => 'MCat::Form', schema => $schema };
+      my $self     = shift;
+      my $appclass = $self->config->appclass;
+      my $schema   = MCat::Schema->connect(@{$self->config->connect_info});
+      my $options  = { namespace => "${appclass}::Form", schema => $schema };
 
       return HTML::Forms::Manager->new($options);
    };
@@ -28,8 +28,12 @@ has 'table' =>
    is      => 'lazy',
    isa     => class_type('HTML::StateTable::Manager'),
    builder => sub {
-      my $self    = shift;
-      my $options = { namespace => 'MCat::Table', renderer_class => 'Table' };
+      my $self     = shift;
+      my $appclass = $self->config->appclass;
+      my $options  = {
+         namespace      => "${appclass}::Table",
+         renderer_class => 'Table',
+      };
 
       return HTML::StateTable::Manager->new($options);
    };

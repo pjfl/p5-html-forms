@@ -72,7 +72,7 @@ sub edit {
 
    return $self->error($context, UnknownCd, [$cdid]) unless $cd;
 
-   my $artistid = $cd->artistid->artistid;
+   my $artistid = $cd->artist->artistid;
    my $options  = { artistid => $artistid, context => $context, item => $cd };
    my $form     = $self->form->new_with_context('Cd', $options);
 

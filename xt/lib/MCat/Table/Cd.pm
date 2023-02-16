@@ -10,13 +10,12 @@ set_table_name 'cd';
 
 has_column 'cdid' => label => 'ID';
 
-has_column 'title' =>
-   link => sub {
-      my $self    = shift;
-      my $request = $self->table->context->request;
+has_column 'title' => link => sub {
+   my $self    = shift;
+   my $context = $self->table->context;
 
-      return  $request->uri_for('cd/*', [$self->result->cdid]);
-   };
+   return  $context->uri_for_action('cd/view', [$self->result->cdid]);
+};
 
 has_column 'year';
 

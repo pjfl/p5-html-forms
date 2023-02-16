@@ -56,10 +56,6 @@ sub stash {
    return $self->_stash;
 }
 
-sub uri_for {
-   return shift->request->uri_for(@_);
-}
-
 sub uri_for_action {
    my ($self, $action, $args, @params) = @_;
 
@@ -70,17 +66,17 @@ sub uri_for_action {
    for my $candidate (@{$uris}) {
       my $n_stars =()= $candidate =~ m{ \* }gmx;
 
-      next unless $n_stars == 0 or $n_stars == scalar @{$args};
+      next unless $n_stars == 0 or $n_stars == scalar @{$args // []};
 
       $uri  = $candidate;
       $uri .= delete $params->{extension} if exists $params->{extension};
 
       while ($uri =~ m{ \* }mx) {
-         my $arg = (shift @{$args}) || q(); $uri =~ s{ \* }{$arg}mx;
+         my $arg = (shift @{$args // []}) || q(); $uri =~ s{ \* }{$arg}mx;
       }
    }
 
-   return $self->uri_for($uri, $args, $params);
+   return $self->request->uri_for($uri, $args, $params);
 }
 
 sub view { TRUE }

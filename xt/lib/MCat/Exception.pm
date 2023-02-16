@@ -18,6 +18,8 @@ has 'version' => is => 'ro', isa => Object, default => sub { $MCat::VERSION };
 
 my $class = __PACKAGE__;
 
+has '+class' => default => $class;
+
 has_exception $class;
 
 has_exception 'NoMethod' => parent => [$class],

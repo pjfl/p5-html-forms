@@ -22,7 +22,7 @@ sub FALSE    () { 0    }
 sub META     () { '_html_forms_meta' }
 sub NBSP     () { '&nbsp;' }
 sub NUL      () { q()  }
-sub SECRET   () { sha1_hex( getpwuid($EUID)->name . __FILE__ ) }
+sub SECRET   () { __PACKAGE__->Secret }
 sub SPC      () { q( ) }
 sub TRUE     () { 1    }
 sub TT_THEME () { 'classic' }
@@ -47,6 +47,19 @@ sub Exception_Class {
    ) unless $class->can('throw');
 
    return $exception_class = $class;
+}
+
+my $secret = sha1_hex( getpwuid($EUID)->name . __FILE__ );
+
+sub Secret {
+   my ($self, $value) = @_;
+
+   return $secret unless defined $value;
+
+   $exception_class->throw("Secret ${value} is not long enough")
+      unless length $value > 16;
+
+   return $secret = $value;
 }
 
 1;
