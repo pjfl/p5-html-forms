@@ -1,13 +1,20 @@
 package MCat::Config;
 
 use File::DataClass::IO    qw( io );
-use HTML::Forms::Constants qw( SECRET TRUE );
+use File::DataClass::Types qw( Directory );
+use HTML::Forms::Constants qw( FALSE SECRET TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Object PositiveInt Str );
+use MCat::Exception;
+use Web::ComposableRequest::Constants qw();
 use Moo;
 
-has 'appclass' => is => 'ro', isa => Str, default => 'MCat';
+HTML::Forms::Constants->Exception_Class('MCat::Exception');
+Web::ComposableRequest::Constants->Exception_Class('MCat::Exception');
 
-has 'basedir' => is => 'ro', isa => Str, default => 'xt';
+# Required by component loader to find controllers, models, and views
+has 'appclass' => is => 'ro', isa => Str, required => TRUE;
+
+has 'basedir' => is => 'ro', isa => Directory, default => sub { io 'xt' };
 
 has 'connect_info' => is => 'lazy', isa => ArrayRef, builder => sub {
    my $self = shift;
@@ -36,9 +43,13 @@ has 'encoding' => is => 'ro', isa => Str, default => 'utf-8';
 
 has 'layout' => is => 'ro', isa => Str, default => 'not_found';
 
+has 'loader_attr' => is => 'ro', isa => HashRef, default => sub {
+   return { should_log_errors => FALSE };
+};
+
 has 'mount_point' => is => 'ro', isa => Str, default => '/mcat';
 
-has 'name' => is => 'ro', isa => Str, required => TRUE;
+has 'name' => is => 'ro', isa => Str, default => 'Music Catalog';
 
 has 'prefix' => is => 'ro', isa => Str, default => 'mcat';
 
@@ -46,8 +57,8 @@ has 'request_roles' => is => 'ro', isa => ArrayRef[Str], builder => sub {
    return [ 'L10N', 'Session', 'JSON', 'Cookie', 'Headers', 'Compat' ];
 };
 
-has 'root' => is => 'lazy', isa => Object,
-   default => sub { io[shift->basedir, 'var/root'] };
+has 'root' => is => 'lazy', isa => Directory,
+   default => sub { shift->basedir->catdir('var', 'root') };
 
 has 'secret' => is => 'ro', isa => Str, default => SECRET;
 
@@ -64,8 +75,8 @@ has 'static' =>
    isa     => Str,
    default => 'css | favicon.ico | fonts | img | js | less';
 
-has 'tempdir' => is => 'lazy', isa => Object,
-   default => sub { io[shift->basedir, 'var/tmp'] };
+has 'tempdir' => is => 'lazy', isa => Directory,
+   default => sub { shift->basedir->catdir('var', 'tmp') };
 
 use namespace::autoclean;
 

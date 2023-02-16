@@ -8,6 +8,12 @@ has '+moniker' => default => 'z_root'; # Must sort to last place
 
 sub dispatch_request {
    return (
+      'GET | POST + /cd/*/track/create + ?*' => sub {['track/create', @_]},
+      'GET | POST + /track/*/edit + ?*'      => sub {['track/edit',   @_]},
+      'POST + /track/*/delete + ?*'          => sub {['track/delete', @_]},
+      'GET + /track/* + ?*'                  => sub {['track/view',   @_]},
+      'GET + /cd/*/track | /track + ?*'      => sub {['track/list',   @_]},
+
       'GET | POST + /artist/*/cd/create + ?*' => sub {['cd/create', @_]},
       'GET | POST + /cd/*/edit + ?*'          => sub {['cd/edit',   @_]},
       'POST + /cd/*/delete + ?*'              => sub {['cd/delete', @_]},

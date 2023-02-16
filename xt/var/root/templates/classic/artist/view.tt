@@ -2,14 +2,14 @@ Artist Id: [% artist.id %]<br/>
 Name: [% artist.name %]<br/>
 [% button({
       text => 'Edit Artist',
-      url  => uri_for('artist/*/edit', [artist.id])
+      url  => uri_for_action('artist/edit', [artist.id])
    })
 %]<br/>
 [% form_button({
       content => 'Delete Artist',
-      url     => uri_for('artist/*/delete', [artist.id])
+      url     => uri_for_action('artist/delete', [artist.id])
    })
 %]<br/>
-[% button({ text => 'List Artists', url => uri_for('artist') }) %]<br/>
 [% table.render %]<br/>
-[% button({ text => 'Create CD', url => uri_for('artist/*/cd/create', [artist.id]) }) %]<br/>
+[% button({ text => 'Create CD', url => uri_for_action('cd/create', [artist.id]) }) %]<br/>
+[% button({ text => 'List Artists', url => uri_for_action('artist') }) %]<br/>

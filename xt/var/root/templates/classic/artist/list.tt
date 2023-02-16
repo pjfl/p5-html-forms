@@ -1,2 +1,2 @@
 [% table.render %]<br/>
-[% button({ text => 'Create Artist', url => uri_for('artist/create') }) %]<br/>
+[% button({ text => 'Create Artist', url => uri_for_action('artist/create') }) %]<br/>

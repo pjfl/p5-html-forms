@@ -1,3 +1,5 @@
 Message: [% exception.original | html %]<br/>
-Thrown: [% exception.leader %]<br/>
+Thrown by: [% exception.leader %]<br/>
+Created: [% exception.created %]<br />
+Version: [% exception.version %]<br/>
 Code: [% code %]<br/>

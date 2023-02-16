@@ -1,12 +1,12 @@
 package MCat::Model;
 
-use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL );
-use HTML::Forms::Util      qw( verify_token trim );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL TRUE );
+use HTML::Forms::Util      qw( verify_token );
 use HTML::StateTable::Constants qw( RENDERER_PREFIX );
 use HTTP::Status           qw( HTTP_OK );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
-use Unexpected::Functions  qw( exception throw BadToken );
+use Unexpected::Functions  qw( exception throw BadToken NoMethod );
 use HTML::Forms::Manager;
 use HTML::StateTable::Manager;
 use MCat::Context;
@@ -34,67 +34,70 @@ has 'table' =>
       return HTML::StateTable::Manager->new($options);
    };
 
-sub allowed {
+sub allowed { # Allows all. Apply a role to modify this for permissions
    my ($self, $context, $method) = @_; return $method;
 }
 
-sub is_token_bad {
-   my ($self, $context) = @_;
+sub error { # Stash exception handler output to print an exception page
+   my ($self, $context, $class, @args) = @_;
 
-   my $token = $self->form->get_body_parameters($context)->{_verify};
-
-   return $self->exception_handler($context->request, exception BadToken)
-      unless verify_token NUL, $token;
-
+   $self->exception_handler($context, exception $class, level => 2, @args);
    return;
 }
 
-sub error {
-   my ($self, $context, $class, @args) = @_;
-
-   my $exception = exception $class, @args;
-
-   return $self->exception_handler($context->request, $exception);
-}
-
-sub exception_handler {
-   my ($self, $request, $exception) = @_;
+sub exception_handler { # Also called by component loader if model dies
+   my ($self, $context, $exception) = @_;
 
    my $message ="${exception}"; chomp $message;
 
    $self->log->error($message);
 
-   my $code = $exception->code // 0;
+   my $code = $exception->rv // 0;
 
-   return {
+   $context->stash(
       code      => $code > HTTP_OK ? $code : HTTP_OK,
       exception => $exception,
       message   => $message,
       template  => { layout => 'exception' },
       view      => $self->config->default_view,
-   };
+   );
+   return;
 }
 
-sub execute {
-   my ($self, $method, $request) = @_;
+sub execute { # Called by component loader for all model methods
+   my ($self, $context, $method) = @_;
 
-   throw 'Class [_1] has no method [_2]', [ blessed $self, $method ]
-      unless $self->can($method);
-
-   my $config  = $self->config;
-   my $context = MCat::Context->new( config => $config, request => $request );
+   throw NoMethod, [ blessed $self, $method ] unless $self->can($method);
 
    $method = $self->allowed($context, $method);
 
-   my $stash = $self->$method($context, @{$request->args});
+   $self->$method($context, @{$context->request->args});
+
+   my $stash = $context->stash;
 
    $stash->{code} //= HTTP_OK unless exists $stash->{redirect};
    $stash->{messages} = $context->messages;
    $stash->{template} //= {};
    $stash->{template}->{layout} //= $self->moniker . "/${method}";
-   $stash->{view} //= $config->default_view;
+   $stash->{view} //= $self->config->default_view;
+   return;
+}
 
-   return $stash;
+sub get_context {
+   my ($self, $request) = @_;
+
+   return MCat::Context->new( config => $self->config, request => $request );
+}
+
+sub has_valid_token { # Stash an exception if the CSRF token is bad
+   my ($self, $context) = @_;
+
+   my $token = $self->form->get_body_parameters($context)->{_verify};
+
+   return TRUE if verify_token NUL, $token;
+
+   $self->error($context, BadToken, level => 3);
+   return FALSE;
 }
 
 use namespace::autoclean;

@@ -3,24 +3,29 @@ package HTML::Forms::Util;
 use strictures;
 use parent 'Exporter::Tiny';
 
+use Crypt::CBC;
 use Data::Clone            qw( clone );
+use DateTime;
 use DateTime::Duration;
 use HTML::Entities         qw( encode_entities );
-use HTML::Forms::Constants qw( BANG CIPHER TRUE FALSE META NUL SPC );
+use HTML::Forms::Constants qw( BANG EXCEPTION_CLASS SECRET
+                               TRUE FALSE META NUL SPC );
 use MIME::Base64           qw( decode_base64 encode_base64 );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
+use Unexpected::Functions  qw( throw );
 use URI::Escape            qw( );
 use URI::http;
 use URI::https;
 
-our @EXPORT = qw( cc_widget convert_full_name duration_to_string
-                  encode_only_entities get_meta get_token has_some_value
-                  inflate_interval interval_to_string merge new_uri
-                  process_attrs quote_single redirect trim ucc_widget
-                  uri_escape verify_token );
+our @EXPORT = qw( action_path2uri cc_widget cipher convert_full_name
+                  duration_to_string encode_only_entities get_meta get_token
+                  has_some_value inflate_interval interval_to_string merge
+                  new_uri now process_attrs quote_single redirect
+                  register_action_paths trim ucc_widget uri_escape verify_token
+                  );
 
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
@@ -83,12 +88,19 @@ my $PERIOD_CONVERSION = {
    years  => {},
 };
 
+my $action_path_to_uri = {}; # Key is an action path, value a partial URI
 my $reserved   = q(;/?:@&=+$,[]);
 my $mark       = q(-_.!~*'());                                   #'; emacs
 my $unreserved = "A-Za-z0-9\Q${mark}\E%\#";
-my $uric       = quotemeta( $reserved ) . '\p{isAlpha}' . $unreserved;
+my $uric       = quotemeta($reserved) . '\p{isAlpha}' . $unreserved;
 
 # Public functions
+sub action_path2uri ($;$) {
+   return $action_path_to_uri->{$_[0]} unless defined $_[1];
+
+   return $action_path_to_uri->{$_[0]} = $_[1];
+}
+
 sub cc_widget ($) {
    my $widget = shift;
 
@@ -98,6 +110,29 @@ sub cc_widget ($) {
    }
 
    return $widget;
+}
+
+my $cipher;
+
+sub cipher  {
+   my ($self, $value) = @_;
+
+   unless (defined $cipher or defined $value) {
+      $cipher = Crypt::CBC->new(
+         -cipher => 'Blowfish',
+         -header => 'salt',
+         -key    => SECRET,
+         -pbkdf  =>'pbkdf2',
+         -salt   => TRUE,
+      );
+   }
+
+   return $cipher unless defined $value;
+
+   throw "Class ${value} is not loaded or has no encrypt/decrypt methods"
+      unless $value->can('encrypt') && $value->can('decrypt');
+
+   return $cipher = $value;
 }
 
 sub convert_full_name ($) {
@@ -166,7 +201,7 @@ sub get_token ($$) {
    $prefix .= BANG if $prefix;
 
    my $value = $prefix . (time + $expires);
-   my $token = encode_base64(CIPHER->encrypt($value));
+   my $token = encode_base64(cipher->encrypt($value));
 
    $token =~ s{[\s\r\n]+}{}gmx;
    return $token;
@@ -246,6 +281,17 @@ sub new_uri ($$) {
    my $v = uri_escape($_[1]); return bless \$v, 'URI::'.$_[0];
 }
 
+sub now (;$$) {
+   my ($tz, $locale) = @_;
+
+   my $args = { time_zone => 'local' };
+
+   $args->{locale}    = $locale if $locale;
+   $args->{time_zone} = $tz     if $tz;
+
+   return DateTime->now(%{$args});
+}
+
 # This is a function for processing various attribute flavors
 sub process_attrs {
    my $attrs = shift;
@@ -282,7 +328,7 @@ sub process_attrs {
 }
 
 sub quote_single ($) {
-  local ($_) = $_[ 0 ];
+  local ($_) = $_[0];
 
   s{ ([\\']) }{\\$1}gmx; #'])}emacs
 
@@ -290,7 +336,16 @@ sub quote_single ($) {
 }
 
 sub redirect ($$) {
-   return { redirect => { location => $_[0], message  => $_[1] } };
+   return redirect => { location => $_[0], message => $_[1] };
+}
+
+sub register_action_paths (;@) {
+   my $moniker = shift;
+   my $args    = (is_hashref $_[0]) ? $_[0] : { @_ };
+
+   for my $k (keys %{$args}) { action_path2uri("${moniker}/${k}", $args->{$k}) }
+
+   return;
 }
 
 sub trim (;$$) {
@@ -333,7 +388,7 @@ sub verify_token ($$) {
    my $value;
 
    try {
-      $value = CIPHER->decrypt(decode_base64($token));
+      $value = cipher->decrypt(decode_base64($token));
 
       if ($prefix) {
          $prefix .= BANG;

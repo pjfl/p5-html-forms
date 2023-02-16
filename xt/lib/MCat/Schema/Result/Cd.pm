@@ -60,7 +60,7 @@ __PACKAGE__->table("cd");
 
 __PACKAGE__->add_columns(
   "cdid",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0, is_auto_increment => 1 },
   "artistid",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "title",

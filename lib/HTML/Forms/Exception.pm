@@ -5,18 +5,21 @@ use HTTP::Status          qw( HTTP_NOT_FOUND );
 use Unexpected::Functions qw( has_exception );
 use Moo;
 
-extends q(Unexpected);
-with    q(Unexpected::TraitFor::ErrorLeader);
-with    q(Unexpected::TraitFor::ExceptionClasses);
+extends 'Unexpected';
+with    'Unexpected::TraitFor::ErrorLeader';
+with    'Unexpected::TraitFor::ExceptionClasses';
 
-has 'code' => is => 'ro', isa => Int;
+has 'rv' => is => 'ro', isa => Int;
 
 my $class = __PACKAGE__;
 
 has_exception $class;
 
+has_exception 'BadToken' => parent => [$class],
+   error => 'CSRF token verification failed or token too old';
+
 has_exception 'NotFound' => parent => [$class],
-   error => 'Path [_1] not found. [_2]';
+   error => 'Path [_1] not found. [_2]', rv => HTTP_NOT_FOUND;
 
 has_exception 'PackageUndefined' => parent => [$class],
    error => 'Package [_1] not defined in [_2].';
@@ -26,18 +29,6 @@ has_exception 'ReadFailed' => parent => [$class],
 
 has_exception 'UnknownPackage' => parent => [$class],
    error => 'Package [_1] not found.';
-
-has_exception 'PageNotFound' => parent => [$class],
-   error => 'Page [_1] not found';
-
-has_exception 'UnknownArtist' => parent => [$class],
-   error => 'Artist [_1] not found', rv => HTTP_NOT_FOUND;
-
-has_exception 'BadToken' => parent => [$class],
-   error => 'CSRF token verification failed or token too old';
-
-has_exception 'UnknownCd' => parent => [$class],
-   error => 'CD [_1] not found';
 
 use namespace::autoclean;
 

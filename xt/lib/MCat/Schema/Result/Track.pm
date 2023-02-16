@@ -55,7 +55,7 @@ __PACKAGE__->table("track");
 
 __PACKAGE__->add_columns(
   "trackid",
-  { data_type => "integer", is_nullable => 0 },
+  { data_type => "integer", is_nullable => 0, is_auto_increment => 1 },
   "cdid",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "title",

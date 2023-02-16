@@ -6,8 +6,7 @@ use File::Spec;
 
 BEGIN {
    my $bind = $Bin; $bind = $1 if $bind =~ m{ \A ([^\$%&\*;<>\`|]+) \z }mx;
-   my $path = File::Spec->catfile( $bind, 'forms-localenv' );
-
+   my $path = File::Spec->catfile($bind, 'forms-localenv');
    (do $path or die $EVAL_ERROR || "Path ${path} not done\n") if -f $path;
 }
 

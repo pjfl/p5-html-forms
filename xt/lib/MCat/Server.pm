@@ -1,8 +1,9 @@
 package MCat::Server;
 
-use HTML::Forms::Constants qw( TRUE );
+use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( HashRef Object Str );
 use HTTP::Status           qw( HTTP_FOUND );
+use Type::Utils            qw( class_type );
 use MCat::Config;
 use MCat::Log;
 use Plack::Builder;
@@ -12,14 +13,17 @@ has '_config_attr' =>
    is       => 'ro',
    isa      => HashRef,
    init_arg => 'config',
-   builder  => sub { { name => 'Music Catalog' } };
+   builder  => sub { { appclass => 'MCat' } };
 
 has 'config' =>
    is      => 'lazy',
-   isa     => Object,
+   isa     => class_type('MCat::Config'),
    builder => sub { MCat::Config->new(shift->_config_attr) };
 
-has 'log' => is => 'lazy', isa => Object, builder => sub { MCat::Log->new };
+has 'log' =>
+   is      => 'lazy',
+   isa     => class_type('MCat::Log'),
+   builder => sub { MCat::Log->new( config => shift->config ) };
 
 with 'Web::Components::Loader';
 
@@ -27,8 +31,8 @@ around 'to_psgi_app' => sub {
    my ($orig, $self, @args) = @_;
 
    my $psgi_app = $orig->($self, @args);
-   my $conf     = $self->config;
-   my $static   = $conf->static;
+   my $config   = $self->config;
+   my $static   = $config->static;
 
    return builder {
       enable 'ConditionalGET';
@@ -37,22 +41,22 @@ around 'to_psgi_app' => sub {
       enable 'ContentLength';
       enable 'FixMissingBodyInRedirect';
       enable 'Deflater',
-         content_type => $conf->deflate_types, vary_user_agent => TRUE;
+         content_type => $config->deflate_types, vary_user_agent => TRUE;
       enable 'Static',
-         path => qr{ \A / (?: $static ) }mx, root => $conf->root;
-      mount $conf->mount_point => builder {
+         path => qr{ \A / (?: $static) }mx, root => $config->root;
+      mount $config->mount_point => builder {
          enable 'Session::Cookie',
             expires     => 7_776_000,
             httponly    => TRUE,
-            path        => $conf->mount_point,
+            path        => $config->mount_point,
             samesite    => 'None',
-            secret      => $conf->secret,
+            secret      => $config->secret,
             secure      => TRUE,
-            session_key => $conf->prefix.'_session';
+            session_key => $config->prefix.'_session';
          $psgi_app;
       };
       mount '/' => builder {
-         sub { [ HTTP_FOUND, [ 'Location', $conf->default_route ], [] ] }
+         sub { [ HTTP_FOUND, [ 'Location', $config->default_route ], [] ] }
       };
    };
 };

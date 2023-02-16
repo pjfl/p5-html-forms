@@ -3,19 +3,17 @@ package HTML::Forms::Constants;
 use strictures;
 use parent 'Exporter::Tiny';
 
-use Crypt::CBC;
 use Digest::SHA1 qw( sha1_hex );
 use English      qw( -no_match_vars );
 use File::ShareDir;
 use HTML::Forms::Exception;
 use User::pwent  qw( getpwuid );
 
-our @EXPORT = qw( BANG CIPHER COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR
+our @EXPORT = qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR
                   DOT EXCEPTION_CLASS FALSE META NBSP NUL SECRET SPC TIME_FMT
                   TIME_MATCH TIME_RE TRUE TT_THEME );
 
 sub BANG     () { q(!) }
-sub CIPHER   () { __PACKAGE__->Cipher }
 sub COLON    () { q(:) }
 sub COMMA    () { q(,) }
 sub DISTDIR  () { File::ShareDir::dist_dir('HTML-Forms') }
@@ -49,30 +47,6 @@ sub Exception_Class {
    ) unless $class->can('throw');
 
    return $exception_class = $class;
-}
-
-my $cipher;
-
-sub Cipher  {
-   my ($self, $value) = @_;
-
-   unless (defined $cipher) {
-      $cipher = Crypt::CBC->new(
-         -cipher => 'Blowfish',
-         -header => 'salt',
-         -key    => SECRET,
-         -pbkdf  =>'pbkdf2',
-         -salt   => TRUE,
-      );
-   }
-
-   return $cipher unless defined $value;
-
-   EXCEPTION_CLASS->throw(
-      "Class ${value} is not loaded or has no encrypt/decrypt methods"
-   ) unless $value->can('encrypt') && $value->can('decrypt');
-
-   return $cipher = $value;
 }
 
 1;

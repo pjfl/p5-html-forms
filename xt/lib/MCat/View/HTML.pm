@@ -12,11 +12,10 @@ with 'Web::Components::Role::TT';
 has '+moniker' => default => 'html';
 
 sub serialize {
-   my ($self, $request, $stash) = @_;
+   my ($self, $context) = @_;
 
-   $stash = $self->_add_tt_defaults($request, $stash);
-
-   my $html = encode($self->encoding, $self->render_template($stash));
+   my $stash = $self->_add_tt_defaults($context);
+   my $html  = encode($self->encoding, $self->render_template($stash));
 
    return [ $stash->{code}, _header($stash->{http_headers}), [$html] ];
 }
@@ -41,22 +40,24 @@ sub _build__templater {
 }
 
 sub _add_tt_defaults {
-   my ($self, $request, $stash) = @_;
+   my ($self, $context) = @_; weaken $context;
 
-   weaken $request;
-
-   $stash = {
-      get_token     => \&get_token,
-      process_attrs => \&process_attrs,
-      uri_for       => sub { $request->uri_for(@_) },
-      %{$stash},
+   my $request        = $context->request; weaken $request;
+   my $uri_for        = sub { $request->uri_for(@_) };
+   my $uri_for_action = sub { $context->uri_for_action(@_) };
+   my $stash          = {
+      get_token      => \&get_token,
+      process_attrs  => \&process_attrs,
+      uri_for        => $uri_for,
+      uri_for_action => $uri_for_action,
+      %{$context->stash},
    };
 
    return $stash;
 }
 
 sub _header {
-   return [ 'Content-Type'  => 'text/html', @{ $_[ 0 ] // [] } ];
+   return [ 'Content-Type'  => 'text/html', @{ $_[0] // [] } ];
 }
 
 use namespace::autoclean;

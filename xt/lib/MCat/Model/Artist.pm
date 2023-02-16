@@ -1,14 +1,22 @@
 package MCat::Model::Artist;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use HTML::Forms::Util      qw( redirect );
-use Unexpected::Functions  qw( exception UnknownArtist Unspecified );
+use HTML::Forms::Util      qw( redirect register_action_paths );
+use Unexpected::Functions  qw( UnknownArtist Unspecified );
 use Web::Simple;
 
 extends 'MCat::Model';
 with    'Web::Components::Role';
 
 has '+moniker' => default => 'artist';
+
+register_action_paths 'artist', {
+   create => 'artist/create',
+   delete => 'artist/*/delete',
+   edit   => 'artist/*/edit',
+   list   => 'artist',
+   view   => 'artist/*',
+};
 
 sub create {
    my ($self, $context) = @_;
@@ -18,20 +26,22 @@ sub create {
 
    if ($form->process( posted => $context->posted )) {
       my $artistid    = $form->item->id;
-      my $view_artist = $context->request->uri_for('artist/*', [$artistid]);
+      my $artist_view = $context->uri_for_action('artist/view', [$artistid]);
+      my $message     = ['Artist [_1] created', $form->item->name];
 
-      return redirect $view_artist, ['Artist [_1] created', $form->item->name];
+      $context->stash( redirect $artist_view, $message );
+      return;
    }
 
-   return { form => $form };
+   $context->stash( form => $form );
+   return;
 }
 
 sub delete {
    my ($self, $context, $artistid) = @_;
 
-   my $stash = $self->is_token_bad($context);
+   return unless $self->has_valid_token($context);
 
-   return $stash if $stash;
    return $self->error($context, Unspecified, ['artistid']) unless $artistid;
 
    my $artist = $context->model('Artist')->find($artistid);
@@ -42,9 +52,10 @@ sub delete {
 
    $artist->delete;
 
-   my $list_artists = $context->request->uri_for('artist');
+   my $artist_list = $context->uri_for_action('artist/list');
 
-   return redirect $list_artists, ['Artist [_1] deleted', $name];
+   $context->stash( redirect $artist_list, ['Artist [_1] deleted', $name] );
+   return;
 }
 
 sub edit {
@@ -60,12 +71,15 @@ sub edit {
    my $form    = $self->form->new_with_context('Artist', $options);
 
    if ($form->process( posted => $context->posted )) {
-      my $view_artist = $context->request->uri_for('artist/*', [$artistid]);
+      my $artist_view = $context->uri_for_action('artist/view', [$artistid]);
+      my $message     = ['Artist [_1] updated', $form->item->name];
 
-      return redirect $view_artist, ['Artist [_1] updated', $form->item->name];
+      $context->stash( redirect $artist_view, $message );
+      return;
    }
 
-   return { form => $form };
+   $context->stash( form => $form );
+   return;
 }
 
 sub list {
@@ -73,7 +87,8 @@ sub list {
 
    my $options = { context => $context, resultset => $context->model('Artist')};
 
-   return { table => $self->table->new_with_context('Artist', $options) };
+   $context->stash( table => $self->table->new_with_context('Artist',$options));
+   return;
 }
 
 sub view {
@@ -88,10 +103,11 @@ sub view {
    my $cd_rs   = $context->model('Cd')->search({ artistid => $artistid });
    my $options = { context => $context, resultset => $cd_rs };
 
-   return {
+   $context->stash(
       artist => $artist,
       table  => $self->table->new_with_context('Cd', $options)
-   };
+   );
+   return;
 }
 
 use namespace::autoclean;
