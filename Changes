@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Added config loader role
           - MCat complete
           - MCat track model working
           - MCat cd model working

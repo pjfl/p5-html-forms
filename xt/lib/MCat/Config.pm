@@ -8,13 +8,13 @@ use MCat::Exception;
 use Web::ComposableRequest::Constants qw();
 use Moo;
 
+with 'MCat::Config::Loader';
+
 HTML::Forms::Constants->Exception_Class('MCat::Exception');
 Web::ComposableRequest::Constants->Exception_Class('MCat::Exception');
 
 # Required by component loader to find controllers, models, and views
 has 'appclass' => is => 'ro', isa => Str, required => TRUE;
-
-has 'basedir' => is => 'ro', isa => Directory, default => sub { io 'xt' };
 
 has 'connect_info' => is => 'lazy', isa => ArrayRef, builder => sub {
    my $self = shift;
@@ -22,7 +22,7 @@ has 'connect_info' => is => 'lazy', isa => ArrayRef, builder => sub {
    return [$self->dsn, $self->db_username, $self->db_password];
 };
 
-has 'db_password' => is => 'ro', isa => Str, default => 'shit';
+has 'db_password' => is => 'ro', isa => Str;
 
 has 'db_username' => is => 'ro', isa => Str, default => 'mcat';
 
@@ -58,7 +58,7 @@ has 'request_roles' => is => 'ro', isa => ArrayRef[Str], builder => sub {
 };
 
 has 'root' => is => 'lazy', isa => Directory,
-   default => sub { shift->basedir->catdir('var', 'root') };
+   default => sub { shift->vardir->catdir('root') };
 
 has 'secret' => is => 'ro', isa => Str, default => SECRET;
 
@@ -76,7 +76,9 @@ has 'static' =>
    default => 'css | favicon.ico | fonts | img | js | less';
 
 has 'tempdir' => is => 'lazy', isa => Directory,
-   default => sub { shift->basedir->catdir('var', 'tmp') };
+   default => sub { shift->vardir->catdir('tmp') };
+
+has 'vardir' => is => 'ro', isa => Directory, default => sub { io['xt', 'var']};
 
 use namespace::autoclean;
 

@@ -27,3 +27,4 @@ xt/var/root/js
 xt/var/tmp
 lib/HTML/Forms/Model/DBIC.pm
 lib/HTML/Forms/Role/Model
+xt/var/etc/mcat_local.json
