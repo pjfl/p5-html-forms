@@ -17,7 +17,7 @@ has_column 'title' => link => sub {
    return  $context->uri_for_action('cd/view', [$self->result->cdid]);
 };
 
-has_column 'year';
+has_column 'year' => label => 'Released', traits => ['Date'];
 
 use namespace::autoclean -except => TABLE_META;
 

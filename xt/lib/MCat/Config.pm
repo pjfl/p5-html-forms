@@ -78,7 +78,11 @@ has 'static' =>
 has 'tempdir' => is => 'lazy', isa => Directory,
    default => sub { shift->vardir->catdir('tmp') };
 
-has 'vardir' => is => 'ro', isa => Directory, default => sub { io['xt', 'var']};
+has 'vardir' =>
+   is      => 'ro',
+   isa     => Directory,
+   coerce  => TRUE,
+   default => sub { io['xt', 'var']};
 
 use namespace::autoclean;
 

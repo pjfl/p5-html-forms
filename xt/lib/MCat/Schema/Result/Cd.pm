@@ -59,14 +59,19 @@ __PACKAGE__->table("cd");
 =cut
 
 __PACKAGE__->add_columns(
-  "cdid",
-  { data_type => "integer", is_nullable => 0, is_auto_increment => 1 },
-  "artistid",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "title",
-  { data_type => "text", is_nullable => 0 },
-  "year",
-  { data_type => "timestamp", is_nullable => 1 },
+   "cdid", { data_type => "integer", is_nullable => 0, is_auto_increment => 1 },
+   "artistid", {
+      data_type => "integer",
+      is_foreign_key => 1,
+      is_nullable => 0,
+   },
+   "title", { data_type => "text", is_nullable => 0 },
+   "year", {
+      data_type => "timestamp",
+      is_nullable => 1,
+      locale => 'en_GB',
+      timezone => 'UTC',
+   },
 );
 
 =head1 PRIMARY KEY

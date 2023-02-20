@@ -13,7 +13,7 @@ has '+moniker' => default => 'page';
 sub not_found {
    my ($self, $context) = @_;
 
-   my @options = ( [$context->request->path], code => HTTP_NOT_FOUND );
+   my @options = ( [$context->request->path], rv => HTTP_NOT_FOUND );
 
    return $self->error($context, PageNotFound, @options);
 }

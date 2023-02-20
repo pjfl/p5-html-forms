@@ -4,9 +4,10 @@ use HTML::Forms::Util qw( now );
 use Moo;
 
 sub error {
-   my ($self, $message) = @_;
+   my ($self, $exception) = @_;
 
-   my $now = now;
+   my $message ="${exception}"; chomp $message;
+   my $now     = now;
 
    warn "${now} ${message}\n";
 }

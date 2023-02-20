@@ -5,6 +5,7 @@ use DateTime::Format::Strptime;
 use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH EXCEPTION_CLASS
                                FALSE NUL TRUE );
 use HTML::Forms::Types     qw( Bool CodeRef Str );
+use HTML::Forms::Util      qw( now );
 use Ref::Util              qw( is_coderef );
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
@@ -40,11 +41,11 @@ has 'format_error' =>
       return 'Please enter a date in the format ' . $self->format;
    };
 
-has 'locale' => is => 'ro', isa => Str;
+has 'locale' => is => 'ro', isa => Str, default => 'en_GB';
 
 has 'pattern' => is => 'ro', isa => Str, default => DATE_MATCH;
 
-has 'time_zone' => is => 'rw', isa => Str, default => 'local';
+has 'time_zone' => is => 'rw', isa => Str, default => 'UTC';
 
 has '+default' => default => sub { shift->_now_dt->truncate( to => 'day' ) };
 
@@ -120,32 +121,32 @@ sub get_class_messages {
 
 sub validate {
    my $self    = shift;
-   my @options = ( on_error => 'croak' );
-
-   push @options, locale => $self->locale if $self->locale;
-   push @options, time_zone => $self->time_zone if $self->time_zone;
-
+   my @options = (
+      locale    => $self->locale,
+      on_error  => 'croak',
+      time_zone => $self->time_zone,
+   );
    my $format = $self->_get_strf_format;
-   my $strp = DateTime::Format::Strptime->new( pattern => $format, @options );
+   my $strp   = DateTime::Format::Strptime->new( pattern => $format, @options );
    my $dt;
 
-   try   { $dt = $strp->parse_datetime( $self->value ) }
+   try   { $dt = $strp->parse_datetime($self->value) }
    catch {
       my $error = $strp->errmsg || $_;
 
       if ($error =~ m{ not \s match }msx) {
-         $self->add_error( $self->format_error );
+         $self->add_error($self->format_error);
       }
-      else { $self->add_error( $error ) }
+      else { $self->add_error($error) }
    };
 
    return unless $dt;
 
-   $dt->set_time_zone( 'local' );
-   $self->_set_value( $dt );
+   $dt->set_time_zone('UTC');
+   $self->_set_value($dt);
 
    my $val_strp = DateTime::Format::Strptime->new(
-      pattern => DATE_FMT, time_zone => 'local'
+      pattern => DATE_FMT, time_zone => 'UTC'
    );
 
    if (my $date_start = $self->date_start) {
@@ -157,9 +158,9 @@ sub validate {
 
       throw 'Date start: ' . $val_strp->errmsg unless $date_start;
 
-      my $cmp = DateTime->compare( $date_start, $date );
+      my $cmp = DateTime->compare($date_start, $date);
 
-      $self->add_error( $self->get_message( 'date_early' ) ) if $cmp eq 1;
+      $self->add_error($self->get_message('date_early')) if $cmp eq 1;
    }
 
    if (my $date_end = $self->date_end) {
@@ -167,13 +168,13 @@ sub validate {
 
       $date->truncate( to => 'day' ) if $date_end !~ m{ [ ] }mx;
       $date_end = $date_end->() if is_coderef $date_end;
-      $date_end = $val_strp->parse_datetime( $date_end );
+      $date_end = $val_strp->parse_datetime($date_end);
 
       throw 'Date end: ' . $val_strp->errmsg unless $date_end;
 
-      my $cmp = DateTime->compare( $date_end, $date );
+      my $cmp = DateTime->compare($date_end, $date);
 
-      $self->add_error( $self->get_message( 'date_late' ) ) if $cmp eq -1;
+      $self->add_error($self->get_message('date_late')) if $cmp eq -1;
    }
 
    return;
@@ -187,9 +188,11 @@ sub _build_deflate_method {
       my $value = shift;
 
       # If not a DateTime, assume correctly formatted string and return
-      return $value unless blessed $value && $value->isa( 'DateTime' );
+      return $value unless blessed $value && $value->isa('DateTime');
 
-      return $value->strftime( $self->_get_strf_format );
+      $value->set_time_zone($self->time_zone);
+
+      return $value->strftime($self->_get_strf_format);
    };
 }
 
@@ -218,7 +221,7 @@ sub _get_strf_format {
    return $format if $format =~ m{ \% }mx;
 
    for my $dpf (reverse sort keys %{ $dp_to_dt }) {
-      my $strf = $dp_to_dt->{ $dpf };
+      my $strf = $dp_to_dt->{$dpf};
 
       $format =~ s{$dpf}{$strf}gmx;
    }
@@ -233,13 +236,7 @@ sub _get_strf_format {
 }
 
 sub _now_dt {
-   my $self = shift;
-   my $args = {};
-
-   $args->{locale}    = $self->locale    if $self->locale;
-   $args->{time_zone} = $self->time_zone if $self->time_zone;
-
-   return DateTime->now( %{ $args } );
+   my $self = shift; return now;
 }
 
 use namespace::autoclean;

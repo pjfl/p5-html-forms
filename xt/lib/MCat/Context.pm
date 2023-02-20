@@ -7,17 +7,16 @@ use JSON::MaybeXS          qw( encode_json );
 use List::Util             qw( pairs );
 use Ref::Util              qw( is_arrayref is_hashref );
 use Type::Utils            qw( class_type );
+use MCat::Response;
 use MCat::Schema;
 use Moo;
 
 has 'config', is => 'ro', isa => class_type('MCat::Config'), required => TRUE;
 
 has 'messages' => is => 'lazy', isa => ArrayRef, builder => sub {
-   my $self    = shift;
-   my $request = $self->request;
-   my $session = $request->session;
+   my $self = shift;
 
-   return $session->collect_status_messages($request);
+   return $self->session->collect_status_messages($self->request);
 };
 
 has 'posted' => is => 'lazy', isa => Bool, builder => sub {
@@ -28,6 +27,9 @@ has 'request' =>
    is       => 'ro',
    isa      => class_type('Web::ComposableRequest::Base'),
    required => TRUE;
+
+has 'response' => is => 'ro', isa => class_type('MCat::Response'),
+   builder => sub { MCat::Response->new };
 
 has 'session' => is => 'lazy', builder => sub { shift->request->session };
 
@@ -43,6 +45,8 @@ has '_stash' => is => 'ro', isa => HashRef, default => sub { {} };
 sub model {
    my ($self, $rs_name) = @_; return $self->schema->resultset($rs_name);
 }
+
+sub res { shift->response }
 
 sub stash {
    my ($self, @args) = @_;
@@ -66,7 +70,7 @@ sub uri_for_action {
    for my $candidate (@{$uris}) {
       my $n_stars =()= $candidate =~ m{ \* }gmx;
 
-      next unless $n_stars == 0 or $n_stars == scalar @{$args // []};
+      next unless $n_stars == 0 or $n_stars <= scalar @{$args // []};
 
       $uri  = $candidate;
       $uri .= delete $params->{extension} if exists $params->{extension};

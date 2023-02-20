@@ -284,7 +284,7 @@ sub new_uri ($$) {
 sub now (;$$) {
    my ($tz, $locale) = @_;
 
-   my $args = { time_zone => 'local' };
+   my $args = { locale => 'en_GB', time_zone => 'UTC' };
 
    $args->{locale}    = $locale if $locale;
    $args->{time_zone} = $tz     if $tz;

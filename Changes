@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds time zone handling to date field
           - Added config loader role
           - MCat complete
           - MCat track model working

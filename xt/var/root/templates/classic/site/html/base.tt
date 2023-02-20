@@ -10,9 +10,11 @@
    <meta name="generator" content="[% config.name %] v[% version %]">
    <link href="/favicon.ico" rel="shortcut icon">
    <link href="/css/hforms-minimal.css" rel="stylesheet" type="text/css">
+   <link href="/css/hstatetable-minimal.css" rel="stylesheet" type="text/css">
    <script src="/js/hforms-util.js"></script>
    <script src="/js/hforms-repeatable.js"></script>
    <script src="/js/hforms-toggle.js"></script>
+   <script src="/js/hstatetable-renderer.js"></script>
 </head>
 <body id="body">
 [% content -%]

@@ -28,3 +28,5 @@ xt/var/tmp
 lib/HTML/Forms/Model/DBIC.pm
 lib/HTML/Forms/Role/Model
 xt/var/etc/mcat_local.json
+share/js/hstatetable-renderer.js
+share/css/hstatetable-minimal.css

@@ -1,4 +1,4 @@
-[% FOR message IN messages -%]
+[% FOR message IN context.messages -%]
    <div class="messages">[% message %]</div>
 [% END -%]
 [% content %]

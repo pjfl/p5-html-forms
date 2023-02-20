@@ -11,7 +11,7 @@ use Moo;
 extends 'HTML::Forms::Exception';
 
 has 'created' => is => 'ro', isa => class_type('DateTime'), default => sub {
-   return DateTime->now( time_zone => 'local' );
+   return DateTime->now( locale => 'en_GB', time_zone => 'UTC' );
 };
 
 has 'version' => is => 'ro', isa => Object, default => sub { $MCat::VERSION };
