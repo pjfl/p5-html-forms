@@ -1,7 +1,7 @@
 package MCat::Model::Track;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use HTML::Forms::Util      qw( redirect register_action_paths );
+use MCat::Util             qw( redirect register_action_paths );
 use Unexpected::Functions  qw( UnknownTrack Unspecified );
 use Web::Simple;
 
@@ -23,8 +23,13 @@ sub create {
 
    return $self->error($context, Unspecified, ['cdid']) unless $cdid;
 
-   my $options = { cdid => $cdid, context => $context, item_class => 'Track' };
-   my $form    = $self->form->new_with_context('Track', $options);
+   my $options = {
+      cdid       => $cdid,
+      context    => $context,
+      item_class => 'Track',
+      title      => 'Create track'
+   };
+   my $form = $self->form->new_with_context('Track', $options);
 
    if ($form->process( posted => $context->posted )) {
       my $track_view = $context->uri_for_action('track/view',[$form->item->id]);
@@ -69,7 +74,12 @@ sub edit {
    return $self->error($context, UnknownTrack, [$trackid]) unless $track;
 
    my $cdid    = $track->cd->cdid;
-   my $options = { cdid => $cdid, context => $context, item => $track };
+   my $options = {
+      cdid    => $cdid,
+      context => $context,
+      item    => $track,
+      title   => 'Edit track'
+   };
    my $form    = $self->form->new_with_context('Track', $options);
 
    if ($form->process( posted => $context->posted )) {

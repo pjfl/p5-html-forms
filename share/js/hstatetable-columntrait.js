@@ -1,0 +1,1 @@
+/home/laz/Projects/HTML-StateTable/master/share/js/hstatetable-columntrait.js

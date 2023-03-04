@@ -1,6 +1,7 @@
 package MCat::Model;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL TRUE );
+use HTML::Forms::Types     qw( HashRef );
 use HTML::Forms::Util      qw( verify_token );
 use HTTP::Status           qw( HTTP_OK );
 use Ref::Util              qw( is_arrayref );
@@ -35,6 +36,8 @@ has 'table' =>
 
       return HTML::StateTable::Manager->new($options);
    };
+
+has 'views' => is => 'ro', isa => HashRef, default => sub { {} };
 
 # Public methods
 sub allowed { # Allows all. Apply a role to modify this for permissions
@@ -87,9 +90,14 @@ sub execute { # Called by component loader for all model method calls
 }
 
 sub get_context { # Creates and returns a new context object from the request
-   my ($self, $request) = @_;
+   my ($self, $request, $models) = @_;
 
-   return MCat::Context->new( config => $self->config, request => $request );
+   return MCat::Context->new(
+      config  => $self->config,
+      models  => $models,
+      request => $request,
+      views   => $self->views
+   );
 }
 
 sub has_valid_token { # Stash an exception if the CSRF token is bad

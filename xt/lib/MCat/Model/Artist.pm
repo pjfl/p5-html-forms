@@ -1,7 +1,7 @@
 package MCat::Model::Artist;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use HTML::Forms::Util      qw( redirect register_action_paths );
+use MCat::Util             qw( redirect register_action_paths );
 use Unexpected::Functions  qw( UnknownArtist Unspecified );
 use Web::Simple;
 
@@ -21,8 +21,10 @@ register_action_paths 'artist', {
 sub create {
    my ($self, $context) = @_;
 
-   my $options = { context => $context, item_class => 'Artist' };
-   my $form    = $self->form->new_with_context('Artist', $options);
+   my $options = {
+      context => $context, item_class => 'Artist', title => 'Create artist'
+   };
+   my $form = $self->form->new_with_context('Artist', $options);
 
    if ($form->process( posted => $context->posted )) {
       my $artistid    = $form->item->id;
@@ -67,8 +69,10 @@ sub edit {
 
    return $self->error($context, UnknownArtist, [$artistid]) unless $artist;
 
-   my $options = { context => $context, item => $artist };
-   my $form    = $self->form->new_with_context('Artist', $options);
+   my $options = {
+      context => $context, item => $artist, title => 'Edit artist'
+   };
+   my $form = $self->form->new_with_context('Artist', $options);
 
    if ($form->process( posted => $context->posted )) {
       my $artist_view = $context->uri_for_action('artist/view', [$artistid]);
@@ -88,6 +92,20 @@ sub list {
    my $options = { context => $context, resultset => $context->model('Artist')};
 
    $context->stash( table => $self->table->new_with_context('Artist',$options));
+   return;
+}
+
+sub remove {
+   my ($self, $context) = @_;
+
+   my $value = $context->request->body_parameters->{data} or return;
+
+   for my $artistid (@{$value->{selector}}) {
+      $self->delete($context, $artistid);
+      delete $context->stash->{redirect};
+   }
+
+   $context->stash( response => { message => 'Artists deleted' });
    return;
 }
 

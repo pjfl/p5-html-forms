@@ -8,7 +8,7 @@ extends 'HTML::StateTable';
 
 set_table_name 'cd';
 
-has_column 'cdid' => label => 'ID';
+has_column 'cdid' => label => 'ID', cell_traits => ['Numeric'];
 
 has_column 'title' => link => sub {
    my $self    = shift;
@@ -17,7 +17,7 @@ has_column 'title' => link => sub {
    return  $context->uri_for_action('cd/view', [$self->result->cdid]);
 };
 
-has_column 'year' => label => 'Released', traits => ['Date'];
+has_column 'year' => label => 'Released', cell_traits => ['Date'];
 
 use namespace::autoclean -except => TABLE_META;
 

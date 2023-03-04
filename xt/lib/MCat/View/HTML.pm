@@ -26,7 +26,7 @@ sub _build__templater {
    my $args        =  {
       COMPILE_DIR  => $config->tempdir->catdir('ttc'),
       COMPILE_EXT  => 'c',
-      ENCODING     => 'utf8',
+      ENCODING     => 'utf-8',
       INCLUDE_PATH => [$self->templates->pathname],
       PRE_PROCESS  => $config->skin . '/site/preprocess.tt',
       RELATIVE     => TRUE,

@@ -9,7 +9,7 @@ Name: [% artist.name %]<br/>
       content => 'Delete Artist',
       url     => uri_for_action('artist/delete', [artist.id])
    })
-%]<br/>
+%]
 [% table.render %]<br/>
 [% button({ text => 'Create CD', url => uri_for_action('cd/create', [artist.id]) }) %]<br/>
 [% button({ text => 'List Artists', url => uri_for_action('artist') }) %]<br/>

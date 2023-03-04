@@ -1,7 +1,6 @@
 package HTML::Forms::Util;
 
 use strictures;
-use parent 'Exporter::Tiny';
 
 use Crypt::CBC;
 use Data::Clone            qw( clone );
@@ -16,16 +15,13 @@ use Ref::Util              qw( is_arrayref is_blessed_ref
 use Scalar::Util           qw( blessed );
 use Try::Tiny;
 use Unexpected::Functions  qw( throw );
-use URI::Escape            qw( );
-use URI::http;
-use URI::https;
 
-our @EXPORT = qw( action_path2uri cc_widget cipher convert_full_name
-                  duration_to_string encode_only_entities get_meta get_token
-                  has_some_value inflate_interval interval_to_string merge
-                  new_uri now process_attrs quote_single redirect
-                  register_action_paths trim ucc_widget uri_escape verify_token
-                  );
+use Sub::Exporter -setup => { exports => [
+   qw( cc_widget cipher convert_full_name duration_to_string
+       encode_only_entities get_meta get_token has_some_value inflate_interval
+       interval_to_string merge now process_attrs quote_single
+       ucc_widget uri_escape verify_token )
+]};
 
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
@@ -88,19 +84,7 @@ my $PERIOD_CONVERSION = {
    years  => {},
 };
 
-my $action_path_to_uri = {}; # Key is an action path, value a partial URI
-my $reserved   = q(;/?:@&=+$,[]);
-my $mark       = q(-_.!~*'());                                   #'; emacs
-my $unreserved = "A-Za-z0-9\Q${mark}\E%\#";
-my $uric       = quotemeta($reserved) . '\p{isAlpha}' . $unreserved;
-
 # Public functions
-sub action_path2uri ($;$) {
-   return $action_path_to_uri->{$_[0]} unless defined $_[1];
-
-   return $action_path_to_uri->{$_[0]} = $_[1];
-}
-
 sub cc_widget ($) {
    my $widget = shift;
 
@@ -277,10 +261,6 @@ sub merge ($$) {
    return $MATRIX->{ $lefttype }{ $righttype }->( $left, $right );
 }
 
-sub new_uri ($$) {
-   my $v = uri_escape($_[1]); return bless \$v, 'URI::'.$_[0];
-}
-
 sub now (;$$) {
    my ($tz, $locale) = @_;
 
@@ -335,28 +315,6 @@ sub quote_single ($) {
   return qq('$_');
 }
 
-sub redirect ($$) {
-   return redirect => { location => $_[0], message => $_[1] };
-}
-
-sub register_action_paths (;@) {
-   my $moniker = shift;
-   my $args    = (is_hashref $_[0]) ? $_[0] : { @_ };
-
-   for my $k (keys %{$args}) { action_path2uri("${moniker}/${k}", $args->{$k}) }
-
-   return;
-}
-
-sub trim (;$$) {
-   my $chars = $_[1] // " \t";
-   (my $value = $_[0] // q()) =~ s{ \A [$chars]+ }{}mx;
-
-   chomp $value;
-   $value =~ s{ [$chars]+ \z }{}mx;
-   return $value;
-}
-
 sub ucc_widget ($) {
    my $widget = shift;
 
@@ -370,14 +328,6 @@ sub ucc_widget ($) {
    }
 
    return $widget;
-}
-
-sub uri_escape ($;$) {
-   my ($v, $pattern) = @_; $pattern //= $uric;
-
-   $v =~ s{([^$pattern])}{ URI::Escape::uri_escape_utf8($1) }ego;
-   utf8::downgrade( $v );
-   return $v;
 }
 
 sub verify_token ($$) {

@@ -1,7 +1,7 @@
 package MCat::Model::Cd;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS );
-use HTML::Forms::Util      qw( redirect register_action_paths );
+use MCat::Util             qw( redirect register_action_paths );
 use Unexpected::Functions  qw( UnknownCd Unspecified );
 use Web::Simple;
 
@@ -27,6 +27,7 @@ sub create {
       artistid   => $artistid,
       context    => $context,
       item_class => 'Cd',
+      title      => 'Create CD',
    };
    my $form = $self->form->new_with_context('Cd', $options);
 
@@ -73,7 +74,12 @@ sub edit {
    return $self->error($context, UnknownCd, [$cdid]) unless $cd;
 
    my $artistid = $cd->artist->artistid;
-   my $options  = { artistid => $artistid, context => $context, item => $cd };
+   my $options  = {
+      artistid => $artistid,
+      context  => $context,
+      item     => $cd,
+      title    => 'Edit CD'
+   };
    my $form     = $self->form->new_with_context('Cd', $options);
 
    if ($form->process( posted => $context->posted )) {

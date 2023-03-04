@@ -2,7 +2,7 @@ package MCat::View::SerialiseTable;
 
 use Moo;
 
-extends 'HTML::StateTable::View::SerialiseTable';
+extends 'HTML::StateTable::View::Serialise';
 with    'Web::Components::Role';
 
 has '+moniker' => default => 'serialise_table';

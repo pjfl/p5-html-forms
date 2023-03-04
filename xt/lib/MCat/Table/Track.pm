@@ -8,9 +8,9 @@ extends 'HTML::StateTable';
 
 set_table_name 'track';
 
-has_column 'trackid' => label => 'Track ID';
+has_column 'trackid' => label => 'Track ID', cell_traits => ['Numeric'];
 
-has_column 'cdid' => label => 'CD ID';
+has_column 'cdid' => label => 'CD ID', cell_traits => ['Numeric'];
 
 has_column 'title' => link => sub {
    my $self    = shift;

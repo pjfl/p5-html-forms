@@ -22,11 +22,20 @@ has '+class' => default => $class;
 
 has_exception $class;
 
+has_exception 'APIMethodFailed', parent => [$class],
+   error => 'API class [_1] method [_2] call failed: [_3]';
+
 has_exception 'NoMethod' => parent => [$class],
    error => 'Class [_1] has no method [_2]';
 
 has_exception 'PageNotFound' => parent => [$class],
    error => 'Page [_1] not found', rv => HTTP_NOT_FOUND;
+
+has_exception 'UnknownAPIClass' => parent => [$class],
+   error => 'API class [_1] not found', rv => HTTP_NOT_FOUND;
+
+has_exception 'UnknownAPIMethod' => parent => [$class],
+   error => 'Class [_1] has no [_2] method', rv => HTTP_NOT_FOUND;
 
 has_exception 'UnknownArtist' => parent => [$class],
    error => 'Artist [_1] not found', rv => HTTP_NOT_FOUND;

@@ -30,3 +30,6 @@ lib/HTML/Forms/Role/Model
 xt/var/etc/mcat_local.json
 share/js/hstatetable-renderer.js
 share/css/hstatetable-minimal.css
+share/js/hstatetable-celltrait.js
+share/js/hstatetable-role.js
+share/js/hstatetable-util.js

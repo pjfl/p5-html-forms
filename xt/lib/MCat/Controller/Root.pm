@@ -8,6 +8,8 @@ has '+moniker' => default => 'z_root'; # Must sort to last place
 
 sub dispatch_request {
    return (
+      'GET | POST + /api/** + ?*'  => sub {['api/response', @_]},
+
       'GET | POST + /cd/*/track/create + ?*' => sub {['track/create', @_]},
       'GET | POST + /track/*/edit + ?*'      => sub {['track/edit',   @_]},
       'POST + /track/*/delete + ?*'          => sub {['track/delete', @_]},
@@ -27,8 +29,8 @@ sub dispatch_request {
       'GET + /artist + ?*'               => sub {['artist/list',   @_]},
 
       'GET + /** + ?*' => sub {['page/not_found', @_]},
-      'HEAD + ?*'      => sub {['artist/list', @_]},
-      'GET + ?*'       => sub {['artist/list', @_]},
+      'HEAD + ?*'      => sub {['artist/list',    @_]},
+      'GET + ?*'       => sub {['artist/list',    @_]},
       'PUT + ?*'       => sub {['page/not_found', @_]},
       'POST + ?*'      => sub {['page/not_found', @_]},
       'DELETE + ?*'    => sub {['page/not_found', @_]},
