@@ -33,3 +33,5 @@ share/css/hstatetable-minimal.css
 share/js/hstatetable-celltrait.js
 share/js/hstatetable-role.js
 share/js/hstatetable-util.js
+share/js/hstatetable-rowtrait.js
+share/js/hstatetable-columntrait.js

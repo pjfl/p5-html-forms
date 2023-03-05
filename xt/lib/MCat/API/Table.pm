@@ -2,7 +2,7 @@ package MCat::API::Table;
 
 use HTML::Forms::Constants qw( DOT NUL TRUE );
 use HTML::Forms::Types     qw( Object Str );
-use JSON::MaybeXS          qw( decode_json );
+use JSON::MaybeXS          qw( encode_json );
 use Moo;
 
 has 'form' => is => 'ro', isa => Object, required => TRUE;
@@ -37,7 +37,7 @@ sub preference {
    }
    else { $pref = $context->preference($name) }
 
-   $context->stash( body => $pref ? $pref->value : '{}' );
+   $context->stash( body => encode_json($pref ? $pref->value : {}));
    return;
 }
 

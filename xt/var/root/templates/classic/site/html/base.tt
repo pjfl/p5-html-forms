@@ -19,6 +19,7 @@
    <script src="/js/hstatetable-role.js"></script>
    <script src="/js/hstatetable-celltrait.js"></script>
    <script src="/js/hstatetable-columntrait.js"></script>
+   <script src="/js/hstatetable-rowtrait.js"></script>
 </head>
 <body id="body">
 [% content -%]

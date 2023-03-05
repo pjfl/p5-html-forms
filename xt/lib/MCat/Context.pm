@@ -3,7 +3,6 @@ package MCat::Context;
 use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef Str );
 use HTML::Forms::Util      qw( get_token );
-use JSON::MaybeXS          qw( encode_json );
 use List::Util             qw( pairs );
 use MCat::Util             qw( action_path2uri new_uri );
 use Ref::Util              qw( is_arrayref is_hashref );
@@ -79,7 +78,7 @@ sub preference {
 
    my $pref = $rs->find({ name => $name }, { key => 'preference_name' });
 
-   return $pref unless defined $value;
+   return $pref unless defined $pref && defined $value;
 
    return $pref->delete;
 }
