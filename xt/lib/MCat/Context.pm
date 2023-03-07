@@ -1,10 +1,10 @@
 package MCat::Context;
 
-use HTML::Forms::Constants qw( FALSE NUL TRUE );
+use HTML::Forms::Constants qw( FALSE NUL STAR TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef Str );
 use HTML::Forms::Util      qw( get_token );
 use List::Util             qw( pairs );
-use MCat::Util             qw( action_path2uri new_uri );
+use MCat::Util             qw( action_path2uri );
 use Ref::Util              qw( is_arrayref is_hashref );
 use Type::Utils            qw( class_type );
 use MCat::Response;
@@ -22,16 +22,8 @@ has 'messages' => is => 'lazy', isa => ArrayRef, builder => sub {
 has 'models' => is => 'ro', isa => HashRef, weak_ref => TRUE,
    default => sub { {} };
 
-has 'posted' => is => 'lazy', isa => Bool, builder => sub {
-   my $self = shift; return lc $self->request->method eq 'post' ? TRUE : FALSE;
-};
-
-has 'preference_url' => is => 'lazy', isa => class_type('URI'), builder => sub {
-   my $self   = shift;
-   my $scheme = $self->request->scheme;
-
-   return new_uri $scheme, $self->request->base . 'api/table/*/preference';
-};
+has 'posted' => is => 'lazy', isa => Bool,
+   builder => sub { lc shift->request->method eq 'post' ? TRUE : FALSE };
 
 has 'request' =>
    is       => 'ro',
@@ -44,43 +36,38 @@ has 'response' => is => 'ro', isa => class_type('MCat::Response'),
 has 'session' => is => 'lazy', builder => sub { shift->request->session };
 
 has 'schema'  => is => 'lazy', isa => class_type('MCat::Schema'),
-   builder => sub {
-      my $self = shift;
+   builder => sub { MCat::Schema->connect(@{shift->config->connect_info}) };
 
-      return MCat::Schema->connect(@{$self->config->connect_info});
-   };
+has 'table_action_url' => is => 'lazy', isa => class_type('URI'),
+   builder => sub { shift->uri_for_action('api/table_action') };
 
-has '_stash' => is => 'ro', isa => HashRef, default => sub { {} };
-
-has 'table_form_url' => is => 'lazy', isa => class_type('URI'), builder => sub {
-   my $self   = shift;
-   my $scheme = $self->request->scheme;
-
-   return new_uri $scheme, $self->request->base . 'api/table/*/action';
-};
+has 'table_preference_url' => is => 'lazy', isa => class_type('URI'),
+   builder => sub { shift->uri_for_action('api/table_preference') };
 
 has 'views' => is => 'ro', isa => HashRef, default => sub { {} };
+
+has '_stash' => is => 'ro', isa => HashRef, default => sub { {} };
 
 sub model {
    my ($self, $rs_name) = @_; return $self->schema->resultset($rs_name);
 }
 
-sub preference {
+sub preference { # Accessor/mutator with builtin clearer. Store "" to delete
    my ($self, $name, $value) = @_;
 
    return unless $name;
 
    my $rs = $self->model('Preference');
 
-   return $rs->update_or_create(
+   return $rs->update_or_create( # Mutator
       { name => $name, value => $value }, { key => 'preference_name' }
    ) if $value && $value ne '""';
 
    my $pref = $rs->find({ name => $name }, { key => 'preference_name' });
 
-   return $pref unless defined $pref && defined $value;
+   return $pref->delete if defined $pref && defined $value; # Clearer
 
-   return $pref->delete;
+   return $pref; # Accessor
 }
 
 sub res { shift->response }
@@ -106,24 +93,33 @@ sub uri_for_action {
    my $uris   = is_arrayref $uri ? $uri : [ $uri ];
    my $params = is_hashref $params[0] ? $params[0] : {@params};
 
-   for my $candidate (@{$uris}) {
-      my $n_stars =()= $candidate =~ m{ \* }gmx;
+   for $uri (@{$uris}) {
+      my $n_stars =()= $uri =~ m{ \* }gmx;
 
-      next unless $n_stars == 0 or $n_stars <= scalar @{$args // []};
-
-      $uri  = $candidate;
-      $uri .= delete $params->{extension} if exists $params->{extension};
+      next if $n_stars != 0 and $n_stars > scalar @{$args // []};
 
       while ($uri =~ m{ \* }mx) {
-         my $arg = (shift @{$args // []}) || q(); $uri =~ s{ \* }{$arg}mx;
+         my $arg = shift @{$args // []};
+
+         last unless defined $arg;
+
+         $uri =~ s{ \* }{$arg}mx;
       }
+
+      while (my $arg = shift @{$args // []}) { $uri .= "/${arg}" }
+
+      last;
    }
+
+   $uri .= delete $params->{extension} if exists $params->{extension};
 
    return $self->request->uri_for($uri, $args, $params);
 }
 
 sub verification_token {
-   my $self = shift; return get_token(3600, NUL);
+   my $self = shift;
+
+   return get_token($self->config->token_lifetime, $self->session->serialise);
 }
 
 sub view {

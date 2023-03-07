@@ -13,7 +13,11 @@ with    'Web::Components::Role';
 
 has '+moniker' => default => 'api';
 
-register_action_paths 'api', { response => 'api/**' };
+register_action_paths 'api', {
+   response         => 'api/**',
+   table_action     => 'api/table/*/action',
+   table_preference => 'api/table/*/preference',
+};
 
 sub response {
    my ($self, $context, @args) = @_;

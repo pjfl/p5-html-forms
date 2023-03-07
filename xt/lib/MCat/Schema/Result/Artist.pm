@@ -1,7 +1,6 @@
 package MCat::Schema::Result::Artist;
 
-use strict;
-use warnings;
+use strictures;
 use parent 'DBIx::Class::Core';
 
 use HTML::Forms::Constants qw( FALSE TRUE );

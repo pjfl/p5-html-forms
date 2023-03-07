@@ -4,7 +4,7 @@ use HTML::StateTable::Constants qw( FALSE NUL SPC TABLE_META TRUE );
 use Moo;
 use HTML::StateTable::Moo;
 
-extends 'HTML::StateTable';
+extends 'HTML::StateTable'; # Buddhist table - One with everything
 with    'HTML::StateTable::Role::Searchable';
 with    'HTML::StateTable::Role::Active';
 with    'HTML::StateTable::Role::Configurable';

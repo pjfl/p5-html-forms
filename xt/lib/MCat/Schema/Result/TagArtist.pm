@@ -47,7 +47,8 @@ sub _tag_artist_string_trigger {
    my $self       = shift;
    my $source     = $self->result_source;
    my $rs         = $source->resultset;
-   my $tag_string = join PIPE, map { $_->tag->name }
+   my $tag_string =
+      join PIPE, map { $_->tag->name }
       $rs->search({ artistid => $self->artistid }, { prefetch => 'tag' })->all;
 
    $rs = $source->schema->resultset('TagArtistString');

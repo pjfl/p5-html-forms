@@ -1,6 +1,7 @@
 package MCat::Server;
 
-use HTML::Forms::Constants qw( FALSE TRUE );
+use MCat;
+use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( HashRef Object Str );
 use HTTP::Status           qw( HTTP_FOUND );
 use Type::Utils            qw( class_type );
@@ -60,6 +61,18 @@ around 'to_psgi_app' => sub {
       };
    };
 };
+
+sub BUILD {
+   my $self   = shift;
+   my $server = ucfirst($ENV{PLACK_ENV} // NUL);
+   my $class  = $self->config->appclass;
+   my $info   = 'v' . $class->VERSION;
+   my $port   = $ENV{ uc "${class}_port" } // 5_000;
+
+   $info .= " started on port ${port}";
+   $self->log->info("${class} ${server} Server ${info}");
+   return;
+}
 
 use namespace::autoclean;
 

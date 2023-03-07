@@ -1,7 +1,6 @@
 package MCat::Schema::Result::Tag;
 
-use strict;
-use warnings;
+use strictures;
 use parent 'DBIx::Class::Core';
 
 use HTML::Forms::Constants qw( FALSE TRUE );
@@ -23,7 +22,7 @@ $class->add_unique_constraint('tag_name_uniq', ['name']);
 
 $class->has_many(
    artist_tags => 'MCat::Schema::Result::TagArtist',
-   { 'foreign.tag_id' => 'self.id' }
+   { 'foreign.tag_id' => 'self.id' },
 );
 
 1;

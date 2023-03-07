@@ -105,7 +105,7 @@ sub has_valid_token { # Stash an exception if the CSRF token is bad
 
    my $token = $self->form->get_body_parameters($context)->{_verify};
 
-   return TRUE if verify_token NUL, $token;
+   return TRUE if verify_token $context->session->serialise, $token;
 
    $self->error($context, BadToken, level => 3);
    return FALSE;

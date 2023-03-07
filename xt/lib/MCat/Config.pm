@@ -16,7 +16,7 @@ Web::ComposableRequest::Constants->Exception_Class('MCat::Exception');
 # Required by component loader to find controllers, models, and views
 has 'appclass' => is => 'ro', isa => Str, required => TRUE;
 
-has 'connect_info' => is => 'lazy', isa => ArrayRef, builder => sub {
+has 'connect_info' => is => 'lazy', isa => ArrayRef, default => sub {
    my $self = shift;
 
    return [$self->dsn, $self->db_username, $self->db_password];
@@ -33,7 +33,7 @@ has 'default_view' => is => 'ro', isa => Str, default => 'html';
 has 'deflate_types' =>
    is      => 'ro',
    isa     => ArrayRef[Str],
-   builder => sub {
+   default => sub {
       [ qw( text/css text/html text/javascript application/javascript ) ]
    };
 
@@ -43,9 +43,8 @@ has 'encoding' => is => 'ro', isa => Str, default => 'utf-8';
 
 has 'layout' => is => 'ro', isa => Str, default => 'not_found';
 
-has 'loader_attr' => is => 'ro', isa => HashRef, default => sub {
-   return { should_log_errors => FALSE };
-};
+has 'loader_attr' => is => 'ro', isa => HashRef,
+   default => sub { { should_log_errors => FALSE } };
 
 has 'mount_point' => is => 'ro', isa => Str, default => '/mcat';
 
@@ -53,20 +52,21 @@ has 'name' => is => 'ro', isa => Str, default => 'Music Catalog';
 
 has 'prefix' => is => 'ro', isa => Str, default => 'mcat';
 
-has 'request_roles' => is => 'ro', isa => ArrayRef[Str], builder => sub {
-   return [ 'L10N', 'Session', 'JSON', 'Cookie', 'Headers', 'Compat' ];
-};
+has 'request_roles' => is => 'ro', isa => ArrayRef[Str],
+   default => sub { ['L10N', 'Session', 'JSON', 'Cookie', 'Headers', 'Compat']};
 
 has 'root' => is => 'lazy', isa => Directory,
    default => sub { shift->vardir->catdir('root') };
 
 has 'secret' => is => 'ro', isa => Str, default => SECRET;
 
-has 'session_attr' => is => 'lazy', isa => HashRef[ArrayRef], builder => sub {
-   return {
+has 'serialise_session_attr' => is => 'ro', isa => ArrayRef,
+   default => sub { [ qw( id ) ] };
+
+has 'session_attr' => is => 'lazy', isa => HashRef[ArrayRef],
+   default => sub { {
       id => [ PositiveInt, 0 ],
-   };
-};
+   } };
 
 has 'skin' => is => 'ro', isa => Str, default => 'classic';
 
@@ -78,11 +78,13 @@ has 'static' =>
 has 'tempdir' => is => 'lazy', isa => Directory,
    default => sub { shift->vardir->catdir('tmp') };
 
+has 'token_lifetime' => is => 'ro', isa => PositiveInt, default => 3_600;
+
 has 'vardir' =>
    is      => 'ro',
    isa     => Directory,
    coerce  => TRUE,
-   default => sub { io['xt', 'var']};
+   default => sub { io[qw( xt var )] };
 
 use namespace::autoclean;
 

@@ -11,7 +11,7 @@ use User::pwent  qw( getpwuid );
 
 our @EXPORT = qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR
                   DOT EXCEPTION_CLASS FALSE META NBSP NUL PIPE SECRET SPC
-                  TIME_FMT TIME_MATCH TIME_RE TRUE TT_THEME );
+                  STAR TIME_FMT TIME_MATCH TIME_RE TRUE TT_THEME );
 
 sub BANG     () { q(!) }
 sub COLON    () { q(:) }
@@ -23,8 +23,9 @@ sub META     () { '_html_forms_meta' }
 sub NBSP     () { '&nbsp;' }
 sub NUL      () { q()  }
 sub PIPE     () { q(|) }
-sub SECRET   () { __PACKAGE__->Secret }
+sub SECRET   () { sha1_hex( __PACKAGE__->Secret ) }
 sub SPC      () { q( ) }
+sub STAR     () { q(*) }
 sub TRUE     () { 1    }
 sub TT_THEME () { 'classic' }
 
@@ -50,7 +51,7 @@ sub Exception_Class {
    return $exception_class = $class;
 }
 
-my $secret = sha1_hex( getpwuid($EUID)->name . __FILE__ );
+my $secret = getpwuid($EUID)->name . __FILE__;
 
 sub Secret {
    my ($self, $value) = @_;
