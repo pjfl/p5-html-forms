@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds tags to artist
           - Adds table row traits to MCat
           - Adds an API. Table preferences. JS column traits
           - Adds time zone handling to date field

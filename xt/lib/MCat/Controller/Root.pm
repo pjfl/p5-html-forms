@@ -10,6 +10,12 @@ sub dispatch_request {
    return (
       'GET | POST + /api/** + ?*'  => sub {['api/response', @_]},
 
+      'GET | POST + /tag/create + ?*' => sub {['tag/create', @_]},
+      'GET | POST + /tag/*/edit + ?*' => sub {['tag/edit',   @_]},
+      'POST + /tag/*/delete + ?*'     => sub {['tag/delete', @_]},
+      'GET + /tag/* + ?*'             => sub {['tag/view',   @_]},
+      'GET + /tag + ?*'               => sub {['tag/list',   @_]},
+
       'GET | POST + /cd/*/track/create + ?*' => sub {['track/create', @_]},
       'GET | POST + /track/*/edit + ?*'      => sub {['track/edit',   @_]},
       'POST + /track/*/delete + ?*'          => sub {['track/delete', @_]},

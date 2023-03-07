@@ -27,7 +27,8 @@ xt/var/root/js
 xt/var/tmp
 lib/HTML/Forms/Model/DBIC.pm
 lib/HTML/Forms/Role/Model
-xt/var/etc/mcat_local.json
+xt/var/etc/mcat-local.json
+xt/var/etc/mcat-schema.conf
 share/js/hstatetable-renderer.js
 share/css/hstatetable-minimal.css
 share/js/hstatetable-celltrait.js
@@ -35,3 +36,4 @@ share/js/hstatetable-role.js
 share/js/hstatetable-util.js
 share/js/hstatetable-rowtrait.js
 share/js/hstatetable-columntrait.js
+xt/var/sql

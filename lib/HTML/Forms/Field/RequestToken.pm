@@ -9,10 +9,6 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Hidden';
 
-has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
-
-has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';
-
 has '+default_method' => builder => sub {
    my $self    = shift;
    my $expires = $self->expiration_time;
@@ -21,7 +17,13 @@ has '+default_method' => builder => sub {
    return sub { get_token($expires, $prefix) };
 };
 
+has '+noupdate' => default => TRUE;
+
 has '+required' => default => TRUE;
+
+has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
+
+has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';
 
 our $class_messages = {
    'token_fail' => 'Submission failed. [_1]. Please reload and try again.',

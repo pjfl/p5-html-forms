@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 19 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 20 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -93,6 +93,8 @@ has 'active'   =>
       clear_active => 'clear',
       has_active   => 'count',
    };
+
+has 'active_column' => is => 'ro', isa => Str, default => 'active';
 
 has 'context' =>
    is        => 'rw',

@@ -1,20 +1,29 @@
-use utf8;
 package MCat::Schema;
 
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
+use strictures;
+use parent 'DBIx::Class::Schema';
 
-use strict;
-use warnings;
-
-use base 'DBIx::Class::Schema';
+use MCat;
 
 __PACKAGE__->load_namespaces;
 
+sub deploy {
+   my ($self, $sqltargs, $dir) = @_;
 
-# Created by DBIx::Class::Schema::Loader v0.07051 @ 2023-02-11 04:03:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:g9c8SFpvjuBKg8BsFBnALA
+   local $SIG{__WARN__} = sub {
+      my $error = shift;
+      warn "${error}\n"
+         unless $error =~ m{ relation \s .+ \s already \s exists }mx;
+      return 1;
+   };
 
+   $self->throw_exception("Can't deploy without storage") unless $self->storage;
+   $self->storage->deploy($self, undef, $sqltargs, $dir);
+   return;
+}
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+sub get_db_version {
+   return $MCat::VERSION;
+}
+
 1;

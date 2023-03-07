@@ -2,7 +2,7 @@ package HTML::Forms::Field::Select;
 
 use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( DOT FALSE META NUL TRUE );
-use HTML::Forms::Types     qw( Bool CodeRef HFsSelectOptions
+use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HFsSelectOptions
                                Int Num Str Undef );
 use HTML::Forms::Util      qw( convert_full_name get_meta );
 use Ref::Util              qw( is_arrayref is_hashref );
@@ -13,6 +13,8 @@ use Sub::HandlesVia;
 
 extends 'HTML::Forms::Field';
 
+has 'active_column' => is => 'ro', isa => Str, default => 'active';
+
 has 'auto_widget_size' => is => 'ro', isa => Int, default => 0;
 
 has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;
@@ -20,6 +22,8 @@ has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;
 has 'empty_select' => is => 'rw', isa => Str;
 
 has 'has_many' => is => 'rw', isa => Str;
+
+has 'label_column' => is => 'ro', isa => Str, default => 'name';
 
 has 'multiple' => is => 'rw', isa => Bool, default => FALSE;
 
@@ -64,6 +68,8 @@ has 'options_method' =>
 has 'set_options' => is => 'ro', isa => Str;
 
 has 'size' => is => 'rw', isa => Int|Undef;
+
+has 'sort_column' => is => 'ro', isa => ArrayRef[Str]|Str;
 
 has 'sort_options_method' =>
    is          => 'rw',
