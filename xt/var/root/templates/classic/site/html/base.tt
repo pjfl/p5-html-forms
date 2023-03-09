@@ -14,12 +14,12 @@
    <script src="/js/hforms-util.js"></script>
    <script src="/js/hforms-repeatable.js"></script>
    <script src="/js/hforms-toggle.js"></script>
-   <script src="/js/hstatetable-util.js"></script>
-   <script src="/js/hstatetable-renderer.js"></script>
-   <script src="/js/hstatetable-role.js"></script>
-   <script src="/js/hstatetable-celltrait.js"></script>
-   <script src="/js/hstatetable-columntrait.js"></script>
-   <script src="/js/hstatetable-rowtrait.js"></script>
+   <script src="/js/hstatetable-0-util.js"></script>
+   <script src="/js/hstatetable-1-renderer.js"></script>
+   <script src="/js/hstatetable-2-role.js"></script>
+   <script src="/js/hstatetable-3-celltrait.js"></script>
+   <script src="/js/hstatetable-4-columntrait.js"></script>
+   <script src="/js/hstatetable-5-rowtrait.js"></script>
 </head>
 <body id="body">
 [% content -%]

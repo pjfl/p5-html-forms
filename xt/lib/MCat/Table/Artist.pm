@@ -5,9 +5,9 @@ use Moo;
 use HTML::StateTable::Moo;
 
 extends 'HTML::StateTable'; # Buddhist table - One with everything
-with    'HTML::StateTable::Role::Searchable';
 with    'HTML::StateTable::Role::Active';
 with    'HTML::StateTable::Role::Configurable';
+with    'HTML::StateTable::Role::Searchable';
 with    'HTML::StateTable::Role::Downloadable';
 with    'HTML::StateTable::Role::Filterable';
 with    'HTML::StateTable::Role::CheckAll';
@@ -15,6 +15,7 @@ with    'HTML::StateTable::Role::Form';
 with    'HTML::StateTable::Role::HighlightRow';
 with    'HTML::StateTable::Role::ForceRowLimit';
 with    'HTML::StateTable::Role::Tag';
+with    'HTML::StateTable::Role::Reorderable';
 
 has '+active_control_location' => default => 'TopRight';
 

@@ -29,11 +29,11 @@ lib/HTML/Forms/Model/DBIC.pm
 lib/HTML/Forms/Role/Model
 xt/var/etc/mcat-local.json
 xt/var/etc/mcat-schema.conf
-share/js/hstatetable-renderer.js
 share/css/hstatetable-minimal.css
-share/js/hstatetable-celltrait.js
-share/js/hstatetable-role.js
-share/js/hstatetable-util.js
-share/js/hstatetable-rowtrait.js
-share/js/hstatetable-columntrait.js
+share/js/hstatetable-0-util.js
+share/js/hstatetable-1-renderer.js
+share/js/hstatetable-2-role.js
+share/js/hstatetable-3-celltrait.js
+share/js/hstatetable-4-columntrait.js
+share/js/hstatetable-5-rowtrait.js
 xt/var/sql
