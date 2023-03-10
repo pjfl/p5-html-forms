@@ -93,21 +93,22 @@ sub uri_for_action {
    my $uris   = is_arrayref $uri ? $uri : [ $uri ];
    my $params = is_hashref $params[0] ? $params[0] : {@params};
 
-   for $uri (@{$uris}) {
-      my $n_stars =()= $uri =~ m{ \* }gmx;
+   for my $candidate (@{$uris}) {
+      my $n_stars =()= $candidate =~ m{ \* }gmx;
 
       next if $n_stars != 0 and $n_stars > scalar @{$args // []};
 
-      while ($uri =~ m{ \* }mx) {
+      while ($candidate =~ m{ \* }mx) {
          my $arg = shift @{$args // []};
 
          last unless defined $arg;
 
-         $uri =~ s{ \* }{$arg}mx;
+         $candidate =~ s{ \* }{$arg}mx;
       }
 
-      while (my $arg = shift @{$args // []}) { $uri .= "/${arg}" }
+      while (my $arg = shift @{$args // []}) { $candidate .= "/${arg}" }
 
+      $uri = $candidate;
       last;
    }
 

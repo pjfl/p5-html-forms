@@ -20,6 +20,7 @@
    <script src="/js/hstatetable-3-celltrait.js"></script>
    <script src="/js/hstatetable-4-columntrait.js"></script>
    <script src="/js/hstatetable-5-rowtrait.js"></script>
+   <script src="https://code.highcharts.com/highcharts.js"></script>
 </head>
 <body id="body">
 [% content -%]

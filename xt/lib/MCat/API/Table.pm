@@ -1,8 +1,9 @@
 package MCat::API::Table;
 
-use HTML::Forms::Constants qw( DOT NUL TRUE );
+use HTML::Forms::Constants qw( EXCEPTION_CLASS DOT NUL TRUE );
 use HTML::Forms::Types     qw( Object Str );
 use JSON::MaybeXS          qw( encode_json );
+use Unexpected::Functions  qw( throw UnknownModel );
 use Moo;
 
 has 'form' => is => 'ro', isa => Object, required => TRUE;
@@ -12,15 +13,14 @@ has 'name' => is => 'ro', isa => Str, required => TRUE;
 sub action {
    my ($self, $context, @args) = @_;
 
-   my $response;
+   return unless $context->posted;
 
-   if ($context->posted) {
-      my $params = $self->form->get_body_parameters($context);
-      my ($moniker, $method) = split m{ / }mx, $params->{data}->{action};
+   my $data = $self->form->get_body_parameters($context)->{data};
+   my ($moniker, $method) = split m{ / }mx, $data->{action};
 
-      $context->models->{$moniker}->execute($context, $method);
-   }
+   throw UnknownModel, [$moniker] unless exists $context->models->{$moniker};
 
+   $context->models->{$moniker}->execute($context, $method);
    return;
 }
 
@@ -37,7 +37,7 @@ sub preference {
    }
    else { $pref = $context->preference($name) }
 
-   $context->stash( body => encode_json($pref ? $pref->value : {}));
+   $context->stash( body => encode_json($pref ? $pref->value : {}) );
    return;
 }
 

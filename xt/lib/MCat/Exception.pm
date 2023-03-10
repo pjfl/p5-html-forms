@@ -43,6 +43,9 @@ has_exception 'UnknownArtist' => parent => [$class],
 has_exception 'UnknownCd' => parent => [$class],
    error => 'CD [_1] not found', rv => HTTP_NOT_FOUND;
 
+has_exception 'UnknownModel' => parent => [$class],
+   error => 'Model [_1] (moniker) unknown', rv => HTTP_NOT_FOUND;
+
 has_exception 'UnknownTag' => parent => [$class],
    error => 'Tag [_1] not found', rv => HTTP_NOT_FOUND;
 

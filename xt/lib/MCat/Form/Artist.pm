@@ -16,6 +16,10 @@ has_field 'name', required => 1;
 
 has_field 'tags' => type => 'Select', multiple => TRUE, size => 4;
 
+has_field 'active' => type => 'Boolean';
+
+has_field 'upvotes' => type => 'Integer';
+
 has_field 'submit' => type => 'Submit';
 
 use namespace::autoclean -except => META;

@@ -14,7 +14,9 @@ $class->table('artist');
 $class->add_columns(
    artistid => {
       data_type => 'integer', is_nullable => FALSE, is_auto_increment => TRUE },
-  name => { data_type => 'text', is_nullable => FALSE },
+   name => { data_type => 'text', is_nullable => FALSE },
+   active => { data_type => 'boolean', is_nullable => FALSE, default => TRUE },
+   upvotes => { data_type => 'integer', is_nullable => FALSE, default => 0 },
 );
 
 $class->set_primary_key('artistid');

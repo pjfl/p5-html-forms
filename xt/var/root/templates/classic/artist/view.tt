@@ -1,5 +1,7 @@
 Artist Id: [% artist.id %]<br/>
 Name: [% artist.name %]<br/>
+Active: [% artist.active %]<br/>
+Upvotes:  [% artist.upvotes %]<br/>
 [% button({
       text => 'Edit Artist',
       url  => uri_for_action('artist/edit', [artist.id])

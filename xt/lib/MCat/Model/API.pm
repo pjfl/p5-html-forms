@@ -3,7 +3,7 @@ package MCat::Model::API;
 use File::DataClass::Functions qw( ensure_class_loaded );
 use HTML::Forms::Constants     qw( EXCEPTION_CLASS );
 use MCat::Util                 qw( redirect register_action_paths );
-use Unexpected::Functions      qw( throw APIMethodFailed
+use Unexpected::Functions      qw( catch_class throw APIMethodFailed
                                    UnknownAPIClass UnknownAPIMethod );
 use Try::Tiny;
 use Web::Simple;
@@ -40,8 +40,13 @@ sub response {
 
    return if $context->posted && !$self->has_valid_token($context);
 
-   try   { $handler->$method($context, @args) }
-   catch { $self->error($context, APIMethodFailed, [$class, $method, $_]) };
+   try { $handler->$method($context, @args) }
+   catch_class [
+      'MCat::Exception' => sub { $self->error($context, $_) },
+      '*' => sub {
+         $self->error($context, APIMethodFailed, [$class, $method, $_])
+      }
+   ];
 
    $context->stash( json => delete($context->stash->{response}) || {} )
       unless $context->stash('json');

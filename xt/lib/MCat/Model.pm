@@ -50,8 +50,14 @@ sub allowed { # Allows all. Apply a role to modify this for permissions
 sub error { # Stash exception handler output to print an exception page
    my ($self, $context, $class, @args) = @_;
 
-   my $bindv     = shift @args;
-   my $exception = exception $class, $bindv, level => 2, @args;
+   my $exception;
+
+   if (blessed $class) { $exception = $class }
+   else {
+      my $bindv = shift @args;
+
+      $exception = exception $class, $bindv, level => 2, @args;
+   }
 
    $self->exception_handler($context, $exception);
    return;
