@@ -1,11 +1,24 @@
 # Name
 
-HTML::Forms - One-line description of the modules purpose
+HTML::Forms - Generates markup for and processes input from HTML forms
 
 # Synopsis
 
-    use HTML::Forms;
-    # Brief but working code examples
+    {
+       package HTML::Forms::Renderer;
+
+       use Moo::Role;
+
+       with 'HTML::Forms::Render::WithTT';
+
+       sub _build_tt_include_path { [ 'share/templates' ] }
+    }
+
+    my $form = HTML::Forms->new_with_traits(
+       name => 'test_tt', traits => [ 'HTML::Forms::Renderer' ],
+    );
+
+    $form->render;
 
 # Description
 
@@ -13,13 +26,17 @@ HTML::Forms - One-line description of the modules purpose
 
 Defines the following attributes;
 
+- action
+
+    URL for the action attribute on the form
+
 # Subroutines/Methods
 
 # Diagnostics
 
 # Dependencies
 
-- [Class::Usul](https://metacpan.org/pod/Class::Usul)
+- [Moo](https://metacpan.org/pod/Moo)
 
 # Incompatibilities
 
