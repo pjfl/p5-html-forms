@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Updated dependencies
           - Moved MCat to own distribution
           - Made toke lifetime a config option
           - Adds tags to artist
