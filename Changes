@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Reduced to using just one exporter
           - Updated dependencies
           - Moved MCat to own distribution
           - Made toke lifetime a config option

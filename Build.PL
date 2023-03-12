@@ -23,7 +23,6 @@ my $prereqs  = {
     'DateTime::TimeZone' => '2.57',
     'Digest::SHA1' => '2.13',
     'Email::Valid' => '1.203',
-    'Exporter::Tiny' => '1.006000',
     'File::ShareDir' => '1.118',
     'HTML::Parser' => '3.72',
     'HTML::Tiny' => '1.08',

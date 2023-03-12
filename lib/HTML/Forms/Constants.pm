@@ -1,17 +1,18 @@
 package HTML::Forms::Constants;
 
 use strictures;
-use parent 'Exporter::Tiny';
 
 use Digest::SHA1 qw( sha1_hex );
 use English      qw( -no_match_vars );
 use File::ShareDir;
-use HTML::Forms::Exception;
 use User::pwent  qw( getpwuid );
+use HTML::Forms::Exception;
 
-our @EXPORT = qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR
-                  DOT EXCEPTION_CLASS FALSE META NBSP NUL PIPE SECRET SPC
-                  STAR TIME_FMT TIME_MATCH TIME_RE TRUE TT_THEME );
+use Sub::Exporter -setup => { exports => [
+   qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR DOT EXCEPTION_CLASS
+       FALSE META NBSP NUL PIPE SECRET SPC STAR TIME_FMT TIME_MATCH TIME_RE
+       TRUE TT_THEME )
+]};
 
 sub BANG     () { q(!) }
 sub COLON    () { q(:) }

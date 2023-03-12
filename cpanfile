@@ -9,7 +9,6 @@ requires "DateTime::Format::Strptime" => "1.79";
 requires "DateTime::TimeZone" => "2.57";
 requires "Digest::SHA1" => "2.13";
 requires "Email::Valid" => "1.203";
-requires "Exporter::Tiny" => "1.006000";
 requires "File::ShareDir" => "1.118";
 requires "HTML::Parser" => "3.72";
 requires "HTML::Tiny" => "1.08";
