@@ -18,7 +18,7 @@ has '+class' => default => $class;
 has_exception $class;
 
 has_exception 'BadToken' => parent => [$class],
-   error => 'CSRF token verification failed or token too old';
+   error => 'CSRF verification failed: [_1]';
 
 has_exception 'NotFound' => parent => [$class],
    error => 'Path [_1] not found. [_2]', rv => HTTP_NOT_FOUND;

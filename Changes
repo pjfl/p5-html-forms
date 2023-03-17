@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Added sequence number to JS files
           - Reduced to using just one exporter
           - Updated dependencies
           - Moved MCat to own distribution

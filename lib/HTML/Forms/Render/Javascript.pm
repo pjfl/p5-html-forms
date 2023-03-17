@@ -108,7 +108,15 @@ sub _dependencies {
 }
 
 sub _to_filename {
-   my $file = lc shift; $file =~ s{ \. }{-}gmx; return "${file}.js";
+   my $file = lc shift;
+
+   $file =~ s{ \. }{-}gmx;
+
+   return {
+      'hforms-util'       => 'hforms-0-util.js',
+      'hforms-repeatable' => 'hforms-1-repeatable.js',
+      'hforms-toggle'     => 'hforms-2-toggle.js',
+   }->{$file};
 }
 
 sub _wrap_script {
