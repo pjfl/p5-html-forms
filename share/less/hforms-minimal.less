@@ -1,7 +1,10 @@
 form.classic {
+    background: ivory;
     .field-label {
-        display: inline-block;
-        width: 150px;
+        display: inline-block; min-width: 100px;
+    }
+    .input-field {
+        padding-bottom: 5px; padding-top: 5px;
     }
     .input-captcha input,
     .input-captcha .field-label,
@@ -10,8 +13,7 @@ form.classic {
         vertical-align: top;
     }
     .label-right .field-label {
-        position: absolute;
-        left: 375px;
+        left: 375px; position: absolute;
     }
     .input-button,
     .input-duration .input-select-integer,
@@ -27,6 +29,7 @@ form.classic {
     .input-number input {
         text-align: right;
     }
+    .input-button,
     .field-label .label-sep-right {
         float: right;
     }

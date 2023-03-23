@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Minor style improvements
           - Switched to using less
           - Added sequence number to JS files
           - Reduced to using just one exporter
