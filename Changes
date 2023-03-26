@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Focuses first form field
           - Minor style improvements
           - Switched to using less
           - Added sequence number to JS files

@@ -1,7 +1,28 @@
+#colours() {
+    active-field: bisque;
+    contrast: white;
+    control-text: gray;
+    field-highlight: lightpink;
+    field-inactive: gainsboro;
+    header-border: gray;
+    link: green;
+    close-background: red;
+    message-background: khaki;
+    panel-background: ivory;
+    search-tag: gray;
+    title-background: linen;
+    title-border: orange;
+}
 form.classic {
-    background: ivory;
+    background: #colours[panel-background];
+    .alert, .form-title {
+        font-family: sans-serif;
+    }
     .field-label {
         display: inline-block; min-width: 100px;
+    }
+    label {
+        font: 0.8em sans-serif;
     }
     .input-field {
         padding-bottom: 5px; padding-top: 5px;
@@ -39,5 +60,11 @@ form.classic {
     }
     select.select-multiple option {
         width: 100px;
+    }
+    .input-textarea textarea {
+        overflow: auto;
+    }
+    input:focus, textarea:focus {
+        background: #colours[active-field];
     }
 }

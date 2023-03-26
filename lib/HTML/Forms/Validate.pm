@@ -131,8 +131,8 @@ sub validate_field {
    if (($self->required ||
         ($self->has_required_when && $self->match_when( $self->required_when )))
        && (!$self->has_input || !$self->input_defined)) {
-      $self->missing( TRUE );
-      $self->add_error( $self->get_message( 'required' ), $self->loc_label );
+      $self->missing(TRUE);
+      $self->add_error($self->get_message('required'), ucfirst $self->loc_label);
 
       if ($self->has_input) {
          if ($self->not_nullable) { $self->_set_value( $self->input ) }
