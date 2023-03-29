@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds action to forms
           - Focuses first form field
           - Minor style improvements
           - Switched to using less

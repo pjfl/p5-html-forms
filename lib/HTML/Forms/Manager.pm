@@ -30,6 +30,8 @@ sub new_with_context {
 
    my $args = { %{$options} };
 
+   $args->{action} //= $context->request->uri->as_string;
+
    $args->{params} //= $self->get_body_parameters($context)
       if lc $context->request->method eq 'post';
 

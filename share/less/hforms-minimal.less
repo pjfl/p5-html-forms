@@ -1,17 +1,7 @@
 #colours() {
     active-field: bisque;
-    contrast: white;
-    control-text: gray;
-    field-highlight: lightpink;
-    field-inactive: gainsboro;
-    header-border: gray;
-    link: green;
-    close-background: red;
-    message-background: khaki;
     panel-background: ivory;
-    search-tag: gray;
-    title-background: linen;
-    title-border: orange;
+    selected-value: bisque;
 }
 form.classic {
     background: #colours[panel-background];
@@ -61,10 +51,18 @@ form.classic {
     select.select-multiple option {
         width: 100px;
     }
+    select.select-multiple option[selected=selected] {
+        background: #colours[selected-value];
+    }
     .input-textarea textarea {
         overflow: auto;
     }
     input:focus, textarea:focus {
         background: #colours[active-field];
+    }
+}
+form.messages {
+    .alert {
+        font-family: sans-serif;
     }
 }
