@@ -29,6 +29,9 @@ sub guess_field_type {
    throw "Don't know how to determine field type of [_1]", [ $_[1] ];
 }
 
+sub lookup_label {
+}
+
 sub lookup_options {
    # Called by Field::Select when no options available
 }

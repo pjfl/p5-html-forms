@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Looks labels up on the model
           - Adds action to forms
           - Focuses first form field
           - Minor style improvements

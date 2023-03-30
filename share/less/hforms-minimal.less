@@ -4,12 +4,15 @@
     selected-value: bisque;
 }
 form.classic {
-    background: #colours[panel-background];
+    background: #colours[panel-background]; border-radius: 5px;
     .alert, .form-title {
         font-family: sans-serif;
     }
     .field-label {
         display: inline-block; min-width: 100px;
+    }
+    .form-wrapper {
+        border-radius: 5px;
     }
     label {
         font: 0.8em sans-serif;
@@ -59,6 +62,11 @@ form.classic {
     }
     input:focus, textarea:focus {
         background: #colours[active-field];
+    }
+    .input-field input[type=text],
+    .input-field select.select-multiple,
+    .input-field textarea {
+        border-radius: 5px;
     }
 }
 form.messages {

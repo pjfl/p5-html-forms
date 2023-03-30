@@ -122,8 +122,10 @@ has 'label' =>
    is       => 'rw',
    isa      => Str|Undef,
    builder  => sub {
-      my $label = ucfirst shift->name;
+      my $self  = shift;
+      my $label = $self->form->lookup_label($self->name) if $self->has_form;
 
+      $label = ucfirst $self->name unless $label;
       $label =~ s{ _ }{ }gmx;
       return $label;
    },
