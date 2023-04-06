@@ -11,7 +11,7 @@ use HTML::Forms::Exception;
 use Sub::Exporter -setup => { exports => [
    qw( BANG COLON COMMA DATE_FMT DATE_MATCH DATE_RE DISTDIR DOT EXCEPTION_CLASS
        FALSE META NBSP NUL PIPE SECRET SPC STAR TIME_FMT TIME_MATCH TIME_RE
-       TRUE TT_THEME )
+       TRUE TT_THEME USERNAME )
 ]};
 
 sub BANG     () { q(!) }
@@ -29,6 +29,7 @@ sub SPC      () { q( ) }
 sub STAR     () { q(*) }
 sub TRUE     () { 1    }
 sub TT_THEME () { 'classic' }
+sub USERNAME () { getpwuid($EUID)->name }
 
 sub DATE_FMT        () { '%Y-%m-%d' }
 sub DATE_MATCH      () { '\d{4}-\d{2}-\d{2}' }
@@ -52,7 +53,7 @@ sub Exception_Class {
    return $exception_class = $class;
 }
 
-my $secret = getpwuid($EUID)->name . __FILE__;
+my $secret = USERNAME . __FILE__;
 
 sub Secret {
    my ($self, $value) = @_;

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Constants exports username
           - Adds timezone field
           - Looks labels up on the model
           - Adds action to forms
