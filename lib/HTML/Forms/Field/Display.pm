@@ -1,12 +1,12 @@
 package HTML::Forms::Field::Display;
 
-use HTML::Forms::Constants qw( FALSE META );
+use HTML::Forms::Constants qw( FALSE META TRUE );
 use Moo;
 use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::NoValue';
+extends 'HTML::Forms::Field::NonEditable';
 
-has '+do_label' => default => FALSE;
+has '+do_label' => default => TRUE;
 
 has '+wrapper_class' => default => 'input-display';
 

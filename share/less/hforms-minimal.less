@@ -1,24 +1,36 @@
 #colours() {
     active-field: bisque;
+    field-error: lightpink;
     panel-background: ivory;
     selected-value: bisque;
 }
 form.classic {
     background: #colours[panel-background]; border-radius: 5px;
+    box-shadow: 3px 3px 3px gray;
+    .alert {
+        padding: 0.5rem;
+    }
     .alert, .form-title {
         font-family: sans-serif;
     }
     .field-label {
-        display: inline-block; min-width: 100px;
+        display: table-cell; padding: 0.5rem;
     }
     .form-wrapper {
-        border-radius: 5px;
+        border-radius: 5px; padding: 0;
+        legend {
+            margin-left: 0.5rem;
+        }
     }
     label {
         font: 0.8em sans-serif;
     }
     .input-field {
-        padding-bottom: 5px; padding-top: 5px;
+        display: table-row;
+        .alert {
+            background: #colours[field-error]; border-radius: 5px;
+            display: block; margin-right: 0.5rem;
+        }
     }
     .input-captcha input,
     .input-captcha .field-label,
@@ -29,7 +41,6 @@ form.classic {
     .label-right .field-label {
         left: 375px; position: absolute;
     }
-    .input-button,
     .input-duration .input-select-integer,
     .input-interval .input-group,
     .input-repeatable div,
@@ -43,7 +54,6 @@ form.classic {
     .input-number input {
         text-align: right;
     }
-    .input-button,
     .field-label .label-sep-right {
         float: right;
     }
@@ -68,11 +78,23 @@ form.classic {
     .input-field input[type=text],
     .input-field select.select-multiple,
     .input-field textarea {
-        border-radius: 5px;
+        border-radius: 5px; display: table-cell; margin-right: 0.5rem;
+    }
+    .input-field select {
+        display: table-cell; margin-right: 0.5rem;
+    }
+    .input-display span {
+        padding-left: 3px;
+    }
+    .input-button {
+        display: block; text-align: right;
+        input {
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
     }
 }
-form.messages {
+.form-messages {
     .alert {
-        font-family: sans-serif;
+        font-family: sans-serif; margin-bottom: 1rem;
     }
 }
