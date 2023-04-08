@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Fiddled with label right
           - Better styling
           - Constants exports username
           - Adds timezone field

@@ -29,7 +29,7 @@ lib/HTML/Forms/Model/DBIC.pm
 lib/HTML/Forms/Role/Model
 xt/var/etc/mcat-local.json
 xt/var/etc/mcat-schema.conf
-share/css/hstatetable-minimal.css
+share/css
 share/js/hstatetable-0-util.js
 share/js/hstatetable-1-renderer.js
 share/js/hstatetable-2-role.js

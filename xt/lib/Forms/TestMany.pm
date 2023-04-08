@@ -15,6 +15,7 @@ has '+default_wrapper_tag' => default => 'fieldset';
 has '+do_form_wrapper'     => default => TRUE;
 has '+do_label_colon'      => default => TRUE;
 has '+info_message'        => default => 'You know what to do';
+#has '+do_label_right'         => default => TRUE;
 
 # TODO: Test repeatable field post
 # TODO: Fix interval result from post
@@ -57,19 +58,7 @@ has_field 'weekday'    => type => 'Weekday';
 
 has_field 'day'        => type => 'MonthDay';
 
-has_field 'selector'   => type => 'Group',
-   description => 'Grouped selector fields with differing properties';
-
-has_field 'single_select'     => type => 'Select',
-   traits => ['+Grouped'], field_group => 'selector';
-
-has_field 'multi_select'      => type => 'Select', multiple => TRUE, size => 4,
-   traits => ['+Grouped'], field_group => 'selector';
-
-has_field 'opt_group_select'  => type => 'Select',
-   traits => ['+Grouped'], field_group => 'selector';
-
-has_field 'cant_edit_dis'     => type => 'NonEditable',
+has_field 'display_label'     => type => 'Display',
    value => 'Non editable display text';
 
 has_field 'integer_select'    => type => 'IntRange';
@@ -96,9 +85,21 @@ has_field 'file_upload'       => type => 'Upload';
 
 has_field 'i_am_robot'        => type => 'Captcha', disabled => TRUE;
 
+has_field 'selector'   => type => 'Group',
+   description => 'Grouped selector fields with differing properties';
+
+has_field 'single_select'     => type => 'Select',
+   traits => ['+Grouped'], field_group => 'selector';
+
+has_field 'multi_select'      => type => 'Select', multiple => TRUE, size => 4,
+   traits => ['+Grouped'], field_group => 'selector';
+
+has_field 'opt_group_select'  => type => 'Select',
+   traits => ['+Grouped'], field_group => 'selector';
+
 has_field 'reorder_by_type'   => type => 'Hidden', default => 'secret';
 
-has_field 'show_me'           => type => 'Display',
+has_field 'show_me'           => type => 'NonEditable',
    html => '<p>Pick a button, any button</p>';
 
 has_field 'normal_button'     => type => 'Button', value => 'Press Me!';

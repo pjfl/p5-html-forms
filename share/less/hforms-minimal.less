@@ -6,7 +6,7 @@
 }
 form.classic {
     background: #colours[panel-background]; border-radius: 5px;
-    box-shadow: 3px 3px 3px gray;
+    box-shadow: 3px 3px 3px gray; display: inline-block;
     .alert {
         padding: 0.5rem;
     }
@@ -14,7 +14,7 @@ form.classic {
         font-family: sans-serif;
     }
     .field-label {
-        display: table-cell; padding: 0.5rem;
+        display: table-cell; padding: 0.5rem; white-space: nowrap;
     }
     .form-wrapper {
         border-radius: 5px; padding: 0;
@@ -26,10 +26,15 @@ form.classic {
         font: 0.8em sans-serif;
     }
     .input-field {
-        display: table-row;
+        display: table-row; position: relative;
         .alert {
-            background: #colours[field-error]; border-radius: 5px;
-            display: block; margin-right: 0.5rem;
+            border-radius: 5px; display: block; margin-right: 0.5rem;
+        }
+        .alert-error {
+            background: #colours[field-error];
+        }
+        .alert-info {
+            background: #colours[selected-value];
         }
     }
     .input-captcha input,
@@ -39,7 +44,7 @@ form.classic {
         vertical-align: top;
     }
     .label-right .field-label {
-        left: 375px; position: absolute;
+        left: 375px; position: absolute; top: -5px;
     }
     .input-duration .input-select-integer,
     .input-interval .input-group,
@@ -87,7 +92,7 @@ form.classic {
         padding-left: 3px;
     }
     .input-button {
-        display: block; text-align: right;
+        display: inline-block; float: right;
         input {
             margin: 0.5rem 0.5rem 0.5rem 0;
         }

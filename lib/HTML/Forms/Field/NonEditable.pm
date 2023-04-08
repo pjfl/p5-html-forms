@@ -8,8 +8,6 @@ extends 'HTML::Forms::Field::NoValue';
 
 has '+do_label' => default => FALSE;
 
-has '+widget' => default => 'Span';
-
 has '+wrapper_class' => default => 'input-immutable';
 
 use namespace::autoclean -except => META;

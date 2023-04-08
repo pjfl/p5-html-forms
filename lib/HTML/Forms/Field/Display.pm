@@ -8,6 +8,8 @@ extends 'HTML::Forms::Field::NonEditable';
 
 has '+do_label' => default => TRUE;
 
+has '+widget' => default => 'Span';
+
 has '+wrapper_class' => default => 'input-display';
 
 sub _result_from_object {
