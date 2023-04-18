@@ -21,6 +21,7 @@ has 'default_tt_vars' =>
          get_tag       => sub { $form->get_tag( @_ ) },
          localise      => sub { $form->localise( @_ ) },
          process_attrs => \&process_attrs,
+         theme         => $self->tt_theme,
       };
    };
 

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Started adding pod
           - Fiddled with label right
           - Better styling
           - Constants exports username

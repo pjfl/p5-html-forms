@@ -48,6 +48,14 @@ has '_active' =>
    clearer    => 'clear_active',
    predicate  => 'has__active';
 
+=item active_column
+
+Provides support for L<HTML::Forms::Model::DBIC>
+
+=cut
+
+has 'active_column' => is => 'ro', isa => Str, default => 'active';
+
 has 'default' => is => 'rw', lazy => TRUE;
 
 has 'default_method' =>

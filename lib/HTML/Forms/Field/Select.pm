@@ -13,8 +13,6 @@ use Sub::HandlesVia;
 
 extends 'HTML::Forms::Field';
 
-has 'active_column' => is => 'ro', isa => Str, default => 'active';
-
 has 'auto_widget_size' => is => 'ro', isa => Int, default => 0;
 
 has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;

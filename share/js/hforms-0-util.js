@@ -1,11 +1,11 @@
 // Package HForms.Util
 if (!window.HForms) window.HForms = {};
 HForms.Util = (function () {
-   const focusFirst = function() {
+   const focusFirst = function(className) {
       const forms = document.getElementsByTagName('form');
       if (!forms) return;
       for (const form of forms) {
-         if (form.className != 'classic') continue;
+         if (className && form.className != className) continue;
          const selector = 'div.input-field:not(.input-hidden) input';
          const field = form.querySelector(selector);
          if (!field) continue;
@@ -28,7 +28,7 @@ HForms.Util = (function () {
       document.getElementById(id).value = hours + ':' + mins + ' ' + zone;
    };
    const wrapperIdPrefix = 'field_';
-   onReady(function(event) { focusFirst() });
+   onReady(function(event) { focusFirst('classic') });
    return {
       focusFirst: focusFirst,
       onReady: onReady,

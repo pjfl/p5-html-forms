@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 36 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 37 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -56,6 +56,30 @@ Defines the following attributes;
 
 =over 3
 
+=item Mutable booleans defaulting false.
+
+=over 3
+
+=item did_init_obj - True when the result has been initialised
+
+=item do_form_wrapper - If true wraps the form in a containing element
+
+=item do_label_colon - If true a colon is appended to the label
+
+=item do_label_colon_right - If true place the label colon on the right
+
+=item do_label_right - If true place the label on the right if the field
+
+=item processed - True when the form has been processed
+
+=item render_js_after - If true render the JS after the form
+
+=item use_init_obj_when_no_accessor_in_item - Self describing
+
+=item verbose - When true emits diagnostics on stderr
+
+=back
+
 =cut
 
 has [ 'did_init_obj',
@@ -68,6 +92,28 @@ has [ 'did_init_obj',
       'use_init_obj_when_no_accessor_in_item',
       'verbose' ] => is  => 'rw', isa => Bool, default => FALSE;
 
+=pod
+
+=item Immutable booleans defaulting false.
+
+=over 3
+
+=item html_prefix - If true the form name is prepended to field names
+
+=item is_html5 - If true apply HTML5 attributes to fields
+
+=item message_before_start - If true display messages before the form start
+
+=item no_preload - If the true the result is not initialised on build
+
+=item no_widgets - If true widget roles are not applied to the form
+
+=item quote_bind_value - If true quote the bind values in messages
+
+=back
+
+=cut
+
 has [ 'html_prefix',
       'is_html5',
       'messages_before_start',
@@ -77,11 +123,19 @@ has [ 'html_prefix',
 
 =item action
 
-URL for the action attribute on the form
+URL for the action attribute on the form. A mutable string with no default
 
 =cut
 
 has 'action' => is  => 'rw', isa => Str;
+
+=item active
+
+A mutable array reference of active field names
+
+Handles; C<add_active>, C<clear_active>, and C<has_active> via the array trait
+
+=cut
 
 has 'active'   =>
    is          => 'rw',
@@ -94,7 +148,12 @@ has 'active'   =>
       has_active   => 'count',
    };
 
-has 'active_column' => is => 'ro', isa => Str, default => 'active';
+=item context
+
+An optional mutable weak reference to the context object with clearer and
+predicate
+
+=cut
 
 has 'context' =>
    is        => 'rw',
@@ -102,7 +161,34 @@ has 'context' =>
    predicate => 'has_context',
    weak_ref  => TRUE;
 
-has 'default_locale' => is => 'ro', isa => Str, default => 'en';
+=item default_locale
+
+If C<context> is provided and has a C<config> object use it's C<locale>
+attribute, otherwise default to C<en>. An immutable lazy string used as
+the default language in building the C<locale_handle>
+
+=cut
+
+has 'default_locale' => is => 'lazy', isa => Str, default => sub {
+   my $self = shift;
+
+   if ($self->has_context and my $context = $self->context) {
+      return $context->config->locale
+         if $context->can('config') && $context->config->can('locale');
+   }
+
+   return 'en';
+};
+
+=item defaults
+
+A mutable hash reference of default values keyed by field name. These are
+applied to the field when the form is setup overriding the default value in
+the field definition
+
+Handles; C<clear_defaults> and C<has_defaults> via the hash trait
+
+=cut
 
 has 'defaults' =>
    is          => 'rw',
@@ -114,15 +200,47 @@ has 'defaults' =>
       has_defaults   => 'count',
    };
 
-has 'dependency' => is => 'rw', isa => ArrayRef;
+=item dependency
+
+A mutable array reference of array references. Each inner reference should
+contain two or more field names. If the first named field has a value then
+the subsequent fields are required
+
+=cut
+
+has 'dependency' => is => 'rw', isa => ArrayRef[ArrayRef];
+
+=item enctype
+
+A mutable string without default. Sets the encoding type on the form element
+
+=cut
 
 has 'enctype' => is  => 'rw', isa => Str;
+
+=item error_message
+
+A mutable string without default with clearer and predicate. This string (if
+set) is rendered either before or near the start of the form if the form result
+C<has_errors> or C<has_form_errors>
+
+=cut
 
 has 'error_message' =>
    is        => 'rw',
    isa       => Str,
    clearer   => 'clear_error_message',
    predicate => 'has_error_message';
+
+=item field_traits
+
+A lazy immutable array reference with an empty default. This list of
+C<HTML::Forms::Widget::Field::Trait> roles are applied to all fields on the
+form
+
+Handles; C<add_field_trait> and C<has_field_traits> via the array trait
+
+=cut
 
 has 'field_traits' =>
    is          => 'lazy',
@@ -134,6 +252,17 @@ has 'field_traits' =>
       has_field_traits => 'count',
    };
 
+=item for_js
+
+A mutable hash reference with an empty default. Provides support for the
+C<Repeatable> field type. Keyed by the repeatable field name contains a
+data structure used by the JS event handlers to add/remove repeatable fields
+to/from the form. Populated automatically by the C<Repeatable> field type
+
+Handles; C<clear_for_js>, C<has_for_js>, and C<set_for_js> via the hash trait
+
+=cut
+
 has 'for_js'   =>
    is          => 'rw',
    isa         => HashRef,
@@ -144,6 +273,16 @@ has 'for_js'   =>
       has_for_js   => 'count',
       set_for_js   => 'set',
    };
+
+=item form_element_attr
+
+=item form_element_class
+
+=item form_wrapper_attr
+
+=item form_wrapper_class
+
+=cut
 
 for my $attr ('form_element', 'form_wrapper') {
    has "${attr}_attr" =>
@@ -170,6 +309,10 @@ for my $attr ('form_element', 'form_wrapper') {
       };
 }
 
+=item form_tags
+
+=cut
+
 has 'form_tags' =>
    is           => 'ro',
    isa          => HashRef,
@@ -182,7 +325,18 @@ has 'form_tags' =>
       tag_exists => 'exists',
    };
 
+=item http_method
+
+An immutable string with a default of C<post>. The method attribute on the
+form element
+
+=cut
+
 has 'http_method' => is  => 'ro', isa => Str, default => 'post';
+
+=item inactive
+
+=cut
 
 has 'inactive' =>
    is          => 'rw',
@@ -195,6 +349,10 @@ has 'inactive' =>
       has_inactive   => 'count',
    };
 
+=item index
+
+=cut
+
 has 'index'    =>
    is          => 'ro',
    isa         => HashRef[HFsField],
@@ -206,18 +364,34 @@ has 'index'    =>
       field_in_index   => 'exists',
    };
 
+=item info_message
+
+=cut
+
 has 'info_message' =>
    is        => 'rw',
    isa       => Str,
    clearer   => 'clear_info_message',
    predicate => 'has_info_message';
 
+=item init_object
+
+=cut
+
 has 'init_object' => is => 'rw', clearer => 'clear_init_object';
+
+=item language_handle
+
+=cut
 
 has 'language_handle' =>
    is      => 'lazy',
    isa     => Object,
    builder => 'build_language_handle';
+
+=item language_handle_class
+
+=cut
 
 has 'language_handle_class' =>
    is      => 'lazy',
@@ -225,11 +399,30 @@ has 'language_handle_class' =>
    coerce  => TRUE,
    default => 'HTML::Forms::I18N';
 
+=item locales
+
+=cut
+
 has 'locales' =>
    is         => 'lazy',
    isa        => ArrayRef[Str],
-   coerce     => sub { my $v = shift; return is_arrayref $v ? $v : [ $v ] },
+   coerce     => sub {
+      my $v = shift; return is_arrayref $v ? $v : [ split m{ \s }mx, $v ];
+   },
+   default    => sub {
+      my $self = shift;
+
+      if ($self->has_context and my $req = $self->context->request) {
+         return $req->locales if $req->can('locales');
+      }
+
+      return [];
+   },
    predicate  => 'has_locales';
+
+=item messages
+
+=cut
 
 has 'messages' =>
    is          => 'rw',
@@ -242,12 +435,36 @@ has 'messages' =>
       set_message       => 'set',
    };
 
+=item name
+
+A mutable string with a random default. The name of the form element
+
+=cut
+
 has 'name' =>
    is      => 'rw',
    isa     => Str,
    default => sub { 'form' . int( rand 1000 ) };
 
+=item no_update
+
+A mutable bool without default and with a clearer. If set to true the call
+in C<process> to update the model will be skipped
+
+=cut
+
 has 'no_update' => is => 'rw', isa => Bool, clearer => 'clear_no_update';
+
+=item params
+
+A mutable hash reference with an empty default. Should be set to the keys
+and values of the form when it is posted back. Parameters are munged by the
+trigger. See L<HTML::Forms::Params>
+
+Handles; C<clear_params>, C<get_param>, C<has_params>, and C<set_param> via
+the hash trait
+
+=cut
 
 has 'params'   =>
    is          => 'rw',
@@ -263,7 +480,21 @@ has 'params'   =>
    lazy        => TRUE,
    trigger     => sub { shift->_munge_params( @_ ) };
 
+=item params_args
+
+An immutable array reference with an empty default. Arguments passed to the
+L<HTML::Forms::Params> constructor
+
+=cut
+
 has 'params_args' => is => 'ro', isa => ArrayRef, default => sub { [] };
+
+=item posted
+
+A mutable boolean without default with clearer and predicate. Should be set to
+true if the form was posted
+
+=cut
 
 has 'posted' =>
    is        => 'rw',
@@ -292,6 +523,10 @@ has '_required' =>
       clear_required => 'clear',
    };
 
+=item result
+
+=cut
+
 has 'result' =>
    is        => 'ro',
    isa       => HFsResult,
@@ -307,7 +542,15 @@ has 'result' =>
    predicate => 'has_result',
    writer    => '_set_result';
 
+=item style
+
+=cut
+
 has 'style' => is  => 'rw', isa => Str;
+
+=item success_message
+
+=cut
 
 has 'success_message' =>
    is        => 'rw',
@@ -315,7 +558,15 @@ has 'success_message' =>
    clearer   => 'clear_success_message',
    predicate => 'has_success_message';
 
+=item title
+
+=cut
+
 has 'title' => is => 'ro', isa => Str;
+
+=item update_field_list
+
+=cut
 
 has 'update_field_list' =>
    is          => 'rw',
@@ -328,23 +579,43 @@ has 'update_field_list' =>
       set_update_field_list   => 'set',
    };
 
+=item use_defaults_over_obj
+
+=cut
+
 has 'use_defaults_over_obj' =>
    is      => 'rw',
    isa     => Bool,
    clearer => 'clear_use_defaults_over_obj';
 
+=item use_field_for_input_without_param
+
+=cut
+
 has 'use_fields_for_input_without_param' => is => 'rw', isa => Bool;
+
+=item use_init_obj_over_item
+
+=cut
 
 has 'use_init_obj_over_item' =>
    is      => 'rw',
    isa     => Bool,
    clearer => 'clear_use_init_obj_over_item';
 
+=item widget_form
+
+=cut
+
 has 'widget_form' =>
    is      => 'ro',
    isa     => Str,
    default => 'Simple',
    writer  => 'set_widget_form';
+
+=item widget_name_space
+
+=cut
 
 has 'widget_name_space' =>
    is          => 'ro',
@@ -353,6 +624,10 @@ has 'widget_name_space' =>
    coerce      => TRUE,
    handles_via => 'Array',
    handles     => { add_widget_name_space => 'push', };
+
+=item widget_wrapper
+
+=cut
 
 has 'widget_wrapper'=>
    is      => 'ro',
@@ -370,6 +645,15 @@ with 'HTML::Forms::Blocks';
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item BUILDARGS
+
+Additionally allows for construction from either an C<item> object instance or
+an C<item_id>
+
 =cut
 
 # Construction
@@ -384,6 +668,18 @@ around 'BUILDARGS' => sub {
 
    return $orig->($self, @args);
 };
+
+=item BUILD
+
+Applies widget roles, builds the fields, sets the active field list, and
+initialises the result object. Will also dump the field definitions if
+C<verbose> is true
+
+The methods C<before_build>, and C<after_build> are called either side of
+the above and are dummy methods in this class. Made for overriding in a
+form role
+
+=cut
 
 sub BUILD {
    my $self = shift;
@@ -403,7 +699,10 @@ sub BUILD {
    return;
 }
 
-# Public methods
+=item add_form_element_class( @args )
+
+=cut
+
 sub add_form_element_class {
    my ($self, @args) = @_;
 
@@ -411,6 +710,13 @@ sub add_form_element_class {
       is_arrayref $args[0] ? @{ $args[0] } : @args
    );
 }
+
+=item add_form_error( @message )
+
+Pushes the supplied message (after localising) onto form errors. Uses the
+C<form is invalid> message if one is not supplied
+
+=cut
 
 sub add_form_error {
    my ($self, @message) = @_;
@@ -421,6 +727,10 @@ sub add_form_error {
    return;
 }
 
+=item add_form_wrapper_class( @args )
+
+=cut
+
 sub add_form_wrapper_class {
    my ($self, @args) = @_;
 
@@ -429,7 +739,17 @@ sub add_form_wrapper_class {
    );
 }
 
+=item after_build
+
+Dummy method called by C<BUILD>
+
+=cut
+
 sub after_build {}
+
+=item after_update_model
+
+=cut
 
 sub after_update_model {
    my $self = shift;
@@ -483,11 +803,30 @@ sub after_update_model {
    return;
 }
 
+=item attributes
+
+A proxy for C<form_element_attributes>
+
+=cut
+
 sub attributes {
-   return shift->form_element_attributes(@_);
+   return shift->form_element_attributes;
 }
 
+=item before_build
+
+Dummy method called at the start of the C<BUILD> method
+
+=cut
+
 sub before_build {}
+
+=item build_active
+
+Called at build time it clears the inactive status of any C<active> fields and
+sets the inactive status on any C<inactive> fields
+
+=cut
 
 sub build_active {
    my $self = shift;
@@ -517,6 +856,10 @@ sub build_active {
    return;
 }
 
+=item build_errors
+
+=cut
+
 sub build_errors {
    my $self = shift;
 
@@ -527,14 +870,28 @@ sub build_errors {
    return;
 }
 
+=item build_language_handle
+
+Constructor for the C<language_handle> attribute. Will use C<locales> if
+available otherwise uses the environment variable C<LANGUAGE_HANDLE>.
+Always appends C<default_locale> to the returned list
+
+=cut
+
 sub build_language_handle {
    my $self    = shift;
    my @locales = $self->has_locales            ? @{ $self->locales }
                : defined $ENV{LANGUAGE_HANDLE} ? ($ENV{LANGUAGE_HANDLE})
-               : ($self->default_locale);
+               : ();
+
+   push @locales, $self->default_locale;
 
    return $self->language_handle_class->get_handle(@locales);
 }
+
+=item build_result
+
+=cut
 
 sub build_result {
    my $self  = shift;
@@ -551,6 +908,13 @@ sub build_result {
 
    return $class->new(form => $self, name => $self->name);
 }
+
+=item clear
+
+Calls all the clearers defined on the form object. Sets C<processed> and
+C<did_init_obj> to false
+
+=cut
 
 sub clear {
    my $self = shift;
@@ -573,9 +937,28 @@ sub clear {
    return;
 }
 
+=item fif( @args )
+
+=cut
+
 sub fif { shift->fields_fif(@_) }
 
+=item form
+
+=cut
+
 sub form { shift }
+
+=item form_element_attributes
+
+Returns a hash reference of keys and values which are applied to the form
+element
+
+Also calls C<html_attributes> with a 'type' of 'form_element' returning it's
+return hash reference if set. Allows for an overridden C<html_attributes>
+to "fix things up" if required
+
+=cut
 
 sub form_element_attributes {
    my $self = shift;
@@ -598,6 +981,10 @@ sub form_element_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+=item form_wrapper_attributes
+
+=cut
+
 sub form_wrapper_attributes {
    my $self  = shift;
    my $attr  = { %{ $self->form_wrapper_attr } };
@@ -610,11 +997,33 @@ sub form_wrapper_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+=item full_accessor
+
+Dummy method returns the null string
+
+=cut
+
 sub full_accessor { NUL }
+
+=item full_name
+
+Dummy method returns the null string
+
+=cut
 
 sub full_name { NUL }
 
+=item get_default_value
+
+Dummy method returns nothing
+
+=cut
+
 sub get_default_value { }
+
+=item get_tag( $name )
+
+=cut
 
 sub get_tag {
    my ($self, $name) = @_;
@@ -634,17 +1043,38 @@ sub get_tag {
    return NUL;
 }
 
+=item has_flag( $flag_name )
+
+=cut
+
 sub has_flag {
    my ($self, $flag_name) = @_;
 
    return $self->can($flag_name) ? $self->$flag_name : undef;
 }
 
+=item html_attributes( $object, $type, $attrs, $result )
+
+Dummy method that returns the supplied C<attrs>. Called by
+C<form_element_attributes>. The C<type> argument is one of; 'element',
+'element_wrapper', 'form_element', 'form_wrapper', 'label', or 'wrapper'.
+
+Applied roles can modify this method to alter the attributes of the
+above list of form elements
+
+=cut
+
 sub html_attributes {
    my ($self, $obj, $type, $attrs, $result) = @_;
 
    return $attrs;
 }
+
+=item init_value( $field, $value )
+
+Sets both the initial and current field values to the one supplied
+
+=cut
 
 sub init_value {
    my ($self, $field, $value) = @_;
@@ -654,6 +1084,14 @@ sub init_value {
 
    return;
 }
+
+=item localise( @message )
+
+Calls C<maketext> on the C<language_handle> to localise the supplied message.
+If localisation fails will substitute the placeholder variables and return
+that string
+
+=cut
 
 sub localise {
    my ($self, @message) = @_;
@@ -670,6 +1108,14 @@ sub localise {
    return inflate_placeholders $defaults, $out, @message;
 }
 
+=item new_with_traits( %args )
+
+Either a class or object method. Returns a new instance of this class with
+the list of supplied C<traits> in the C<args> hash applied. This rest of the
+C<args> hash is supplied to the constructor of the new object
+
+=cut
+
 sub new_with_traits {
    my ($class, %args) = @_;
 
@@ -682,6 +1128,10 @@ sub new_with_traits {
 
    return $class->new(%args);
 }
+
+=item process( @args )
+
+=cut
 
 sub process {
    my ($self, @args) = @_;
@@ -701,6 +1151,10 @@ sub process {
 
    return $self->validated;
 }
+
+=item set_active
+
+=cut
 
 sub set_active {
    my $self = shift;
@@ -729,6 +1183,10 @@ sub set_active {
 
    return;
 }
+
+=item setup_form( @args )
+
+=cut
 
 sub setup_form {
    my ($self, @args) = @_;
@@ -765,6 +1223,10 @@ sub setup_form {
    return;
 }
 
+=item update_field( $field_name, $updates )
+
+=cut
+
 sub update_field {
    my ($self, $field_name, $updates) = @_;
 
@@ -782,6 +1244,10 @@ sub update_field {
 
    return;
 }
+
+=item update_fields
+
+=cut
 
 sub update_fields {
    my $self = shift;
@@ -811,7 +1277,15 @@ sub update_fields {
    return;
 }
 
+=item validate
+
+=cut
+
 sub validate { TRUE }
+
+=item validate_form
+
+=cut
 
 sub validate_form {
    my $self = shift;
@@ -830,6 +1304,10 @@ sub validate_form {
 
    return $self->validated;
 }
+
+=item values
+
+=cut
 
 sub values {
    return shift->value;
@@ -909,13 +1387,21 @@ use namespace::autoclean;
 
 __END__
 
+=back
+
 =head1 Diagnostics
+
+Set C<verbose> to true to dump diagnostic information to stderr
 
 =head1 Dependencies
 
 =over 3
 
+=item L<Data::Clone>
+
 =item L<Moo>
+
+=item L<Unexpected>
 
 =back
 
@@ -932,6 +1418,9 @@ Patches are welcome
 =head1 Acknowledgements
 
 Larry Wall - For the Perl programming language
+
+Gerda Shank E<lt>gshank@cpan.orgE<gt> - Author of L<HTML::FormHandler> of
+which this is a L<Moo> based copy
 
 =head1 Author
 

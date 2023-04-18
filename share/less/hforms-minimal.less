@@ -7,6 +7,9 @@
 form.classic {
     background: #colours[panel-background]; border-radius: 5px;
     box-shadow: 3px 3px 3px gray; display: inline-block;
+    label {
+        font: 0.8em sans-serif;
+    }
     .alert {
         padding: 0.5rem;
     }
@@ -14,7 +17,8 @@ form.classic {
         font-family: sans-serif;
     }
     .field-label {
-        display: table-cell; padding: 0.5rem; white-space: nowrap;
+        display: table-cell; padding: 0.5rem 0.5rem 0.8rem;
+        white-space: nowrap;
     }
     .form-wrapper {
         border-radius: 5px; padding: 0;
@@ -22,11 +26,33 @@ form.classic {
             margin-left: 0.5rem;
         }
     }
-    label {
-        font: 0.8em sans-serif;
-    }
     .input-field {
         display: table-row; position: relative;
+        input, select, textarea {
+            max-width: 10rem;
+        }
+        input, select.select-multiple, textarea {
+            border-radius: 5px; display: table-cell; font-family: serif;
+            font-size: 0.85rem;
+        }
+        input:focus, textarea:focus {
+            background: #colours[active-field];
+        }
+        input[type=checkbox] {
+        }
+        input[type=date], input[type=password], input[type=text],
+        select.select-multiple option {
+            padding: 0.25rem;
+        }
+        input[type=submit] {
+            font-family: sans-serif; font-size: 0.8rem;
+        }
+        select {
+            display: table-cell; font-family: serif;
+        }
+        select.select-multiple option[selected=selected] {
+            background: #colours[selected-value];
+        }
         .alert {
             border-radius: 5px; display: block; margin-right: 0.5rem;
         }
@@ -37,14 +63,14 @@ form.classic {
             background: #colours[selected-value];
         }
     }
+    .input-field:after {
+        content: ' '; display: table-cell; width: 0.5rem;
+    }
     .input-captcha input,
     .input-captcha .field-label,
     .field-label.select-multiple,
     .field-label.input-textarea {
         vertical-align: top;
-    }
-    .label-right .field-label {
-        left: 375px; position: absolute; top: -5px;
     }
     .input-duration .input-select-integer,
     .input-interval .input-group,
@@ -59,43 +85,27 @@ form.classic {
     .input-number input {
         text-align: right;
     }
-    .field-label .label-sep-right {
-        float: right;
-    }
     .input-duration .option-label .label-sep-after,
     .input-duration .option-label .label-sep-before {
         display: none;
     }
-    select.select-multiple option {
-        width: 100px;
-    }
-    select.select-multiple option[selected=selected] {
-        background: #colours[selected-value];
-    }
     .input-textarea textarea {
         overflow: auto;
     }
-    input:focus, textarea:focus {
-        background: #colours[active-field];
-    }
-    .input-field input[type=submit]:focus,
-    .input-field input[type=password],
-    .input-field input[type=text],
-    .input-field select.select-multiple,
-    .input-field textarea {
-        border-radius: 5px; display: table-cell; margin-right: 0.5rem;
-    }
-    .input-field select {
-        display: table-cell; margin-right: 0.5rem;
-    }
     .input-display span {
-        padding-left: 3px;
+        padding-left: 0.25rem;
     }
     .input-button {
-        display: inline-block; float: right;
+        display: flex; justify-content: right;
         input {
-            margin: 0.5rem 0.5rem 0.5rem 0;
+            margin: 0.5rem 0;
         }
+    }
+    .label-right .field-label {
+        left: 375px; position: absolute; top: -5px;
+    }
+    .field-label .label-sep-right {
+        float: right;
     }
 }
 .form-messages {
