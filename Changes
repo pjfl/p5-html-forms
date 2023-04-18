@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Label and colon right CSS improved
           - Started adding pod
           - Fiddled with label right
           - Better styling
