@@ -7,8 +7,8 @@
     text: black;
 }
 #fonts() {
-    data: serif;
-    system: sans-serif;
+    data: Roboto Slab, serif;
+    system: Roboto, sans-serif;
 }
 form.classic {
     background: #colours[panel-background]; border-radius: 5px;
@@ -24,10 +24,10 @@ form.classic {
         font-size: 0.8rem; line-height: 1em;
     }
     .alert-info {
-        font-size: 0.8rem; padding: 0.5rem;
+        font-size: 0.8rem; padding: 0.5rem 1rem;
     }
     .field-label {
-        display: table-cell; padding: 0.5rem 0.5rem 0.8rem;
+        display: table-cell; padding: 0.5rem 0.5rem 0.8rem 1rem;
         position: relative; white-space: nowrap;
         .label-sep-after {
             position: absolute; right: 0.25rem;
@@ -36,7 +36,7 @@ form.classic {
     .form-wrapper {
         border-radius: 5px; padding: 0;
         legend {
-            margin-left: 0.35rem;
+            margin-left: 0.85rem;
         }
     }
     .input-field {
@@ -73,7 +73,7 @@ form.classic {
     }
     .input-field:after,
     .input-field.label-right:before {
-        content: ' '; display: table-cell; width: 0.5rem;
+        content: ' '; display: table-cell; width: 1rem;
     }
     .input-captcha input,
     .input-captcha .field-label,
