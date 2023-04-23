@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Better styling on form errors
           - CSS fonts
           - Label and colon right CSS improved
           - Started adding pod
