@@ -1,6 +1,7 @@
-package HTML::Forms::Field::Display;
+package HTML::Forms::Field::Image;
 
 use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Types     qw( Str );
 use Moo;
 use HTML::Forms::Moo;
 
@@ -8,18 +9,21 @@ extends 'HTML::Forms::Field::NoValue';
 
 has '+do_label' => default => TRUE;
 
-has '+widget' => default => 'Span';
+has '+widget' => default => 'Image';
 
 has '+wrapper_class' => default => 'input-display';
 
-sub _result_from_object {
-   my ($self, $result, $value) = @_;
+has 'src' => is => 'rw', isa => Str;
 
-   $self->_set_result($result);
-   $self->value($value);
-   $result->_set_field_def($self);
-   return $result;
-}
+around 'element_attributes' => sub {
+   my ($orig, $self, $result) = @_;
+
+   my $attr = $orig->($self, $result);
+
+   $attr->{src} = $self->src;
+
+   return $attr;
+};
 
 use namespace::autoclean -except => META;
 
@@ -33,11 +37,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Display - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Image - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Display;
+   use HTML::Forms::Field::Image;
    # Brief but working code examples
 
 =head1 Description

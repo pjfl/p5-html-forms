@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 40 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 41 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -21,6 +21,8 @@ use Moo;
 use MooX::HandlesVia;
 
 extends 'HTML::Forms::Base';
+
+# TODO: Implement check_field for inline JS field validation
 
 =pod
 
@@ -378,7 +380,7 @@ has 'info_message' =>
 
 =cut
 
-has 'init_object' => is => 'rw', clearer => 'clear_init_object';
+has 'init_object' => is => 'rw', clearer => 'clear_init_object', lazy => TRUE;
 
 =item language_handle
 
