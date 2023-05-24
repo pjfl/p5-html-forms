@@ -58,8 +58,12 @@ around 'html_attributes' => sub {
    $attrs = $orig->($self, $obj, $type, $attrs, $result);
 
    if ($type eq 'label') {
-      my $class = $obj->parent->isa('HTML::Forms')
-         ? 'field-label' : 'option-label';
+      my $class = 'option-label';
+      if ($obj->parent->isa('HTML::Forms')) {
+         $class = 'field-label';
+         $attrs->{title} //= 'Required'
+            if $obj->required && $obj->parent->is_html5;
+      }
       push @{$attrs->{class}}, $class;
    }
 

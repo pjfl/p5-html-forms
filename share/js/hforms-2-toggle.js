@@ -6,15 +6,13 @@ HForms.Toggle = (function() {
    const triggerClass = 'toggle';
    const idPrefix = HForms.Util.wrapperIdPrefix;
    const animate = function(el, method) {
-      const options = { duration: 800, fill: 'forwards' };
       if (method == 'hide') {
-         el.animate({ opacity: 0 }, options);
-         el.style.display = 'none';
+         el.animate({ opacity: 0 }, { duration: 800, fill: 'forwards' });
       }
       else {
          el.style.opacity = 0;
-         el.style.display = '';
-         el.animate({ opacity: 1 }, options);
+         el.classList.remove('hide');
+         el.animate({ opacity: 1 }, { duration: 800, fill: 'forwards' });
       }
    };
    const fireHandler = function(el) {
@@ -98,8 +96,8 @@ HForms.Toggle = (function() {
                else turnTheseOff.push(el);
             }
             if (pageLoading) {
-               if (method == 'hide') el.style.display = 'none';
-               else el.style.display = '';
+               if (method == 'hide') el.classList.add('hide');
+               else el.classList.remove('hide');
             }
             else animate(el, method);
          }

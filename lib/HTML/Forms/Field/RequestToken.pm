@@ -47,9 +47,8 @@ sub build_token_prefix {
    my $form    = $self->form or return NUL;
    my $ctx     = $form->context or return NUL;
    my $session = $ctx->session;
-   my $id      = (blessed $session ? $session->id : $session->{id}) // NUL;
 
-   return $id;
+   return (blessed $session ? $session->serialise : $session->{id}) // NUL;
 }
 
 sub validate {
