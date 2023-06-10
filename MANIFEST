@@ -24,6 +24,7 @@ lib/HTML/Forms/Field/Float.pm
 lib/HTML/Forms/Field/Group.pm
 lib/HTML/Forms/Field/Hidden.pm
 lib/HTML/Forms/Field/Hour.pm
+lib/HTML/Forms/Field/Image.pm
 lib/HTML/Forms/Field/IntRange.pm
 lib/HTML/Forms/Field/Integer.pm
 lib/HTML/Forms/Field/Interval.pm
@@ -51,11 +52,13 @@ lib/HTML/Forms/Field/Submit.pm
 lib/HTML/Forms/Field/Text.pm
 lib/HTML/Forms/Field/TextArea.pm
 lib/HTML/Forms/Field/TimeWithZone.pm
+lib/HTML/Forms/Field/Timezone.pm
 lib/HTML/Forms/Field/Upload.pm
 lib/HTML/Forms/Field/Weekday.pm
 lib/HTML/Forms/Field/Year.pm
 lib/HTML/Forms/Fields.pm
 lib/HTML/Forms/I18N.pm
+lib/HTML/Forms/I18N/en.pm
 lib/HTML/Forms/InitResult.pm
 lib/HTML/Forms/Manager.pm
 lib/HTML/Forms/Meta.pm
@@ -85,9 +88,10 @@ lib/HTML/Forms/Widget/Form/Complex.pm
 lib/HTML/Forms/Widget/Form/Simple.pm
 lib/HTML/Forms/Widget/Wrapper/Simple.pm
 share/css/hforms-minimal.css
-share/js/hforms-repeatable.js
-share/js/hforms-toggle.js
-share/js/hforms-util.js
+share/js/hforms-0-util.js
+share/js/hforms-1-repeatable.js
+share/js/hforms-2-toggle.js
+share/less/hforms-minimal.less
 share/templates/classic/block.tt
 share/templates/classic/field.tt
 share/templates/classic/fields.tt
