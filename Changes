@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds empty English lexicon
           - Hiding adds/remove class. Leaves display alone
           - Adds Image field. Adds showIfRequired
           - Better styling on form errors
