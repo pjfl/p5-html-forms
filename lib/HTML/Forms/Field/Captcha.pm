@@ -97,7 +97,7 @@ sub get_default_value {
 
    return unless $self->captcha_type eq 'local';
 
-   my $captcha = $self->form->get_captcha if $self->form;
+   my $captcha; $captcha = $self->form->get_captcha if $self->form;
 
    if ($captcha) {
       if ($captcha->{validated}) {
@@ -132,7 +132,7 @@ sub validate {
    my $self = shift;
 
    if ($self->captcha_type eq 'local') {
-      my $captcha = $self->form->get_captcha if $self->form;
+      my $captcha; $captcha = $self->form->get_captcha if $self->form;
 
       if ($captcha and $captcha->{rnd} eq $self->value) {
          $captcha->{validated} = TRUE;

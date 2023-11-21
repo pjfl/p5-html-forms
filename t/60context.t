@@ -45,7 +45,7 @@ my $ctx = MyApp::Context->new;
 ok $ctx, 'builds context';
 
 my $form = HTML::Forms->new_with_traits(
-   ctx         => $ctx,
+   context     => $ctx,
    html_prefix => 1,
    name        => 'test_tt',
    traits      => [ 'HTML::Forms::Renderer', 'HTML::Forms::Role::Captcha', ],

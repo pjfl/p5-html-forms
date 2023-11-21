@@ -8,12 +8,52 @@ use Type::Utils            qw( class_type );
 use Unexpected::Functions  qw( throw Unspecified );
 use Moo;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Manager - Factory class for forms
+
+=head1 Synopsis
+
+   use HTML::Forms::Manager;
+
+=head1 Description
+
+Factory class for forms
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item namespace
+
+=cut
+
 has 'namespace' => is => 'ro', isa => Str, required => TRUE;
+
+=item schema
+
+=cut
 
 has 'schema' =>
    is        => 'ro',
    isa       => class_type('DBIx::Class::Schema'),
    predicate => 'has_schema';
+
+=back
+
+=head1 Subroutines/Methods
+
+=over 3
+
+=item new_with_context( $name, \%options )
+
+=cut
 
 sub new_with_context {
    my ($self, $name, $options) = @_;
@@ -40,6 +80,10 @@ sub new_with_context {
    return $class->new($args);
 }
 
+=item get_body_parameters( $context )
+
+=cut
+
 sub get_body_parameters {
    my ($self, $context) = @_;
 
@@ -63,38 +107,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Manager - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Manager;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Class::Load>
 
 =back
 

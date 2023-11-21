@@ -10,13 +10,13 @@ use Try::Tiny;
 sub maketext {
    my ($self, @message) = @_;
 
-   return NUL unless scalar @message && defined $message[ 0 ];
+   return NUL unless scalar @message && defined $message[0];
 
    my $out;
 
-   try   { $out = $self->SUPER::maketext( @message ) }
+   try   { $out = $self->SUPER::maketext(@message) }
    catch {
-      throw 'Unable to do maketext on: ' . $message[ 0 ]
+      throw 'Unable to do maketext on: ' . $message[0]
          . "\nIf the message contains brackets you may need to escape them "
          . "with a tilde.";
    };

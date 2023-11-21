@@ -76,9 +76,10 @@ around 'html_attributes' => sub {
    return $attrs;
 };
 
-sub before_build {
-   my $self = shift;
+around 'before_build_fields' => sub {
+   my ($orig, $self) = @_;
 
+   $orig->($self);
    $self->set_tag( legend => $self->default_form_legend );
    $self->set_tag( wrapper_tag => $self->default_wrapper_tag );
    $self->set_form_element_attr( 'accept-charset' => $self->default_charset );
@@ -96,7 +97,7 @@ sub before_build {
    }
 
    return;
-}
+};
 
 use namespace::autoclean;
 

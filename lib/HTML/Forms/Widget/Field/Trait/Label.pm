@@ -9,8 +9,11 @@ requires qw( form );
 
 has '_html' => is => 'lazy', isa => Object, builder => sub { HTML::Tiny->new };
 
-after 'after_build' => sub {
-   my $self = shift;
+around 'BUILD' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
+
    my $form = $self->form;
 
    if ($form && $form->do_label_right) {

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Renamed Forms before/after build to before/after build fields
           - Regenerate meta data
           - Adds empty English lexicon
           - Hiding adds/remove class. Leaves display alone

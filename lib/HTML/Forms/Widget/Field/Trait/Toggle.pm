@@ -54,8 +54,10 @@ has 'toggle_event' =>
    predicate => 'has_toggle_event',
    writer    => '_toggle_event';
 
-after 'after_build' => sub {
-   my $self = shift;
+around 'BUILD' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
 
    return unless $self->has_toggle;
 

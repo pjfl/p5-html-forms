@@ -50,12 +50,16 @@ has 'num_when_empty' => is => 'rw', isa => Int, default => 1;
 
 has 'setup_for_js'   => is => 'rw', isa => Bool, default => TRUE;
 
-after 'after_build' => sub {
-   my $self = shift; weaken $self;
+around 'BUILD' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
+
    my $form = $self->form;
 
    if ($form && $form->can('load_js_package')) {
       $form->load_js_package($self->_js_package);
+      weaken $self;
       $form->load_js_package(sub { $self->render_repeatable_js });
    }
 

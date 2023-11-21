@@ -132,8 +132,11 @@ has '_zone' =>
       return $zone;
    };
 
-before 'before_build' => sub {
-   my $self = shift;
+around 'BUILD' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
+
    my $form = $self->form;
 
    $form->load_js_package($self->_js_package)

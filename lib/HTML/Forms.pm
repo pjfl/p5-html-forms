@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 44 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 45 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -12,7 +12,6 @@ use HTML::Forms::Util      qw( has_some_value );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
-use Try::Tiny;
 use Unexpected::Functions  qw( inflate_placeholders throw );
 use HTML::Forms::Params;
 use HTML::Forms::Result;
@@ -51,6 +50,9 @@ HTML::Forms - Generates markup for and processes input from HTML forms
    $form->render;
 
 =head1 Description
+
+Generates markup for and processes input from HTML forms. This is a L<Moo>
+based copy of L<HTML::FormHandler>
 
 =head1 Configuration and Environment
 
@@ -152,8 +154,15 @@ has 'active'   =>
 
 =item context
 
-An optional mutable weak reference to the context object with clearer and
-predicate
+An optional mutable weak reference to the context object
+
+=item clear_context
+
+Clearer
+
+=item has_context
+
+Predicate
 
 =cut
 
@@ -222,9 +231,17 @@ has 'enctype' => is  => 'rw', isa => Str;
 
 =item error_message
 
-A mutable string without default with clearer and predicate. This string (if
+A mutable string without default. This string (if
 set) is rendered either before or near the start of the form if the form result
 C<has_errors> or C<has_form_errors>
+
+=item clear_error_messsage
+
+Clearer
+
+=item has_error_message
+
+Predicate
 
 =cut
 
@@ -450,8 +467,12 @@ has 'name' =>
 
 =item no_update
 
-A mutable bool without default and with a clearer. If set to true the call
+A mutable bool without default. If set to true the call
 in C<process> to update the model will be skipped
+
+=item clear_no_update
+
+Clearer
 
 =cut
 
@@ -493,8 +514,15 @@ has 'params_args' => is => 'ro', isa => ArrayRef, default => sub { [] };
 
 =item posted
 
-A mutable boolean without default with clearer and predicate. Should be set to
-true if the form was posted
+A mutable boolean without default. Should be set to true if the form was posted
+
+=item clear_posted
+
+Clearer
+
+=item has_posted
+
+Predicate
 
 =cut
 
@@ -677,8 +705,8 @@ Applies widget roles, builds the fields, sets the active field list, and
 initialises the result object. Will also dump the field definitions if
 C<verbose> is true
 
-The methods C<before_build>, and C<after_build> are called either side of
-the above and are dummy methods in this class. Made for overriding in a
+The methods C<before_build_fields>, and C<after_build_fields> are called either
+side of the above and are dummy methods in this class. Made for overriding in a
 form role
 
 =cut
@@ -686,13 +714,13 @@ form role
 sub BUILD {
    my $self = shift;
 
-   $self->before_build;
+   $self->before_build_fields;
    $self->apply_widget_role($self, $self->widget_form, 'Form')
       unless $self->no_widgets || $self->widget_form eq 'Simple';
    $self->build_fields;
    $self->build_active if $self->has_active
       || $self->has_inactive || $self->has_flag('is_wizard');
-   $self->after_build;
+   $self->after_build_fields;
 
    return if defined $self->item_id && !$self->item;
 
@@ -741,13 +769,13 @@ sub add_form_wrapper_class {
    );
 }
 
-=item after_build
+=item after_build_fields
 
 Dummy method called by C<BUILD>
 
 =cut
 
-sub after_build {}
+sub after_build_fields {}
 
 =item after_update_model
 
@@ -815,13 +843,13 @@ sub attributes {
    return shift->form_element_attributes;
 }
 
-=item before_build
+=item before_build_fields
 
 Dummy method called at the start of the C<BUILD> method
 
 =cut
 
-sub before_build {}
+sub before_build_fields {}
 
 =item build_active
 
@@ -1087,7 +1115,7 @@ sub init_value {
    return;
 }
 
-=item localise( @message )
+=item localise( $message, @args )
 
 Calls C<maketext> on the C<language_handle> to localise the supplied message.
 If localisation fails will substitute the placeholder variables and return
@@ -1096,18 +1124,16 @@ that string
 =cut
 
 sub localise {
-   my ($self, @message) = @_;
+   my ($self, $message, @args) = @_;
 
-   my $in = shift @message;
-   my $out;
+   my $text = $self->language_handle->maketext($message, @args);
 
-   try   { $out = $self->language_handle->maketext($in) }
-   catch { $out = $in };
+   return $text if $text;
 
    # Display values for undef and null bind values which are quoted by default
    my $defaults = [ '[?]', '[]', !$self->quote_bind_value ];
 
-   return inflate_placeholders $defaults, $out, @message;
+   return inflate_placeholders $defaults, $message, @args;
 }
 
 =item new_with_traits( %args )

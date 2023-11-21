@@ -307,8 +307,9 @@ sub _load_options {
       $self->options_from('method');
    }
    elsif ($self->form) {
-      my $full_accessor = $self->parent->full_accessor if $self->parent;
+      my $full_accessor;
 
+      $full_accessor = $self->parent->full_accessor if $self->parent;
       @options = $self->form->lookup_options($self, $full_accessor);
       $self->options_from('model') if scalar @options;
    }

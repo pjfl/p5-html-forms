@@ -91,7 +91,7 @@ sub build_fields {
       else { $self->_process_field_list( $flist ) }
    }
 
-   my $mlist = $self->model_fields if $self->fields_from_model;
+   my $mlist; $mlist = $self->model_fields if $self->fields_from_model;
 
    $self->_process_field_list( $mlist ) if $mlist;
 

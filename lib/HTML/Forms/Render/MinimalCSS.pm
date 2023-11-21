@@ -23,9 +23,10 @@ has '_styles' =>
       _has_style => 'exists',
    };
 
-before 'before_build' => sub {
-   my $self = shift;
+around 'before_build_fields' => sub {
+   my ($orig, $self) = @_;
 
+   $orig->($self);
    $self->_load_style($self->style_name);
 
    my $style  = $self->_styles->{$self->style_name};

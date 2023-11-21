@@ -131,9 +131,11 @@ has 'label' =>
    isa      => Str|Undef,
    builder  => sub {
       my $self  = shift;
-      my $label = $self->form->lookup_label($self->name) if $self->has_form;
+      my $name  = $self->name;
+      my $label;
 
-      $label = ucfirst $self->name unless $label;
+      $label = $self->form->lookup_label($name) if $self->has_form;
+      $label = ucfirst $name unless $label;
       $label =~ s{ _ }{ }gmx;
       return $label;
    },
@@ -150,7 +152,7 @@ has 'localise_method' =>
 
       my $form = $self->form; weaken $form;
 
-      return sub { $form->localise( @_ ) } if $form;
+      return sub { $form->localise( @_ ) };
    },
    handles_via => 'Code',
    handles     => { _localise => 'execute' };
@@ -330,7 +332,6 @@ with 'HTML::Forms::Widget::ApplyRole';
 sub BUILD {
    my ($self, $params) = @_;
 
-   $self->before_build;
    $self->merge_tags( $self->wrapper_tags ) if $self->has_wrapper_tags;
    $self->build_default_method;
    $self->validate_method;
@@ -339,7 +340,6 @@ sub BUILD {
    $self->add_action( $self->trim ) if $self->trim;
    $self->_build_apply_list;
    $self->add_action( @{ $params->{apply} } ) if $params->{apply};
-   $self->after_build;
 
    return;
 }
@@ -418,13 +418,9 @@ sub add_standard_wrapper_classes {
    return;
 }
 
-sub after_build {}
-
 sub attributes {
    return shift->element_attributes(@_);
 }
-
-sub before_build {}
 
 sub build_element_wrapper_class { [] }
 
@@ -623,7 +619,7 @@ sub full_accessor {
    }
 
    my $accessor = $self->accessor;
-   my $parent_accessor = $parent->full_accessor if $parent;
+   my $parent_accessor; $parent_accessor = $parent->full_accessor if $parent;
 
    return defined $parent_accessor && length $parent_accessor
         ? "${parent_accessor}.${accessor}" : $accessor;
@@ -634,7 +630,7 @@ sub full_name {
    my $name = $self->name;
 
    # Field should always have a parent unless it's a standalone field test
-   my $parent_name = $self->parent->full_name if $self->parent;
+   my $parent_name; $parent_name = $self->parent->full_name if $self->parent;
 
    return defined $parent_name && length $parent_name
         ? "${parent_name}.${name}" : $name;

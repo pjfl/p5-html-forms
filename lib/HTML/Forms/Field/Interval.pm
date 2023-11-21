@@ -112,8 +112,11 @@ has 'unit' =>
       return $field;
    };
 
-before 'before_build' => sub {
-   my $self = shift;
+around 'BUILD' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
+
    my $form = $self->form;
 
    if ($form && $form->can('load_js_package')) {
