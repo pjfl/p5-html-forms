@@ -1,5 +1,7 @@
 #colours() {
     active-field: bisque;
+    card-fade: linear-gradient(to right, transparent, lightpink 80%);
+    error-background: lightpink;
     field-error: lightpink;
     panel-background: ivory;
     required-field: red;
@@ -8,10 +10,14 @@
     text: black;
 }
 #fonts() {
-    data: Roboto Slab, serif;
-    system: Roboto, sans-serif;
+    code: ui-monospace, 'Cascadia Code', Menlo, 'DejaVu Sans Mono', monospace;
+    cursive: 'Segoe Print', 'Bradley Hand', Chilanka, casual, cursive;
+    data: 'Roboto Slab', 'DejaVu Serif', 'Sitka Small', serif;
+    mono: 'Nimbus Mono PS', 'Courier New', monospace;
+    system: Roboto, system-ui, sans-serif;
 }
-#widths() {
+#sizes() {
+    error-max: 20rem;
     field-max: 20rem;
     field-min: 10rem;
 }
@@ -28,7 +34,8 @@ form.classic {
     label {
         font-size: 0.8rem; line-height: 1em;
     }
-    label:has(+ input[required=required])::after {
+    label:has(+input[required=required])::after,
+    label:has(+select[required=required])::after {
         color: #colours[required-field]; content: '*'; display: inline-block;
         padding-left: 0.25rem;
     }
@@ -52,7 +59,7 @@ form.classic {
     .form-wrapper.wide {
         .input-field {
             input, select, textarea, .alert {
-                max-width: #widths[field-max];
+                max-width: #sizes[field-max];
             }
         }
     }
@@ -60,7 +67,7 @@ form.classic {
         display: table-row; position: relative;
         input, select, textarea {
             display: table-cell; font-family: #fonts[data];
-            max-width: #widths[field-min];
+            max-width: #sizes[field-min];
         }
         input, select.select-multiple, textarea {
             border-radius: 5px; font-size: 0.85rem;
@@ -80,7 +87,7 @@ form.classic {
         }
         .alert {
             border-radius: 5px; display: block; font-size: 0.8rem;
-            max-width: #widths[field-min]; padding: 0.5rem;
+            max-width: #sizes[field-min]; padding: 0.5rem;
         }
         .alert-error {
             background: #colours[field-error];
@@ -125,11 +132,16 @@ form.classic {
             max-width: 13rem;
         }
     }
+    .input-select {
+        option {
+            font-family: #fonts[data];
+        }
+    }
     .input-textarea textarea {
         overflow: auto;
     }
     .input-display span {
-        font-size: 0.8rem; padding-left: 0.25rem;
+        font-size: 0.8rem; padding: 0.5rem 0;
     }
     .input-button {
         display: flex; justify-content: right;
@@ -155,6 +167,26 @@ form.classic {
 }
 .form-messages {
     .alert {
-        font-family: #fonts[system]; margin-bottom: 1rem;
+        font-family: #fonts[system]; font-size: 0.8rem; margin-bottom: 1rem;
+        .card {
+            font-family: #fonts[data]; max-width: #sizes[error-max];
+            padding: 0 0.25rem;
+            p {
+                max-height: 6rem; overflow: hidden; margin: 0;
+                position: relative;
+            }
+            p.long::after {
+                background-image: #colours[card-fade];
+                bottom: 0; content: ''; height: 1.5rem;
+                position: absolute; right: 0; width: 100%;
+            }
+        }
     }
+    .alert-severe .card {
+        background: #colours[error-background]; border-radius: 5px;
+    }
+}
+.form-error {
+    background: #colours[error-background]; border-radius: 5px;
+    max-height: 12rem; max-width: #sizes[error-max]; overflow: hidden;
 }

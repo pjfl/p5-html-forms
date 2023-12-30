@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 45 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 46 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -106,7 +106,7 @@ has [ 'did_init_obj',
 
 =item is_html5 - If true apply HTML5 attributes to fields
 
-=item message_before_start - If true display messages before the form start
+=item messages_before_start - If true display messages before the form start
 
 =item no_preload - If the true the result is not initialised on build
 

@@ -52,6 +52,8 @@ has 'default_request_token' => is => 'ro', isa => Str, default => '_verify';
 
 has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'div';
 
+has 'log' => is => 'ro', predicate => 'has_log';
+
 around 'html_attributes' => sub {
    my ($orig, $self, $obj, $type, $attrs, $result) = @_;
 

@@ -44,11 +44,14 @@
 [%   message_class = get_tag( 'messages_wrapper_class' ) || 'form-messages' -%]
   <div class="[% message_class %]">
 [%   IF form.has_error_message && (form.result.has_errors || form.result.has_form_errors) -%]
-[%     error_class = get_tag( 'error_class' ) || 'alert alert--severe' -%]
+[%     error_class = get_tag( 'error_class' ) || 'alert alert-severe' -%]
     <div class="[% error_class %]">
     [% localise( form.error_message ) %]
 [%     FOR error IN form.form_errors -%]
-      <div>[% error %]</div>
+      <div class="card">
+[%        IF alength(error) > 100; card_class = 'long'; END %]
+         <p class="[% card_class %]">[% error %]</p>
+      </div>
 [%     END -%]
     </div>
 [%   ELSIF form.has_success_message && form.result.validated -%]

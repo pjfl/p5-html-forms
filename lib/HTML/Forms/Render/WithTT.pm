@@ -19,6 +19,7 @@ has 'default_tt_vars' =>
       return {
          form          => $form,
          get_tag       => sub { $form->get_tag( @_ ) },
+         alength       => sub { my $c = 0; map { $c += length $_ } @_; $c },
          localise      => sub { $form->localise( @_ ) },
          process_attrs => \&process_attrs,
          theme         => $self->tt_theme,

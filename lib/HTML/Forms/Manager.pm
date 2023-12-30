@@ -1,11 +1,12 @@
 package HTML::Forms::Manager;
 
-use Class::Load            qw( load_optional_class );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE );
 use HTML::Forms::Types     qw( Str );
+use Class::Load            qw( load_class );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
 use Unexpected::Functions  qw( throw Unspecified );
+use Try::Tiny;
 use Moo;
 
 =pod
@@ -59,8 +60,12 @@ sub new_with_context {
    my ($self, $name, $options) = @_;
 
    my $class = $self->namespace . '::' . $name;
+   my $exception;
 
-   load_optional_class($class);
+   try   { load_class($class) }
+   catch { $exception = $_ };
+
+   return HTML::Forms::Error->new($exception) if $exception;
 
    my $context = $options->{context};
 
@@ -102,6 +107,36 @@ sub get_body_parameters {
 }
 
 use namespace::autoclean;
+
+package
+   HTML::Forms::Error;
+
+use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Types     qw( Str );
+use Type::Utils            qw( class_type );
+use HTML::Tiny;
+use Moo;
+
+has 'exception' => is => 'ro', isa => Str, required => TRUE;
+
+has '_html' =>
+   is      => 'ro',
+   isa     => class_type('HTML::Tiny'),
+   default => sub { HTML::Tiny->new };
+
+around 'BUILDARGS' => sub {
+   my ($orig, $self, @args) = @_;
+
+   return $orig->($self, { exception => $args[0] });
+};
+
+sub process() { FALSE }
+
+sub render() {
+   my $self = shift;
+
+   return $self->_html->div({ class => 'form-error' }, $self->exception);
+}
 
 1;
 
