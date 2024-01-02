@@ -1,12 +1,15 @@
 #colours() {
-    active-field: bisque;
-    card-fade: linear-gradient(to right, transparent, lightpink 80%);
-    error-background: lightpink;
-    field-error: lightpink;
-    panel-background: ivory;
-    required-field: red;
-    selected-value: bisque;
-    shadow: gray;
+    button-bg: bisque;
+    button-border: #e3e3e3; // grey89
+    button-hover: limegreen;
+    button-text: black;
+    error-bg: lightpink;
+    field-active: bisque;
+    field-required: red;
+    field-selected-bg: bisque;
+    line: gray;
+    link: seagreen;
+    panel-bg: ivory;
     text: black;
 }
 #fonts() {
@@ -16,14 +19,20 @@
     mono: 'Nimbus Mono PS', 'Courier New', monospace;
     system: Roboto, system-ui, sans-serif;
 }
+#grads() {
+    button-border-bg: radial-gradient(
+        #colours[button-hover], transparent, transparent
+    );
+    error-fade: linear-gradient(to right, transparent, #colours[error-bg] 80%);
+}
 #sizes() {
     error-max: 20rem;
     field-max: 20rem;
     field-min: 10rem;
 }
 form.classic {
-    background: #colours[panel-background]; border-radius: 5px;
-    box-shadow: 3px 3px 3px; color: #colours[shadow]; display: inline-block;
+    background: #colours[panel-bg]; border-radius: 5px;
+    box-shadow: 3px 3px 3px; color: #colours[line]; display: inline-block;
     margin: 0 1rem;
     div, legend {
         color: #colours[text];
@@ -32,12 +41,12 @@ form.classic {
         font-family: #fonts[system];
     }
     label {
-        font-size: 0.8rem; line-height: 1em;
+        font-size: 0.8rem; line-height: 1rem;
     }
     label:has(+input[required=required])::after,
     label:has(+select[required=required])::after {
-        color: #colours[required-field]; content: '*'; display: inline-block;
-        padding-left: 0.25rem;
+        color: #colours[field-required]; content: '*'; display: inline-block;
+        float: right; padding-left: 0.25rem;
     }
     .alert-info {
         font-size: 0.8rem; padding: 0.5rem 0 0;
@@ -51,16 +60,14 @@ form.classic {
     }
     .form-wrapper {
         border-collapse: separate; border-spacing: 0 0.5rem;
-        border-radius: 5px; padding: 0 1rem;
+        border-radius: 5px; padding: 0 1rem 0.5rem;
         .form-title {
             margin-left: -2px;
         }
     }
-    .form-wrapper.wide {
-        .input-field {
-            input, select, textarea, .alert {
-                max-width: #sizes[field-max];
-            }
+    .form-wrapper.wide .input-field {
+        input, select, textarea, .alert {
+            max-width: #sizes[field-max];
         }
     }
     .input-field {
@@ -73,7 +80,7 @@ form.classic {
             border-radius: 5px; font-size: 0.85rem;
         }
         input:focus, textarea:focus {
-            background: #colours[active-field];
+            background: #colours[field-active];
         }
         input[type=date], input[type=email], input[type=password],
         input[type=text], select.select-multiple option {
@@ -83,17 +90,17 @@ form.classic {
             font-family: #fonts[system]; font-size: 0.8rem;
         }
         select.select-multiple option[selected=selected] {
-            background: #colours[selected-value];
+            background: #colours[field-selected-bg];
         }
         .alert {
             border-radius: 5px; display: block; font-size: 0.8rem;
-            max-width: #sizes[field-min]; padding: 0.5rem;
+            margin-top: 0.25rem; max-width: #sizes[field-min]; padding: 0.5rem;
         }
         .alert-error {
-            background: #colours[field-error];
+            background: #colours[error-bg];
         }
         .alert-info {
-            background: #colours[selected-value];
+            background: #colours[field-selected-bg];
         }
         .input-hidden {
             .alert {
@@ -101,25 +108,18 @@ form.classic {
             }
         }
     }
-    .input-captcha input,
-    .input-captcha .field-label,
-    .input-display .field-label,
-    .field-label.select-multiple,
+    .input-captcha input, .input-captcha .field-label,
+    .input-display .field-label, .field-label.select-multiple,
     .field-label.input-textarea {
-        vertical-align: top;
+        vertical-align: middle;
     }
-    .input-duration .input-select-integer,
-    .input-interval .input-group,
-    .input-repeatable div,
-    .input-time-with-zone .input-group {
+    .input-duration .input-select-integer, .input-interval .input-group,
+    .input-repeatable div, .input-time-with-zone .input-group {
         display: inline-block;
     }
-    .input-captcha input,
-    .input-integer input,
-    .input-interval input,
-    .input-money input,
-    .input-number input {
-        text-align: right;
+    .input-captcha input, .input-integer input, .input-interval input,
+    .input-money input, .input-number input {
+        line-height: 1.25rem; padding-left: 0.25rem; text-align: right;
     }
     .input-duration .option-label .label-sep-after,
     .input-duration .option-label .label-sep-before,
@@ -132,20 +132,23 @@ form.classic {
             max-width: 13rem;
         }
     }
-    .input-select {
-        option {
-            font-family: #fonts[data];
-        }
+    .input-integer input.digit {
+        width: 3ch;
+    }
+    .input-select option {
+        font-family: #fonts[data];
     }
     .input-textarea textarea {
         overflow: auto;
     }
     .input-display span {
-        font-size: 0.8rem; padding: 0.5rem 0;
+        display: inline-block; font-size: 0.8rem;
+        padding: 0.5rem 0.5rem 0.5rem 0;
     }
     .input-button {
-        display: flex; justify-content: right;
-        button, input {
+        display: flex; isolation: isolate; justify-content: right;
+        row-gap: 0.5rem;
+        input {
             margin: 0.5rem 0;
         }
     }
@@ -154,6 +157,35 @@ form.classic {
     }
     .input-button.inline.right {
         float: right; margin-left: 0.5rem;
+    }
+    .input-button button {
+        background: #colours[button-bg];
+        border: 2px outset #colours[button-border]; border-radius: 50px;
+        color: #colours[link]; overflow: hidden; padding: 0.25rem 0.75rem;
+        position: relative; transition: 0.5s;
+        span {
+            font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
+            text-decoration: none; text-transform: uppercase; z-index: 3;
+        }
+    }
+    .input-button.expand button {
+        flex-grow: 2; margin-bottom: 0.5rem
+    }
+    .input-button button:hover {
+        border: 2px inset #colours[button-border]; color: #colours[button-text];
+    }
+    .input-button button::before {
+        background: #grads[button-border-bg]; content: ''; display: block;
+        height: 3rem; left: var(--x); opacity: 0; position: absolute;
+        top: var(--y); transform: translate(-50%, -50%);
+        transition: opacity 0.5s; width: 3rem; z-index: 1;
+    }
+    .input-button button:hover::before {
+        opacity: 1;
+    }
+    .input-button button::after {
+        background: #colours[button-bg]; border-radius: 50px; content: '';
+        inset: 3px; position: absolute; z-index: 2;
     }
     .input-field.hide {
         display: none;
@@ -165,28 +197,28 @@ form.classic {
         }
     }
 }
+.form-error {
+    background: #colours[error-bg]; border-radius: 5px;
+    max-height: 12rem; max-width: #sizes[error-max]; overflow: hidden;
+}
 .form-messages {
     .alert {
-        font-family: #fonts[system]; font-size: 0.8rem; margin-bottom: 1rem;
+        font-family: #fonts[system]; font-size: 0.8rem;
         .card {
-            font-family: #fonts[data]; max-width: #sizes[error-max];
-            padding: 0 0.25rem;
+            font-family: #fonts[data]; margin-top: 0.25rem;
+            max-width: #sizes[error-max]; padding: 0 0.25rem;
             p {
-                max-height: 6rem; overflow: hidden; margin: 0;
+                margin: 0; max-height: 6rem; overflow: hidden;
                 position: relative;
             }
             p.long::after {
-                background-image: #colours[card-fade];
-                bottom: 0; content: ''; height: 1.5rem;
+                background-image: #grads[error-fade];
+                bottom: 0; content: ''; height: 1rem;
                 position: absolute; right: 0; width: 100%;
             }
         }
     }
     .alert-severe .card {
-        background: #colours[error-background]; border-radius: 5px;
+        background: #colours[error-bg]; border-radius: 5px;
     }
-}
-.form-error {
-    background: #colours[error-background]; border-radius: 5px;
-    max-height: 12rem; max-width: #sizes[error-max]; overflow: hidden;
 }

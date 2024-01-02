@@ -19,8 +19,6 @@ has '+default_method' => builder => sub {
 
 has '+noupdate' => default => TRUE;
 
-has '+required' => default => TRUE;
-
 has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
 
 has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';

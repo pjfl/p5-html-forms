@@ -281,11 +281,11 @@ sub sorted_fields {
                  grep { $_->is_active } $self->all_fields;
    my @fields;
 
-   for my $field (grep {  _order_first( $_->type ) } @ordered) {
+   for my $field (grep { !_order_last( $_->type ) } @ordered) {
       push @fields, $field;
    }
 
-   for my $field (grep { !_order_first( $_->type ) } @ordered) {
+   for my $field (grep {  _order_last( $_->type ) } @ordered) {
       push @fields, $field;
    }
 
@@ -654,7 +654,7 @@ sub _order_fields {
    }
 }
 
-sub _order_first {
+sub _order_last {
    my $type = lc shift;
 
    return TRUE if $type eq 'hidden' || $type eq 'requesttoken';

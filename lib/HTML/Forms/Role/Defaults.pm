@@ -8,13 +8,17 @@ use Moo::Role;
 
 with 'HTML::Forms::Render::WithTT';
 
+has '+do_form_wrapper' => is => 'rw', default => TRUE;
+
 has '+enctype' => is => 'rw', default => 'multipart/form-data';
 
 has '+error_message' =>
    is      => 'rw',
    default => 'Please fix the errors below';
 
-has '+messages_before_start' => is => 'ro', default => TRUE;
+has '+is_html5' => is => 'rw', default => TRUE;
+
+has '+messages_before_start' => is => 'rw', default => FALSE;
 
 has '+success_message' =>
    is      => 'rw',
@@ -50,7 +54,7 @@ has 'default_form_wrapper_class' =>
 
 has 'default_request_token' => is => 'ro', isa => Str, default => '_verify';
 
-has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'div';
+has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'fieldset';
 
 has 'log' => is => 'ro', predicate => 'has_log';
 

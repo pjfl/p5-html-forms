@@ -278,10 +278,10 @@ sub process_attrs {
 
    $attrs ||= {};
 
-   my $javascript = delete $attrs->{javascript} // NUL;
+   my $javascript = $attrs->{javascript} // NUL;
    my @use_attrs;
 
-   for my $attr (sort keys %{ $attrs }) {
+   for my $attr (grep { $_ ne 'javascript' } sort keys %{ $attrs }) {
       my $value = NUL;
 
       if (defined $attrs->{ $attr }) {

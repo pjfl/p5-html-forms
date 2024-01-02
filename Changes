@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adding Digits field type
           - Better error messages
           - Renamed Forms before/after build to before/after build fields
           - Regenerate meta data

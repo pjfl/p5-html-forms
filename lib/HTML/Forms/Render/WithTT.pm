@@ -19,7 +19,7 @@ has 'default_tt_vars' =>
       return {
          form          => $form,
          get_tag       => sub { $form->get_tag( @_ ) },
-         alength       => sub { my $c = 0; map { $c += length $_ } @_; $c },
+         len           => sub { my $c = 0; map { $c += length $_ } @_; $c },
          localise      => sub { $form->localise( @_ ) },
          process_attrs => \&process_attrs,
          theme         => $self->tt_theme,
@@ -99,8 +99,8 @@ sub render {
    $self->tt_engine->process( $self->tt_template, $vars, \$output );
 
    if (my $exception = $self->tt_engine->{SERVICE}->{_ERROR}) {
-      throw $exception->[ 0 ] . SPC . $exception->[ 1 ] . '.  So far => '
-          . ${ $exception->[ 2 ] } . "\n";
+      throw $exception->[0] . SPC . $exception->[1] . '.  So far => '
+          . ${ $exception->[2] } . "\n";
    }
 
    return $output;

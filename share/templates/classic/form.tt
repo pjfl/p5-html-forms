@@ -49,7 +49,7 @@
     [% localise( form.error_message ) %]
 [%     FOR error IN form.form_errors -%]
       <div class="card">
-[%        IF alength(error) > 100; card_class = 'long'; END %]
+[%        IF len(error) > 150; card_class = 'long'; END %]
          <p class="[% card_class %]">[% error %]</p>
       </div>
 [%     END -%]
