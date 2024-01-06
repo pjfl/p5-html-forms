@@ -20,6 +20,7 @@
     system: Roboto, system-ui, sans-serif;
 }
 #grads() {
+    button-bg: linear-gradient(0deg, #colours[button-bg], whitesmoke);
     button-border-bg: radial-gradient(
         #colours[button-hover], transparent, transparent
     );
@@ -132,8 +133,19 @@ form.classic {
             max-width: 13rem;
         }
     }
-    .input-integer input.digit {
-        width: 3ch;
+    .input-integer {
+        .digit {
+            border-left: none; border-radius: 0; border-right: none;
+            outline: 0; width: 3ch;
+        }
+        .digit.first {
+            border-left: 2px inset #colours[button-border];
+            border-bottom-left-radius: 5px; border-top-left-radius: 5px;
+        }
+        .digit:last-child {
+            border-right: 2px inset #colours[button-border];
+            border-bottom-right-radius: 5px; border-top-right-radius: 5px;
+        }
     }
     .input-select option {
         font-family: #fonts[data];
@@ -147,29 +159,29 @@ form.classic {
     }
     .input-button {
         display: flex; isolation: isolate; justify-content: right;
-        row-gap: 0.5rem;
+        margin-bottom: 0.5rem;
         input {
             margin: 0.5rem 0;
         }
     }
+    .input-button.expand button {
+        flex: 2;
+    }
     .input-button.inline {
         display: inline-flex;
     }
-    .input-button.inline.right {
+    .input-button.right {
         float: right; margin-left: 0.5rem;
     }
     .input-button button {
-        background: #colours[button-bg];
+        background: #grads[button-bg];
         border: 2px outset #colours[button-border]; border-radius: 50px;
-        color: #colours[link]; overflow: hidden; padding: 0.25rem 0.75rem;
-        position: relative; transition: 0.5s;
+        color: #colours[link]; cursor: pointer; overflow: hidden;
+        padding: 0.25rem 0.75rem; position: relative; transition: 0.5s;
         span {
             font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
             text-decoration: none; text-transform: uppercase; z-index: 3;
         }
-    }
-    .input-button.expand button {
-        flex-grow: 2; margin-bottom: 0.5rem
     }
     .input-button button:hover {
         border: 2px inset #colours[button-border]; color: #colours[button-text];
@@ -184,7 +196,7 @@ form.classic {
         opacity: 1;
     }
     .input-button button::after {
-        background: #colours[button-bg]; border-radius: 50px; content: '';
+        background: #grads[button-bg]; border-radius: 50px; content: '';
         inset: 3px; position: absolute; z-index: 2;
     }
     .input-field.hide {

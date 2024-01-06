@@ -34,12 +34,14 @@
 [% END -%]
 
 [% BLOCK digits -%]
-[%   count = 0; attr = f.attributes; attr.size = 1; attr.class = 'digit' -%]
-  <input type="hidden" name="[% f.html_name %]" id="[% f.id %]" required="[% attr.required %]" value="">
+[%   count = 0; attr = f.attributes; attr.size = 1 -%]
+  <input type="hidden" id="[% f.id %]" name="[% f.html_name %]"
+     required="[% attr.required %]" value="">
 [%   WHILE count < f.size -%]
 [%     id = f.id _ '-' _ count -%]
-[%     attr.javascript = "oninput=\"HForms.Util.updateDigits('" _ f.id _ "', " _ count _ ")\"" %]
-  <input type="[% f.input_type %]" name="[% id %]" id="[% id %]"
+[%     IF count == 0; attr.class = 'digit first'; ELSE; attr.class = 'digit'; END -%]
+[%     attr.javascript = f.javascript(count) -%]
+  <input type="[% f.input_type %]" id="[% id %]" name="[% id %]"
 [%-  process_attrs( attr ) %] value="" />
 [%     count = count + 1 -%]
 [%   END -%]

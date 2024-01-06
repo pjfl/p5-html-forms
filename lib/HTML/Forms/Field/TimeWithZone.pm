@@ -69,7 +69,7 @@ has 'mins' =>
 has 'update_js_method' =>
    is      => 'lazy',
    isa     => Str,
-   default => sub { shift->_js_package . DOT . 'updateTimeWithZone' };
+   default => sub { shift->js_package . DOT . 'updateTimeWithZone' };
 
 has 'zone' =>
    is      => 'lazy',
@@ -100,8 +100,6 @@ has '_hours' =>
    is      => 'lazy',
    isa     => Maybe[Str],
    default => sub { (split ':', shift->_time)[0] };
-
-has '_js_package' => is => 'ro', isa => Str, default => 'HForms.Util';
 
 has '_mins' =>
    is      => 'lazy',
@@ -139,7 +137,7 @@ around 'BUILD' => sub {
 
    my $form = $self->form;
 
-   $form->load_js_package($self->_js_package)
+   $form->load_js_package($self->js_package)
       if $form && $form->can('load_js_package');
 
    return;

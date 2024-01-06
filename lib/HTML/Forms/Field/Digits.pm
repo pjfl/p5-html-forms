@@ -10,6 +10,13 @@ has '+html5_type_attr' => default => 'text';
 
 has '+widget' => default => 'Digits';
 
+sub javascript {
+   my ($self, $count) = @_;
+
+   return qq{oninput="} . $self->js_package . qq{.updateDigits('}
+        . $self->id . qq{', } . $count . qq{)"};
+}
+
 use namespace::autoclean -except => META;
 
 1;

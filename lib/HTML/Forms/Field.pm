@@ -35,7 +35,7 @@ has 'accessor' =>
    builder     => sub {
       my $accessor = shift->name;
 
-      $accessor =~ m{ \. }mx and $accessor =~ s{ \A (.*) \. }{}gmx;
+      $accessor =~ s{ \A (.*) \. }{}gmx if $accessor =~ m{ \. }mx;
 
       return $accessor;
    },
@@ -125,6 +125,8 @@ has 'init_value' =>
 has 'input_param' => is => 'rw', isa => Str;
 
 has 'input_without_param' => is => 'rw', predicate => 'has_input_without_param';
+
+has 'js_package' => is => 'ro', isa => Str, default => 'HForms.Util';
 
 has 'label' =>
    is       => 'rw',

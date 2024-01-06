@@ -21,6 +21,7 @@ HForms.Util = (function () {
          }
          else {
             toggleField.animate({ opacity: 0 }, options);
+            setTimeout(function() { toggleField.classList.add('hide') }, 850);
             if (inputField &&inputField.getAttribute('required') == 'required'){
                inputField.removeAttribute('required');
                inputField.setAttribute('wasrequired', true);
@@ -30,14 +31,16 @@ HForms.Util = (function () {
    };
    const animateButtons = function(form) {
       const selector = 'div.input-button button';
-      for (const button of form.querySelectorAll(selector)) {
-         button.addEventListener('mousemove', function(event) {
-            const rect = button.getBoundingClientRect();
+      for (const el of form.querySelectorAll(selector)) {
+         if (el.getAttribute('movelistener')) continue;
+         el.addEventListener('mousemove', function(event) {
+            const rect = el.getBoundingClientRect();
             const x = Math.floor(event.pageX - (rect.left + window.scrollX));
             const y = Math.floor(event.pageY - (rect.top + window.scrollY));
-            button.style.setProperty('--x', x + 'px');
-            button.style.setProperty('--y', y + 'px');
+            el.style.setProperty('--x', x + 'px');
+            el.style.setProperty('--y', y + 'px');
          });
+         el.setAttribute('movelistener', true);
       }
    };
    const focusFirst = function(form) {

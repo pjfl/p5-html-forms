@@ -8,6 +8,7 @@ HForms.Toggle = (function() {
    const animate = function(el, method) {
       if (method == 'hide') {
          el.animate({ opacity: 0 }, { duration: 800, fill: 'forwards' });
+         setTimeout(function() { el.classList.add('hide') }, 850);
       }
       else {
          el.style.opacity = 0;
