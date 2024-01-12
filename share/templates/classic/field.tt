@@ -15,36 +15,38 @@
 [% END -%]
 
 [% BLOCK checkbox -%]
-  <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
+  <span class="checkbox-wrapper"><input type="[% f.input_type %]"
+    name="[% f.html_name %]" id="[% f.id %]"
 [%- process_attrs( f.attributes ); IF f.fif == f.checkbox_value -%]
- checked="checked"[% END %] value="[% f.checkbox_value | html %]" />
+ checked="checked"[% END %] value="[% f.checkbox_value | html %]" /></span>
 [% END -%]
 
 [% BLOCK checkbox_group -%]
 [%   FOR option IN f.options -%]
 [%   id = f.next_option_id -%]
   <label class="option-label" for="[% id %]">
-    <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
+    <span class="checkbox-wrapper"><input type="[% f.input_type %]"
+       name="[% f.html_name %]" id="[% id %]"
 [%-    FOR selval IN f.fif -%]
 [%      IF selval == option.value %] checked="checked"[% END -%]
 [%     END -%]
 [%     process_attrs( f.attributes ) -%]
- value="[% option.value | html %]" />[% localise( option.label ) | html -%]</label>
+ value="[% option.value | html %]" /></span>[% localise( option.label ) | html -%]</label>
 [%   END -%]
 [% END -%]
 
 [% BLOCK digits -%]
 [%   count = 0; attr = f.attributes; attr.size = 1 -%]
-  <input type="hidden" id="[% f.id %]" name="[% f.html_name %]"
-     required="[% attr.required %]" value="">
+     <span class="digit-input-wrapper">
 [%   WHILE count < f.size -%]
 [%     id = f.id _ '-' _ count -%]
 [%     IF count == 0; attr.class = 'digit first'; ELSE; attr.class = 'digit'; END -%]
 [%     attr.javascript = f.javascript(count) -%]
-  <input type="[% f.input_type %]" id="[% id %]" name="[% id %]"
-[%-  process_attrs( attr ) %] value="" />
-[%     count = count + 1 -%]
-[%   END -%]
+<input type="[% f.input_type %]" id="[% id %]" name="[% id %]"
+[%-  process_attrs( attr ) %] required="[% attr.required %]" value="" />
+[%- count = count + 1; END %]</span>
+<input type="hidden" id="[% f.id %]" name="[% f.html_name %]"
+     required="[% attr.required %]" value="">
 [% END -%]
 
 [% BLOCK compound -%]
@@ -122,10 +124,11 @@
 [%   FOR option IN f.options -%]
 [%     id = f.next_option_id -%]
   <label class="option-label" for="[% id %]">
-    <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% id %]"
+    <span class="radio-wrapper"><input type="[% f.input_type %]"
+       name="[% f.html_name %]" id="[% id %]"
 [%-    process_attrs( f.attributes ) -%]
 [%-    IF option.value == f.fif %] checked="checked"[% END -%]
- value="[% option.value | html %]" />[% localise( option.label ) | html -%]</label>
+ value="[% option.value | html %]" /></span>[% localise( option.label ) | html -%]</label>
 [%   END -%]
 [% END -%]
 

@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 48 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 49 $ =~ /\d+/gmx );
 
 use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
@@ -20,8 +20,6 @@ use Moo;
 use MooX::HandlesVia;
 
 extends 'HTML::Forms::Base';
-
-# TODO: Implement check_field for inline JS field validation
 
 =pod
 
@@ -231,9 +229,9 @@ has 'enctype' => is  => 'rw', isa => Str;
 
 =item error_message
 
-A mutable string without default. This string (if
-set) is rendered either before or near the start of the form if the form result
-C<has_errors> or C<has_form_errors>
+A mutable string without default. This string (if set) is rendered either
+before or near the start of the form if the form result C<has_errors> or
+C<has_form_errors>
 
 =item clear_error_messsage
 

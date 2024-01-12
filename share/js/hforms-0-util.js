@@ -3,6 +3,61 @@ if (!window.HForms) window.HForms = {};
 HForms.Util = (function () {
    const formClassName = 'classic';
    const wrapperIdPrefix = 'field_';
+   const animateButtons = function(form) {
+      const selector = 'div.input-button button';
+      for (const el of form.querySelectorAll(selector)) {
+         if (el.getAttribute('movelistener')) continue;
+         el.addEventListener('mousemove', function(event) {
+            const rect = el.getBoundingClientRect();
+            const x = Math.floor(event.pageX - (rect.left + window.scrollX));
+            const y = Math.floor(event.pageY - (rect.top + window.scrollY));
+            el.style.setProperty('--x', x + 'px');
+            el.style.setProperty('--y', y + 'px');
+         });
+         el.setAttribute('movelistener', true);
+      }
+   };
+   const _fieldMap = {};
+   const _setFieldMap = function(targetId, fieldId) {
+      _fieldMap[targetId] ||= {};
+      _fieldMap[targetId][fieldId] = document.getElementById(fieldId).value;
+   }
+   const _allOk = function(target) {
+      const depends = target.getAttribute('data-field-depends') || '';
+      for (const fieldId of depends.split(/ /)) {
+         if (!_fieldMap[target.id][fieldId]) return false;
+      }
+      return true;
+   };
+   const fieldChange = function(targetId, fieldId) {
+      _setFieldMap(targetId, fieldId);
+      const target = document.getElementById(targetId);
+      if (_allOk(target)) target.removeAttribute('disabled');
+      else target.setAttribute('disabled', 'disabled');
+   };
+   const focusFirst = function(form) {
+      const selector = 'div.input-field:not(.input-hidden) input';
+      const field = form.querySelector(selector);
+      if (field) { field.focus() }
+   };
+   const onReady = function(callback) {
+      if (document.readyState != 'loading') callback();
+      else if (document.addEventListener)
+         document.addEventListener('DOMContentLoaded', callback);
+      else document.attachEvent('onreadystatechange', function() {
+         if (document.readyState == 'complete') callback();
+      });
+   };
+   const scan = function(className = formClassName) {
+      const forms = document.getElementsByTagName('form');
+      if (!forms) return;
+      for (const form of forms) {
+         if (form.className == className) {
+            focusFirst(form);
+            animateButtons(form);
+         }
+      }
+   };
    async function _showIfRequired(url, toggleFieldNames) {
       const response = await fetch(url, { method: 'GET' });
       const object = await response.json();
@@ -29,43 +84,6 @@ HForms.Util = (function () {
          }
       }
    };
-   const animateButtons = function(form) {
-      const selector = 'div.input-button button';
-      for (const el of form.querySelectorAll(selector)) {
-         if (el.getAttribute('movelistener')) continue;
-         el.addEventListener('mousemove', function(event) {
-            const rect = el.getBoundingClientRect();
-            const x = Math.floor(event.pageX - (rect.left + window.scrollX));
-            const y = Math.floor(event.pageY - (rect.top + window.scrollY));
-            el.style.setProperty('--x', x + 'px');
-            el.style.setProperty('--y', y + 'px');
-         });
-         el.setAttribute('movelistener', true);
-      }
-   };
-   const focusFirst = function(form) {
-      const selector = 'div.input-field:not(.input-hidden) input';
-      const field = form.querySelector(selector);
-      if (field) { field.focus() }
-   };
-   const onReady = function(callback) {
-      if (document.readyState != 'loading') callback();
-      else if (document.addEventListener)
-         document.addEventListener('DOMContentLoaded', callback);
-      else document.attachEvent('onreadystatechange', function() {
-         if (document.readyState == 'complete') callback();
-      });
-   };
-   const scan = function(className = formClassName) {
-      const forms = document.getElementsByTagName('form');
-      if (!forms) return;
-      for (const form of forms) {
-         if (form.className == className) {
-            focusFirst(form);
-            animateButtons(form);
-         }
-      }
-   };
    const showIfRequired = function(url, valueFieldName, toggleFieldNames) {
       const target = new URL(url);
       const field = document.getElementById(valueFieldName);
@@ -81,34 +99,49 @@ HForms.Util = (function () {
          }
       }
    };
+   const _nextInputField = function(current) {
+      const fieldSet = current.parentElement.parentElement;
+      const selector = 'input, button, select, textarea';
+      const universe = fieldSet.querySelectorAll(selector);
+      const list = Array.prototype.filter.call(
+         universe, function(item) { return item.tabIndex >= '0' }
+      );
+      let count = 1;
+      let candidate = list[list.indexOf(current) + count];
+      while (candidate && candidate.getAttribute('disabled') == 'disabled') {
+         candidate = list[list.indexOf(current) + (++count)];
+      }
+      if (candidate) return candidate;
+      return list[0];
+   };
    const updateDigits = function(id, index) {
-      let total = '';
       let count = 0;
-      let el;
+      let inputEl;
+      let nextEl;
       let target;
-      while (el = document.getElementById(id + '-' + count)) {
-         if (count == index) target = el;
-         const value = el.value;
-         total += `${value}`;
+      let total = '';
+      while (inputEl = document.getElementById(id + '-' + count)) {
+         if (count == index) target = inputEl;
+         const value = inputEl.value;
          count += 1;
+         if (!value) continue;
+         if (value.match(/[0-9]/)) total += `${value}`;
+         else {
+            nextEl = inputEl;
+            inputEl.value = '';
+         }
       }
-      el = document.getElementById(id);
-      if (el) el.value = total;
-      const sibling = target.nextElementSibling;
-      if (sibling) el = sibling;
+      const hidden = document.getElementById(id);
+      if (hidden) hidden.value = total;
+      if (nextEl) inputEl = nextEl;
       else {
-         const universe = document.querySelectorAll(
-            'input, button, select, textarea'
-         );
-         const list = Array.prototype.filter.call(
-            universe, function(item) { return item.tabIndex >= '0' }
-         );
-         const index = list.indexOf(el);
-         el = list[index + count + 1] || list[0];
+         const sibling = target.nextElementSibling;
+         if (sibling) inputEl = sibling;
+         else inputEl = _nextInputField(hidden);
       }
-      if (el) {
-         el.focus();
-         if (el.select) el.select();
+      if (inputEl) {
+         inputEl.focus();
+         if (inputEl.select) inputEl.select();
       }
    }
    const updateTimeWithZone = function(id) {
@@ -117,14 +150,37 @@ HForms.Util = (function () {
       const zone  = document.getElementById(id + '_zone').value;
       document.getElementById(id).value = hours + ':' + mins + ' ' + zone;
    };
+   async function _validateField(url, field) {
+      const response = await fetch(url, { method: 'GET' });
+      const object = await response.json();
+      if (!object) return;
+      const parent = field.parentElement;
+      for (const span of parent.querySelectorAll('.alert-error')) {
+         parent.removeChild(span);
+      }
+      for (const reason of object.reason) {
+         const error = document.createElement('span');
+         error.className = 'alert alert-error';
+         error.appendChild(document.createTextNode(reason));
+         parent.appendChild(error);
+      }
+   };
+   const validateField = function(url, fieldId) {
+      const field = document.getElementById(fieldId);
+      url = new URL(url.replace(/\*/, field.form.id).replace(/\*/, fieldId));
+      url.searchParams.set('value', field.value);
+      _validateField(url, field);
+   };
    onReady(function(event) { scan() });
    return {
+      fieldChange: fieldChange,
       onReady: onReady,
       scan: scan,
       showIfRequired: showIfRequired,
       unrequire: unrequire,
       updateDigits: updateDigits,
       updateTimeWithZone: updateTimeWithZone,
+      validateField: validateField,
       wrapperIdPrefix: wrapperIdPrefix
    };
 })();

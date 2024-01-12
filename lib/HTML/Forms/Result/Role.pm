@@ -92,7 +92,7 @@ sub errors_by_name {
    return \%errors;
 }
 
-sub field { shift->get_result( @_ ) }
+sub field { shift->get_result(@_) }
 
 # This ought to be named 'result' for consistency, but the result objects are
 # named 'result'. also providing 'field' method for compatibility
@@ -102,10 +102,11 @@ sub get_result {
    # If this is a full_name for a compound field walk through the fields to get
    # to it
    if ($name =~ m{ \. }mx) {
-      my @names = split m{ \. }mx, $name; my $result = $self;
+      my @names  = split m{ \. }mx, $name;
+      my $result = $self;
 
       for my $rname (@names) {
-         return unless $result = $result->get_result( $rname );
+         return unless $result = $result->get_result($rname);
       }
 
       return $result;
@@ -116,14 +117,14 @@ sub get_result {
       }
    }
 
-   throw 'Field [_1] not found in [_2]', [ $name, $self ] if $fatal;
+   throw 'Field [_1] not found in [_2]', [$name, $self] if $fatal;
 
    return;
 }
 
 sub is_valid { shift->validated }
 
-sub validated { $_[ 0 ]->has_input && !$_[ 0 ]->has_error_results }
+sub validated { $_[0]->has_input && !$_[0]->has_error_results }
 
 use namespace::autoclean;
 

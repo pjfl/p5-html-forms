@@ -1,10 +1,14 @@
 #colours() {
     button-bg: bisque;
-    button-border: #e3e3e3; // grey89
+    button-border: gainsboro;
+    button-disabled-bg: gainsboro;
     button-hover: limegreen;
     button-text: black;
+    checkbox-false-bg: firebrick;
+    checkbox-true-bg: seagreen;
     error-bg: lightpink;
     field-active: bisque;
+    field-border: gainsboro;
     field-required: red;
     field-selected-bg: bisque;
     line: gray;
@@ -24,9 +28,15 @@
     button-border-bg: radial-gradient(
         #colours[button-hover], transparent, transparent
     );
+    button-disabled-bg: linear-gradient(
+        0deg, #colours[button-disabled-bg], whitesmoke
+    );
     error-fade: linear-gradient(to right, transparent, #colours[error-bg] 80%);
 }
 #sizes() {
+    checkbox-height: 1.25rem;
+    checkbox-knob-width: 20px;
+    checkbox-width: 40px;
     error-max: 20rem;
     field-max: 20rem;
     field-min: 10rem;
@@ -35,44 +45,81 @@ form.classic {
     background: #colours[panel-bg]; border-radius: 5px;
     box-shadow: 3px 3px 3px; color: #colours[line]; display: inline-block;
     margin: 0 1rem;
-    div, legend {
+    div {
         color: #colours[text];
     }
-    label, .alert, .alert-info, .form-title {
+    .alert, .alert-info {
         font-family: #fonts[system];
-    }
-    label {
-        font-size: 0.8rem; line-height: 1rem;
-    }
-    label:has(+input[required=required])::after,
-    label:has(+select[required=required])::after {
-        color: #colours[field-required]; content: '*'; display: inline-block;
-        float: right; padding-left: 0.25rem;
     }
     .alert-info {
         font-size: 0.8rem; padding: 0.5rem 0 0;
     }
-    .field-label {
-        display: table-cell; padding: 0.5rem 0.5rem 0.5rem 0;
-        position: relative; white-space: nowrap;
-        .label-sep-after {
-            position: absolute; right: 0.25rem;
-        }
-    }
     .form-wrapper {
-        border-collapse: separate; border-spacing: 0 0.5rem;
-        border-radius: 5px; padding: 0 1rem 0.5rem;
+        border-collapse: separate; border-spacing: 0 0.25rem;
+        border-radius: 5px; padding: 0 1rem;
         .form-title {
+            color: #colours[text]; font-family: #fonts[system];
             margin-left: -2px;
         }
+    }
+    .form-wrapper:has(.input-field span.field-label) .input-button button {
+        margin-top: 1rem;
     }
     .form-wrapper.wide .input-field {
         input, select, textarea, .alert {
             max-width: #sizes[field-max];
         }
     }
+    .field-label {
+        display: table-cell; font-family: #fonts[system]; font-size: 0.8rem;
+        line-height: 1rem; padding: 0.5rem 0.5rem 0.5rem 0;
+        position: relative; white-space: nowrap;
+        .label-sep-after {
+            position: absolute; right: 0.25rem;
+        }
+    }
+    .field-label:has(+span.digit-input-wrapper)::after,
+    .field-label:has(+input[required=required])::after,
+    .field-label:has(+select[required=required])::after {
+        color: #colours[field-required]; content: '*'; display: inline-block;
+        float: right; padding-left: 0.25rem;
+    }
+    .field-label:has(+span.digit-input-wrapper > input:valid)::after,
+    .field-label:has(+input:valid)::after,
+    .field-label:has(+select:valid)::after {
+        content: '';
+    }
+    span.field-label {
+        border: 2px solid transparent; padding: 2px 0.25rem;
+        position: absolute; top: 24px; transition: top 0.5s;
+    }
+    .input-field:has(input:focus) span.field-label {
+        background: #colours[field-selected-bg];
+        border: 2px inset #colours[field-border];
+        border-bottom: 2px solid #colours[field-selected-bg];
+        border-top-left-radius: 5px; border-top-right-radius: 5px;
+    }
+    .input-field:hover span.field-label,
+    .input-field:has(input:focus) span.field-label,
+    .input-field:has(input:valid) span.field-label {
+        top: 1px;
+    }
+    .input-field:has(span.field-label) {
+        input {
+            max-width: unset; outline: 0;
+        }
+        input:focus {
+            border-top-left-radius: 0;
+        }
+    }
+    .input-field:has(span.field-label)::before {
+        content: ''; display: block; height: 22px;
+    }
     .input-field {
         display: table-row; position: relative;
+        input {
+            height: 1.5rem;
+        }
         input, select, textarea {
             display: table-cell; font-family: #fonts[data];
             max-width: #sizes[field-min];
@@ -85,7 +132,7 @@ form.classic {
         }
         input[type=date], input[type=email], input[type=password],
         input[type=text], select.select-multiple option {
-            padding: 0.125rem 0.25rem;
+            padding: 0 0.25rem;
         }
         input[type=submit] {
             font-family: #fonts[system]; font-size: 0.8rem;
@@ -109,6 +156,39 @@ form.classic {
             }
         }
     }
+    .input-field.hide {
+        display: none;
+    }
+    .input-boolean {
+        .checkbox-wrapper {
+            display: inline-block; isolation: isolate; position: relative;
+            input[type=checkbox] {
+                height: #sizes[checkbox-height]; margin: 0; opacity: 0;
+                position: relative; top: 4px; width: #sizes[checkbox-width];
+                z-index: 3;
+            }
+        }
+        .checkbox-wrapper::after {
+            background: #grads[button-bg];
+            border: 2px inset #colours[button-border]; border-radius: 10px;
+            content: ''; display: block; position: absolute;
+            height: #sizes[checkbox-height]; left: 0; top: 4px;
+            width: #sizes[checkbox-knob-width]; z-index: 2;
+        }
+        .checkbox-wrapper:has(input[type=checkbox]:checked)::after {
+            left: #sizes[checkbox-knob-width];
+        }
+        .checkbox-wrapper::before {
+            background: #colours[checkbox-false-bg];
+            border: 2px inset #colours[button-border]; border-radius: 10px;
+            content: ''; display: block; position: absolute;
+            height: #sizes[checkbox-height]; left: 0; top: 4px;
+            width: #sizes[checkbox-width]; z-index: 1;
+        }
+        .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
+            background: #colours[checkbox-true-bg];
+        }
+    }
     .input-captcha input, .input-captcha .field-label,
     .input-display .field-label, .field-label.select-multiple,
     .field-label.input-textarea {
@@ -120,7 +200,7 @@ form.classic {
     }
     .input-captcha input, .input-integer input, .input-interval input,
     .input-money input, .input-number input {
-        line-height: 1.25rem; padding-left: 0.25rem; text-align: right;
+        line-height: 1.75rem; padding-left: 0.25rem; text-align: right;
     }
     .input-duration .option-label .label-sep-after,
     .input-duration .option-label .label-sep-before,
@@ -155,14 +235,48 @@ form.classic {
     }
     .input-display span {
         display: inline-block; font-size: 0.8rem;
-        padding: 0.5rem 0.5rem 0.5rem 0;
+        padding: 0.5rem 0.5rem 0.5rem 0.25rem;
     }
     .input-button {
-        display: flex; isolation: isolate; justify-content: right;
-        margin-bottom: 0.5rem;
+        align-items: center; display: flex; isolation: isolate;
+        justify-content: right;
+        button {
+            background: #grads[button-bg];
+            border: 2px outset #colours[button-border]; border-radius: 50px;
+            color: #colours[link]; cursor: pointer; margin: 0.5rem 0;
+            overflow: hidden; padding: 0.25rem 0.75rem; position: relative;
+            transition: 0.5s;
+            span {
+                font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
+                text-decoration: none; text-transform: uppercase; z-index: 3;
+            }
+        }
+        button:hover {
+            border: 2px inset #colours[button-border];
+            color: #colours[button-text];
+        }
+        button::before {
+            background: #grads[button-border-bg]; content: ''; display: block;
+            height: 3rem; left: var(--x); opacity: 0; position: absolute;
+            top: var(--y); transform: translate(-50%, -50%);
+            transition: opacity 0.5s; width: 3rem; z-index: 1;
+        }
+        button:hover::before {
+            opacity: 1;
+        }
+        button::after {
+            background: #grads[button-bg]; border-radius: 50px; content: '';
+            inset: 3px; position: absolute; z-index: 2;
+        }
+        button[disabled=disabled], button[disabled=disabled]::after {
+            background: #grads[button-disabled-bg];
+        }
         input {
             margin: 0.5rem 0;
         }
+    }
+    .input-button ~ .input-button:not(.right) button {
+        margin-top: 0 !important;
     }
     .input-button.expand button {
         flex: 2;
@@ -172,35 +286,6 @@ form.classic {
     }
     .input-button.right {
         float: right; margin-left: 0.5rem;
-    }
-    .input-button button {
-        background: #grads[button-bg];
-        border: 2px outset #colours[button-border]; border-radius: 50px;
-        color: #colours[link]; cursor: pointer; overflow: hidden;
-        padding: 0.25rem 0.75rem; position: relative; transition: 0.5s;
-        span {
-            font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
-            text-decoration: none; text-transform: uppercase; z-index: 3;
-        }
-    }
-    .input-button button:hover {
-        border: 2px inset #colours[button-border]; color: #colours[button-text];
-    }
-    .input-button button::before {
-        background: #grads[button-border-bg]; content: ''; display: block;
-        height: 3rem; left: var(--x); opacity: 0; position: absolute;
-        top: var(--y); transform: translate(-50%, -50%);
-        transition: opacity 0.5s; width: 3rem; z-index: 1;
-    }
-    .input-button button:hover::before {
-        opacity: 1;
-    }
-    .input-button button::after {
-        background: #grads[button-bg]; border-radius: 50px; content: '';
-        inset: 3px; position: absolute; z-index: 2;
-    }
-    .input-field.hide {
-        display: none;
     }
     .label-right {
         text-align: right;

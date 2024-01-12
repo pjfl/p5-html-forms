@@ -24,6 +24,11 @@ has '+success_message' =>
    is      => 'rw',
    default => 'The form was successfully submitted';
 
+has 'default_action_path' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'api/form/field/validate';
+
 has 'default_charset' => is => 'ro', isa => Str, default => 'utf-8';
 
 has 'default_field_traits' =>
@@ -62,6 +67,10 @@ around 'html_attributes' => sub {
    my ($orig, $self, $obj, $type, $attrs, $result) = @_;
 
    $attrs = $orig->($self, $obj, $type, $attrs, $result);
+
+   if ($type eq 'element') {
+      $self->_add_field_validation($obj, $attrs) if $obj->validate_inline;
+   }
 
    if ($type eq 'label') {
       my $class = 'option-label';
@@ -104,6 +113,26 @@ around 'before_build_fields' => sub {
 
    return;
 };
+
+sub _add_field_validation {
+   my ($self, $field, $attrs) = @_;
+
+   my $name = $field->name;
+   my $uri  = $self->context->uri_for_action($self->default_action_path);
+   my $call = "HForms.Util.validateField('${uri}', '${name}')";
+
+   if (my $js = $attrs->{javascript}) {
+      if ($js =~ m{ onblur= }mx) {
+         my ($existing) = $js =~ m{ onblur=\" (.+) \" }mx;
+
+         $attrs->{javascript} = qq{onblur="${existing}; ${call}"};
+      }
+      else { $attrs->{javascript} = qq{${js} onblur="${call}"} }
+   }
+   else { $attrs->{javascript} = qq{onblur="${call}"} }
+
+   return;
+}
 
 use namespace::autoclean;
 

@@ -133,16 +133,14 @@ HForms.Toggle = (function() {
                    + ' ' + period.value;
       if (period.dataset[dsName]) toggleFields(period);
    };
-
+   const scan = function(container = document) {
+      fireHandlers(container.getElementsByClassName(triggerClass));
+      pageLoading = false;
+   };
+   HForms.Util.onReady(function(event) { scan() });
    return {
-      initialise: function() {
-         HForms.Util.onReady(function() {
-            fireHandlers(document.getElementsByClassName(triggerClass));
-            pageLoading = false;
-         });
-      },
+      scan: scan,
       toggleFields: toggleFields,
       updateInterval: updateInterval
    };
 })();
-HForms.Toggle.initialise();

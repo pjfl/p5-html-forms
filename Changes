@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Inline server field validation
           - Shiny buttons
           - Adding Digits field type
           - Better error messages

@@ -16,16 +16,14 @@ sub get_class_messages {
    return { %{ $self->next::method }, %{ $class_messages  } };
 }
 
-apply( [
-   {
-      check   => sub { $_[ 0 ] >= 0 },
-      message => sub {
-         my ($value, $field) = @_;
+apply([{
+   check   => sub { $_[0] >= 0 },
+   message => sub {
+      my ($value, $field) = @_;
 
-         return $field->get_message( 'integer_positive' );
-      },
+      return $field->get_message('integer_positive');
    },
-] );
+}]);
 
 use namespace::autoclean -except => META;
 

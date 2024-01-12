@@ -5,7 +5,7 @@ use HTML::Forms::Types     qw( ArrayRef Bool HashRef Int Str Undef );
 use HTML::Forms::Util      qw( get_meta );
 use Ref::Util              qw( is_arrayref is_coderef is_hashref
                                is_regexpref is_scalarref );
-use Scalar::Util           qw( blessed );
+use Scalar::Util           qw( blessed refaddr );
 use Try::Tiny;
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
@@ -77,7 +77,7 @@ sub match_when {
 sub test_ranges {
    my $field = shift;
 
-   return TRUE if $field->can( 'options' ) || $field->has_errors;
+   return TRUE if $field->can('options') || $field->has_errors;
 
    my $value = $field->value;
 
@@ -88,7 +88,7 @@ sub test_ranges {
 
    if (defined $low && defined $high) {
       return $value >= $low && $value <= $high ? TRUE : $field->add_error(
-         $field->get_message( 'range_incorrect' ), $low, $high
+         $field->get_message('range_incorrect'), $low, $high
       );
    }
 
@@ -191,10 +191,6 @@ sub _apply_actions {
    my $self = shift;
    my $error_message;
 
-   local $SIG{__WARN__} = sub {
-      my $error = shift; $error_message = $error; return TRUE;
-   };
-
    my $is_type = sub {
       my $class = blessed shift;
 
@@ -212,76 +208,76 @@ sub _apply_actions {
       $action = { type => $action } if !ref $action || $is_type->($action);
 
       if (my $when = $action->{when}) {
-         next unless $self->match_when( $when );
+         next unless $self->match_when($when);
       }
 
       if (exists $action->{type}) {
          my $tobj;
 
-         if ($is_type->( $action->{type} )) { $tobj = $action->{type} }
+         if ($is_type->($action->{type})) { $tobj = $action->{type} }
          else {
             my $type = $action->{type};
 
-            throw "Cannot find type constraint [_1]", [ $type ];
+            throw "Cannot find type constraint [_1]", [$type];
          }
 
-         if ($tobj->has_coercion && $tobj->validate( $value )) {
+         if ($tobj->has_coercion && $tobj->validate($value)) {
             try {
                $new_value = $tobj->coerce( $value );
                $self->_set_value( $new_value );
             }
             catch {
                if ($tobj->has_message) {
-                  $error_message = $tobj->message->( $value );
+                  $error_message = $tobj->message->($value);
                }
                else { $error_message = $_ }
             };
          }
 
-         $error_message //= $tobj->validate( $new_value );
+         $error_message //= $tobj->validate($new_value);
       }
       elsif (is_coderef $action->{check}) {
-         if (!$action->{check}->( $value, $self )) {
-            $error_message = $self->get_message( 'wrong_value' );
+         if (!$action->{check}->($value, $self)) {
+            $error_message = $self->get_message('wrong_value');
          }
       }
       elsif (is_regexpref $action->{check}) {
          if ($value !~ $action->{check}) {
-            $error_message = [ $self->get_message( 'no_match' ), $value ];
+            $error_message = [ $self->get_message('no_match'), $value ];
          }
       }
       elsif (is_arrayref $action->{check}) {
          if (!grep { $value eq $_ } @{ $action->{check} }) {
-            $error_message = [ $self->get_message( 'not_allowed' ), $value ];
+            $error_message = [ $self->get_message('not_allowed'), $value ];
          }
       }
       elsif (is_coderef $action->{transform}) {
          try {
             no warnings 'all';
-            $new_value = $action->{transform}->( $value, $self );
-            $self->_set_value( $new_value );
+            $new_value = $action->{transform}->($value, $self);
+            $self->_set_value($new_value);
          }
          catch {
-            $error_message = $_ || $self->get_message( 'error_occurred' );
+            $error_message = $_ || $self->get_message('error_occurred');
          };
       }
 
       if (defined $error_message) {
          my @message = is_arrayref $error_message
-                     ? @{ $error_message } : ($error_message);
+                     ? @{$error_message} : ($error_message);
 
          if (defined $action->{message}) {
             my $act_msg = $action->{message};
 
             if (is_coderef $act_msg) {
-               $act_msg = $act_msg->( $value, $self, $error_message );
+               $act_msg = $act_msg->($value, $self, $error_message);
             }
 
             if (is_arrayref $act_msg) { @message = @{ $act_msg } }
             elsif (is_scalarref \$act_msg) { @message = ($act_msg) }
          }
 
-         $self->add_error( @message );
+         $self->add_error(@message);
       }
    }
 
@@ -290,33 +286,41 @@ sub _apply_actions {
 
 sub _build_apply_list {
    my $self = shift;
-   my @apply_list;
 
    return unless get_meta($self);
+
+   my $addr = refaddr $self;
+   my $seen = $self->{_seen} //= {};
+
+   return if $seen->{$addr};
+
+   $seen->{$addr} = TRUE;
+
+   my @apply_list;
 
    for my $class (reverse get_meta($self)->linearised_isa) {
       my $meta = get_meta($class);
 
       next unless $meta;
 
-      if ($meta->can( 'calculate_all_roles' )) {
+      if ($meta->can('calculate_all_roles')) {
          for my $role ($meta->calculate_all_roles) {
-            if ($role->can( 'apply_list' ) && $role->has_apply_list) {
+            if ($role->can('apply_list') && $role->has_apply_list) {
                for my $apply_def (@{ $role->apply_list }) {
-                  push @apply_list, [ @{ $apply_def } ]; # copy arrayref
+                  push @apply_list, [ @{$apply_def} ]; # copy arrayref
                }
             }
          }
       }
 
-      if ($meta->can( 'apply_list' ) && $meta->has_apply_list) {
+      if ($meta->can('apply_list') && $meta->has_apply_list) {
          for my $apply_def (@{ $meta->apply_list }) {
-            push @apply_list, [ @{ $apply_def } ]; # copy arrayref
+            push @apply_list, [ @{$apply_def} ]; # copy arrayref
          }
       }
    }
 
-   $self->add_action( @apply_list );
+   $self->add_action(@apply_list);
    return;
 }
 

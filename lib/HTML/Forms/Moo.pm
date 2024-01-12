@@ -29,7 +29,7 @@ sub import {
 
    if (@target_isa) {
       # Don't add this to a role. The ISA of a role is always empty!
-      if ($target->can( $method )) { $meta = $target->$method }
+      if ($target->can($method)) { $meta = $target->$method }
       else {
          my $attr = { default_meta_config, target => $target, @args };
 

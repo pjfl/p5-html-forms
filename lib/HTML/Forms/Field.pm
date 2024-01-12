@@ -1,19 +1,19 @@
 package HTML::Forms::Field;
 
-use Data::Clone            qw( data_clone );
-use Data::Dumper;
-use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS TRUE FALSE META NUL );
-use HTML::Forms::Field::Result;
 use HTML::Forms::Types     qw( Bool CodeRef HashRef HFs HFsArrayRefStr
                                HFsFieldResult Int Str Undef );
+use Data::Clone            qw( data_clone );
+use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Util      qw( convert_full_name has_some_value
                                merge ucc_widget );
 use Ref::Util              qw( is_arrayref is_coderef is_hashref );
 use Scalar::Util           qw( blessed weaken );
+use Unexpected::Functions  qw( inflate_placeholders throw );
+use HTML::Forms::Field::Result;
+use Data::Dumper;
 use Sub::Name;
 use Try::Tiny;
-use Unexpected::Functions  qw( inflate_placeholders throw );
 use Moo;
 use MooX::HandlesVia;
 use HTML::Forms::Moo;
@@ -26,20 +26,21 @@ has [ 'disabled',
       'noupdate',
       'password',
       'readonly',
+      'validate_inline',
       'validate_when_empty',
       'writeonly' ] => is => 'rw', isa => Bool, default => FALSE;
 
 has 'accessor' =>
-   is          => 'rw',
-   isa         => Str,
-   builder     => sub {
+   is      => 'rw',
+   isa     => Str,
+   lazy    => TRUE,
+   default => sub {
       my $accessor = shift->name;
 
       $accessor =~ s{ \A (.*) \. }{}gmx if $accessor =~ m{ \. }mx;
 
       return $accessor;
-   },
-   lazy        => TRUE;
+   };
 
 # 'active' is cleared whenever the form is cleared. Ephemeral activation.
 has '_active' =>
@@ -226,13 +227,13 @@ has 'trim' =>
    builder => sub { {
       transform => sub {
          my $value  = shift; defined $value or return;
-         my @values = is_arrayref( $value ) ? @{ $value } : ($value);
+         my @values = is_arrayref($value) ? @{$value} : ($value);
 
          for (grep { defined && !ref( $_ ) } @values) {
             s{ \A \s+ }{}mx; s{ \s+ \z }{}mx;
          }
 
-         return is_arrayref( $value ) ? \@values : $values[ 0 ];
+         return is_arrayref($value) ? \@values : $values[0];
       },
    } };
 
@@ -334,20 +335,25 @@ with 'HTML::Forms::Widget::ApplyRole';
 sub BUILD {
    my ($self, $params) = @_;
 
-   $self->merge_tags( $self->wrapper_tags ) if $self->has_wrapper_tags;
+   $self->merge_tags($self->wrapper_tags) if $self->has_wrapper_tags;
+
    $self->build_default_method;
    $self->validate_method;
-   $self->add_widget_name_space( @{ $self->form->widget_name_space } )
+
+   $self->add_widget_name_space(@{$self->form->widget_name_space})
       if $self->form && $self->form->widget_name_space;
-   $self->add_action( $self->trim ) if $self->trim;
+
+   $self->add_action($self->trim) if $self->trim;
+
    $self->_build_apply_list;
-   $self->add_action( @{ $params->{apply} } ) if $params->{apply};
+
+   $self->add_action(@{$params->{apply}}) if $params->{apply};
 
    return;
 }
 
 $Data::Dumper::Indent   = TRUE;
-$Data::Dumper::Sortkeys = sub { [ sort keys %{ $_[ 0 ] } ] };
+$Data::Dumper::Sortkeys = sub { [ sort keys %{$_[0]} ] };
 $Data::Dumper::Terse    = TRUE;
 
 our $class_messages = {
@@ -454,8 +460,8 @@ sub build_result {
    );
 
    # TODO: To prevent garbage collection of result and create circular ref
-   $self->_set_pin_result( $result );
-   $self->_set_result( $result );
+   $self->_set_pin_result($result);
+   $self->_set_result($result);
 }
 
 sub build_validate_method {
@@ -463,9 +469,9 @@ sub build_validate_method {
    my $form = $self->form; weaken $form;
    my $set_validate = $self->set_validate;
 
-   $set_validate ||= 'validate_' . convert_full_name( $self->full_name );
+   $set_validate ||= 'validate_' . convert_full_name($self->full_name);
 
-   return $form && $form->can( $set_validate )
+   return $form && $form->can($set_validate)
         ? sub { $form->$set_validate } : sub { };
 }
 
@@ -495,12 +501,12 @@ sub dump {
    warn 'HFs: label: ',  $self->label,  "\n";
    warn 'HFs: widget: ', $self->widget || NUL, "\n";
 
-   my $v   = $self->value;      warn 'HFs: value: ',      _emit( $v   ) if $v;
-   my $iv  = $self->init_value; warn 'HFs: init_value: ', _emit( $iv  ) if $iv;
-   my $i   = $self->input;      warn 'HFs: input: ',      _emit( $i   ) if $i;
-   my $fif = $self->fif;        warn 'HFs: fif: ',        _emit( $fif ) if $fif;
+   my $v   = $self->value;      warn 'HFs: value: ',      _emit($v  ) if $v;
+   my $iv  = $self->init_value; warn 'HFs: init_value: ', _emit($iv ) if $iv;
+   my $i   = $self->input;      warn 'HFs: input: ',      _emit($i  ) if $i;
+   my $fif = $self->fif;        warn 'HFs: fif: ',        _emit($fif) if $fif;
 
-   warn 'HFs: options: ' . Dumper( $self->options ) if $self->can( 'options' );
+   warn 'HFs: options: ' . Dumper($self->options) if $self->can('options');
 
    return;
 }
@@ -508,9 +514,9 @@ sub dump {
 sub _emit {
    my $v = shift;
 
-   return "${v}\n" if blessed $v and $v->isa( 'DateTime' );
+   return "${v}\n" if blessed $v and $v->isa('DateTime');
 
-   return Dumper( $v );
+   return Dumper($v);
 }
 
 sub element_attributes {
@@ -558,11 +564,11 @@ sub element_wrapper_attributes {
    $result ||= $self->result;
 
    my $attr  = {};
-   my $class = [ @{ $self->element_wrapper_class } ];
+   my $class = [ @{$self->element_wrapper_class} ];
 
-   $self->add_standard_element_wrapper_classes( $result, $class );
+   $self->add_standard_element_wrapper_classes($result, $class);
 
-   $attr->{class} = $class if scalar @{ $class };
+   $attr->{class} = $class if scalar @{$class};
 
    return $attr unless $self->form;
 
@@ -588,7 +594,7 @@ sub fif {
 
    if ($lresult->has_value) {
       my $value = $self->_can_deflate
-                ? $self->_apply_deflation( $lresult->value )
+                ? $self->_apply_deflation($lresult->value)
                 : $lresult->value;
 
       return defined $value ? $value : NUL;
@@ -604,7 +610,7 @@ sub fif {
 
 sub for_field {
    my $self      = shift;
-   my $label_tag = $self->get_tag( 'label_tag' ) || 'label';
+   my $label_tag = $self->get_tag('label_tag') || 'label';
 
    return NUL if $label_tag ne 'label';
 
@@ -640,7 +646,7 @@ sub full_name {
 
 sub get_class_messages  {
    my $self = shift;
-   my $messages = { %{ $class_messages } };
+   my $messages = { %{$class_messages} };
 
    $messages->{required} = $self->required_message if $self->required_message;
    $messages->{unique} = $self->unique_message if $self->unique_message;
@@ -660,21 +666,21 @@ sub get_message {
    my ($self, $msg) = @_;
 
    # First look in messages set on individual field
-   return $self->_get_field_message( $msg )
-       if $self->_has_field_message( $msg );
+   return $self->_get_field_message($msg)
+       if $self->_has_field_message($msg);
    # then look at form messages
-   return $self->form->_get_form_message( $msg )
-       if $self->has_form && $self->form->_has_form_message( $msg );
+   return $self->form->_get_form_message($msg)
+       if $self->has_form && $self->form->_has_form_message($msg);
    # then look for messages up through inherited field classes
-   return $self->get_class_messages->{ $msg };
+   return $self->get_class_messages->{$msg};
 }
 
 sub get_tag {
    my ($self, $name) = @_;
 
-   return NUL unless $self->tag_exists( $name );
+   return NUL unless $self->tag_exists($name);
 
-   my $tag = $self->_get_tag( $name );
+   my $tag = $self->_get_tag($name);
 
    return $self->$tag if is_coderef $tag;
    return $tag unless $tag =~ m{ \A % }mx;
@@ -682,7 +688,7 @@ sub get_tag {
    (my $block_name = $tag) =~ s{ \A % }{}mx;
 
    return $self->form->block( $block_name )->render
-      if $self->form && $self->form->block_exists( $block_name );
+      if $self->form && $self->form->block_exists($block_name);
 
    return NUL;
 }
@@ -690,7 +696,7 @@ sub get_tag {
 sub has_flag {
    my ($self, $flag_name) = @_;
 
-   return $self->can( $flag_name ) ? $self->$flag_name : undef;
+   return $self->can($flag_name) ? $self->$flag_name : undef;
 }
 
 sub has_input {
@@ -715,19 +721,19 @@ sub input {
    # Allow testing fields individually by creating result if no form
    return unless $self->has_result || !$self->form;
 
-   return @args ? $self->result->_set_input( @args ) : $self->result->input;
+   return @args ? $self->result->_set_input(@args) : $self->result->input;
 }
 
 sub input_defined {
    my $self = shift;
 
-   return $self->has_input ? has_some_value( $self->input ) : undef;
+   return $self->has_input ? has_some_value($self->input) : undef;
 }
 
 sub input_type {
    my $self = shift;
 
-   return $self->form && $self->form->has_flag( 'is_html5' )
+   return $self->form && $self->form->has_flag('is_html5')
         ? $self->html5_type_attr : $self->type_attr;
 }
 
@@ -757,17 +763,17 @@ sub label_attributes {
 
    $result //= $self->result;
 
-   my $attr  = { %{ $self->label_attr  } };
-   my $class = [ @{ $self->label_class } ];
+   my $attr  = { %{$self->label_attr } };
+   my $class = [ @{$self->label_class} ];
 
-   $self->add_standard_label_classes( $result, $class );
+   $self->add_standard_label_classes($result, $class);
 
-   $attr->{class} = $class if scalar @{ $class };
+   $attr->{class} = $class if scalar @{$class};
 
    return $attr unless $self->form;
 
    my $mod_attr
-      = $self->form->html_attributes( $self, 'label', $attr, $result );
+      = $self->form->html_attributes($self, 'label', $attr, $result);
 
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
@@ -775,7 +781,7 @@ sub label_attributes {
 sub loc_label {
    my $self = shift;
 
-   return $self->_localise( $self->label );
+   return $self->_localise($self->label);
 }
 
 sub merge_tags {
@@ -783,15 +789,15 @@ sub merge_tags {
 
    my $old = $self->tags;
 
-   return $self->tags( merge $new, $old );
+   return $self->tags(merge $new, $old);
 }
 
 sub push_errors {
    my ($self, @errors) = @_;
 
-   $self->_push_errors( @errors );
+   $self->_push_errors(@errors);
 
-   $self->parent->propagate_error( $self->result ) if $self->parent;
+   $self->parent->propagate_error($self->result) if $self->parent;
 
    return;
 }
@@ -807,13 +813,13 @@ sub reset_result {
 sub uwrapper {
    my $self = shift;
 
-   return ucc_widget( $self->widget_wrapper || NUL ) || 'simple';
+   return ucc_widget($self->widget_wrapper || NUL) || 'simple';
 }
 
 sub uwidget {
    my $self = shift;
 
-   return ucc_widget( $self->widget || NUL ) || 'simple';
+   return ucc_widget($self->widget || NUL) || 'simple';
 }
 
 sub value {
@@ -824,7 +830,7 @@ sub value {
 
    my $result = $self->result or return;
 
-   return @args ? $result->_set_value( @args ) : $result->value;
+   return @args ? $result->_set_value(@args) : $result->value;
 }
 
 sub value_changed {
@@ -835,11 +841,11 @@ sub value_changed {
       my $val = $self->$_ // NUL;
 
       push @cmp, join '|', sort
-         map { blessed $_ && $_->isa( 'DateTime' ) ? $_->iso8601 : "${_}" }
-         is_arrayref $val ? @{ $val } : $val;
+         map { blessed $_ && $_->isa('DateTime') ? $_->iso8601 : "${_}" }
+         is_arrayref $val ? @{$val} : $val;
    }
 
-   return $cmp[ 0 ] ne $cmp[ 1 ];
+   return $cmp[0] ne $cmp[1];
 }
 
 sub wrapper_attributes {
@@ -847,20 +853,20 @@ sub wrapper_attributes {
 
    $result //= $self->result;
 
-   my $attr  = { %{ $self->wrapper_attr  } };
-   my $class = [ @{ $self->wrapper_class } ];
+   my $attr  = { %{$self->wrapper_attr } };
+   my $class = [ @{$self->wrapper_class} ];
 
-   $self->add_standard_wrapper_classes( $result, $class );
+   $self->add_standard_wrapper_classes($result, $class);
 
-   $attr->{class} = $class if scalar @{ $class };
+   $attr->{class} = $class if scalar @{$class};
 
    $attr->{id} = 'field_' . $self->id
-      if !exists $attr->{id} && !$self->get_tag( 'no_wrapper_id' );
+      if !exists $attr->{id} && !$self->get_tag('no_wrapper_id');
 
    return $attr unless $self->form;
 
    my $mod_attr
-      = $self->form->html_attributes( $self, 'wrapper', $attr, $result );
+      = $self->form->html_attributes($self, 'wrapper', $attr, $result);
 
    return $mod_attr && is_hashref $mod_attr ? $mod_attr : $attr;
 }
@@ -878,8 +884,8 @@ sub wrapper_tag {
 sub _apply_deflation {
    my ($self, $value) = @_;
 
-   if ($self->has_deflation) { $value = $self->deflation->( $value ) }
-   elsif ($self->has_deflate_method) { $value = $self->deflate( $value ) }
+   if ($self->has_deflation) { $value = $self->deflation->($value) }
+   elsif ($self->has_deflate_method) { $value = $self->deflate($value) }
 
    return $value;
 }
@@ -896,59 +902,59 @@ sub _result_from_fields {
    my ($self, $result) = @_;
 
    if ($self->disabled && $self->has_init_value) {
-      $result->_set_value( $self->init_value );
+      $result->_set_value($self->init_value);
    }
    elsif (my @values = $self->get_default_value) {
-      @values = $self->inflate_default( @values )
+      @values = $self->inflate_default(@values)
          if $self->has_inflate_default_method;
 
       my $value = @values > 1 ? \@values : shift @values;
 
       if (defined $value) {
-         $self->init_value( $value );
-         $result->_set_value( $value );
+         $self->init_value($value);
+         $result->_set_value($value);
       }
    }
 
-   $self->_set_result( $result );
-   $result->_set_field_def( $self );
+   $self->_set_result($result);
+   $result->_set_field_def($self);
    return $result;
 }
 
 sub _result_from_input {
    my ($self, $result, $input, $exists) = @_;
 
-   if ($exists) { $result->_set_input( $input ) }
+   if ($exists) { $result->_set_input($input) }
    elsif ($self->disabled) {
       # This maybe should come from _result_from_object, but there's
       # not a reliable way to get there from here. Field can handle...
-      return $self->_result_from_fields( $result );
+      return $self->_result_from_fields($result);
    }
    elsif ($self->form and $self->form->use_fields_for_input_without_param) {
-      return $self->_result_from_fields( $result );
+      return $self->_result_from_fields($result);
    }
    elsif ($self->has_input_without_param) {
-      $result->_set_input( $self->input_without_param );
+      $result->_set_input($self->input_without_param);
    }
 
-   $self->_set_result( $result );
-   $result->_set_field_def( $self );
+   $self->_set_result($result);
+   $result->_set_field_def($self);
    return $result;
 }
 
 sub _result_from_object {
    my ($self, $result, $value) = @_;
 
-   $self->_set_result( $result );
+   $self->_set_result($result);
 
-   if ($self->form) { $self->form->init_value( $self, $value ) }
+   if ($self->form) { $self->form->init_value($self, $value) }
    else {
-      $self->init_value( $value );
-      $result->_set_value( $value );
+      $self->init_value($value);
+      $result->_set_value($value);
    }
 
-   $result->_set_value( undef ) if $self->writeonly;
-   $result->_set_field_def( $self );
+   $result->_set_value(undef) if $self->writeonly;
+   $result->_set_field_def($self);
    return $result;
 }
 
