@@ -42,29 +42,11 @@ has 'instance_wrapper_class' =>
 
 has 'is_repeatable'  => is => 'ro', isa => Bool, default => TRUE;
 
-has '_js_package'    => is => 'ro', isa => Str, default => 'HForms.Repeatable';
-
 has 'num_extra'      => is => 'rw', isa => Int, default => 0;
 
 has 'num_when_empty' => is => 'rw', isa => Int, default => 1;
 
 has 'setup_for_js'   => is => 'rw', isa => Bool, default => TRUE;
-
-around 'BUILD' => sub {
-   my ($orig, $self) = @_;
-
-   $orig->($self);
-
-   my $form = $self->form;
-
-   if ($form && $form->can('load_js_package')) {
-      $form->load_js_package($self->_js_package);
-      weaken $self;
-      $form->load_js_package(sub { $self->render_repeatable_js });
-   }
-
-   return;
-};
 
 # Public methods
 sub add_extra {
@@ -207,7 +189,7 @@ sub render_repeatable_js {
    my $html_str  = encode_json( \%html );
    my $index_str = encode_json( \%index );
    my $level_str = encode_json( \%level );
-   my $js        = $self->_js_package . DOT . 'initialise(%s, %s, %s)';
+   my $js        = $self->js_package . DOT . 'repeatable(%s, %s, %s)';
 
    return sprintf "${js}", $html_str, $index_str, $level_str;
 }

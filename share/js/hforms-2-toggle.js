@@ -86,7 +86,9 @@ HForms.Toggle = (function() {
    let pageLoading = true;
    let turningOff  = false;
    const toggleFields = function(el) {
-      const config        = JSON.parse(el.dataset[dsName])['config'];
+      const data = el.dataset[dsName];
+      if (!data) return;
+      const config        = JSON.parse(data)['config'];
       const turnTheseOff  = [];
       const turnTheseOn   = [];
       const updateElement = function(field, method) {
@@ -126,12 +128,11 @@ HForms.Toggle = (function() {
       fireHandlers(turnTheseOff);
       turningOff = false;
    };
-   const updateInterval = function(field) {
-      const hidden = document.getElementById(field);
-      const period = document.getElementById(field + '_period');
-      hidden.value = document.getElementById(field + '_unit').value
-                   + ' ' + period.value;
-      if (period.dataset[dsName]) toggleFields(period);
+   const updateInterval = function(id) {
+      const period = document.getElementById(id + '_period');
+      const unit   = document.getElementById(id + '_unit');
+      document.getElementById(id).value = unit.value + ' ' + period.value;
+      toggleFields(period);
    };
    const scan = function(container = document) {
       fireHandlers(container.getElementsByClassName(triggerClass));

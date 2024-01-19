@@ -139,6 +139,7 @@
       [% PROCESS "${rfield.uwidget}" f=rfield %]
     [% END -%]
 [%   END -%]
+<script>[% repeatable_field.render_repeatable_js %]</script>
 [% END -%]
 
 [% BLOCK repeatable_control -%]

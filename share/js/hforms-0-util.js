@@ -7,6 +7,7 @@ HForms.Util = (function () {
       const selector = 'div.input-button button';
       for (const el of form.querySelectorAll(selector)) {
          if (el.getAttribute('movelistener')) continue;
+         el.setAttribute('movelistener', true);
          el.addEventListener('mousemove', function(event) {
             const rect = el.getBoundingClientRect();
             const x = Math.floor(event.pageX - (rect.left + window.scrollX));
@@ -14,7 +15,6 @@ HForms.Util = (function () {
             el.style.setProperty('--x', x + 'px');
             el.style.setProperty('--y', y + 'px');
          });
-         el.setAttribute('movelistener', true);
       }
    };
    const _fieldMap = {};
@@ -46,6 +46,49 @@ HForms.Util = (function () {
          document.addEventListener('DOMContentLoaded', callback);
       else document.attachEvent('onreadystatechange', function() {
          if (document.readyState == 'complete') callback();
+      });
+   };
+   const _repRemoveHandlers = function() {
+      const rmElems = document.getElementsByClassName('remove-repeatable');
+      for (const el of rmElems) {
+         if (el.getAttribute('clicklistener')) continue;
+         el.setAttribute('clicklistener', true);
+         el.addEventListener('click', function(event) {
+            event.preventDefault();
+            const repElemId = this.dataset.repeatableElementId;
+            if (!repElemId) return;
+            const field = document.getElementById(wrapperIdPrefix + repElemId);
+            if (field && confirm('Remove?')) field.remove();
+         }.bind(el));
+      }
+   };
+   const _repAddHandlers = function(htmls, indexes, levels) {
+      const addElems = document.getElementsByClassName('add-repeatable');
+      for (const el of addElems) {
+         if (el.getAttribute('clicklistener')) continue;
+         el.setAttribute('clicklistener', true);
+         el.addEventListener('click', function(event) {
+            event.preventDefault();
+            const repId = this.dataset.repeatableId;
+            if (!repId) return;
+            const wrapper = document.getElementById(wrapperIdPrefix + repId);
+            if (!wrapper) return;
+            const controls = wrapper.getElementsByClassName('controls');
+            if (!controls) return;
+            const html  = htmls[repId];
+            const level = levels[repId];
+            const regex = new RegExp('\{index-' + level + '\}',"g");
+            let   index = indexes[repId];
+            controls[0].innerHTML += html.replace(regex, index++);
+            indexes[repId] = index;
+            _repRemoveHandlers();
+         }.bind(el));
+      }
+   };
+   const repeatable = function(htmls, indexes, levels) {
+      onReady(function(event) {
+         _repAddHandlers(htmls, indexes, levels);
+         _repRemoveHandlers();
       });
    };
    const scan = function(className = formClassName) {
@@ -155,8 +198,8 @@ HForms.Util = (function () {
       const object = await response.json();
       if (!object) return;
       const parent = field.parentElement;
-      for (const span of parent.querySelectorAll('.alert-error')) {
-         parent.removeChild(span);
+      for (const el of parent.querySelectorAll('.alert-error')) {
+         parent.removeChild(el);
       }
       for (const reason of object.reason) {
          const error = document.createElement('span');
@@ -175,6 +218,7 @@ HForms.Util = (function () {
    return {
       fieldChange: fieldChange,
       onReady: onReady,
+      repeatable: repeatable,
       scan: scan,
       showIfRequired: showIfRequired,
       unrequire: unrequire,

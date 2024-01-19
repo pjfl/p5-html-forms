@@ -62,13 +62,13 @@ form.classic {
             margin-left: -2px;
         }
     }
-    .form-wrapper:has(.input-field span.field-label) .input-button button {
-        margin-top: 1rem;
-    }
     .form-wrapper.wide .input-field {
         input, select, textarea, .alert {
             max-width: #sizes[field-max];
         }
+    }
+    .form-wrapper:has(.input-field span.field-label) .input-button button {
+        margin-top: 1rem;
     }
     .field-label {
         display: table-cell; font-family: #fonts[system]; font-size: 0.8rem;
@@ -234,8 +234,9 @@ form.classic {
         overflow: auto;
     }
     .input-display span {
-        display: inline-block; font-size: 0.8rem;
+        display: table-cell; font-size: 0.8rem;
         padding: 0.5rem 0.5rem 0.5rem 0.25rem;
+        vertical-align: middle;
     }
     .input-button {
         align-items: center; display: flex; isolation: isolate;

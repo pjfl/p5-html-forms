@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Moves repeatable JS to utils
           - Inline server field validation
           - Shiny buttons
           - Adding Digits field type
