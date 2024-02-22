@@ -29,11 +29,13 @@ HForms.Util = (function () {
       }
       return true;
    };
-   const fieldChange = function(targetId, fieldId) {
-      _setFieldMap(targetId, fieldId);
-      const target = document.getElementById(targetId);
-      if (_allOk(target)) target.removeAttribute('disabled');
-      else target.setAttribute('disabled', 'disabled');
+   const fieldChange = function(targetIds, fieldId) {
+      for (const targetId of targetIds) {
+         _setFieldMap(targetId, fieldId);
+         const target = document.getElementById(targetId);
+         if (_allOk(target)) target.removeAttribute('disabled');
+         else target.setAttribute('disabled', 'disabled');
+      }
    };
    const focusFirst = function(form) {
       const selector = 'div.input-field:not(.input-hidden) input';
@@ -91,11 +93,18 @@ HForms.Util = (function () {
          _repRemoveHandlers();
       });
    };
+   const revealPassword = function(id) {
+      const field = document.getElementById(id);
+      field.type = 'text';
+      field.addEventListener(
+         'mouseleave', function(event) { field.type = 'password' }
+      );
+   };
    const scan = function(className = formClassName) {
       const forms = document.getElementsByTagName('form');
       if (!forms) return;
       for (const form of forms) {
-         if (form.className == className) {
+         if (form.classList.contains(className)) {
             focusFirst(form);
             animateButtons(form);
          }
@@ -219,6 +228,7 @@ HForms.Util = (function () {
       fieldChange: fieldChange,
       onReady: onReady,
       repeatable: repeatable,
+      revealPassword: revealPassword,
       scan: scan,
       showIfRequired: showIfRequired,
       unrequire: unrequire,

@@ -60,7 +60,7 @@ has 'tt_include_path' =>
 has 'tt_options' =>
    is      => 'rw',
    isa     => HashRef,
-   builder => sub { { TRIM => TRUE } },
+   builder => sub { { ENCODING => 'utf8', TRIM => TRUE } },
    lazy    => TRUE;
 
 has 'tt_theme' =>

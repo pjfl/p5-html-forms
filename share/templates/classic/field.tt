@@ -40,8 +40,7 @@
      <span class="digit-input-wrapper">
 [%   WHILE count < f.size -%]
 [%     id = f.id _ '-' _ count -%]
-[%     IF count == 0; attr.class = 'digit first'; ELSE; attr.class = 'digit'; END -%]
-[%     attr.javascript = f.javascript(count) -%]
+[%     attr.class = 'digit'; attr.javascript = f.javascript(count) -%]
 <input type="[% f.input_type %]" id="[% id %]" name="[% id %]"
 [%-  process_attrs( attr ) %] required="[% attr.required %]" value="" />
 [%- count = count + 1; END %]</span>
@@ -101,11 +100,13 @@
 [% BLOCK label -%]
 [%   label_tag  = f.get_tag( 'label_tag' ) || 'label' -%]
 [%   label_text = f.loc_label | html -%]
-[%   IF label_tag != 'legend' -%]
-[%     label_text = f.get_tag('label_before') _ label_text _ f.get_tag( 'label_after' ) -%]
-[%   END -%]
+[%   IF label_text %]
+[%     IF label_tag != 'legend' -%]
+[%       label_text = f.get_tag('label_before') _ label_text _ f.get_tag( 'label_after' ) -%]
+[%     END -%]
   <[% label_tag; process_attrs( f.label_attributes ); f.for_field %]>
 [%-  label_text -%]</[% label_tag %]>
+[%-  END -%]
 [%- END -%]
 
 [% BLOCK no_render -%]
@@ -118,6 +119,7 @@
 [% BLOCK password -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
 [%-  process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
+[% IF f.get_tag('reveal') %]<span class="reveal" onmouseover="HForms.Util.revealPassword('[% f.id %]')">👁</span>[% END %]
 [% END -%]
 
 [% BLOCK radio_group -%]
