@@ -5,6 +5,7 @@ use HTML::Forms::Types     qw( ArrayRef HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities );
 use JSON::MaybeXS          qw( encode_json );
 use List::Util             qw( first );
+use Ref::Util              qw( is_coderef );
 use Moo::Role;
 use MooX::HandlesVia;
 
@@ -16,6 +17,7 @@ has 'toggle' =>
    builder     => sub { {} },
    handles_via => 'Hash',
    handles     => {
+      add_toggle   => 'push',
       clear_toggle => 'clear',
       has_toggle   => 'count',
    };
@@ -54,10 +56,8 @@ has 'toggle_event' =>
    predicate => 'has_toggle_event',
    writer    => '_toggle_event';
 
-around 'BUILD' => sub {
-   my ($orig, $self) = @_;
-
-   $orig->($self);
+sub BUILD {
+   my $self = shift;
 
    return unless $self->has_toggle;
 

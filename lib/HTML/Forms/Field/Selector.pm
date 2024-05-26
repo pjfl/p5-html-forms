@@ -1,40 +1,40 @@
-package HTML::Forms::Field::Button;
+package HTML::Forms::Field::Selector;
 
-use HTML::Forms::Constants qw( DOT FALSE NUL );
+use HTML::Forms::Constants qw( FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( Str );
 use Moo;
+use HTML::Forms::Moo;
 
-extends 'HTML::Forms::Field::NoValue';
+extends 'HTML::Forms::Field::Text';
+
+has 'click_handler' =>
+   is       =>  'lazy',
+   isa      => Str,
+   init_arg => undef,
+   default  => sub {
+      my $self     = shift;
+      my $selector = $self->selector;
+
+      return "event.preventDefault(); ${selector}";
+   };
 
 has 'display_as' => is => 'lazy', isa => Str, default => sub { shift->label };
 
-has '+do_label' => default => FALSE;
+has 'selector' => is => 'rw', isa => Str, default => NUL;
 
-has '+html5_type_attr' => default => 'submit';
+has '+widget' => default => 'Selector';
 
-has '+type_attr' => default => 'submit';
+has '+wrapper_class' => default => 'input-selector';
 
-has '+widget' => default => 'Button';
+apply([
+   {
+      transform => sub {
+         my $value = shift; $value =~ s{ ! }{/}gmx; return $value;
+      }
+   },
+]);
 
-has '+wrapper_class' => default => 'input-button';
-
-sub _build_id {
-   my $self   = shift;
-   my $form   = $self->form;
-   my $prefix = $form && $form->html_prefix ? $form->name . DOT : NUL;
-
-   return $prefix . $self->full_name;
-}
-
-sub _build_label {
-   return 'Submit';
-}
-
-sub html_element {
-   return 'button';
-}
-
-use namespace::autoclean;
+use namespace::autoclean -except => META;
 
 1;
 
@@ -46,11 +46,11 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Button - One-line description of the modules purpose
+HTML::Forms::Field::Selector - One-line description of the modules purpose
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Button;
+   use HTML::Forms::Field::Selector;
    # Brief but working code examples
 
 =head1 Description

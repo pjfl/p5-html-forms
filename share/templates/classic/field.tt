@@ -1,7 +1,7 @@
 [% BLOCK button -%]
   <[% f.html_element %][%- process_attrs( f.attributes ) -%]
  type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
- value="[% f.value | html %]"><span>[% f.label %]</span></[% f.html_element %]>
+ value="[% f.value | html %]"><span>[% f.display_as %]</span></[% f.html_element %]>
 [% END -%]
 
 [% BLOCK captcha -%]
@@ -185,6 +185,15 @@
 [%-    IF selval == selopt.value %] selected="selected"[% END -%]
 [%-  END -%]>[% localise( selopt.label ) | html %]</option>
 [% END -%]
+
+[% BLOCK selector %]
+  <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
+  readonly="readonly" [%- process_attrs( f.attributes ) -%]
+  value="[% f.fif | html %]" />
+  <button onclick="[% f.click_handler %]"
+ type="submit" name="[% f.html_name %]_select" id="[% f.id %]_select"
+ value=""><span>[% f.display_as %]</span></button>
+[% END %]
 
 [% BLOCK span -%]
   <span id="[% f.id %][% process_attrs( f.element_attributes ) %]">

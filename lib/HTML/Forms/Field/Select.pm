@@ -98,7 +98,7 @@ after 'clear_data' => sub { shift->reset_options_index };
 before 'value' => sub {
    my $self = shift;
 
-   return unless $self->has_result;
+   return unless $self->has_result && $self->result;
 
    my $value = $self->result->value;
 

@@ -54,6 +54,22 @@ form.classic {
     .alert-info {
         font-size: 0.8rem; padding: 0.5rem 0 0;
     }
+    .ds-form {
+        position: relative;
+        th {
+            font-family: #fonts[system];
+        }
+        .ds-field.hide, .ds-reorderable.hide {
+            display: none;
+        }
+        .ds-reorderable-drag {
+            position: absolute;
+        }
+        .ds-reorderable .knob {
+            background: purple; border-radius: 50px; display: inline-block;
+            height: 20px; width: 20px; vertical-align: middle;
+        }
+    }
     .form-wrapper {
         border-collapse: separate; border-spacing: 0 0.5rem;
         border-radius: 5px; padding: 0 1rem;
@@ -167,8 +183,11 @@ form.classic {
             }
         }
     }
+    .input-field.inline {
+        display: inline-block; vertical-align: top;
+    }
     .input-field.hide {
-        display: none !important;
+        display: none;
     }
     .input-boolean {
         .checkbox-wrapper {
@@ -199,6 +218,55 @@ form.classic {
         .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
             background: #colours[checkbox-true-bg];
         }
+    }
+    .input-button, .input-selector {
+        isolation: isolate;
+        button {
+            background: #grads[button-bg];
+            border: 2px outset #colours[button-border]; border-radius: 50px;
+            color: #colours[link]; cursor: pointer; margin: 0.5rem 0;
+            overflow: hidden; padding: 0.25rem 0.75rem; position: relative;
+            transition: 0.5s;
+            span {
+                font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
+                text-decoration: none; text-transform: uppercase; z-index: 3;
+            }
+        }
+        button:hover {
+            border: 2px inset #colours[button-border];
+            color: #colours[button-text];
+        }
+        button::before {
+            background: #grads[button-border-bg]; content: ''; display: block;
+            height: 3rem; left: var(--x); opacity: 0; position: absolute;
+            top: var(--y); transform: translate(-50%, -50%);
+            transition: opacity 0.5s; width: 3rem; z-index: 1;
+        }
+        button:hover::before {
+            opacity: 1;
+        }
+        button::after {
+            background: #grads[button-bg]; border-radius: 50px; content: '';
+            inset: 3px; position: absolute; z-index: 2;
+        }
+        button[disabled=disabled], button[disabled=disabled]::after {
+            background: #grads[button-disabled-bg];
+        }
+        input {
+            margin: 0.5rem 0;
+        }
+    }
+    .input-button {
+        align-items: center; display: flex; justify-content: right;
+    }
+    .input-button.expand button {
+        flex: 2;
+    }
+    .input-button.inline {
+        display: inline-flex;
+    }
+    .input-button.right {
+        float: right; margin-left: 0.5rem;
     }
     .input-captcha input, .input-captcha .field-label,
     .input-display .field-label, .field-label.select-multiple,
@@ -256,6 +324,9 @@ form.classic {
     .input-select option {
         font-family: #fonts[data];
     }
+    .input-selector button {
+        margin-left: 0.5rem;
+    }
     .input-textarea textarea {
         overflow: auto;
     }
@@ -263,56 +334,6 @@ form.classic {
         display: table-cell; font-size: 0.8rem;
         padding: 0.5rem 0.5rem 0.5rem 0.25rem;
         vertical-align: middle;
-    }
-    .input-button {
-        align-items: center; display: flex; isolation: isolate;
-        justify-content: right;
-        button {
-            background: #grads[button-bg];
-            border: 2px outset #colours[button-border]; border-radius: 50px;
-            color: #colours[link]; cursor: pointer; margin: 0.5rem 0;
-            overflow: hidden; padding: 0.25rem 0.75rem; position: relative;
-            transition: 0.5s;
-            span {
-                font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
-                text-decoration: none; text-transform: uppercase; z-index: 3;
-            }
-        }
-        button:hover {
-            border: 2px inset #colours[button-border];
-            color: #colours[button-text];
-        }
-        button::before {
-            background: #grads[button-border-bg]; content: ''; display: block;
-            height: 3rem; left: var(--x); opacity: 0; position: absolute;
-            top: var(--y); transform: translate(-50%, -50%);
-            transition: opacity 0.5s; width: 3rem; z-index: 1;
-        }
-        button:hover::before {
-            opacity: 1;
-        }
-        button::after {
-            background: #grads[button-bg]; border-radius: 50px; content: '';
-            inset: 3px; position: absolute; z-index: 2;
-        }
-        button[disabled=disabled], button[disabled=disabled]::after {
-            background: #grads[button-disabled-bg];
-        }
-        input {
-            margin: 0.5rem 0;
-        }
-    }
-    .input-button ~ .input-button:not(.right) button {
-        margin-top: 0 !important;
-    }
-    .input-button.expand button {
-        flex: 2;
-    }
-    .input-button.inline {
-        display: inline-flex;
-    }
-    .input-button.right {
-        float: right; margin-left: 0.5rem;
     }
     .label-right {
         text-align: right;

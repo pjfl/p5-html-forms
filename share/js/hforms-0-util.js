@@ -1,7 +1,7 @@
 // Package HForms.Util
 if (!window.HForms) window.HForms = {};
 HForms.Util = (function () {
-   const formClassName = 'classic';
+   const triggerClass = 'classic';
    const wrapperIdPrefix = 'field_';
    const animateButtons = function(form) {
       const selector = 'div.input-button button';
@@ -29,7 +29,7 @@ HForms.Util = (function () {
       }
       return true;
    };
-   const fieldChange = function(targetIds, fieldId) {
+   const fieldChange = function(fieldId, targetIds) {
       for (const targetId of targetIds) {
          _setFieldMap(targetId, fieldId);
          const target = document.getElementById(targetId);
@@ -40,7 +40,7 @@ HForms.Util = (function () {
    const focusFirst = function(form) {
       const selector = 'div.input-field:not(.input-hidden) input';
       const field = form.querySelector(selector);
-      if (field) { field.focus() }
+      if (field) setTimeout(function() { field.focus() }, 500);
    };
    const onReady = function(callback) {
       if (document.readyState != 'loading') callback();
@@ -100,14 +100,16 @@ HForms.Util = (function () {
          'mouseleave', function(event) { field.type = 'password' }
       );
    };
-   const scan = function(className = formClassName) {
-      const forms = document.getElementsByTagName('form');
+   const scan = function(content = document, options = {}) {
+      const formClass = options.formClass ? options.formClass : triggerClass;
+      const forms = content.getElementsByTagName('form');
       if (!forms) return;
       for (const form of forms) {
-         if (form.classList.contains(className)) {
-            focusFirst(form);
-            animateButtons(form);
-         }
+         if (!form.classList.contains(formClass)) continue;
+         animateButtons(form);
+         HForms.DataStructure.manager.scan(form);
+         HForms.Toggle.scan(form);
+         focusFirst(form);
       }
    };
    async function _showIfRequired(url, toggleFieldNames) {
@@ -136,7 +138,7 @@ HForms.Util = (function () {
          }
       }
    };
-   const showIfRequired = function(url, valueFieldName, toggleFieldNames) {
+   const showIfRequired = function(valueFieldName, toggleFieldNames, url) {
       const target = new URL(url);
       const field = document.getElementById(valueFieldName);
       target.searchParams.set('value', field.value);

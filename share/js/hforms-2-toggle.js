@@ -83,9 +83,11 @@ HForms.Toggle = (function() {
       select:   enabledSelects,
       text:     enabledHiddens
    };
-   let pageLoading = true;
+   let pageLoading;
    let turningOff  = false;
-   const toggleFields = function(el) {
+   const toggleFields = function(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
       const data = el.dataset[dsName];
       if (!data) return;
       const config        = JSON.parse(data)['config'];
@@ -132,13 +134,13 @@ HForms.Toggle = (function() {
       const period = document.getElementById(id + '_period');
       const unit   = document.getElementById(id + '_unit');
       document.getElementById(id).value = unit.value + ' ' + period.value;
-      toggleFields(period);
+      toggleFields(id + '_period');
    };
    const scan = function(container = document) {
+      pageLoading = true;
       fireHandlers(container.getElementsByClassName(triggerClass));
       pageLoading = false;
    };
-   HForms.Util.onReady(function(event) { scan() });
    return {
       scan: scan,
       toggleFields: toggleFields,

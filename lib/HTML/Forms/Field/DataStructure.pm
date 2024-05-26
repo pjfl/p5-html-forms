@@ -10,9 +10,13 @@ extends 'HTML::Forms::Field::Text';
 
 has '+html5_type_attr' => default => 'hidden';
 
+has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
+
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'single_hash' => is => 'ro', isa => Bool, default => FALSE;
+
+has 'store_as_hash' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'structure' => is => 'ro', isa => ArrayRef[HashRef], required => TRUE;
 
@@ -22,12 +26,15 @@ has '+widget' => default => 'DataStructure';
 
 sub _build_element_attr {
    my $self = shift;
-   my $spec = encode_json( $self->structure );
 
    return {
-      'data-ds-spec'        => encode_only_entities( $spec ),
-      'data-ds-reorderable' => $self->reorderable,
-      'data-ds-single-hash' => $self->single_hash,
+      'data-ds-specification' => encode_only_entities(encode_json({
+         'fixed'       => $self->fixed ? \1 : \0,
+         'is-object'   => $self->store_as_hash ? \1 : \0,
+         'structure'   => $self->structure,
+         'reorderable' => $self->reorderable ? \1 : \0,
+         'single-hash' => $self->single_hash ? \1 : \0,
+      }))
    };
 }
 

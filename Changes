@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds Selector field type
           - Adds reveal password
           - Moves repeatable JS to utils
           - Inline server field validation
