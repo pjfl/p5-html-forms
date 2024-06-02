@@ -4,7 +4,7 @@ HForms.Util = (function () {
    const triggerClass = 'classic';
    const wrapperIdPrefix = 'field_';
    const animateButtons = function(form) {
-      const selector = 'div.input-button button';
+      const selector = 'div.input-field button';
       for (const el of form.querySelectorAll(selector)) {
          if (el.getAttribute('movelistener')) continue;
          el.setAttribute('movelistener', true);
@@ -16,6 +16,25 @@ HForms.Util = (function () {
             el.style.setProperty('--y', y + 'px');
          });
       }
+   };
+   const _frag = function(content) {
+      return document.createRange().createContextualFragment(content);
+   };
+   const createIcon = function(args) {
+      const {
+         attrs = {}, classes, height = 20, icons, name,
+         presentational = true, width = 20
+      } = args;
+      if (Array.isArray(classes)) classes = `${classes.join(' ')}`;
+      const newAttrs = {
+         'aria-hidden': presentational ? 'true' : null,
+         class: classes, height, width, ...attrs
+      };
+      const svg = `
+<svg ${Object.keys(newAttrs).filter(attr => newAttrs[attr]).map(attr => `${attr}="${newAttrs[attr]}"`).join(' ')}>
+   <use href="${icons}#icon-${name}"></use>
+</svg>`;
+      return _frag(svg.trim());
    };
    const _fieldMap = {};
    const _setFieldMap = function(targetId, fieldId) {
@@ -106,9 +125,9 @@ HForms.Util = (function () {
       if (!forms) return;
       for (const form of forms) {
          if (!form.classList.contains(formClass)) continue;
-         animateButtons(form);
          HForms.DataStructure.manager.scan(form);
          HForms.Toggle.scan(form);
+         animateButtons(form);
          focusFirst(form);
       }
    };
@@ -227,6 +246,7 @@ HForms.Util = (function () {
    };
    onReady(function(event) { scan() });
    return {
+      createIcon: createIcon,
       fieldChange: fieldChange,
       onReady: onReady,
       repeatable: repeatable,

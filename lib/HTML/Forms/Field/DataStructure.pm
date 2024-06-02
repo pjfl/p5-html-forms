@@ -10,6 +10,13 @@ extends 'HTML::Forms::Field::Text';
 
 has '+html5_type_attr' => default => 'hidden';
 
+has 'drag_title' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'Drag and drop to reorder rows';
+
+has 'icons' => is => 'rw', isa => Str, default => NUL;
+
 has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
@@ -29,7 +36,9 @@ sub _build_element_attr {
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
+         'drag-title'  => $self->drag_title,
          'fixed'       => $self->fixed ? \1 : \0,
+         'icons'       => $self->icons,
          'is-object'   => $self->store_as_hash ? \1 : \0,
          'structure'   => $self->structure,
          'reorderable' => $self->reorderable ? \1 : \0,

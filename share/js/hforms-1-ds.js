@@ -194,7 +194,9 @@ HForms.DataStructure = (function() {
          this.hidden = this.container.querySelector('input[type=hidden]');
          const config = this.hidden.dataset[dsName];
          this.config = config ? JSON.parse(config) : {};
+         this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
          this.fixed = this.config['fixed'] || false;
+         this.icons = this.config['icons'];
          this.isObject = this.config['is-object'] || false;
          this.reorderable = this.config['reorderable'] || false;
          this.structure = this.config['structure'];
@@ -235,7 +237,8 @@ HForms.DataStructure = (function() {
          }
       }
       _closestRow(el) {
-         return el.parentNode.parentNode; // TODO: closest
+         while (el && el.tagName != 'TR') el = el.parentNode;
+         return el;
       }
       createField(specification, item, useDefault) {
          let value = item[specification.name];
@@ -247,7 +250,7 @@ HForms.DataStructure = (function() {
          return field;
       }
       createRow(item) {
-         const useDefault = !item;
+        const useDefault = !item;
          item ||= {};
          const row = this.h.tr();
          for (const column of this.structure) {
@@ -255,9 +258,12 @@ HForms.DataStructure = (function() {
             row.appendChild(this.h.td({ className: 'ds-field' }, field));
          }
          if (this.reorderable) {
-            const knob = this.h.span({
-               className: 'knob', title: 'Drag to reorder'
+            const icon = HForms.Util.createIcon({
+               name: 'grab', classes: 'drag-icon', icons: this.icons
             });
+            const knob = this.h.span({
+               className: 'knob', title: this.dragTitle
+            }, icon);
             row.appendChild(this.h.td({ className: 'ds-reorderable' }, knob));
          }
          if (!this.singleRow && !this.fixed) {

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds drag title and icons to DataStructure field type
           - Adds Selector field type
           - Adds reveal password
           - Moves repeatable JS to utils
