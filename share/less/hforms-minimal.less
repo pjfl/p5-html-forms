@@ -44,7 +44,7 @@
 form.classic {
     background: #colours[panel-bg]; border-radius: 5px;
     box-shadow: 3px 3px 3px; color: #colours[line]; display: inline-block;
-    margin: 0 1rem;
+    margin: 0 1rem; position: relative;
     div {
         color: #colours[text];
     }
@@ -71,7 +71,7 @@ form.classic {
     }
     .form-wrapper {
         border-collapse: separate; border-spacing: 0 0.5rem;
-        border-radius: 5px; padding: 0 1rem;
+        border-radius: 5px; padding: 0 1rem; position: relative;
         .form-title {
             color: #colours[text]; font-family: #fonts[system];
             margin-left: -2px;
@@ -265,7 +265,7 @@ form.classic {
         display: inline-flex;
     }
     .input-button.right {
-        margin-left: 2rem;
+        position: absolute; right: 0.5rem;
     }
     .input-captcha input, .input-captcha .field-label,
     .input-display .field-label, .field-label.select-multiple,
@@ -367,5 +367,5 @@ form.classic {
     }
 }
 .selector form.classic {
-    box-shadow: none;
+    box-shadow: none; margin: 0; min-width: 15rem;
 }
