@@ -1,41 +1,8 @@
-// Package HForms.Util
-if (!window.HForms) window.HForms = {};
-HForms.Util = (function () {
+// Package WCom.Form.Util
+if (!WCom.Form) WCom.Form = {};
+WCom.Form.Util = (function () {
    const triggerClass = 'classic';
    const wrapperIdPrefix = 'field_';
-   const animateButtons = function(form) {
-      const selector = 'div.input-field button';
-      for (const el of form.querySelectorAll(selector)) {
-         if (el.getAttribute('movelistener')) continue;
-         el.setAttribute('movelistener', true);
-         el.addEventListener('mousemove', function(event) {
-            const rect = el.getBoundingClientRect();
-            const x = Math.floor(event.pageX - (rect.left + window.scrollX));
-            const y = Math.floor(event.pageY - (rect.top + window.scrollY));
-            el.style.setProperty('--x', x + 'px');
-            el.style.setProperty('--y', y + 'px');
-         });
-      }
-   };
-   const _frag = function(content) {
-      return document.createRange().createContextualFragment(content);
-   };
-   const createIcon = function(args) {
-      const {
-         attrs = {}, classes, height = 20, icons, name,
-         presentational = true, width = 20
-      } = args;
-      if (Array.isArray(classes)) classes = `${classes.join(' ')}`;
-      const newAttrs = {
-         'aria-hidden': presentational ? 'true' : null,
-         class: classes, height, width, ...attrs
-      };
-      const svg = `
-<svg ${Object.keys(newAttrs).filter(attr => newAttrs[attr]).map(attr => `${attr}="${newAttrs[attr]}"`).join(' ')}>
-   <use href="${icons}#icon-${name}"></use>
-</svg>`;
-      return _frag(svg.trim());
-   };
    const _fieldMap = {};
    const _setFieldMap = function(targetId, fieldId) {
       _fieldMap[targetId] ||= {};
@@ -114,10 +81,9 @@ HForms.Util = (function () {
    };
    const revealPassword = function(id) {
       const field = document.getElementById(id);
+      const handler = function(event) { field.type = 'password' };
+      field.addEventListener('mouseleave', handler);
       field.type = 'text';
-      field.addEventListener(
-         'mouseleave', function(event) { field.type = 'password' }
-      );
    };
    const scan = function(content = document, options = {}) {
       const formClass = options.formClass ? options.formClass : triggerClass;
@@ -125,9 +91,9 @@ HForms.Util = (function () {
       if (!forms) return;
       for (const form of forms) {
          if (!form.classList.contains(formClass)) continue;
-         HForms.DataStructure.manager.scan(form);
-         HForms.Toggle.scan(form);
-         animateButtons(form);
+         WCom.Form.DataStructure.manager.scan(form);
+         WCom.Form.Toggle.scan(form);
+         WCom.Util.Markup.animateButtons(form, '.input-field button');
          focusFirst(form);
       }
    };
@@ -246,7 +212,6 @@ HForms.Util = (function () {
    };
    onReady(function(event) { scan() });
    return {
-      createIcon: createIcon,
       fieldChange: fieldChange,
       onReady: onReady,
       repeatable: repeatable,

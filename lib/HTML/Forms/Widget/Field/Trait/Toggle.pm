@@ -70,7 +70,7 @@ sub BUILD {
 
    my $form = $self->form;
 
-   $form->load_js_package('HForms.Toggle')
+   $form->load_js_package('WCom.Form.Toggle')
       if $form && $form->can('load_js_package');
 
    return;

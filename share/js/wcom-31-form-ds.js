@@ -1,7 +1,6 @@
-// Package HForms.DataStructure
-// Dependencies HForms.Util
-if (!window.HForms) window.HForms = {};
-HForms.DataStructure = (function() {
+// Package WCom.Form.DataStructure
+// Dependencies WCom.Util WCom.Form.Util
+WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
    const triggerClass = 'data-structure';
    class Drag {
@@ -187,7 +186,7 @@ HForms.DataStructure = (function() {
          }
       }
    }
-   Object.assign(Drag.prototype, HFilters.Util.Markup);
+   Object.assign(Drag.prototype, WCom.Util.Markup);
    class DataStructure {
       constructor(container) {
          this.container = container;
@@ -258,8 +257,8 @@ HForms.DataStructure = (function() {
             row.appendChild(this.h.td({ className: 'ds-field' }, field));
          }
          if (this.reorderable) {
-            const icon = HForms.Util.createIcon({
-               name: 'grab', classes: 'drag-icon', icons: this.icons
+            const icon = this.h.icon({
+               name: 'grab', className: 'drag-icon', icons: this.icons
             });
             const knob = this.h.span({
                className: 'knob', title: this.dragTitle
@@ -450,7 +449,7 @@ HForms.DataStructure = (function() {
          if (value.valid) this.hidden.value = JSON.stringify(value.content);
          else {
             event.preventDefault();
-            HFilters.Modal.createAlert({
+            WCom.Modal.createAlert({
                icon: 'error',
                text: value.errors.join(', '),
                title: 'Errors in ' + this.title
@@ -458,7 +457,7 @@ HForms.DataStructure = (function() {
          }
       }
    }
-   Object.assign(DataStructure.prototype, HFilters.Util.Markup);
+   Object.assign(DataStructure.prototype, WCom.Util.Markup);
    class Manager {
       constructor() {
          this.ds = [];

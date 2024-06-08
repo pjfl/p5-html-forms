@@ -119,7 +119,7 @@
 [% BLOCK password -%]
   <input type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
 [%-  process_attrs( f.attributes ) %] value="[% f.fif | html %]" />
-[% IF f.get_tag('reveal') %]<span class="reveal" onmouseover="HForms.Util.revealPassword('[% f.id %]')">👁</span>[% END %]
+[% IF f.get_tag('reveal') %]<span class="reveal" onmouseover="WCom.Form.Util.revealPassword('[% f.id %]')">👁</span>[% END %]
 [% END -%]
 
 [% BLOCK radio_group -%]

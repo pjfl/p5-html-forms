@@ -127,7 +127,7 @@ has 'input_param' => is => 'rw', isa => Str;
 
 has 'input_without_param' => is => 'rw', predicate => 'has_input_without_param';
 
-has 'js_package' => is => 'ro', isa => Str, default => 'HForms.Util';
+has 'js_package' => is => 'ro', isa => Str, default => 'WCom.Form.Util';
 
 has 'label' =>
    is       => 'rw',

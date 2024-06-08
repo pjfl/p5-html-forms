@@ -59,7 +59,7 @@ has 'update_js_method' =>
    isa     => Str,
    default => sub { shift->_js_package . DOT . 'updateInterval' };
 
-has '_js_package' => is => 'ro', isa => Str, default => 'HForms.Toggle';
+has '_js_package' => is => 'ro', isa => Str, default => 'WCom.Form.Toggle';
 
 has 'period' =>
    is      => 'lazy',

@@ -1,10 +1,9 @@
-// Package HForms.Toggle
-// Dependencies HForms.Util
-if (!window.HForms) window.HForms = {};
-HForms.Toggle = (function() {
+// Package WCom.Form.Toggle
+// Dependencies WCom.Util
+WCom.Form.Toggle = (function() {
    const dsName = 'toggleConfig';
    const triggerClass = 'toggle';
-   const idPrefix = HForms.Util.wrapperIdPrefix;
+   const idPrefix = WCom.Form.Util.wrapperIdPrefix;
    const animate = function(el, method) {
       if (method == 'hide') {
          el.animate({ opacity: 0 }, { duration: 800, fill: 'forwards' });

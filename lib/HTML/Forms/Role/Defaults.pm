@@ -119,7 +119,7 @@ sub _add_field_validation {
 
    my $name = $field->name;
    my $uri  = $self->context->uri_for_action($self->default_action_path);
-   my $call = "HForms.Util.validateField('${uri}', '${name}')";
+   my $call = "WCom.Form.Util.validateField('${uri}', '${name}')";
 
    if (my $js = $attrs->{javascript}) {
       if ($js =~ m{ onblur= }mx) {
