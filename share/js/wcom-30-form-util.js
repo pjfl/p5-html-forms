@@ -28,14 +28,6 @@ WCom.Form.Util = (function () {
       const field = form.querySelector(selector);
       if (field) setTimeout(function() { field.focus() }, 500);
    };
-   const onReady = function(callback) {
-      if (document.readyState != 'loading') callback();
-      else if (document.addEventListener)
-         document.addEventListener('DOMContentLoaded', callback);
-      else document.attachEvent('onreadystatechange', function() {
-         if (document.readyState == 'complete') callback();
-      });
-   };
    const _repRemoveHandlers = function() {
       const rmElems = document.getElementsByClassName('remove-repeatable');
       for (const el of rmElems) {
@@ -74,7 +66,7 @@ WCom.Form.Util = (function () {
       }
    };
    const repeatable = function(htmls, indexes, levels) {
-      onReady(function(event) {
+      WCom.Util.Event.onReady(function(event) {
          _repAddHandlers(htmls, indexes, levels);
          _repRemoveHandlers();
       });
@@ -210,10 +202,9 @@ WCom.Form.Util = (function () {
       url.searchParams.set('value', field.value);
       _validateField(url, field);
    };
-   onReady(function(event) { scan() });
+   WCom.Util.Event.onReady(function(event) { scan() });
    return {
       fieldChange: fieldChange,
-      onReady: onReady,
       repeatable: repeatable,
       revealPassword: revealPassword,
       scan: scan,
