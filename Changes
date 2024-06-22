@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Moves get_body_parameters to Context
           - Moved onReady function to utils
           - Buttons now position on the right when required
           - Renames JS files

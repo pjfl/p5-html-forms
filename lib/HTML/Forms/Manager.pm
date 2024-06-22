@@ -77,33 +77,12 @@ sub new_with_context {
 
    $args->{action} //= $context->request->uri->as_string;
 
-   $args->{params} //= $self->get_body_parameters($context)
+   $args->{params} //= $context->get_body_parameters
       if lc $context->request->method eq 'post';
 
    $args->{schema} //= $self->schema if $self->has_schema;
 
    return $class->new($args);
-}
-
-=item get_body_parameters( $context )
-
-=cut
-
-sub get_body_parameters {
-   my ($self, $context) = @_;
-
-   my $request = $context->request;
-
-   return { %{$request->body_parameters->mixed // {}} }
-      if $request->isa('Plack::Request');
-
-   return { %{$request->body_parameters // {}} }
-      if $request->isa('Catalyst::Request')
-      || $request->isa('Web::ComposableRequest::Base');
-
-   return $request->parameters if $request->can('parameters');
-
-   return {};
 }
 
 use namespace::autoclean;
