@@ -1,5 +1,7 @@
 Revision history for HTML::Forms
 
+          - Just throw exceptions from Manager
+          - Field default_over_obj now just a bool
           - Moves get_body_parameters to Context
           - Moved onReady function to utils
           - Buttons now position on the right when required

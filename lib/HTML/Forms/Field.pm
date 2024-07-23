@@ -4,7 +4,6 @@ use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS TRUE FALSE META NUL );
 use HTML::Forms::Types     qw( Bool CodeRef HashRef HFs HFsArrayRefStr
                                HFsFieldResult Int Str Undef );
 use Data::Clone            qw( data_clone );
-use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Util      qw( convert_full_name has_some_value
                                merge ucc_widget );
 use Ref::Util              qw( is_arrayref is_coderef is_hashref );
@@ -17,6 +16,29 @@ use Try::Tiny;
 use Moo;
 use MooX::HandlesVia;
 use HTML::Forms::Moo;
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field - One-line description of the modules purpose
+
+=head1 Synopsis
+
+   use HTML::Forms::Field;
+   # Brief but working code examples
+
+=head1 Description
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=cut
 
 has [ 'disabled',
       'hide_info',
@@ -67,7 +89,7 @@ has 'default_method' =>
    predicate   => 'has_default_method',
    writer      => '_set_default_method';
 
-has 'default_over_obj' => is => 'rw', builder => sub { };
+has 'default_over_obj' => is => 'rw', isa => Bool, default => FALSE;
 
 has 'deflation' => is => 'rw', isa => CodeRef, predicate => 'has_deflation';
 
@@ -331,6 +353,16 @@ has 'wrapper_tags' =>
 
 with 'HTML::Forms::Validate';
 with 'HTML::Forms::Widget::ApplyRole';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=cut
 
 sub BUILD {
    my ($self, $params) = @_;
@@ -964,38 +996,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

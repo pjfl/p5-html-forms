@@ -12,39 +12,39 @@ sub _get_value {
    my $accessor = $field->accessor;
    my @values;
 
-   if (defined $field->default_over_obj) {
-      @values = $field->default_over_obj;
+   if ($field->default_over_obj) {
+      @values = $field->get_default_value;
    }
-   elsif ($field->form && $field->form->use_defaults_over_obj
-          && (@values = $field->get_default_value)) {
+   elsif ($field->form && $field->form->use_defaults_over_obj) {
+      @values = $field->get_default_value;
    }
-   elsif (blessed( $item ) && $item->can( $accessor )) {
+   elsif (blessed($item) && $item->can($accessor)) {
       # This must be an array, so that DBIx::Class relations are arrays not
       # resultsets
       @values = $item->$accessor;
       # For non-DBIC blessed object where access returns arrayref
-      if (scalar @values == 1
-          && $field->has_flag( 'multiple' ) && is_arrayref $values[ 0 ]) {
-         @values = @{ $values[ 0 ] };
+      if (scalar @values == 1 && $field->has_flag('multiple')
+          && is_arrayref $values[0]) {
+         @values = @{$values[0]};
       }
    }
-   elsif (exists $item->{ $accessor }) {
+   elsif (exists $item->{$accessor}) {
       my $v = $item->{$accessor};
 
-      if ($field->has_flag( 'multiple' ) && is_arrayref $v) { @values = @{ $v }}
+      if ($field->has_flag('multiple') && is_arrayref $v) { @values = @{$v}}
       else { @values = $v }
    }
    elsif (@values = $field->get_default_value) {
    }
    else { return }
 
-   @values = $field->inflate_default( @values )
+   @values = $field->inflate_default(@values)
       if $field->has_inflate_default_method;
 
    my $value;
 
-   if ($field->has_flag( 'multiple' )) {
-      $value = scalar @values == 1 && ! defined $values[ 0 ] ? [] : \@values;
+   if ($field->has_flag('multiple')) {
+      $value = scalar @values == 1 && ! defined $values[0] ? [] : \@values;
    }
    else { $value = @values > 1 ? \@values : shift @values }
 

@@ -220,9 +220,27 @@ WCom.Form.DataStructure = (function() {
          else this.sourceData = data;
          this.fieldRenderer = {
             // TODO: More field types
+            hidden: function(specification, value = '') {
+               const input = this.h.hidden({
+                  className: 'input input-hidden ds-input', value
+               });
+               input.setAttribute('data-ds-name', specification['name']);
+               if (specification['readonly'])
+                  input.setAttribute('readonly', 'readonly');
+               return input;
+            }.bind(this),
             text: function(specification, value = '') {
                const input = this.h.text({
                   className: 'input input-text ds-input', value
+               });
+               input.setAttribute('data-ds-name', specification['name']);
+               if (specification['readonly'])
+                  input.setAttribute('readonly', 'readonly');
+               return input;
+            }.bind(this),
+            textarea: function(specification, value = '') {
+               const input = this.h.textarea({
+                  className: 'input input-textare ds-input', value
                });
                input.setAttribute('data-ds-name', specification['name']);
                if (specification['readonly'])

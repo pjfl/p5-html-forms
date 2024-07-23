@@ -65,7 +65,7 @@ sub new_with_context {
    try   { load_class($class) }
    catch { $exception = $_ };
 
-   return HTML::Forms::Error->new($exception) if $exception;
+   throw $exception if $exception;
 
    my $context = $options->{context};
 
@@ -86,36 +86,6 @@ sub new_with_context {
 }
 
 use namespace::autoclean;
-
-package
-   HTML::Forms::Error;
-
-use HTML::Forms::Constants qw( FALSE TRUE );
-use HTML::Forms::Types     qw( Str );
-use Type::Utils            qw( class_type );
-use HTML::Tiny;
-use Moo;
-
-has 'exception' => is => 'ro', isa => Str, required => TRUE;
-
-has '_html' =>
-   is      => 'ro',
-   isa     => class_type('HTML::Tiny'),
-   default => sub { HTML::Tiny->new };
-
-around 'BUILDARGS' => sub {
-   my ($orig, $self, @args) = @_;
-
-   return $orig->($self, { exception => $args[0] });
-};
-
-sub process() { FALSE }
-
-sub render() {
-   my $self = shift;
-
-   return $self->_html->div({ class => 'form-error' }, $self->exception);
-}
 
 1;
 

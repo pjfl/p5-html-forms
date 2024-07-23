@@ -14,6 +14,7 @@
     line: gray;
     link: seagreen;
     panel-bg: ivory;
+    panel-shadow: gray;
     text: black;
 }
 #fonts() {
@@ -37,7 +38,7 @@
     checkbox-height: 1.25rem;
     checkbox-knob-width: 20px;
     checkbox-width: 40px;
-    error-max: 20rem;
+    error-max: 50rem;
     field-max: 20rem;
     field-min: 12rem;
 }
@@ -70,7 +71,7 @@ form.classic {
         }
     }
     .form-wrapper {
-        border-collapse: separate; border-spacing: 0 0.5rem;
+        border-collapse: separate; border-spacing: 0 0.25rem;
         border-radius: 5px; padding: 0 1rem; position: relative;
         .form-title {
             color: #colours[text]; font-family: #fonts[system];
@@ -95,14 +96,16 @@ form.classic {
     }
     .field-label:has(+span.digit-input-wrapper)::after,
     .field-label:has(+input[required=required])::after,
-    .field-label:has(+select[required=required])::after {
+    .field-label:has(+select[required=required])::after,
+    .field-label:has(+textarea[required=required])::after {
         color: #colours[field-required]; content: '*'; display: inline-block;
-        float: right; padding-left: 0.25rem;
+        float: right; min-width: 2ch; padding-left: 0.25rem;
     }
     .field-label:has(+span.digit-input-wrapper > input:valid)::after,
     .field-label:has(+input:valid)::after,
-    .field-label:has(+select:valid)::after {
-        content: '';
+    .field-label:has(+select:valid)::after,
+    .field-label:has(+textarea:valid)::after {
+        content: ' ';
     }
     span.field-label {
         border: 2px solid transparent; left: 0.5rem; padding: 2px 0.25rem;
@@ -187,6 +190,9 @@ form.classic {
     }
     .input-field.hide {
         display: none;
+    }
+    .input-field.data-structure {
+        top: -1rem;
     }
     .input-boolean {
         .checkbox-wrapper {
@@ -342,8 +348,14 @@ form.classic {
     }
 }
 .form-error {
-    background: #colours[error-bg]; border-radius: 5px;
-    max-height: 12rem; max-width: #sizes[error-max]; overflow: hidden;
+    background: #colours[error-bg];
+    border: 1px solid #colours[line]; border-radius: 5px;
+    box-shadow: 3px 3px 3px #colours[panel-shadow];
+    max-width: #sizes[error-max]; overflow: hidden;
+    padding: 0.5rem;
+    h1, h2, h3 {
+        margin: 0.5rem 0 !important;
+    }
 }
 .form-messages {
     .alert {

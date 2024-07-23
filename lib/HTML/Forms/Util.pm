@@ -2,19 +2,19 @@ package HTML::Forms::Util;
 
 use strictures;
 
-use Crypt::CBC;
-use Data::Clone            qw( clone );
-use DateTime;
-use DateTime::Duration;
-use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( BANG EXCEPTION_CLASS SECRET
                                TRUE FALSE META NUL SPC );
+use Data::Clone            qw( clone );
+use HTML::Entities         qw( encode_entities );
 use MIME::Base64           qw( decode_base64 encode_base64 );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
 use Scalar::Util           qw( blessed );
-use Try::Tiny;
 use Unexpected::Functions  qw( throw );
+use Crypt::CBC;
+use DateTime;
+use DateTime::Duration;
+use Try::Tiny;
 
 use Sub::Exporter -setup => { exports => [
    qw( cc_widget cipher convert_full_name duration_to_string
@@ -96,27 +96,16 @@ sub cc_widget ($) {
    return $widget;
 }
 
-my $cipher;
+sub cipher (;$) {
+   my $key = shift;
 
-sub cipher  {
-   my ($self, $value) = @_;
-
-   unless (defined $cipher or defined $value) {
-      $cipher = Crypt::CBC->new(
-         -cipher => 'Blowfish',
-         -header => 'salt',
-         -key    => SECRET,
-         -pbkdf  =>'pbkdf2',
-         -salt   => TRUE,
-      );
-   }
-
-   return $cipher unless defined $value;
-
-   throw "Class ${value} is not loaded or has no encrypt/decrypt methods"
-      unless $value->can('encrypt') && $value->can('decrypt');
-
-   return $cipher = $value;
+   return Crypt::CBC->new(
+      -cipher => 'Twofish2',
+      -header => 'salt',
+      -key    => $key // SECRET,
+      -pbkdf  =>'pbkdf2',
+      -salt   => TRUE,
+   );
 }
 
 sub convert_full_name ($) {
