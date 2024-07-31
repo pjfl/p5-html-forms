@@ -14,8 +14,8 @@ use Data::Dumper;
 use Sub::Name;
 use Try::Tiny;
 use Moo;
-use MooX::HandlesVia;
 use HTML::Forms::Moo;
+use Sub::HandlesVia;
 
 =pod
 
@@ -295,7 +295,7 @@ has 'wrapper_tags' =>
          is          => 'ro',
          isa         => CodeRef,
          handles_via => 'Code',
-         handles     => { $attr => 'execute' },
+         handles     => { $attr => 'execute_method' },
          predicate   => "has_${attr}_method",
          writer      => "_set_${attr}_method";
    }

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Field constructors for attributes now methods not functions
           - Just throw exceptions from Manager
           - Field default_over_obj now just a bool
           - Moves get_body_parameters to Context

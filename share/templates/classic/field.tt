@@ -1,7 +1,7 @@
 [% BLOCK button -%]
   <[% f.html_element %][%- process_attrs( f.attributes ) -%]
  type="[% f.input_type %]" name="[% f.html_name %]" id="[% f.id %]"
- value="[% f.value | html %]"><span>[% f.display_as %]</span></[% f.html_element %]>
+ value="[% f.value | html %]"><span>[% f.display_as | html %]</span></[% f.html_element %]>
 [% END -%]
 
 [% BLOCK captcha -%]
@@ -108,6 +108,11 @@
 [%-  label_text -%]</[% label_tag %]>
 [%-  END -%]
 [%- END -%]
+
+[% BLOCK link -%]
+  <a [% process_attrs( f.attributes) %] href="[% f.href %]" id="[% f.id%]">
+[%-  f.display_as | html %]</a>
+[% END -%]
 
 [% BLOCK no_render -%]
 [% END -%]

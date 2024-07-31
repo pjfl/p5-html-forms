@@ -6,6 +6,7 @@
     button-text: black;
     checkbox-false-bg: firebrick;
     checkbox-true-bg: seagreen;
+    disabled: gray;
     error-bg: lightpink;
     field-active: bisque;
     field-border: gainsboro;
@@ -56,12 +57,15 @@ form.classic {
         font-size: 0.8rem; padding: 0.5rem 0 0;
     }
     .ds-form {
-        position: relative;
+        border-spacing: 0; position: relative;
         th {
-            font-family: #fonts[system];
+            font-family: #fonts[system]; font-size: 0.8rem; font-weight: normal;
         }
         .ds-field.hide, .ds-reorderable.hide, .ds-remove.hide {
             display: none;
+        }
+        .ds-output {
+            font-size: 0.8rem;
         }
         .ds-reorderable-drag {
             position: absolute;
@@ -148,7 +152,7 @@ form.classic {
         }
         input, select, textarea {
             display: table-cell; font-family: #fonts[data];
-            max-width: #sizes[field-min];
+            max-width: #sizes[field-max];
         }
         input, select.select-multiple, textarea {
             border-radius: 5px; font-size: 0.85rem;
@@ -159,6 +163,12 @@ form.classic {
         input[type=date], input[type=email], input[type=password],
         input[type=text], select.select-multiple option {
             padding: 0 0.25rem;
+        }
+        input[readonly=readonly] {
+            color: #colours[disabled];
+        }
+        input[readonly=readonly][type=datetime-local] {
+            background: #colours[panel-bg]; border: 0; color: #colours[text];
         }
         select.select-multiple option {
             min-width: 8rem;
@@ -190,9 +200,6 @@ form.classic {
     }
     .input-field.hide {
         display: none;
-    }
-    .input-field.data-structure {
-        top: -1rem;
     }
     .input-boolean {
         .checkbox-wrapper {

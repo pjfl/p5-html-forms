@@ -220,32 +220,50 @@ WCom.Form.DataStructure = (function() {
          else this.sourceData = data;
          this.fieldRenderer = {
             // TODO: More field types
+            datetime: function(specification, value = '') {
+               const el = this.h.input({
+                  className: 'input input-text ds-input',
+                  type: 'datetime-local',
+                  value
+               });
+               el.setAttribute('data-ds-name', specification['name']);
+               if (specification['readonly'])
+                  el.setAttribute('readonly', 'readonly');
+               return el;
+            }.bind(this),
+            display: function(specification, value = '') {
+               const el = this.h.span({
+                  className: 'output output-display ds-output'
+               }, value);
+               el.setAttribute('data-ds-name', specification['name']);
+               return el;
+            }.bind(this),
             hidden: function(specification, value = '') {
-               const input = this.h.hidden({
+               const el = this.h.hidden({
                   className: 'input input-hidden ds-input', value
                });
-               input.setAttribute('data-ds-name', specification['name']);
+               el.setAttribute('data-ds-name', specification['name']);
                if (specification['readonly'])
-                  input.setAttribute('readonly', 'readonly');
-               return input;
+                  el.setAttribute('readonly', 'readonly');
+               return el;
             }.bind(this),
             text: function(specification, value = '') {
-               const input = this.h.text({
+               const el = this.h.text({
                   className: 'input input-text ds-input', value
                });
-               input.setAttribute('data-ds-name', specification['name']);
+               el.setAttribute('data-ds-name', specification['name']);
                if (specification['readonly'])
-                  input.setAttribute('readonly', 'readonly');
-               return input;
+                  el.setAttribute('readonly', 'readonly');
+               return el;
             }.bind(this),
             textarea: function(specification, value = '') {
-               const input = this.h.textarea({
+               const el = this.h.textarea({
                   className: 'input input-textare ds-input', value
                });
-               input.setAttribute('data-ds-name', specification['name']);
+               el.setAttribute('data-ds-name', specification['name']);
                if (specification['readonly'])
-                  input.setAttribute('readonly', 'readonly');
-               return input;
+                  el.setAttribute('readonly', 'readonly');
+               return el;
             }.bind(this)
          };
          const form = this.hidden.form;
@@ -259,6 +277,7 @@ WCom.Form.DataStructure = (function() {
       }
       createField(specification, item, useDefault) {
          let value = item[specification.name];
+         if (!value && specification.readonly) return '';
          if (useDefault) value = specification.value;
          const renderer = this.fieldRenderer[specification.type];
          if (!renderer) return;

@@ -14,17 +14,9 @@ has 'decimal_symbol_for_db' => is => 'ro', isa => Str, default => DOT;
 
 has 'precision' => is => 'rw', isa => Int|Undef, default => 2;
 
-has '+deflate_method' => default => sub {
-   my $self = shift; weaken $self;
+has '+deflate_method' => default => \&deflate_float;
 
-   return sub { $self->deflate_float(@_) };
-};
-
-has '+inflate_method' => default => sub {
-   my $self = shift; weaken $self;
-
-   return sub { $self->inflate_float(@_) };
-};
+has '+inflate_method' => default => \&inflate_float;
 
 has '+size' => default => 8;
 

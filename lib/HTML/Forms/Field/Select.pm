@@ -239,7 +239,7 @@ sub _build_deflate_method {
    my $self = shift;
 
    return sub {
-      my $value = shift;
+      my ($self, $value) = @_;
 
       return $value unless $self->has_many && $self->multiple;
 

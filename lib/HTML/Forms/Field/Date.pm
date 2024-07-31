@@ -28,7 +28,7 @@ has 'date_start' =>
    default => NUL,
    clearer => 'clear_date_start';
 
-has '+deflate_method' => default => sub { _build_deflate_method( shift ) };
+has '+deflate_method' => default => sub { shift->_build_deflate_method };
 
 has 'format' => is => 'lazy', isa => Str, default => DATE_FMT;
 
@@ -185,7 +185,7 @@ sub _build_deflate_method {
    my $self = shift;
 
    return sub {
-      my $value = shift;
+      my ($self, $value) = @_;
 
       # If not a DateTime, assume correctly formatted string and return
       return $value unless blessed $value && $value->isa('DateTime');
