@@ -8,8 +8,6 @@ use Scalar::Util           qw( weaken );
 use Moo;
 use MooX::HandlesVia;
 
-with 'HTML::Forms::Render::WithTT';
-
 has 'after_plist' => is => 'rw', isa => Str, default => NUL;
 
 has 'attr' =>
@@ -77,6 +75,8 @@ has 'render_list' =>
 has 'tag' => is => 'rw', isa => Str, default => 'div';
 
 has 'wrapper' => is => 'rw', isa => Bool, default => TRUE;
+
+with 'HTML::Forms::Role::RenderWithTT';
 
 # Public methods
 sub block_label_attributes {

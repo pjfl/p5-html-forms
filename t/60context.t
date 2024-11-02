@@ -14,7 +14,7 @@ use_ok 'HTML::Forms';
 
    use Moo::Role;
 
-   with 'HTML::Forms::Render::WithTT';
+   with 'HTML::Forms::Role::RenderWithTT';
 
    sub _build_tt_include_path { [ 'share/templates' ] }
 }

@@ -6,8 +6,6 @@ use HTML::Forms::Util      qw( get_meta );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
-with 'HTML::Forms::Render::WithTT';
-
 has '+do_form_wrapper' => is => 'rw', default => TRUE;
 
 has '+enctype' => is => 'rw', default => 'multipart/form-data';

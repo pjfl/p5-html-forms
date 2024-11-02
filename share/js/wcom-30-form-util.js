@@ -1,7 +1,7 @@
 // Package WCom.Form.Util
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
-   const triggerClass = 'classic';
+   const defaultFormClass = 'classic';
    const wrapperIdPrefix = 'field_';
    const _fieldMap = {};
    const _setFieldMap = function(targetId, fieldId) {
@@ -78,9 +78,10 @@ WCom.Form.Util = (function () {
       field.type = 'text';
    };
    const scan = function(content = document, options = {}) {
-      const formClass = options.formClass ? options.formClass : triggerClass;
+      if (WCom.Form.Renderer.scan(content, options)) return;
       const forms = content.getElementsByTagName('form');
       if (!forms) return;
+      const formClass = options.formClass ? options.formClass : defaultFormClass;
       for (const form of forms) {
          if (!form.classList.contains(formClass)) continue;
          WCom.Form.DataStructure.manager.scan(form);
@@ -205,6 +206,7 @@ WCom.Form.Util = (function () {
    WCom.Util.Event.onReady(function(event) { scan() });
    return {
       fieldChange: fieldChange,
+      focusFirst: focusFirst,
       repeatable: repeatable,
       revealPassword: revealPassword,
       scan: scan,

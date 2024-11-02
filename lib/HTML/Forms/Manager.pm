@@ -37,7 +37,24 @@ Defines the following attributes;
 
 has 'namespace' => is => 'ro', isa => Str, required => TRUE;
 
+=item renderer_class
+
+An immutable string. The name of the non default renderer class
+
+=item has_renderer_class
+
+Predicate
+
+=cut
+
+has 'renderer_class' =>
+   is        => 'ro',
+   isa       => Str,
+   predicate => 'has_renderer_class';
+
 =item schema
+
+An optional instance of L<DBIx::Class::Schema>
 
 =cut
 
@@ -79,6 +96,8 @@ sub new_with_context {
 
    $args->{params} //= $context->get_body_parameters
       if lc $context->request->method eq 'post';
+
+   $args->{renderer_class} = $self->renderer_class if $self->has_renderer_class;
 
    $args->{schema} //= $self->schema if $self->has_schema;
 

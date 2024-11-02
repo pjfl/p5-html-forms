@@ -15,8 +15,8 @@ sub _get_value {
    if ($field->default_over_obj) {
       @values = $field->get_default_value;
    }
-   elsif ($field->form && $field->form->use_defaults_over_obj) {
-      @values = $field->get_default_value;
+   elsif ($field->form && $field->form->use_defaults_over_obj
+      && (@values = $field->get_default_value)) {
    }
    elsif (blessed($item) && $item->can($accessor)) {
       # This must be an array, so that DBIx::Class relations are arrays not

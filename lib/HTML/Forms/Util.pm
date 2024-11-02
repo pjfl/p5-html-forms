@@ -19,7 +19,7 @@ use Try::Tiny;
 use Sub::Exporter -setup => { exports => [
    qw( cc_widget cipher convert_full_name duration_to_string
        encode_only_entities get_meta get_token has_some_value inflate_interval
-       interval_to_string merge now process_attrs quote_single
+       interval_to_string json_bool merge now process_attrs quote_single
        ucc_widget uri_escape verify_token )
 ]};
 
@@ -236,6 +236,17 @@ sub interval_to_string ($$) {
    return duration_to_string( $duration, $default_period );
 }
 
+=item json_bool( $scalar )
+
+Evaluates the scalar value provided and returns references to true/false values
+for serialising to JSON
+
+=cut
+
+sub json_bool ($) {
+   return (shift) ? \1 : \0;
+}
+
 sub merge ($$) {
    my ($left, $right) = @_;
 
@@ -291,8 +302,19 @@ sub process_attrs {
 
    my $output = join SPC, @use_attrs;
 
-   $output  = " ${output}" if length $output;
-   $output .= " ${javascript}" if $javascript;
+   $output = " ${output}" if length $output;
+
+   if ($javascript) {
+      if (is_hashref $javascript) {
+         for my $event (keys %{$javascript}) {
+            my $handler = $javascript->{$event};
+
+            $output .= qq{ ${event}="${handler}"};
+         }
+      }
+      else { $output .= " ${javascript}" }
+   }
+
    return $output;
 }
 

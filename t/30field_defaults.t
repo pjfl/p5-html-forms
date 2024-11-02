@@ -39,15 +39,15 @@ is_deeply $form->fif, $init_obj, 'object overrides defaults';
 
    extends 'HTML::Forms';
 
-   has_field 'foo' => default_over_obj => 'default_foo';
-   has_field 'bar' => default_over_obj => q();
-   has_field 'bax' => default_over_obj => 'default_bax';
+   has_field 'foo' => default_over_obj => 1, default => 'default_foo';
+   has_field 'bar' => default_over_obj => 1, default => q();
+   has_field 'bax' => default_over_obj => 1, default => 'default_bax';
 }
 # test that the 'default_over_obj' type defaults override an init_object/item
 $form = Test::DefaultsX->new;
 $form->process( init_object => $init_obj, params => {} );
 
-is $form->field( 'foo' )->default_over_obj, 'default_foo', 'foo correct';
+is $form->field( 'foo' )->value, 'default_foo', 'foo correct';
 
 is_deeply $form->fif, $cmp_fif, 'fif uses defaults overriding object';
 
@@ -284,7 +284,7 @@ is $form->field( 'foo' )->fif, 'foo_from_obj',
    use HTML::Forms::Moo;
    extends 'HTML::Forms';
 
-   with 'HTML::Forms::Render::WithTT';
+   with 'HTML::Forms::Role::RenderWithTT';
 
    has '+name' => default => 'testform';
    has_field 'foo';
@@ -365,7 +365,7 @@ is_deeply( $values, $exp_values, 'got expected values' );
    use HTML::Forms::Moo;
    extends 'HTML::Forms';
 
-   with 'HTML::Forms::Render::WithTT';
+   with 'HTML::Forms::Role::RenderWithTT';
 
    has_field 'user_name';
    has_field 'occupation';

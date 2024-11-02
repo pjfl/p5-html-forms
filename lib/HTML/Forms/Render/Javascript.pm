@@ -144,6 +144,8 @@ HTML::Forms::Render::Javascript - Generates markup for and processes input from 
 
 =head1 Description
 
+Only used when creating standalone forms to include the necessary JS
+
 =head1 Configuration and Environment
 
 Defines the following attributes;

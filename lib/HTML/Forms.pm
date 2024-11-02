@@ -1,13 +1,13 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 59 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 60 $ =~ /\d+/gmx );
 
-use Data::Clone            qw( clone );
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
                                HFsArrayRefStr HFsField HFsResult
                                LoadableClass Object Str Undef );
+use Data::Clone            qw( clone );
 use HTML::Forms::Util      qw( has_some_value );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
@@ -31,18 +31,8 @@ HTML::Forms - Generates markup for and processes input from HTML forms
 
 =head1 Synopsis
 
-   {
-      package HTML::Forms::Renderer;
-
-      use Moo::Role;
-
-      with 'HTML::Forms::Render::WithTT';
-
-      sub _build_tt_include_path { [ 'share/templates' ] }
-   }
-
    my $form = HTML::Forms->new_with_traits(
-      name => 'test_tt', traits => [ 'HTML::Forms::Renderer' ],
+      name => 'test_tt', traits => [ 'HTML::Forms::Role::Defaults' ],
    );
 
    $form->render;
@@ -529,6 +519,27 @@ has 'posted' =>
    isa       => Bool,
    clearer   => 'clear_posted',
    predicate => 'has_posted';
+
+has '_renderer' =>
+   is      => 'lazy',
+   isa     => Object,
+   handles => ['render'],
+   default => sub {
+      my $self = shift;
+
+      return $self->renderer_class->new( form => $self );
+   };
+
+=item renderer_class
+
+A lazy loadable class. The class name of the C<renderer> object
+
+=cut
+
+has 'renderer_class' =>
+   is      => 'lazy',
+   isa     => LoadableClass,
+   default => sub { 'HTML::Forms::Render::WithTT' };
 
 has '_repeatable_fields' =>
    is          => 'rw',

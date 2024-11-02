@@ -286,12 +286,14 @@ WCom.Form.DataStructure = (function() {
          return field;
       }
       createRow(item) {
-        const useDefault = !item;
+         const useDefault = !item;
          item ||= {};
          const row = this.h.tr();
          for (const column of this.structure) {
             const field = this.createField(column, item, useDefault);
-            row.appendChild(this.h.td({ className: 'ds-field' }, field));
+            const className
+                  = 'ds-field' + (column.classes ? ' ' + column.classes : '');
+            row.appendChild(this.h.td({ className }, field));
          }
          if (this.reorderable) {
             const icon = this.h.icon({
@@ -312,7 +314,6 @@ WCom.Form.DataStructure = (function() {
             row.appendChild(this.h.td({ className: 'ds-remove' }, button));
          }
          this.table.querySelector('tbody').appendChild(row);
-         this.table.classList.remove('hide');
       }
       dropCallback(tr, row, dropTarget) {
          const selected = row.querySelector(
@@ -434,22 +435,25 @@ WCom.Form.DataStructure = (function() {
             }.bind(this)
          });
       }
-      render() {
+      _header() {
          const row = this.h.tr();
          const header = this.h.thead({}, row);
          for (const column of this.structure)
             row.appendChild(this.h.th(column.label));
          if (this.reorderable) row.appendChild(this.h.th());
          if (!this.fixed) row.appendChild(this.h.th());
-         const table = this.h.table({
-            className: 'ds-form hide'
-         }, [header, this.h.tbody()]);
+         return header;
+      }
+      render() {
+         const attr = { className: 'ds-form hide' };
+         const table = this.h.table(attr, [this._header(), this.h.tbody()]);
          this.table = this.display(this.container, 'table', table);
          if (this.singleRow) this.createRow(this.sourceData[0]);
          else {
             for (const item of this.sourceData) this.createRow(item);
          }
          this.setupReorderable();
+         this.table.classList.remove('hide');
          if (!this.singleRow && !this.fixed && !this.hasLoaded) {
             const addButton = this.h.button({
                className: 'small',

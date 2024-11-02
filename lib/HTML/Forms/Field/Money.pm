@@ -1,5 +1,6 @@
-use utf8;
 package HTML::Forms::Field::Money;
+
+use utf8;
 
 use HTML::Forms::Constants qw( FALSE META );
 use HTML::Forms::Types     qw( Bool Int Str );

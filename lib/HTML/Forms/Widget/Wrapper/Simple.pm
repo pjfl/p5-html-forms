@@ -5,7 +5,7 @@ use HTML::Forms::Util      qw( process_attrs );
 use Scalar::Util           qw( weaken );
 use Moo::Role;
 
-with 'HTML::Forms::Render::WithTT';
+with 'HTML::Forms::Role::RenderWithTT';
 
 # Private methods
 sub _build_default_tt_vars {

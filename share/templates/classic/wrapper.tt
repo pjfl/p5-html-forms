@@ -32,7 +32,7 @@
 [%   END -%]
 [%   f.get_tag( 'before_element' ) -%]
 [%   IF f.get_tag( 'controls_div' ) -%]
-    <div class="controls">
+       <div class="controls">
 [%   ELSIF f.has_element_wrapper_class -%]
        <div[% process_attrs( f.element_wrapper_attributes ) %]>
 [%   END -%]
