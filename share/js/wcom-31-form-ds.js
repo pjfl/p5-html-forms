@@ -501,7 +501,7 @@ WCom.Form.DataStructure = (function() {
    Object.assign(DataStructure.prototype, WCom.Util.Markup);
    class Manager {
       constructor() {
-         this.ds = [];
+         this.ds = {};
       }
       async reload(target, url) {
          const ds = this.ds[target];

@@ -18,7 +18,7 @@ WCom.Form.Renderer = (function() {
          this.form = this.h.form({
             acceptCharset: attr['accept-charset'],
             action: attr.action,
-            className: attr['class'],
+            className: attr.className,
             enctype: attr.enctype,
             id: attr.id,
             method: attr.method,
@@ -26,9 +26,10 @@ WCom.Form.Renderer = (function() {
          });
          if (attr.novalidate == 'novalidate')
             this.form.setAttribute('novalidate', 'novalidate');
+         if (config.msgsBeforeStart) this._renderFormMessages(this.container);
          const wrapper = this._createFormWrapper();
-         if (config.infoMessage) this._renderInfoMessage(wrapper);
-         this._renderStatusMessage(wrapper);
+         if (!config.msgsBeforeStart) this._renderFormMessages(wrapper);
+         if (config.infoMessage) this._renderFormInformation(wrapper);
          for (const field of config.fields) this._renderField(wrapper, field);
          this.animateButtons(this.form, '.input-field button');
          WCom.Form.Util.focusFirst(this.form);
@@ -36,11 +37,16 @@ WCom.Form.Renderer = (function() {
       // Private
       _createFormWrapper() {
          const config = this.config;
+         if (!config.doFormWrapper) {
+            this.container.appendChild(this.form);
+            return this.form;
+         }
          const wrapper = this.h[config.wrapperTag](config.wrapperAttr);
+         const legendAttr = { className: 'form-title' };
          if (config.wrapperTag != 'fieldset') {
             this.container.appendChild(wrapper);
             if (config.legend) {
-               const legend = this.h.div(config.legendAttr, config.legend);
+               const legend = this.h.div(legendAttr, config.legend);
                wrapper.appendChild(legend);
             }
             wrapper.appendChild(this.form);
@@ -48,7 +54,7 @@ WCom.Form.Renderer = (function() {
          }
          this.container.appendChild(this.form);
          if (config.legend) {
-            const legend = this.h.legend(config.legendAttr, config.legend);
+            const legend = this.h.legend(legendAttr, config.legend);
             wrapper.appendChild(legend);
          }
          this.form.appendChild(wrapper);
@@ -56,13 +62,23 @@ WCom.Form.Renderer = (function() {
       }
       _renderField(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
-         if (field.doLabel && field.label) {
+         if (field.doLabel && field.label && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
-         const className = 'HTMLField' + this.ucfirst(field.widget);
+         const className = 'HTMLField' + field.widget;
          const fieldWidget = eval('new ' + className + '(field)');
          const element = fieldWidget.render(wrapper);
+         if (field.depends)
+            element.setAttribute('data-field-depends', field.depends);
+         if (field.disabled)
+            element.setAttribute('disabled', 'disabled');
+         if (field.toggle)
+            element.setAttribute('data-toggle-config', field.toggle);
+         if (field.doLabel && field.label && field.labelRight) {
+            const label = this.h[field.labelTag](field.labelAttr, field.label);
+            wrapper.appendChild(label);
+         }
          this._renderFieldErrors(wrapper, field, element);
          container.appendChild(wrapper);
       }
@@ -82,28 +98,27 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.div(infoAttr, field.info));
          }
       }
-      _renderInfoMessage(container) {
+      _renderFormInformation(container) {
          const config = this.config;
          if (!config.infoMessage) return;
-         const info = this.h.div(config.infoAttr, config.infoMessage);
-         container.appendChild(info);
+         const infoAttr = { className: 'alert alert-info' };
+         container.appendChild(this.h.div(infoAttr, config.infoMessage));
       }
-      _renderStatusMessage(container) {
-         const wrapperAttr = { className: 'form-messages' };
-         const wrapper = this.h.div(wrapperAttr);
-         if (this.config.errorMsg) {
+      _renderFormMessages(container) {
+         const config = this.config;
+         const wrapper = this.h.div({ className: 'form-messages' });
+         if (config.errorMsg) {
             const errorAttr = { className: 'alert alert-severe' };
-            wrapper.appendChild(this.h.div(errorAttr, this.config.errorMsg));
+            wrapper.appendChild(this.h.div(errorAttr, config.errorMsg));
          }
-         else if (this.config.successMsg) {
+         else if (config.successMsg) {
             const successAttr = { className: 'alert alert-success' };
-            wrapper.appendChild(this.h.div(successAttr, this.config.successMsg));
+            wrapper.appendChild(this.h.div(successAttr, config.successMsg));
          }
          container.appendChild(wrapper);
       }
    }
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);
-   Object.assign(HTMLForm.prototype, WCom.Util.String);
    // Field baseclass
    class HTMLField {
       constructor(field) {
@@ -118,8 +133,8 @@ WCom.Form.Renderer = (function() {
          if (field.value !== undefined) this.attr.value = field.value;
       }
       _handlers() {
-         for (const [event, handler] of Object.entries(this.field.handlers)) {
-            this.attr[event] = function(ev) { eval(handler) };
+         for (const [ev, handler] of Object.entries(this.field.handlers)) {
+            this.attr[ev] = function(event) { eval(handler) };
          }
       }
    }
@@ -129,8 +144,6 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          const field = this.field;
          const element = this.h[field.htmlElement](this.attr);
-         if (field.depends)
-            element.setAttribute('data-field-depends', field.depends);
          if (field.displayAs) element.appendChild(this.h.span(field.displayAs));
          wrapper.appendChild(element);
          return element;
@@ -140,16 +153,25 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          const field = this.field;
          const element = this.h.span({ className: 'checkbox-wrapper' });
-         const attr = {
-            ...field.attributes,
-            id: field.id,
-            name: field.htmlName,
-            type: field.inputType,
-            value: field.checkboxValue
-         };
-         if (field.fif == field.checkboxValue) attr.checked = 'checked';
-         element.appendChild(this.h.input(attr));
+         this.attr.type = field.inputType;
+         this.attr.value = field.checkboxValue;
+         if (field.fif == field.checkboxValue) this.attr.checked = 'checked';
+         element.appendChild(this.h.input(this.attr));
          wrapper.appendChild(element);
+         return element;
+      }
+   }
+   class HTMLFieldDataStructure extends HTMLField {
+      render(wrapper) {
+         const field = this.field;
+         const attr = { className: 'data-structure input-field' };
+         const element = this.h.div(attr);
+         this.attr.type = this.field.inputType;
+         const hidden = this.h.input(this.attr);
+         hidden.setAttribute('data-ds-specification', field.dsSpec);
+         element.appendChild(hidden);
+         wrapper.appendChild(element);
+         WCom.Form.DataStructure.manager.scan(wrapper);
          return element;
       }
    }
@@ -188,12 +210,31 @@ WCom.Form.Renderer = (function() {
          });
       }
       _handler(id, count) {
-         return function(ev) { WCom.Form.Util.updateDigits(id, count) }
+         return function(event) { WCom.Form.Util.updateDigits(id, count) }
       }
    }
    class HTMLFieldImage extends HTMLField {
       render(wrapper) {
-         const element = this.h.img({ ...this.attr, src: this.field.src });
+         const field = this.field;
+         const attr = { ...field.attributes, id: field.id, src: field.src };
+         const element = this.h.img(attr);
+         wrapper.appendChild(element);
+         return element;
+      }
+   }
+   class HTMLFieldLink extends HTMLField {
+      render(wrapper) {
+         const field = this.field;
+         const attr = { ...field.attributes, href: field.href, id: field.id };
+         const element = this.h.a(attr, field.displayAs);
+         wrapper.appendChild(element);
+         return element;
+      }
+   }
+   class HTMLFieldNoValue extends HTMLField {
+      render(wrapper) {
+         const element = this.h.span();
+         element.innerHTML = this.field.html;
          wrapper.appendChild(element);
          return element;
       }
@@ -236,10 +277,35 @@ WCom.Form.Renderer = (function() {
             value: option.value
          };
          if (option.disabled) attr.disabled = 'disabled';
-         for (const selectedVal of field.fif) {
-            if (selectedVal == option.value) attr.selected = 'selected';
+         if (this.h.typeOf(field.fif) == 'array') {
+            for (const selectedVal of field.fif) {
+               if (selectedVal == option.value) attr.selected = 'selected';
+            }
+         }
+         else {
+            if (field.fif == option.value) attr.selected = 'selected';
          }
          return this.h.option(attr, option.label);
+      }
+   }
+   class HTMLFieldSelector extends HTMLField {
+      render(wrapper) {
+         const field = this.field;
+         this.attr.value = field.fif;
+         const handler = field.clickHandler; delete field.clickHandler;
+         const element = this.h.input(this.attr);
+         element.setAttribute('readonly', 'readonly');
+         wrapper.appendChild(element);
+         const attr = {
+            id: field.id + '_select',
+            name: field.htmlName + '_select',
+            onclick: function(event) { eval(handler) },
+            type: 'submit',
+            value: ''
+         };
+         const button = this.h.button(attr, this.h.span(field.displayAs));
+         wrapper.appendChild(button);
+         return element;
       }
    }
    class HTMLFieldSpan extends HTMLField {
@@ -254,8 +320,6 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          this.attr.value = this.field.fif;
          const element = this.h[this.field.htmlElement](this.attr);
-         if (this.field.depends)
-            element.setAttribute('data-field-depends', this.field.depends);
          wrapper.appendChild(element);
          return element;
       }
@@ -267,10 +331,29 @@ WCom.Form.Renderer = (function() {
          const element = super.render(wrapper);
          if (this.field.reveal) {
             const id = this.field.id;
-            const handler = function(ev) { WCom.Form.Util.revealPassword(id) };
+            const handler = function(event) {
+               WCom.Form.Util.revealPassword(id);
+            };
             const attr = { className: 'reveal', onmouseover: handler };
             wrapper.appendChild(this.h.span(attr, '👁'));
          }
+         return element;
+      }
+   }
+   class HTMLFieldTextarea extends HTMLField {
+      render(wrapper) {
+         this.attr.cols = this.field.cols;
+         this.attr.rows = this.field.rows;
+         const element = this.h.textarea(this.attr, this.field.fif);
+         wrapper.appendChild(element);
+         return element;
+      }
+   }
+   class HTMLFieldUpload extends HTMLField {
+      render(wrapper) {
+         this.attr.type = 'file';
+         const element = this.h.input(this.attr);
+         wrapper.appendChild(element);
          return element;
       }
    }

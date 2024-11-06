@@ -32,14 +32,14 @@ has 'default_charset' => is => 'ro', isa => Str, default => 'utf-8';
 has 'default_field_traits' =>
    is      => 'ro',
    isa     => ArrayRef,
-   builder => sub { [ qw( Label Toggle ) ] };
+   default => sub { [ qw( Label Toggle ) ] };
 
 has 'default_form_class' => is => 'ro', isa => Str, default => TT_THEME;
 
 has 'default_form_legend' =>
    is      => 'lazy',
    isa     => Str,
-   builder => sub {
+   default => sub {
       my $self  = shift;
 
       return $self->title if $self->title;
@@ -56,6 +56,11 @@ has 'default_form_wrapper_class' =>
    default => 'form-wrapper';
 
 has 'default_request_token' => is => 'ro', isa => Str, default => '_verify';
+
+has 'default_validate_method' =>
+   is      => 'ro',
+   isa     => Str,
+   default => 'WCom.Form.Util.validateField';
 
 has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'fieldset';
 
@@ -115,19 +120,20 @@ around 'before_build_fields' => sub {
 sub _add_field_validation {
    my ($self, $field, $attrs) = @_;
 
-   my $name = $field->name;
-   my $uri  = $self->context->uri_for_action($self->default_action_path);
-   my $call = "WCom.Form.Util.validateField('${uri}', '${name}')";
+   my $name    = $field->name;
+   my $uri     = $self->context->uri_for_action($self->default_action_path);
+   my $vmethod = $self->default_validate_method;
+   my $call    = "${vmethod}('${uri}', '${name}')";
 
    if (my $js = $attrs->{javascript}) {
-      if ($js =~ m{ onblur= }mx) {
-         my ($existing) = $js =~ m{ onblur=\" (.+) \" }mx;
+      if (exists $js->{onblur}) {
+         my $existing = $js->{onblur};
 
-         $attrs->{javascript} = qq{onblur="${existing}; ${call}"};
+         $attrs->{javascript}->{onblur} = "${existing}; ${call}";
       }
-      else { $attrs->{javascript} = qq{${js} onblur="${call}"} }
+      else { $attrs->{javascript}->{onblur} = $call }
    }
-   else { $attrs->{javascript} = qq{onblur="${call}"} }
+   else { $attrs->{javascript} = { onblur => $call } }
 
    return;
 }

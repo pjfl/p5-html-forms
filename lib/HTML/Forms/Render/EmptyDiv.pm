@@ -73,6 +73,10 @@ has 'data' =>
    default => sub {
       my $self = shift;
       my $form = $self->form;
+      my $form_attr = $form->attributes;
+
+      $form_attr->{className} = join SPC, @{delete $form_attr->{class}};
+
       my $wrapper_attr = $form->form_wrapper_attributes;
 
       $wrapper_attr->{className} = join SPC, @{delete $wrapper_attr->{class}};
@@ -86,23 +90,25 @@ has 'data' =>
          && $form->result->validated
          ? $form->localise($form->success_message) : NUL;
 
+      my $config = {
+            attributes      => $form_attr,
+            doFormWrapper   => json_bool $form->do_form_wrapper,
+            errorMsg        => $error_message,
+            fields          => $self->_serialise_fields,
+            infoMessage     => $info_message,
+            legend          => $form->get_tag('legend'),
+            msgsBeforeStart => json_bool $form->messages_before_start,
+            name            => $form->name,
+            successMsg      => $success_message,
+            wrapperAttr     => $wrapper_attr,
+            wrapperTag      => $form->get_tag('wrapper_tag') || 'fieldset',
+      };
+
       return {
-         'class' => 'html-forms',
-         'data-form-config' => $self->_json->encode({
-            attributes  => $form->attributes,
-            errorMsg    => $error_message,
-            fields      => $self->_serialise_fields,
-            infoAttr    => { className => 'alert alert-info' },
-            infoMessage => $info_message,
-            legend      => $form->get_tag('legend'),
-            legendAttr  => { className => 'form-title' },
-            name        => $form->name,
-            successMsg  => $success_message,
-            wrapperAttr => $wrapper_attr,
-            wrapperTag  => $form->get_tag('wrapper_tag') || 'fieldset',
-         }),
+         'class'            => 'html-forms',
+         'data-form-config' => $self->_json->encode($config),
+      };
    };
-};
 
 =item form
 
@@ -159,13 +165,13 @@ sub _serialise_field {
    my ($self, $field) = @_;
 
    my $form = $self->form;
-   my $result = $field->result;
    my $field_attr = $field->attributes;
+   my $disabled = delete $field_attr->{disabled};
 
    $field_attr->{className} = join SPC, @{delete $field_attr->{class} // []};
 
    my $depends = join SPC, @{delete $field_attr->{'data-field-depends'} // []};
-   my $handlers = delete $field_attr->{javascript};
+   my $ds_spec = delete $field_attr->{'data-ds-specification'} // NUL;
    my $label_attr = $field->label_attributes // {};
 
    $label_attr->{className} = join SPC, @{delete $label_attr->{class}};
@@ -175,10 +181,14 @@ sub _serialise_field {
 
    $wrapper_attr->{className} = join SPC, @{delete $wrapper_attr->{class}};
 
-   my $attr = {
+   my $handlers = delete $field_attr->{javascript};
+   my $result   = $field->result;
+   my $attr     = {
       attributes  => $field_attr,
       depends     => $depends,
+      disabled    => $disabled,
       doLabel     => json_bool $field->do_label,
+      dsSpec      => $ds_spec,
       handlers    => $handlers,
       htmlElement => $field->html_element,
       htmlName    => $field->html_name,
@@ -187,6 +197,7 @@ sub _serialise_field {
       inputType   => $field->input_type,
       label       => $field->loc_label,
       labelAttr   => $label_attr,
+      labelRight  => json_bool $field->get_tag('label_right') // FALSE,
       labelTag    => $field->get_tag('label_tag') || 'label',
       name        => $field->name,
       result      => {
@@ -195,19 +206,26 @@ sub _serialise_field {
       },
       reveal      => json_bool $field->get_tag('reveal'),
       value       => $field->value,
-      widget      => $field->uwidget,
+      widget      => $field->widget || 'Text',
       wrapperAttr => $wrapper_attr,
    };
 
    $attr->{checkboxValue} = $field->checkbox_value
       if $field->can('checkbox_value');
-   $attr->{displayAs}   = $field->display_as   if $field->can('display_as');
-   $attr->{emptySelect} = $field->empty_select if $field->can('empty_select');
-   $attr->{fif}         = $field->fif          if $field->can('fif');
-   $attr->{multiple}    = $field->multiple     if $field->can('multiple');
-   $attr->{options}     = $field->options      if $field->can('options');
-   $attr->{size}        = $field->size         if $field->can('size');
-   $attr->{src}         = $field->src          if $field->can('src');
+   $attr->{clickHandler} = $field->click_handler
+      if $field->can('click_handler');
+   $attr->{cols}         = $field->cols          if $field->can('cols');
+   $attr->{displayAs}    = $field->display_as    if $field->can('display_as');
+   $attr->{emptySelect}  = $field->empty_select  if $field->can('empty_select');
+   $attr->{fif}          = $field->fif           if $field->can('fif');
+   $attr->{html}         = $field->html          if $field->can('html');
+   $attr->{multiple}     = $field->multiple      if $field->can('multiple');
+   $attr->{options}      = $field->options       if $field->can('options');
+   $attr->{rows}         = $field->rows          if $field->can('rows');
+   $attr->{size}         = $field->size          if $field->can('size');
+   $attr->{src}          = $field->src           if $field->can('src');
+   $attr->{toggle}       = $field->toggle_config_encoded
+      if $field->can('has_toggle') && $field->has_toggle;
 
    return $attr;
 }
