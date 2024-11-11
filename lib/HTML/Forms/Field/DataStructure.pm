@@ -1,9 +1,9 @@
 package HTML::Forms::Field::DataStructure;
 
 use HTML::Forms::Constants qw( FALSE NUL TRUE );
-use HTML::Forms::Types     qw( ArrayRef Bool HashRef Str );
+use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities );
-use JSON::MaybeXS          qw( encode_json );
+use JSON::MaybeXS          qw( decode_json encode_json );
 use Moo;
 
 extends 'HTML::Forms::Field::Text';
@@ -15,9 +15,11 @@ has 'drag_title' =>
    isa     => Str,
    default => 'Drag and drop to reorder rows';
 
+has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
+
 has 'icons' => is => 'rw', isa => Str, default => NUL;
 
-has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
+has 'is_row_readonly' => is => 'ro', isa => CodeRef, default => sub { FALSE };
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
 
@@ -32,7 +34,12 @@ has '+type_attr' => default => 'hidden';
 has '+widget' => default => 'DataStructure';
 
 sub _build_element_attr {
-   my $self = shift;
+   my $self     = shift;
+   my $readonly = [];
+
+   for my $row (@{decode_json($self->value)}) {
+      push @{$readonly}, $self->is_row_readonly->($self, $row) ? \1 : \0;
+   }
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
@@ -40,9 +47,10 @@ sub _build_element_attr {
          'fixed'       => $self->fixed ? \1 : \0,
          'icons'       => $self->icons,
          'is-object'   => $self->store_as_hash ? \1 : \0,
-         'structure'   => $self->structure,
+         'readonly'    => $readonly,
          'reorderable' => $self->reorderable ? \1 : \0,
          'single-hash' => $self->single_hash ? \1 : \0,
+         'structure'   => $self->structure,
       }))
    };
 }

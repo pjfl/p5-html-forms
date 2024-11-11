@@ -197,6 +197,7 @@ WCom.Form.DataStructure = (function() {
          this.fixed = this.config['fixed'] || false;
          this.icons = this.config['icons'];
          this.isObject = this.config['is-object'] || false;
+         this.readonly = this.config['readonly'];
          this.reorderable = this.config['reorderable'] || false;
          this.structure = this.config['structure'];
          this.drag = new Drag();
@@ -222,7 +223,7 @@ WCom.Form.DataStructure = (function() {
             // TODO: More field types
             datetime: function(specification, value = '') {
                const el = this.h.input({
-                  className: 'input input-text ds-input',
+                  className: 'input input-datetime ds-input',
                   type: 'datetime-local',
                   value
                });
@@ -258,7 +259,7 @@ WCom.Form.DataStructure = (function() {
             }.bind(this),
             textarea: function(specification, value = '') {
                const el = this.h.textarea({
-                  className: 'input input-textare ds-input', value
+                  className: 'input input-textarea ds-input', value
                });
                el.setAttribute('data-ds-name', specification['name']);
                if (specification['readonly'])
@@ -267,9 +268,7 @@ WCom.Form.DataStructure = (function() {
             }.bind(this)
          };
          const form = this.hidden.form;
-         if (form) {
-            form.addEventListener('submit', this.submitHandler);
-         }
+         if (form) form.addEventListener('submit', this.submitHandler);
       }
       _closestRow(el) {
          while (el && el.tagName != 'TR') el = el.parentNode;
@@ -285,15 +284,30 @@ WCom.Form.DataStructure = (function() {
          if (this.isObject) this.registerValidation(field, specification.name);
          return field;
       }
-      createRow(item) {
+      createRow(item, index) {
+         const readonly = this.readonly[index];
          const useDefault = !item;
          item ||= {};
+         const fields = {};
          const row = this.h.tr();
+         let tag;
          for (const column of this.structure) {
             const field = this.createField(column, item, useDefault);
-            const className
-                  = 'ds-field' + (column.classes ? ' ' + column.classes : '');
-            row.appendChild(this.h.td({ className }, field));
+            if (!field) continue;
+            if (readonly) field.setAttribute('readonly', 'readonly');
+            if (column.tag) {
+               if (tag) tag.appendChild(field);
+               else {
+                  tag = this.h.span({ className: 'ds-tag' }, field);
+                  fields[column.tag].appendChild(tag);
+               }
+            }
+            else {
+               const className = 'ds-field'
+                     + (column.classes ? ' ' + column.classes : '');
+               fields[column.name] = this.h.td({ className }, field);
+               row.appendChild(fields[column.name]);
+            }
          }
          if (this.reorderable) {
             const icon = this.h.icon({
@@ -304,7 +318,7 @@ WCom.Form.DataStructure = (function() {
             }, icon);
             row.appendChild(this.h.td({ className: 'ds-reorderable' }, knob));
          }
-         if (!this.singleRow && !this.fixed) {
+         if (!this.singleRow && !this.fixed && !readonly) {
             const button = this.h.button({
                className: 'small',
                onclick: function(event) {
@@ -448,9 +462,13 @@ WCom.Form.DataStructure = (function() {
          const attr = { className: 'ds-form hide' };
          const table = this.h.table(attr, [this._header(), this.h.tbody()]);
          this.table = this.display(this.container, 'table', table);
-         if (this.singleRow) this.createRow(this.sourceData[0]);
+         let index = 0;
+         if (this.singleRow) this.createRow(this.sourceData[0], index);
          else {
-            for (const item of this.sourceData) this.createRow(item);
+            for (const item of this.sourceData) {
+               this.createRow(item, index);
+               index++;
+            }
          }
          this.setupReorderable();
          this.table.classList.remove('hide');

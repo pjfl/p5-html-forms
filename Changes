@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - DataStructure rows can now be readonly
           - Adds more JS rendered field types
           - Adds EmptyDiv for JS rendering
           - Field constructors for attributes now methods not functions
