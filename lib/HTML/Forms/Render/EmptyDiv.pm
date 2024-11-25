@@ -1,7 +1,7 @@
 package HTML::Forms::Render::EmptyDiv;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL SPC TRUE );
-use HTML::Forms::Types     qw( HashRef HFs Str );
+use HTML::Forms::Types     qw( HashRef HFs Int Str );
 use HTML::Forms::Util      qw( json_bool );
 use Type::Utils            qw( class_type );
 use Unexpected::Functions  qw( throw );
@@ -99,6 +99,7 @@ has 'data' =>
             legend          => $form->get_tag('legend'),
             msgsBeforeStart => json_bool $form->messages_before_start,
             name            => $form->name,
+            pageSize        => $self->page_size,
             successMsg      => $success_message,
             wrapperAttr     => $wrapper_attr,
             wrapperTag      => $form->get_tag('wrapper_tag') || 'fieldset',
@@ -117,6 +118,12 @@ A required weak reference to the L<HTML::Forms> object
 =cut
 
 has 'form' => is => 'ro', isa => HFs, required => TRUE, weak_ref => TRUE;
+
+=item page_size
+
+=cut
+
+has 'page_size' => is => 'ro', isa => Int, default => 0;
 
 # Private attributes
 has '_html' =>

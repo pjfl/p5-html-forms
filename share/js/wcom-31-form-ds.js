@@ -199,6 +199,7 @@ WCom.Form.DataStructure = (function() {
          this.isObject = this.config['is-object'] || false;
          this.readonly = this.config['readonly'];
          this.reorderable = this.config['reorderable'] || false;
+         this.rowClass = this.config['row-class'] || '';
          this.structure = this.config['structure'];
          this.drag = new Drag();
          this.hasLoaded = false;
@@ -274,9 +275,11 @@ WCom.Form.DataStructure = (function() {
          while (el && el.tagName != 'TR') el = el.parentNode;
          return el;
       }
-      createField(specification, item, useDefault) {
+      createField(specification, item) {
+         const useDefault = !item;
+         item ||= {};
          let value = item[specification.name];
-         if (!value && specification.readonly) return '';
+         if (!value && specification.readonly) return;
          if (useDefault) value = specification.value;
          const renderer = this.fieldRenderer[specification.type];
          if (!renderer) return;
@@ -286,20 +289,18 @@ WCom.Form.DataStructure = (function() {
       }
       createRow(item, index) {
          const readonly = this.readonly[index];
-         const useDefault = !item;
-         item ||= {};
+         const row = this.h.tr({ className: this.rowClass });
          const fields = {};
-         const row = this.h.tr();
          let tag;
          for (const column of this.structure) {
-            const field = this.createField(column, item, useDefault);
+            const field = this.createField(column, item);
             if (!field) continue;
             if (readonly) field.setAttribute('readonly', 'readonly');
             if (column.tag) {
                if (tag) tag.appendChild(field);
                else {
                   tag = this.h.span({ className: 'ds-tag' }, field);
-                  fields[column.tag].appendChild(tag);
+                  fields[column.tag].prepend(tag);
                }
             }
             else {
@@ -465,10 +466,7 @@ WCom.Form.DataStructure = (function() {
          let index = 0;
          if (this.singleRow) this.createRow(this.sourceData[0], index);
          else {
-            for (const item of this.sourceData) {
-               this.createRow(item, index);
-               index++;
-            }
+            for (const item of this.sourceData) this.createRow(item, index++);
          }
          this.setupReorderable();
          this.table.classList.remove('hide');

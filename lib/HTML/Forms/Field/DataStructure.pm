@@ -2,7 +2,7 @@ package HTML::Forms::Field::DataStructure;
 
 use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HashRef Str );
-use HTML::Forms::Util      qw( encode_only_entities );
+use HTML::Forms::Util      qw( encode_only_entities json_bool );
 use JSON::MaybeXS          qw( decode_json encode_json );
 use Moo;
 
@@ -23,6 +23,8 @@ has 'is_row_readonly' => is => 'ro', isa => CodeRef, default => sub { FALSE };
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
 
+has 'row_class' => is => 'ro', isa => Str, default => 'ds-row';
+
 has 'single_hash' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'store_as_hash' => is => 'ro', isa => Bool, default => FALSE;
@@ -37,19 +39,20 @@ sub _build_element_attr {
    my $self     = shift;
    my $readonly = [];
 
-   for my $row (@{decode_json($self->value)}) {
-      push @{$readonly}, $self->is_row_readonly->($self, $row) ? \1 : \0;
+   for my $row (@{decode_json($self->value // '[]')}) {
+      push @{$readonly}, json_bool $self->is_row_readonly->($self, $row);
    }
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
          'drag-title'  => $self->drag_title,
-         'fixed'       => $self->fixed ? \1 : \0,
+         'fixed'       => json_bool $self->fixed,
          'icons'       => $self->icons,
-         'is-object'   => $self->store_as_hash ? \1 : \0,
+         'is-object'   => json_bool $self->store_as_hash,
          'readonly'    => $readonly,
-         'reorderable' => $self->reorderable ? \1 : \0,
-         'single-hash' => $self->single_hash ? \1 : \0,
+         'reorderable' => json_bool $self->reorderable,
+         'row-class'   => $self->row_class,
+         'single-hash' => json_bool $self->single_hash,
          'structure'   => $self->structure,
       }))
    };

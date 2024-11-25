@@ -26,41 +26,32 @@ WCom.Form.Renderer = (function() {
          });
          if (attr.novalidate == 'novalidate')
             this.form.setAttribute('novalidate', 'novalidate');
-         if (config.msgsBeforeStart) this._renderFormMessages(this.container);
-         const wrapper = this._createFormWrapper();
-         if (!config.msgsBeforeStart) this._renderFormMessages(wrapper);
-         if (config.infoMessage) this._renderFormInformation(wrapper);
-         for (const field of config.fields) this._renderField(wrapper, field);
+         if (config.msgsBeforeStart) this._formMessages(this.container);
+         const wrapper = this._formWrapper();
+         if (!config.msgsBeforeStart) this._formMessages(wrapper);
+         if (config.infoMessage) this._formInformation(wrapper);
+         const pageSize = config.pageSize;
+         if (pageSize > 0) {
+            this.pages = [];
+            this.pageItems = [];
+            this.pageItemSelected = 0;
+            this.pageList = this.h.ul({ className: 'page-list' });
+            wrapper.appendChild(this.pageList);
+         }
+         let fieldCount = 0;
+         let pageCount = 0;
+         let page = wrapper;
+         for (const field of config.fields) {
+            if (pageSize > 0 && fieldCount == 0)
+               page = this._page(wrapper, pageCount++);
+            this._field(page, field);
+            if (pageSize > 0 && ++fieldCount >= pageSize) fieldCount = 0;
+         }
          this.animateButtons(this.form, '.input-field button');
          WCom.Form.Util.focusFirst(this.form);
       }
       // Private
-      _createFormWrapper() {
-         const config = this.config;
-         if (!config.doFormWrapper) {
-            this.container.appendChild(this.form);
-            return this.form;
-         }
-         const wrapper = this.h[config.wrapperTag](config.wrapperAttr);
-         const legendAttr = { className: 'form-title' };
-         if (config.wrapperTag != 'fieldset') {
-            this.container.appendChild(wrapper);
-            if (config.legend) {
-               const legend = this.h.div(legendAttr, config.legend);
-               wrapper.appendChild(legend);
-            }
-            wrapper.appendChild(this.form);
-            return this.form;
-         }
-         this.container.appendChild(this.form);
-         if (config.legend) {
-            const legend = this.h.legend(legendAttr, config.legend);
-            wrapper.appendChild(legend);
-         }
-         this.form.appendChild(wrapper);
-         return wrapper;
-      }
-      _renderField(container, field) {
+      _field(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
          if (field.doLabel && field.label && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
@@ -79,10 +70,10 @@ WCom.Form.Renderer = (function() {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
-         this._renderFieldErrors(wrapper, field, element);
+         this._fieldErrors(wrapper, field, element);
          container.appendChild(wrapper);
       }
-      _renderFieldErrors(container, field, element) {
+      _fieldErrors(container, field, element) {
          const errorAttr = { className: 'alert alert-error' };
          for (const error of field.result.allErrors) {
             container.appendChild(this.h.span(errorAttr, error));
@@ -98,13 +89,13 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.div(infoAttr, field.info));
          }
       }
-      _renderFormInformation(container) {
+      _formInformation(container) {
          const config = this.config;
          if (!config.infoMessage) return;
          const infoAttr = { className: 'alert alert-info' };
          container.appendChild(this.h.div(infoAttr, config.infoMessage));
       }
-      _renderFormMessages(container) {
+      _formMessages(container) {
          const config = this.config;
          const wrapper = this.h.div({ className: 'form-messages' });
          if (config.errorMsg) {
@@ -116,6 +107,50 @@ WCom.Form.Renderer = (function() {
             wrapper.appendChild(this.h.div(successAttr, config.successMsg));
          }
          container.appendChild(wrapper);
+      }
+      _formWrapper() {
+         const config = this.config;
+         if (!config.doFormWrapper) {
+            this.container.appendChild(this.form);
+            return this.form;
+         }
+         const wrapper = this.h[config.wrapperTag](config.wrapperAttr);
+         if (config.wrapperTag == 'fieldset') {
+            this.container.appendChild(this.form);
+            if (config.legend) this._legend(wrapper, 'legend');
+            this.form.appendChild(wrapper);
+            return wrapper;
+         }
+         this.container.appendChild(wrapper);
+         if (config.legend) this._legend(wrapper, 'div');
+         wrapper.appendChild(this.form);
+         return this.form;
+      }
+      _legend(wrapper, tag) {
+         const legendAttr = { className: 'form-title' };
+         const legend = this.h[tag](legendAttr, this.config.legend);
+         wrapper.appendChild(legend);
+      }
+      _page(wrapper, count) {
+         const attr = {
+            onclick: function(event) { this._selectPage(count) }.bind(this)
+         };
+         this.pageItems[count] = this.h.li(attr, 'Page ' + (count + 1));
+         if (count == this.pageItemSelected)
+            this.pageItems[count].classList.add('selected');
+         this.pageList.appendChild(this.pageItems[count]);
+         this.pages[count] = this.h.div({ className: 'form-page' });
+         if (count != this.pageItemSelected)
+            this.pages[count].classList.add('hide');
+         wrapper.appendChild(this.pages[count]);
+         return this.pages[count];
+      }
+      _selectPage(count) {
+         this.pageItems[this.pageItemSelected].classList.remove('selected');
+         this.pages[this.pageItemSelected].classList.add('hide');
+         this.pageItemSelected = count;
+         this.pageItems[this.pageItemSelected].classList.add('selected');
+         this.pages[this.pageItemSelected].classList.remove('hide');
       }
    }
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);

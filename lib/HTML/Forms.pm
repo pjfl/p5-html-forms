@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 62 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 63 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -526,9 +526,18 @@ has '_renderer' =>
    handles => ['render'],
    default => sub {
       my $self = shift;
+      my $args = { %{$self->renderer_args}, form => $self };
 
-      return $self->renderer_class->new( form => $self );
+      return $self->renderer_class->new($args);
    };
+
+=item renderer_args
+
+An immutable hash reference passed to the constructor of the C<renderer> object
+
+=cut
+
+has 'renderer_args' => is => 'ro', isa => HashRef, default => sub { {} };
 
 =item renderer_class
 
