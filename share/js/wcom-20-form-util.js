@@ -203,7 +203,7 @@ WCom.Form.Util = (function () {
       url.searchParams.set('value', field.value);
       _validateField(url, field);
    };
-   WCom.Util.Event.onReady(function(event) { scan() });
+   WCom.Util.Event.register(scan);
    return {
       fieldChange: fieldChange,
       focusFirst: focusFirst,

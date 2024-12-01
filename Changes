@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Renamed JS files
           - Supports multipage forms
           - DataStructure rows can now be readonly
           - Adds more JS rendered field types

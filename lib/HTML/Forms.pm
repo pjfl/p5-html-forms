@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 63 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 64 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -27,7 +27,7 @@ extends 'HTML::Forms::Base';
 
 =head1 Name
 
-HTML::Forms - Generates markup for and processes input from HTML forms
+HTML::Forms - HTML forms using Moo
 
 =head1 Synopsis
 
