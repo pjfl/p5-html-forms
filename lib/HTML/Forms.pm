@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 66 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 67 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -452,7 +452,7 @@ has 'inactive' =>
 
 An immutable hash reference of field objects with an empty default. Provides an
 index by field name to the field objects in the
-L<fields|HTML::Forms::Fields::fields> array
+L<fields|HTML::Forms::Fields/fields> array
 
 Handles; C<add_to_index>, C<field_from_index>, and C<field_in_index> via the
 hash trait
@@ -1444,12 +1444,12 @@ sub new_with_traits {
 
    $validated = $self->process( @args );
 
-Calls L</clear> if L</processed> is true. Calls
-L</setup_form> with the supplied C<@args>. If the form was
-L</posted> calls L</validate_form>. If
-L</validated> is true and L</no_update> is false call
-both L</update_model> and then L</after_update_model>.
-Set L</processed> to true and return L</validated>
+Calls L<HTML::Forms/clear> if L<HTML::Forms/processed> is true. Calls
+L<HTML::Forms/setup_form> with the supplied C<@args>. If the form was
+L<HTML::Forms/posted> calls L<HTML::Forms/validate_form>. If
+L<HTML::Forms/validated> is true and L<HTML::Forms/no_update> is false call
+both L<HTML::Forms/update_model> and then L<HTML::Forms/after_update_model>.
+Set L<HTML::Forms/processed> to true and return L<HTML::Forms/validated>
 
 Consider this fragment from a controller/model method that processes a form
 C<GET> or C<POST>. It stashes the form object (for rendering in the HTML
@@ -1528,12 +1528,12 @@ sub set_active {
 
    $self->setup_form( @args );
 
-Called from L</process>. The C<@args> is either a hash reference or
+Called from L<HTML::Forms/process>. The C<@args> is either a hash reference or
 a list of keys and values. The hash reference is used to instantiate the
 C<params> hash reference, the list is used to set attributes on the form
 object. L<HTML::Forms::Model/build_item> is called if we have an C<item_id>
 and no C<item>. The C<result> object is cleared, fields have their activation
-state set, L</update_fields> is called, C<posted> is set to true if
+state set, L<HTML::Forms/update_fields> is called, C<posted> is set to true if
 we has C<params> and C<posted> wasn't supplied to the constructor. The
 C<result> is initialised. If C<posted> the result is cleared again and then
 initialised from the C<params> provided
@@ -1604,7 +1604,7 @@ sub update_field {
 
 =item update_fields
 
-Called from L</process>. If we C<has_update_field_list> call
+Called from L<HTML::Forms/process>. If we C<has_update_field_list> call
 C<update_field> for each element in the list. If we C<has_defaults> call
 C<update_field> supplying those defaults
 
@@ -1641,7 +1641,7 @@ sub update_fields {
 =item validate
 
 Dummy method which always returns true. Decorate this method from the form
-class, it is called from L</validate_form>
+class, it is called from L<HTML::Forms/validate_form>
 
 =cut
 
@@ -1649,7 +1649,7 @@ sub validate { TRUE }
 
 =item validate_form
 
-Called from L</process> if the form was posted. Sets required
+Called from L<HTML::Forms/process> if the form was posted. Sets required
 dependencies, validates individual fields, calls the above C<validate> method,
 calls L<HTML::Forms::Model/validate_model>, sets field values, builds any
 errors, clears the dependencies, clears C<posted>, sets C<ran_validation> to
@@ -1763,7 +1763,8 @@ __END__
 
 =head1 Diagnostics
 
-Setting L</verbose> to true will output diagnostic information to C<stderr>
+Setting L<HTML::Forms/verbose> to true will output diagnostic information to
+C<stderr>
 
 =head1 Dependencies
 

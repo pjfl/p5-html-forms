@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - More POD link fixes
           - Fixes POD links in markdown
           - Completed first pass at POD in HTML::Forms
           - Renamed JS files
