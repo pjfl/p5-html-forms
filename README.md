@@ -187,11 +187,11 @@ Defines the following attributes;
     - `wrapper_tag` - Tag to wrap the form in. Defaults to `fieldset`
 
     The keys that contain markup are only implemented by the
-    [HTML::Forms::Render::WithTT](https://metacpan.org/pod/with%20TT) renderer
+    [Template Tookit](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ARender%3A%3AWithTT) renderer
 
     Handles; `has_tag`, `set_tag`, and `tag_exists` via the hash trait
 
-    See [HTML::Forms::get\_tag](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aget_tag)
+    See ["get\_tag" in HTML::Forms](https://metacpan.org/pod/HTML%3A%3AForms#get_tag)
 
 - http\_method
 
@@ -209,7 +209,7 @@ Defines the following attributes;
 
     An immutable hash reference of field objects with an empty default. Provides an
     index by field name to the field objects in the
-    [HTML::Forms::Fields::fields](https://metacpan.org/pod/fields) array
+    [fields](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AFields%3A%3Afields) array
 
     Handles; `add_to_index`, `field_from_index`, and `field_in_index` via the
     hash trait
@@ -588,12 +588,12 @@ Defines the following methods;
 
         $validated = $self->process( @args );
 
-    Calls [HTML::Forms::clear](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aclear) if [HTML::Forms::processed](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocessed) is true. Calls
-    [HTML::Forms::setup\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Asetup_form) with the supplied `@args`. If the form was
-    [HTML::Forms::posted](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aposted) calls [HTML::Forms::validate\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidate_form). If
-    [HTML::Forms::validated](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidated) is true and [HTML::Forms::no\_update](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Ano_update) is false call
-    both [HTML::Forms::update\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aupdate_model) and then [HTML::Forms::after\_update\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aafter_update_model).
-    Set [HTML::Forms::processed](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocessed) to true and return [HTML::Forms::validated](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidated)
+    Calls ["clear"](#clear) if ["processed"](#processed) is true. Calls
+    ["setup\_form"](#setup_form) with the supplied `@args`. If the form was
+    ["posted"](#posted) calls ["validate\_form"](#validate_form). If
+    ["validated"](#validated) is true and ["no\_update"](#no_update) is false call
+    both ["update\_model"](#update_model) and then ["after\_update\_model"](#after_update_model).
+    Set ["processed"](#processed) to true and return ["validated"](#validated)
 
     Consider this fragment from a controller/model method that processes a form
     `GET` or `POST`. It stashes the form object (for rendering in the HTML
@@ -621,12 +621,12 @@ Defines the following methods;
 
         $self->setup_form( @args );
 
-    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess). The `@args` is either a hash reference or
+    Called from ["process"](#process). The `@args` is either a hash reference or
     a list of keys and values. The hash reference is used to instantiate the
     `params` hash reference, the list is used to set attributes on the form
-    object. [HTML::Forms::Model::build\_item](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel%3A%3Abuild_item) is called if we have an `item_id`
+    object. ["build\_item" in HTML::Forms::Model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel#build_item) is called if we have an `item_id`
     and no `item`. The `result` object is cleared, fields have their activation
-    state set, [HTML::Forms::update\_fields](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aupdate_fields) is called, `posted` is set to true if
+    state set, ["update\_fields"](#update_fields) is called, `posted` is set to true if
     we has `params` and `posted` wasn't supplied to the constructor. The
     `result` is initialised. If `posted` the result is cleared again and then
     initialised from the `params` provided
@@ -640,31 +640,30 @@ Defines the following methods;
 
 - update\_fields
 
-    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess). If we `has_update_field_list` call
+    Called from ["process"](#process). If we `has_update_field_list` call
     `update_field` for each element in the list. If we `has_defaults` call
     `update_field` supplying those defaults
 
 - validate
 
     Dummy method which always returns true. Decorate this method from the form
-    class, it is called from [HTML::Forms::validate\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidate_form)
+    class, it is called from ["validate\_form"](#validate_form)
 
 - validate\_form
 
-    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess) if the form was posted. Sets required
+    Called from ["process"](#process) if the form was posted. Sets required
     dependencies, validates individual fields, calls the above `validate` method,
-    calls [HTML::Forms::Model::validate\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel%3A%3Avalidate_model), sets field values, builds any
+    calls ["validate\_model" in HTML::Forms::Model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel#validate_model), sets field values, builds any
     errors, clears the dependencies, clears `posted`, sets `ran_validation` to
     true and returns the `validated` attribute
 
 - values
 
-    Returns [HTML::Forms::Result::value](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult%3A%3Avalue)
+    Returns ["value" in HTML::Forms::Result](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult#value)
 
 # Diagnostics
 
-Setting [HTML::Forms::verbose](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Averbose) to true will output diagnostic information
-to `stderr`
+Setting ["verbose"](#verbose) to true will output diagnostic information to `stderr`
 
 # Dependencies
 
