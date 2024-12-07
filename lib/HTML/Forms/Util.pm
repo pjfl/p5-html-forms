@@ -23,6 +23,38 @@ use Sub::Exporter -setup => { exports => [
        ucc_widget uri_escape verify_token )
 ]};
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Util - Utility functions
+
+=head1 Synopsis
+
+   use HTML::Forms::Util qw( verify_token );
+
+=head1 Description
+
+Utility functions
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=over 3
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following functions;
+
+=over 3
+
+=cut
+
 my $INTERVAL_REGEXP = {
    hours  => qr{ \A (h|hours?) }imx,
    days   => qr{ \A (d|days?) \z }imx,
@@ -84,7 +116,10 @@ my $PERIOD_CONVERSION = {
    years  => {},
 };
 
-# Public functions
+=item cc_widget
+
+=cut
+
 sub cc_widget ($) {
    my $widget = shift;
 
@@ -95,6 +130,10 @@ sub cc_widget ($) {
 
    return $widget;
 }
+
+=item cipher
+
+=cut
 
 sub cipher (;$) {
    my $key = shift;
@@ -108,6 +147,10 @@ sub cipher (;$) {
    );
 }
 
+=item convert_full_name
+
+=cut
+
 sub convert_full_name ($) {
    my $full_name = shift;
 
@@ -116,6 +159,10 @@ sub convert_full_name ($) {
 
    return $full_name;
 }
+
+=item duration_to_string
+
+=cut
 
 sub duration_to_string ($$) {
    my ($duration, $default_period) = @_;
@@ -148,6 +195,10 @@ sub duration_to_string ($$) {
    return "${time_units} ${smallest_period}";
 }
 
+=item encode_only_entities
+
+=cut
+
 sub encode_only_entities {
    my $html = shift;
 
@@ -160,6 +211,10 @@ sub encode_only_entities {
    return $html;
 }
 
+=item get_meta
+
+=cut
+
 sub get_meta {
    my $self   = shift;
    my $class  = blessed $self || $self;
@@ -167,6 +222,10 @@ sub get_meta {
 
    return $class->can($method) ? $class->$method : undef;
 }
+
+=item get_token
+
+=cut
 
 sub get_token ($$) {
    my ($expires, $prefix) = @_;
@@ -179,6 +238,10 @@ sub get_token ($$) {
    $token =~ s{[\s\r\n]+}{}gmx;
    return $token;
 }
+
+=item has_some_value
+
+=cut
 
 sub has_some_value {
    my $x = shift;
@@ -205,6 +268,10 @@ sub has_some_value {
    return FALSE;
 }
 
+=item inflate_interval
+
+=cut
+
 sub inflate_interval {
    my $interval = shift;
 
@@ -228,6 +295,10 @@ sub inflate_interval {
    return DateTime::Duration->new( %duration );
 }
 
+=item interval_to_string
+
+=cut
+
 sub interval_to_string ($$) {
    my ($interval, $default_period) = @_;
 
@@ -247,6 +318,10 @@ sub json_bool ($) {
    return (shift) ? \1 : \0;
 }
 
+=item merge
+
+=cut
+
 sub merge ($$) {
    my ($left, $right) = @_;
 
@@ -261,6 +336,10 @@ sub merge ($$) {
    return $MATRIX->{ $lefttype }{ $righttype }->( $left, $right );
 }
 
+=item now
+
+=cut
+
 sub now (;$$) {
    my ($tz, $locale) = @_;
 
@@ -272,7 +351,12 @@ sub now (;$$) {
    return DateTime->now(%{$args});
 }
 
-# This is a function for processing various attribute flavors
+=item process_attrs
+
+This is a function for processing various attribute flavors
+
+=cut
+
 sub process_attrs {
    my $attrs = shift;
 
@@ -318,6 +402,10 @@ sub process_attrs {
    return $output;
 }
 
+=item quote_single
+
+=cut
+
 sub quote_single ($) {
   local ($_) = $_[0];
 
@@ -325,6 +413,10 @@ sub quote_single ($) {
 
   return qq('$_');
 }
+
+=item ucc_widget
+
+=cut
 
 sub ucc_widget ($) {
    my $widget = shift;
@@ -340,6 +432,10 @@ sub ucc_widget ($) {
 
    return $widget;
 }
+
+=item verify_token
+
+=cut
 
 sub verify_token ($$) {
    my ($token, $prefix) = @_;
@@ -390,38 +486,17 @@ sub _merge_hashes {
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Util - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Util;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Sub::Exporter>
 
 =back
 

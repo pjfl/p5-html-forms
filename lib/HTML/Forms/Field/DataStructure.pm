@@ -19,7 +19,10 @@ has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
 
 has 'icons' => is => 'rw', isa => Str, default => NUL;
 
-has 'is_row_readonly' => is => 'ro', isa => CodeRef, default => sub { FALSE };
+has 'is_row_readonly' =>
+   is      => 'ro',
+   isa     => CodeRef,
+   default => sub { sub { FALSE } };
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
 

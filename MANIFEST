@@ -17,6 +17,7 @@ lib/HTML/Forms/Field/Compound.pm
 lib/HTML/Forms/Field/DataStructure.pm
 lib/HTML/Forms/Field/Date.pm
 lib/HTML/Forms/Field/DateTime.pm
+lib/HTML/Forms/Field/Digits.pm
 lib/HTML/Forms/Field/Display.pm
 lib/HTML/Forms/Field/Duration.pm
 lib/HTML/Forms/Field/Email.pm
@@ -28,6 +29,7 @@ lib/HTML/Forms/Field/Image.pm
 lib/HTML/Forms/Field/IntRange.pm
 lib/HTML/Forms/Field/Integer.pm
 lib/HTML/Forms/Field/Interval.pm
+lib/HTML/Forms/Field/Link.pm
 lib/HTML/Forms/Field/Minute.pm
 lib/HTML/Forms/Field/Money.pm
 lib/HTML/Forms/Field/Month.pm
@@ -48,6 +50,7 @@ lib/HTML/Forms/Field/Result.pm
 lib/HTML/Forms/Field/RmElement.pm
 lib/HTML/Forms/Field/Second.pm
 lib/HTML/Forms/Field/Select.pm
+lib/HTML/Forms/Field/Selector.pm
 lib/HTML/Forms/Field/Submit.pm
 lib/HTML/Forms/Field/Text.pm
 lib/HTML/Forms/Field/TextArea.pm
@@ -68,6 +71,7 @@ lib/HTML/Forms/Model/Object.pm
 lib/HTML/Forms/Moo.pm
 lib/HTML/Forms/Moo/Attribute.pm
 lib/HTML/Forms/Params.pm
+lib/HTML/Forms/Render/EmptyDiv.pm
 lib/HTML/Forms/Render/Javascript.pm
 lib/HTML/Forms/Render/MinimalCSS.pm
 lib/HTML/Forms/Render/WithTT.pm
@@ -75,6 +79,7 @@ lib/HTML/Forms/Result.pm
 lib/HTML/Forms/Result/Role.pm
 lib/HTML/Forms/Role/Captcha.pm
 lib/HTML/Forms/Role/Defaults.pm
+lib/HTML/Forms/Role/RenderWithTT.pm
 lib/HTML/Forms/Role/ToggleRequired.pm
 lib/HTML/Forms/Types.pm
 lib/HTML/Forms/Util.pm
@@ -88,9 +93,12 @@ lib/HTML/Forms/Widget/Form/Complex.pm
 lib/HTML/Forms/Widget/Form/Simple.pm
 lib/HTML/Forms/Widget/Wrapper/Simple.pm
 share/css/hforms-minimal.css
-share/js/hforms-0-util.js
-share/js/hforms-1-repeatable.js
-share/js/hforms-2-toggle.js
+share/js/wcom-10-util.js
+share/js/wcom-11-modal.js
+share/js/wcom-20-form-util.js
+share/js/wcom-21-form-ds.js
+share/js/wcom-22-form-toggle.js
+share/js/wcom-23-form-renderer.js
 share/less/hforms-minimal.less
 share/templates/classic/block.tt
 share/templates/classic/field.tt

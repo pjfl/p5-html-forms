@@ -92,19 +92,21 @@ WCom.Form.Renderer = (function() {
       _formInformation(container) {
          const config = this.config;
          if (!config.infoMessage) return;
-         const infoAttr = { className: 'alert alert-info' };
-         container.appendChild(this.h.div(infoAttr, config.infoMessage));
+         const className = config.tags.infoClass || 'alert alert-info';
+         container.appendChild(this.h.div({ className }, config.infoMessage));
       }
       _formMessages(container) {
          const config = this.config;
-         const wrapper = this.h.div({ className: 'form-messages' });
+         if (config.tags.noFormMessages) return;
+         let className = config.tags.messagesWrapperClass || 'form-messages';
+         const wrapper = this.h.div({ className });
          if (config.errorMsg) {
-            const errorAttr = { className: 'alert alert-severe' };
-            wrapper.appendChild(this.h.div(errorAttr, config.errorMsg));
+            className = config.tags.errorClass || 'alert alert-severe';
+            wrapper.appendChild(this.h.div({ className }, config.errorMsg));
          }
          else if (config.successMsg) {
-            const successAttr = { className: 'alert alert-success' };
-            wrapper.appendChild(this.h.div(successAttr, config.successMsg));
+            className = config.tags.successClass || 'alert alert-success';
+            wrapper.appendChild(this.h.div({ className }, config.successMsg));
          }
          container.appendChild(wrapper);
       }
@@ -114,21 +116,22 @@ WCom.Form.Renderer = (function() {
             this.container.appendChild(this.form);
             return this.form;
          }
-         const wrapper = this.h[config.wrapperTag](config.wrapperAttr);
-         if (config.wrapperTag == 'fieldset') {
+         const wrapperTag = config.tags.wrapperTag || 'fieldset';
+         const wrapper = this.h[wrapperTag](config.wrapperAttr);
+         if (wrapperTag == 'fieldset') {
             this.container.appendChild(this.form);
-            if (config.legend) this._legend(wrapper, 'legend');
+            if (config.tags.legend) this._legend(wrapper, 'legend');
             this.form.appendChild(wrapper);
             return wrapper;
          }
          this.container.appendChild(wrapper);
-         if (config.legend) this._legend(wrapper, 'div');
+         if (config.tags.legend) this._legend(wrapper, 'div');
          wrapper.appendChild(this.form);
          return this.form;
       }
       _legend(wrapper, tag) {
          const legendAttr = { className: 'form-title' };
-         const legend = this.h[tag](legendAttr, this.config.legend);
+         const legend = this.h[tag](legendAttr, this.config.tags.legend);
          wrapper.appendChild(legend);
       }
       _page(wrapper, count) {

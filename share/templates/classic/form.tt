@@ -40,7 +40,7 @@
 [% END -%]
 
 [% BLOCK form_messages -%]
-[%   RETURN IF get_tag( 'no_form_message_div' ) -%]
+[%   RETURN IF get_tag( 'no_form_messages' ) -%]
 [%   message_class = get_tag( 'messages_wrapper_class' ) || 'form-messages' -%]
   <div class="[% message_class %]">
 [%   IF form.has_error_message && (form.result.has_errors || form.result.has_form_errors) -%]

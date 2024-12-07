@@ -89,6 +89,12 @@ has 'data' =>
       my $success_message = $form->has_success_message
          && $form->result->validated
          ? $form->localise($form->success_message) : NUL;
+      my $tags = {
+         map {
+            (my $key = $_) =~ s{ _(\w{1}) }{\u$1}gmx;
+            $key => delete $form->form_tags->{$_}
+         } keys %{$form->form_tags}
+      };
 
       my $config = {
             attributes      => $form_attr,
@@ -96,13 +102,12 @@ has 'data' =>
             errorMsg        => $error_message,
             fields          => $self->_serialise_fields,
             infoMessage     => $info_message,
-            legend          => $form->get_tag('legend'),
             msgsBeforeStart => json_bool $form->messages_before_start,
             name            => $form->name,
             pageSize        => $self->page_size,
             successMsg      => $success_message,
+            tags            => $tags,
             wrapperAttr     => $wrapper_attr,
-            wrapperTag      => $form->get_tag('wrapper_tag') || 'fieldset',
       };
 
       return {

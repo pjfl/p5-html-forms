@@ -17,9 +17,6 @@ eval "use Test::Spelling";
 
 $EVAL_ERROR and plan skip_all => 'Test::Spelling required but not installed';
 
-$ENV{TEST_SPELLING}
-   or plan skip_all => 'Environment variable TEST_SPELLING not set';
-
 my $checker = has_working_spellchecker(); # Aspell is prefered
 
 if ($checker) { warn "Check using ${checker}\n" }
@@ -38,7 +35,52 @@ done_testing();
 # vim: expandtab shiftwidth=3:
 
 __DATA__
-peter
+BUILDARGS
+BottomLeft
+BottomRight
+CSV
+DBIC
+DBIxClass
+DBIxClassResultSet
+DQUOTE
+EOL
+Gerda
+HTML::StateTable
+Iterable
+JS
+NUL
+Renderer
+ResultObject
+ResultRole
+ResultSet
+SERIALISERS
+SPC
+Stateful
+TopLeft
+UnknownView
+chartable
+clearers
+csv
+divs
+enctype
+downloader
 flanigan
-HTML::Forms
+initialiser
+instantiation
+js
 merchantability
+mouseover
+params
+peter
+redis
+renderer
+reorderable
+resultset
+resultsets
+serialisable
+serialiser
+sortable
+sql
+statetable
+SVG
+

@@ -14,11 +14,41 @@ use MooX::HandlesVia;
 # requires qw( add_repeatable_field add_to_index field_traits form get_widget_role
 #              has_flag no_widgets widget_wrapper );
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Fields - Handles collections of fields
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Fields';
+
+=head1 Description
+
+Implements the collection methods for field objects
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=cut
+
 has '_field_list' =>
    is       => 'rw',
    isa      => HashRef|ArrayRef,
    default  => sub { {} },
    init_arg => 'field_list';
+
+=item field_name_space
+
+=cut
 
 has 'field_name_space' =>
    is          => 'rw',
@@ -30,6 +60,10 @@ has 'field_name_space' =>
       add_field_name_space => 'push',
    },
    lazy        => TRUE;
+
+=item fields
+
+=cut
 
 has 'fields' =>
    is          => 'rw',
@@ -48,7 +82,15 @@ has 'fields' =>
    },
    lazy         => TRUE;
 
+=item fields_from_model
+
+=cut
+
 has 'fields_from_model' => is => 'rw', isa => Bool;
+
+=item inclue
+
+=cut
 
 has 'include' =>
    is          => 'rw',
@@ -57,6 +99,10 @@ has 'include' =>
    handles_via => 'Array',
    handles     => { has_include => 'count' },
    lazy        => TRUE;
+
+=item update_subfields
+
+=cut
 
 has 'update_subfields' =>
    is          => 'rw',
@@ -68,6 +114,10 @@ has 'update_subfields' =>
       has_update_subfields   => 'count',
    };
 
+=item widget_tags
+
+=cut
+
 has 'widget_tags' =>
    is          => 'rw',
    isa         => HashRef,
@@ -77,7 +127,18 @@ has 'widget_tags' =>
       has_widget_tags => 'count',
    };
 
-# Public methods
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item build_fields
+
+=cut
+
 sub build_fields {
    my $self = shift;
    my $meta_flist = $self->_build_meta_field_list;
@@ -100,6 +161,10 @@ sub build_fields {
    return;
 }
 
+=item clean_fields
+
+=cut
+
 sub clean_fields {
    my ($self, $fields) = @_;
 
@@ -115,6 +180,10 @@ sub clean_fields {
    return \@fields;
 }
 
+=item clear_data
+
+=cut
+
 sub clear_data {
    my $self = shift;
 
@@ -126,7 +195,15 @@ sub clear_data {
    return;
 }
 
+=item dump_fields
+
+=cut
+
 sub dump_fields { shift->dump( @_ ) }
+
+=item dump
+
+=cut
 
 sub dump {
    my $self = shift;
@@ -137,6 +214,10 @@ sub dump {
 
    return;
 }
+
+=item dump_validated
+
+=cut
 
 sub dump_validated {
    my $self = shift;
@@ -154,6 +235,10 @@ sub dump_validated {
 
    return;
 }
+
+=item field
+
+=cut
 
 sub field {
    my ($self, $name, $fatal, $f) = @_;
@@ -185,6 +270,10 @@ sub field {
    return;
 }
 
+=item field_index
+
+=cut
+
 sub field_index {
    my ($self, $name) = @_;
 
@@ -197,6 +286,10 @@ sub field_index {
 
    return;
 }
+
+=item fields_fif
+
+=cut
 
 sub fields_fif {
    my ($self, $result, $prefix) = @_;
@@ -233,6 +326,10 @@ sub fields_fif {
    return %params ? \%params : undef;
 }
 
+=item fields_set_value
+
+=cut
+
 sub fields_set_value {
    my $self = shift;
    my %value_hash;
@@ -247,6 +344,10 @@ sub fields_set_value {
    return $self->_set_value( \%value_hash );
 }
 
+=item new_field_with_traits
+
+=cut
+
 sub new_field_with_traits {
    my ($self, $class, $field_attr) = @_;
 
@@ -257,6 +358,10 @@ sub new_field_with_traits {
 
    return $class->new( $field_attr );
 }
+
+=item propagate_error
+
+=cut
 
 sub propagate_error {
    my ($self, $result) = @_;
@@ -273,6 +378,10 @@ sub propagate_error {
 
    return;
 }
+
+=item sorted_fields
+
+=cut
 
 sub sorted_fields {
    my $self = shift;
@@ -291,6 +400,10 @@ sub sorted_fields {
 
    return wantarray ? @fields : \@fields;
 }
+
+=item subfield
+
+=cut
 
 sub subfield {
    my ($self, $name) = @_;
@@ -770,38 +883,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Fields - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Fields;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

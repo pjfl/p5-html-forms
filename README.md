@@ -1,32 +1,49 @@
 # Name
 
-HTML::Forms - Generates markup for and processes input from HTML forms
+HTML::Forms - HTML forms using Moo
 
 # Synopsis
 
-    {
-       package HTML::Forms::Renderer;
-
-       use Moo::Role;
-
-       with 'HTML::Forms::Render::WithTT';
-
-       sub _build_tt_include_path { [ 'share/templates' ] }
-    }
-
     my $form = HTML::Forms->new_with_traits(
-       name => 'test_tt', traits => [ 'HTML::Forms::Renderer' ],
+       name => 'test_tt', traits => [ 'HTML::Forms::Role::Defaults' ],
     );
 
     $form->render;
 
 # Description
 
+Generates markup for and processes input from HTML forms. This is a [Moo](https://metacpan.org/pod/Moo)
+based copy of [HTML::FormHandler](https://metacpan.org/pod/HTML%3A%3AFormHandler)
+
+## JavaScript
+
+Files `wcom-*.js` are included in the `share/js` directory of the source
+tree. These will be installed to the `File::ShareDir` distribution level
+shared data files. Nothing further is done with these files. They should be
+concatenated in sort order by filename and the result placed under the
+webservers document root. Link to this from the web applications pages. Doing
+this is outside the scope of this distribution
+
+When content is loaded the JS method `WCom.Form.Renderer.scan(content)` must
+be called to inflate the otherwise empty HTML `div` element if the front end
+rendering class is being used. The function
+`WCom.Util.Event.onReady(callback)` is available to install the scan when the
+page loads
+
+## Styling
+
+A file `hforms-minimal.less` is included in the `share/less` directory
+of the source tree.  This will be installed to [File::ShareDir](https://metacpan.org/pod/File%3A%3AShareDir) distribution
+level shared data files. Nothing further is done with this file. It would need
+compiling using the Node.js LESS compiler to produce a CSS file which should be
+placed under the web servers document root and then linked to in the header of
+the web applications pages. This is outside the scope of this distribution
+
 # Configuration and Environment
 
 Defines the following attributes;
 
-- Mutable booleans defaulting false.
+- Mutable booleans defaulting false
     - did\_init\_obj - True when the result has been initialised
     - do\_form\_wrapper - If true wraps the form in a containing element
     - do\_label\_colon - If true a colon is appended to the label
@@ -36,10 +53,10 @@ Defines the following attributes;
     - render\_js\_after - If true render the JS after the form
     - use\_init\_obj\_when\_no\_accessor\_in\_item - Self describing
     - verbose - When true emits diagnostics on stderr
-- Immutable booleans defaulting false.
+- Immutable booleans defaulting false
     - html\_prefix - If true the form name is prepended to field names
     - is\_html5 - If true apply HTML5 attributes to fields
-    - message\_before\_start - If true display messages before the form start
+    - messages\_before\_start - If true display messages before the form start
     - no\_preload - If the true the result is not initialised on build
     - no\_widgets - If true widget roles are not applied to the form
     - quote\_bind\_value - If true quote the bind values in messages
@@ -49,20 +66,27 @@ Defines the following attributes;
 
 - active
 
-    A mutable array reference of active field names
+    A mutable array reference of active field names with an empty default
 
     Handles; `add_active`, `clear_active`, and `has_active` via the array trait
 
 - context
 
-    An optional mutable weak reference to the context object with clearer and
-    predicate
+    An optional mutable weak reference to the context object
+
+- clear\_context
+
+    Clearer
+
+- has\_context
+
+    Predicate
 
 - default\_locale
 
     If `context` is provided and has a `config` object use it's `locale`
     attribute, otherwise default to `en`. An immutable lazy string used as
-    the default language in building the `locale_handle`
+    the default language in building the `language_handle`
 
 - defaults
 
@@ -84,9 +108,17 @@ Defines the following attributes;
 
 - error\_message
 
-    A mutable string without default with clearer and predicate. This string (if
-    set) is rendered either before or near the start of the form if the form result
-    `has_errors` or `has_form_errors`
+    A mutable string without default. This string (if set) is rendered either
+    before or near the start of the form if the form result `has_errors` or
+    `has_form_errors`
+
+- clear\_error\_messsage
+
+    Clearer
+
+- has\_error\_message
+
+    Predicate
 
 - field\_traits
 
@@ -106,31 +138,145 @@ Defines the following attributes;
     Handles; `clear_for_js`, `has_for_js`, and `set_for_js` via the hash trait
 
 - form\_element\_attr
+
+    A mutable hash reference with an empty default. Attributes and values applied
+    to the form element
+
+    Handles; `delete_form_element_attr`, `exists_form_element_attr`,
+    `get_form_element_attr`, `has_form_element_attr`, and
+    `set_form_element_attr` via the hash trait
+
 - form\_element\_class
+
+    A mutable array reference of strings with an empty default. List of classes
+    to apply to the form element
+
+    Handles `has_form_element_class` via the array trait
+
 - form\_wrapper\_attr
+
+    A mutable hash reference with an empty default. Attributes and values applied
+    to the form wrapper
+
+    Handles; `delete_form_wrapper_attr`, `exists_form_wrapper_attr`,
+    `get_form_wrapper_attr`, `has_form_wrapper_attr`, and
+    `set_form_wrapper_attr` via the hash trait
+
 - form\_wrapper\_class
+
+    A mutable array reference of strings with an empty default. List of classes
+    to apply to the form wrapper
+
+    Handles `has_form_wrapper_class` via the array trait
+
 - form\_tags
+
+    An immutable hash reference with an empty default. The optional tags are
+    applied to the form HTML. Keys used;
+
+    - `after` - Markup rendered at the very end of the form
+    - `after_start` - Markup rendered after the form has been started
+    - `before` - Markup rendered at the start before the form
+    - `before_end` - Markup rendered before the end of the form
+    - `error_class` - Error message class. Defaults to `alert alert-severe`
+    - `info_class` - Info message class. Defaults to `alert alert-info`
+    - `legend` - Content for the form's legend
+    - `messages_wrapper_class` - Defaults to `form-messages`
+    - `no_form_messages` - If true no form messages will be rendered
+    - `success_class` - Defaults to `alert alert-success`
+    - `wrapper_tag` - Tag to wrap the form in. Defaults to `fieldset`
+
+    The keys that contain markup are only implemented by the
+    [HTML::Forms::Render::WithTT](https://metacpan.org/pod/with%20TT) renderer
+
+    Handles; `has_tag`, `set_tag`, and `tag_exists` via the hash trait
+
+    See [HTML::Forms::get\_tag](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aget_tag)
+
 - http\_method
 
     An immutable string with a default of `post`. The method attribute on the
     form element
 
 - inactive
+
+    A mutable array reference of inactive field names with an empty default
+
+    Handles; `add_inactive`, `clear_inactive`, and `has_inactive` via the array
+    trait
+
 - index
+
+    An immutable hash reference of field objects with an empty default. Provides an
+    index by field name to the field objects in the
+    [HTML::Forms::Fields::fields](https://metacpan.org/pod/fields) array
+
+    Handles; `add_to_index`, `field_from_index`, and `field_in_index` via the
+    hash trait
+
 - info\_message
+
+    A mutable string with no default. The information message to display at the
+    start of the form
+
+- clear\_info\_message
+
+    Clearer
+
+- has\_info\_message
+
+    Predicate
+
 - init\_object
+
+    A lazy untyped mutable attribute with no default. If `item` is not set and
+    this attribute is, it will be used to initialise the `result` object
+
+- clear\_init\_object
+
+    Clearer
+
 - language\_handle
+
+    A lazy object built by `build_language_handle`. An instance of
+    `language_handle_class` it is used to translate text into different
+    languages via the calls to `maketext`
+
 - language\_handle\_class
+
+    A lazy loadable class which defaults to [HTML::Forms::I18N](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AI18N). The name of the
+    class which implements language translation. Expected to be a subclass of
+    [Locale::Maketext](https://metacpan.org/pod/Locale%3A%3AMaketext)
+
 - locales
+
+    A lazy immutable array reference of strings. Defaults to the `locales` on
+    the `request` object if available, empty otherwise
+
+- has\_locales
+
+    Predicate
+
 - messages
+
+    A mutable hash reference of string with an empty default. If set these messages
+    will be used in preference to class messages by the `get_message` method on
+    the field object
+
+    Handles; `set_message` via the hash trait
+
 - name
 
     A mutable string with a random default. The name of the form element
 
 - no\_update
 
-    A mutable bool without default and with a clearer. If set to true the call
+    A mutable bool without default. If set to true the call
     in `process` to update the model will be skipped
+
+- clear\_no\_update
+
+    Clearer
 
 - params
 
@@ -148,20 +294,117 @@ Defines the following attributes;
 
 - posted
 
-    A mutable boolean without default with clearer and predicate. Should be set to
-    true if the form was posted
+    A mutable boolean without default. Should be set to true if the form was posted
+
+- clear\_posted
+
+    Clearer
+
+- has\_posted
+
+    Predicate
+
+- renderer\_args
+
+    An immutable hash reference passed to the constructor of the `renderer` object
+    empty by default
+
+- renderer\_class
+
+    A lazy loadable class which defaults to [HTML::Forms::Render::WithTT](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ARender%3A%3AWithTT). The
+    class name of the `renderer` object. Set to [HTML::Forms::Render::EmptyDiv](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ARender%3A%3AEmptyDiv)
+    form rendering will by done by JS in the browser
 
 - result
+
+    An lazy immutable [HTML::Forms::Result](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult) object constructed by the
+    `build_result` method
+
+    Handles; `add_result`, `all_form_errors`, `clear_form_errors`,
+    `form_errors`, `has_form_errors`, `has_input`, `has_value`, `input`,
+    `is_valid`, `num_form_errors`, `push_form_errors`, `ran_validation`,
+    `results`, `validated`, and `value`
+
+- clear\_result
+
+    Clearer
+
+- has\_result
+
+    Predicate
+
 - style
+
+    A mutable string with no default. If set this is applied as the `style`
+    attribute of the form
+
 - success\_message
+
+    A mutable string with no default. If set this is displayed near the start of
+    the form
+
+- clear\_success\_message
+
+    Clearer
+
+- has\_success\_message
+
+    Predicate
+
 - title
+
+    An immutable string with no default. If set and [HTML::Forms::Role::Defaults](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ARole%3A%3ADefaults)
+    is applied to the form class this string will be used as the form legend
+
 - update\_field\_list
+
+    A mutable hash reference with an empty default. If set the keys are field
+    names an the values are hash references of field attribute names and values.
+    This will be applied to the fields in the form when `setup_form` is called
+
+    Handles; `clear_update_field_list`, `has_update_field_list`, and
+    `set_update_field_list` via the hash trait
+
 - use\_defaults\_over\_obj
-- use\_field\_for\_input\_without\_param
+
+    A mutable boolean without default. If true will use the defaults on the field
+    definition in preference to the `item` object
+
+- clear\_use\_defaults\_over\_obj
+
+    Clearer
+
+- use\_fields\_for\_input\_without\_param
+
+    A mutable boolean without default. Changes how the field object instantiates
+    the result object
+
 - use\_init\_obj\_over\_item
+
+    A mutable boolean which defaults false. If true the `init_object` is used in
+    preference to the `item` when initialising the `result` object
+
+- clear\_use\_init\_obj\_over\_item
+
+    Clearer
+
 - widget\_form
+
+    An immutable string which defaults to `Simple`. If set to `Complex` then
+    the [HTML::Forms::Role::Widget::Form::Complex](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ARole%3A%3AWidget%3A%3AForm%3A%3AComplex) role will be applied to the
+    form and result objects
+
 - widget\_name\_space
+
+    An immutable array reference of string with an empty default. Additional name
+    spaces to be search when looking for widget roles
+
+    Handles; `add_widget_name_space` via the array trait
+
 - widget\_wrapper
+
+    An immutable string which defaults to `Simple`. Adds a `render` method to
+    the field object
 
 # Subroutines/Methods
 
@@ -178,29 +421,53 @@ Defines the following methods;
     initialises the result object. Will also dump the field definitions if
     `verbose` is true
 
-    The methods `before_build`, and `after_build` are called either side of
-    the above and are dummy methods in this class. Made for overriding in a
+    The methods `before_build_fields`, and `after_build_fields` are called either
+    side of the above and are dummy methods in this class. Made for overriding in a
     form role
 
-- add\_form\_element\_class( @args )
-- add\_form\_error( @message )
+- add\_form\_element\_class
+
+        $class = $self->add_form_element_class( @args );
+
+    Takes either an array reference of a list. Pushes onto the `form_element`
+    class list
+
+- add\_form\_error
+
+        $self->add_form_error( @message );
 
     Pushes the supplied message (after localising) onto form errors. Uses the
     `form is invalid` message if one is not supplied
 
-- add\_form\_wrapper\_class( @args )
-- after\_build
+- add\_form\_wrapper\_class
 
-    Dummy method called by `BUILD`
+        $class = $self->add_form_wrapper_class( @args );
+
+    Takes either an array reference of a list. Pushes onto the `form_wrapper`
+    class list
+
+- after\_build\_fields
+
+    Dummy method called by `BUILD`. Expected to be decorated in the form classes
 
 - after\_update\_model
+
+    Called after the the call to `update_model`. Return without doing anything
+    unless we `has_repeatable_fields` and we also has an `item`. This an attempt
+    to reload the repeatable relationships after the database is updated, so that
+    we get the primary keys of the repeatable elements. Otherwise, if a form is
+    re-presented, repeatable elements without primary keys may be created
+    again. There is no reliable way to connect up existing repeatable elements with
+    their db-created primary keys.
+
 - attributes
 
     A proxy for `form_element_attributes`
 
-- before\_build
+- before\_build\_fields
 
-    Dummy method called at the start of the `BUILD` method
+    Dummy method called at the start of the `BUILD` method. Expected to be
+    decorated in the form classes
 
 - build\_active
 
@@ -208,30 +475,54 @@ Defines the following methods;
     sets the inactive status on any `inactive` fields
 
 - build\_errors
+
+    Moves the errors to the `result` object
+
 - build\_language\_handle
 
     Constructor for the `language_handle` attribute. Will use `locales` if
     available otherwise uses the environment variable `LANGUAGE_HANDLE`.
-    Always appends `default_locale` to the returned list
+    Always appends `default_locale` to the list supplied to the
+    `language_handle_class`'s `get_handle` constructor method
 
 - build\_result
+
+    Builds the `result` object an instance of [HTML::Forms::Result](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult)
+
 - clear
 
     Calls all the clearers defined on the form object. Sets `processed` and
     `did_init_obj` to false
 
-- fif( @args )
+- fif
+
+        $hash = $self->fif( @args );
+
+    Fill in form. Returns a hash reference whose keys are the field names and
+    whose values are take from the result
+
 - form
+
+    Returns the self referential object
+
 - form\_element\_attributes
 
     Returns a hash reference of keys and values which are applied to the form
     element
 
     Also calls `html_attributes` with a 'type' of 'form\_element' returning it's
-    return hash reference if set. Allows for an overridden `html_attributes`
+    returned hash reference if set. Allows for an overridden `html_attributes`
     to "fix things up" if required
 
 - form\_wrapper\_attributes
+
+    Returns a hash reference of keys and values which are applied to the form
+    wrapper element
+
+    Also calls `html_attributes` with a 'type' of 'form\_wrapper' returning it's
+    returned hash reference if set. Allows for an overridden `html_attributes`
+    to "fix things up" if required
+
 - full\_accessor
 
     Dummy method returns the null string
@@ -244,9 +535,25 @@ Defines the following methods;
 
     Dummy method returns nothing
 
-- get\_tag( $name )
-- has\_flag( $flag\_name )
-- html\_attributes( $object, $type, $attrs, $result )
+- get\_tag
+
+        $tag_string = $self->get_tag( $name );
+
+    Returns the `forms_tags` entry for the given name if it exists, otherwise
+    returns null. Code references a called as a method and their values are
+    returned. If the tag begins with a `%` and the following word is a named
+    `block` call the blocks render method and return that. Return null otherwise
+
+- has\_flag
+
+        $bool = $self->has_flag( $flag_name );
+
+    If the form object has a method `flag_name` call it and return it's value.
+    Return undef otherwise
+
+- html\_attributes
+
+        $attrs = $self->html_attributes( $object, $type, $attrs, $result );
 
     Dummy method that returns the supplied `attrs`. Called by
     `form_element_attributes`. The `type` argument is one of; 'element',
@@ -255,34 +562,109 @@ Defines the following methods;
     Applied roles can modify this method to alter the attributes of the
     above list of form elements
 
-- init\_value( $field, $value )
+- init\_value
+
+        $self->init_value( $field, $value );
 
     Sets both the initial and current field values to the one supplied
 
-- localise( @message )
+- localise
+
+        $message = $self->localise( $message, @args );
 
     Calls `maketext` on the `language_handle` to localise the supplied message.
     If localisation fails will substitute the placeholder variables and return
     that string
 
-- new\_with\_traits( %args )
+- new\_with\_traits
+
+        $form = $self->new_with_traits( %args );
 
     Either a class or object method. Returns a new instance of this class with
     the list of supplied `traits` in the `args` hash applied. This rest of the
     `args` hash is supplied to the constructor of the new object
 
-- process( @args )
+- process
+
+        $validated = $self->process( @args );
+
+    Calls [HTML::Forms::clear](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aclear) if [HTML::Forms::processed](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocessed) is true. Calls
+    [HTML::Forms::setup\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Asetup_form) with the supplied `@args`. If the form was
+    [HTML::Forms::posted](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aposted) calls [HTML::Forms::validate\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidate_form). If
+    [HTML::Forms::validated](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidated) is true and [HTML::Forms::no\_update](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Ano_update) is false call
+    both [HTML::Forms::update\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aupdate_model) and then [HTML::Forms::after\_update\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aafter_update_model).
+    Set [HTML::Forms::processed](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocessed) to true and return [HTML::Forms::validated](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidated)
+
+    Consider this fragment from a controller/model method that processes a form
+    `GET` or `POST`. It stashes the form object (for rendering in the HTML
+    template) and if posted successfully stashes a redirect to the login page with
+    a message that should be displayed to the user
+
+        my $form = $self->new_form('Register', { context => $context });
+
+        if ($form->process( posted => $context->posted )) {
+           my $job     = $context->stash->{job};
+           my $login   = $context->uri_for_action('page/login');
+           my $message = 'Registration request [_1] dispatched';
+
+           $context->stash(redirect $login, [$message, $job->label]);
+           return;
+        }
+
+        $context->stash(form => $form);
+
 - set\_active
-- setup\_form( @args )
-- update\_field( $field\_name, $updates )
+
+    Set active fields to `active` and inactive fields to `inactive`
+
+- setup\_form
+
+        $self->setup_form( @args );
+
+    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess). The `@args` is either a hash reference or
+    a list of keys and values. The hash reference is used to instantiate the
+    `params` hash reference, the list is used to set attributes on the form
+    object. [HTML::Forms::Model::build\_item](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel%3A%3Abuild_item) is called if we have an `item_id`
+    and no `item`. The `result` object is cleared, fields have their activation
+    state set, [HTML::Forms::update\_fields](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aupdate_fields) is called, `posted` is set to true if
+    we has `params` and `posted` wasn't supplied to the constructor. The
+    `result` is initialised. If `posted` the result is cleared again and then
+    initialised from the `params` provided
+
+- update\_field
+
+        $self->update_field( $field_name, $updates );
+
+    Updates the named field's attributes using the keys and values provided in the
+    `updates` hash reference
+
 - update\_fields
+
+    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess). If we `has_update_field_list` call
+    `update_field` for each element in the list. If we `has_defaults` call
+    `update_field` supplying those defaults
+
 - validate
+
+    Dummy method which always returns true. Decorate this method from the form
+    class, it is called from [HTML::Forms::validate\_form](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Avalidate_form)
+
 - validate\_form
+
+    Called from [HTML::Forms::process](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Aprocess) if the form was posted. Sets required
+    dependencies, validates individual fields, calls the above `validate` method,
+    calls [HTML::Forms::Model::validate\_model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel%3A%3Avalidate_model), sets field values, builds any
+    errors, clears the dependencies, clears `posted`, sets `ran_validation` to
+    true and returns the `validated` attribute
+
 - values
+
+    Returns [HTML::Forms::Result::value](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult%3A%3Avalue)
 
 # Diagnostics
 
-Set `verbose` to true to dump diagnostic information to stderr
+Setting [HTML::Forms::verbose](https://metacpan.org/pod/HTML%3A%3AForms%3A%3Averbose) to true will output diagnostic information
+to `stderr`
 
 # Dependencies
 
