@@ -3,28 +3,21 @@ package HTML::Forms::Moo::Attribute;
 use HTML::Forms::Types qw( Str );
 use Moo;
 
-has 'default' => is => 'ro', isa => Str, predicate => 'has_default';
-
-use namespace::autoclean;
-
-1;
-
-__END__
-
 =pod
 
 =encoding utf-8
 
 =head1 Name
 
-HTML::Forms::Moo::Attribute - One-line description of the modules purpose
+HTML::Forms::Moo::Attribute - Attribute class
 
 =head1 Synopsis
 
    use HTML::Forms::Moo::Attribute;
-   # Brief but working code examples
 
 =head1 Description
+
+Attribute class
 
 =head1 Configuration and Environment
 
@@ -32,17 +25,39 @@ Defines the following attributes;
 
 =over 3
 
+=item default
+
+=item has_default
+
+Predicate
+
+=cut
+
+has 'default' => is => 'ro', isa => Str, predicate => 'has_default';
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
+=cut
+
+use namespace::autoclean;
+
+1;
+
+__END__
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

@@ -7,6 +7,36 @@ use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL );
 use Unexpected::Functions  qw( throw );
 use Try::Tiny;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::I18N - Translates text into different languages
+
+=head1 Synopsis
+
+   use HTML::Forms::I18N;
+
+=head1 Description
+
+Translates text into different languages
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item C<maketext>
+
+=cut
+
 sub maketext {
    my ($self, @message) = @_;
 
@@ -30,38 +60,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::I18N - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::I18N;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Locale::Maketext>
 
 =back
 

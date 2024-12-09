@@ -202,6 +202,7 @@ sub _serialise_field {
       doLabel     => json_bool $field->do_label,
       dsSpec      => $ds_spec,
       handlers    => $handlers,
+      hideInfo    => json_bool $field->hide_info,
       htmlElement => $field->html_element,
       htmlName    => $field->html_name,
       id          => $field->id,

@@ -11,6 +11,32 @@ use Unexpected::Types      qw( ArrayRef Bool Str );
 use Moo;
 use MooX::HandlesVia;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Meta::Role - Form meta class
+
+=head1 Synopsis
+
+   use HTML::Forms::Meta::Role;
+
+=head1 Description
+
+Form meta class
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item apply_list
+
+=cut
+
 has 'apply_list' =>
    is            => 'rw',
    isa           => ArrayRef,
@@ -21,6 +47,10 @@ has 'apply_list' =>
       clear_apply_list  => 'clear',
       has_apply_list    => 'count',
    };
+
+=item block_list
+
+=cut
 
 has 'block_list' =>
    is            => 'rw',
@@ -33,6 +63,10 @@ has 'block_list' =>
       has_block_list    => 'count',
    };
 
+=item field_list
+
+=cut
+
 has 'field_list' =>
    is            => 'rw',
    isa           => ArrayRef,
@@ -44,7 +78,15 @@ has 'field_list' =>
       has_field_list    => 'count',
    };
 
+=item found_hfs
+
+=cut
+
 has 'found_hfs' => is => 'rw', isa => Bool, default => 0;
+
+=item page_list
+
+=cut
 
 has 'page_list' =>
    is           => 'rw',
@@ -57,10 +99,26 @@ has 'page_list' =>
       has_page_list    => 'count',
    };
 
+=item target
+
+=cut
+
 has 'target' =>
    is        => 'ro',
    isa       => Str,
    required  => TRUE;
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item calculate_all_roles
+
+=cut
 
 sub calculate_all_roles {
    my $self = shift;
@@ -77,6 +135,10 @@ sub calculate_all_roles {
    return @roles;
 }
 
+=item find_attribute_by_name
+
+=cut
+
 sub find_attribute_by_name {
    my ($self, $attr_name) = @_;
 
@@ -92,6 +154,10 @@ sub find_attribute_by_name {
    return;
 }
 
+=item get_attribute
+
+=cut
+
 sub get_attribute {
    my ($self, $attr_name) = @_;
 
@@ -106,6 +172,10 @@ sub get_attribute {
    return HTML::Forms::Moo::Attribute->new( $attr );
 }
 
+=item has_attribute
+
+=cut
+
 sub has_attribute {
    my ($self, $attr_name) = @_;
 
@@ -118,6 +188,10 @@ sub has_attribute {
 
    return exists $con->{attribute_specs}->{ $attr_name } ? TRUE : FALSE;
 }
+
+=item linearised_isa
+
+=cut
 
 sub linearised_isa {
    my $self = shift;
@@ -134,38 +208,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Meta::Role - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Meta::Role;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

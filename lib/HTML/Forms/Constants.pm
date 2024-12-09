@@ -14,31 +14,33 @@ use Sub::Exporter -setup => { exports => [
        TRUE TT_THEME USERID USERNAME )
 ]};
 
-sub BANG     () { q(!) }
-sub COLON    () { q(:) }
-sub COMMA    () { q(,) }
-sub DISTDIR  () { File::ShareDir::dist_dir('HTML-Forms') }
-sub DOT      () { q(.) }
-sub FALSE    () { 0    }
-sub META     () { '_html_forms_meta' }
-sub NBSP     () { '&nbsp;' }
-sub NUL      () { q()  }
-sub PIPE     () { q(|) }
-sub SECRET   () { sha1_hex( __PACKAGE__->Secret ) }
-sub SPC      () { q( ) }
-sub STAR     () { q(*) }
-sub TRUE     () { 1    }
-sub TT_THEME () { 'classic' }
-sub USERID   () { getpwuid($EUID)->id }
-sub USERNAME () { getpwuid($EUID)->name }
+=pod
 
-sub DATE_FMT        () { '%Y-%m-%d' }
-sub DATE_MATCH      () { '\d{4}-\d{2}-\d{2}' }
-sub DATE_RE         () { qr{ \d{4}-\d{2}-\d{2} }mx }
-sub TIME_FMT        () { '%H:%M' }
-sub TIME_MATCH      () { '\d{2}:\d{2}' }
-sub TIME_RE         () { qr{ \d{2}:\d{2} }mx }
-sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Constants - Exports the constants used in the distribution
+
+=head1 Synopsis
+
+   use HTML::Forms::Constants qw( BANG );
+
+=head1 Description
+
+Exports the constants used in the distribution
+
+=head1 Configuration and Environment
+
+Defines the following class attributes;
+
+=over 3
+
+=item C<Exception_Class>
+
+   $class = HTML::Forms::Constants->Exception( $class );
+
+=cut
 
 my $exception_class = 'HTML::Forms::Exception';
 
@@ -54,6 +56,14 @@ sub Exception_Class {
    return $exception_class = $class;
 }
 
+sub USERNAME () { getpwuid($EUID)->name }
+
+=item C<Secret>
+
+   $secret = HTML::Forms::Constants->Exception_Class( $secret );
+
+=cut
+
 my $secret = USERNAME . __FILE__;
 
 sub Secret {
@@ -67,42 +77,171 @@ sub Secret {
    return $secret = $value;
 }
 
-1;
-
-__END__
-
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Constants - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Constants;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following exported functions;
+
+=over 3
+
+=item C<BANG>
+
+=cut
+
+sub BANG () { q(!) }
+
+=item C<COLON>
+
+=cut
+
+sub COLON () { q(:) }
+
+=item C<COMMA>
+
+=cut
+
+sub COMMA () { q(,) }
+
+=item C<DISTDIR>
+
+=cut
+
+sub DISTDIR () { File::ShareDir::dist_dir('HTML-Forms') }
+
+=item C<DOT>
+
+=cut
+
+sub DOT () { q(.) }
+
+=item C<EXCEPTION_CLASS>
+
+=cut
+
+sub EXCEPTION_CLASS () { __PACKAGE__->Exception_Class }
+
+=item C<FALSE>
+
+=cut
+
+sub FALSE () { 0    }
+
+=item C<META>
+
+=cut
+
+sub META () { '_html_forms_meta' }
+
+=item C<NBSP>
+
+=cut
+
+sub NBSP () { '&nbsp;' }
+
+=item C<NUL>
+
+=cut
+
+sub NUL () { q()  }
+
+=item C<PIPE>
+
+=cut
+
+sub PIPE () { q(|) }
+
+=item C<SECRET>
+
+=cut
+
+sub SECRET () { sha1_hex( __PACKAGE__->Secret ) }
+
+=item C<SPC>
+
+=cut
+
+sub SPC () { q( ) }
+
+=item C<STAR>
+
+=cut
+
+sub STAR () { q(*) }
+
+=item C<TRUE>
+
+=cut
+
+sub TRUE () { 1    }
+
+=item C<TT_THEME>
+
+=cut
+
+sub TT_THEME () { 'classic' }
+
+=item C<USERID>
+
+=cut
+
+sub USERID () { getpwuid($EUID)->id }
+
+=item C<USERNAME>
+
+=cut
+
+=item C<DATE_FMT>
+
+=cut
+
+sub DATE_FMT () { '%Y-%m-%d' }
+
+=item C<DATE_MATCH>
+
+=cut
+
+sub DATE_MATCH () { '\d{4}-\d{2}-\d{2}' }
+
+=item C<DATE_RE>
+
+=cut
+
+sub DATE_RE () { qr{ \d{4}-\d{2}-\d{2} }mx }
+
+=item C<TIME_FMT>
+
+=cut
+
+sub TIME_FMT () { '%H:%M' }
+
+=item C<TIME_MATCH>
+
+=cut
+
+sub TIME_MATCH () { '\d{2}:\d{2}' }
+
+=item C<TIME_RE>
+
+=cut
+
+sub TIME_RE () { qr{ \d{2}:\d{2} }mx }
+
+1;
+
+__END__
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Sub::Exporter>
 
 =back
 

@@ -1,7 +1,7 @@
 package HTML::Forms::Exception;
 
-use HTML::Forms::Types    qw( Int );
 use HTTP::Status          qw( HTTP_NOT_FOUND );
+use HTML::Forms::Types    qw( Int );
 use Unexpected::Functions qw( has_exception );
 use Moo;
 
@@ -9,25 +9,83 @@ extends 'Unexpected';
 with    'Unexpected::TraitFor::ErrorLeader';
 with    'Unexpected::TraitFor::ExceptionClasses';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Exception - Exceptions used in this distribution
+
+=head1 Synopsis
+
+   use HTML::Forms::Exception;
+
+=head1 Description
+
+Exceptions used in this distribution
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item C<rv>
+
+=cut
+
 has 'rv' => is => 'ro', isa => Int, default => 1;
 
 my $class = __PACKAGE__;
 
 has '+class' => default => $class;
 
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following exceptions
+
+=over 3
+
+=item C<HTML::Forms::Exception>
+
+=cut
+
 has_exception $class;
+
+=item C<BadToken>
+
+=cut
 
 has_exception 'BadToken' => parent => [$class],
    error => 'CSRF verification failed: [_1]';
 
+=item C<NotFound>
+
+=cut
+
 has_exception 'NotFound' => parent => [$class],
    error => 'Path [_1] not found. [_2]', rv => HTTP_NOT_FOUND;
+
+=item C<PackageUndefined>
+
+=cut
 
 has_exception 'PackageUndefined' => parent => [$class],
    error => 'Package [_1] not defined in [_2].';
 
+=item C<ReadFailed>
+
+=cut
+
 has_exception 'ReadFailed' => parent => [$class],
    error => 'Path [_1] read failed. [_2]';
+
+=item C<UnknownPackage>
+
+=cut
 
 has_exception 'UnknownPackage' => parent => [$class],
    error => 'Package [_1] not found.';
@@ -38,38 +96,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Exception - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Exception;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Unexpected>
 
 =back
 

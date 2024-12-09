@@ -11,6 +11,34 @@ use Unexpected::Functions  qw( throw );
 use Moo::Role;
 use MooX::HandlesVia;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Validate - Validation methods
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Validate';
+
+=head1 Description
+
+Validation methods
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item actions
+
+=cut
+
 has 'actions'  =>
    is          => 'rw',
    isa         => ArrayRef,
@@ -23,22 +51,70 @@ has 'actions'  =>
       num_actions   => 'count',
    };
 
+=item range_end
+
+=cut
+
 has 'range_end'   => is => 'rw', isa => Int|Undef;
+
+=item range_start
+
+=cut
 
 has 'range_start' => is => 'rw', isa => Int|Undef;
 
+=item required
+
+=cut
+
 has 'required' => is => 'rw', isa => Bool, default => FALSE;
+
+=item required_when
+
+=item has_required_when
+
+Predicate
+
+=cut
 
 has 'required_when' =>
    is               => 'rw',
    isa              => HashRef,
    predicate        => 'has_required_when';
 
+=item required_message
+
+=cut
+
 has 'required_message' => is => 'rw', isa => ArrayRef|Str;
+
+=item unique
+
+=item has_unique
+
+Predicate
+
+=cut
 
 has 'unique' => is => 'rw', isa => Bool, predicate => 'has_unique';
 
+=item unique_message
+
+=cut
+
 has 'unique_message' => is => 'rw', isa => Str;
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item match_when
+
+=cut
 
 sub match_when {
    my ($self, $when) = @_;
@@ -74,6 +150,10 @@ sub match_when {
    return $matched;
 }
 
+=item test_ranges
+
+=cut
+
 sub test_ranges {
    my $field = shift;
 
@@ -107,9 +187,19 @@ sub test_ranges {
    return TRUE;
 }
 
+=item validate
+
+Returns true
+
+=cut
+
 sub validate {
    return TRUE;
 }
+
+=item validate_field
+
+=cut
 
 sub validate_field {
    my $self = shift;
@@ -332,38 +422,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Validate - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Validate;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

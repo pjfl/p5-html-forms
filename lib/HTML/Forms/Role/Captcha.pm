@@ -7,12 +7,52 @@ use HTML::Forms::Moo;
 
 requires 'context';
 
-has_field 'captcha' => type => 'Captcha', label => 'Verification';
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Role::Captcha - Captcha form methods
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Role::Captcha';
+
+=head1 Description
+
+Captcha form methods
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item captcha_image_url
+
+=cut
 
 has 'captcha_image_url' =>
    is      => 'lazy',
    isa     => Str,
    default => '/captcha/image';
+
+has_field 'captcha' => type => 'Captcha', label => 'Verification';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item get_captcha
+
+=cut
 
 sub get_captcha {
    my $self = shift;
@@ -21,6 +61,10 @@ sub get_captcha {
 
    return $self->context->session->{captcha};
 }
+
+=item set_captcha
+
+=cut
 
 sub set_captcha {
    my ($self, $captcha) = @_;
@@ -36,38 +80,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Role::Captcha - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Role::Captcha;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

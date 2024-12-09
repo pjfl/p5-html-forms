@@ -88,7 +88,7 @@ has 'fields' =>
 
 has 'fields_from_model' => is => 'rw', isa => Bool;
 
-=item inclue
+=item include
 
 =cut
 

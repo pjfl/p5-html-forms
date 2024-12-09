@@ -6,35 +6,60 @@ use HTML::Forms::Util      qw( get_meta );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
-has '+do_form_wrapper' => is => 'rw', default => TRUE;
+=pod
 
-has '+enctype' => is => 'rw', default => 'multipart/form-data';
+=encoding utf-8
 
-has '+error_message' =>
-   is      => 'rw',
-   default => 'Please fix the errors below';
+=head1 Name
 
-has '+is_html5' => is => 'rw', default => TRUE;
+HTML::Forms::Role::Defaults - Generates markup for and processes input from HTML forms
 
-has '+messages_before_start' => is => 'rw', default => FALSE;
+=head1 Synopsis
 
-has '+success_message' =>
-   is      => 'rw',
-   default => 'The form was successfully submitted';
+   use HTML::Forms::Role::Defaults;
+   # Brief but working code examples
+
+=head1 Description
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item default_action_path
+
+=cut
 
 has 'default_action_path' =>
    is      => 'ro',
    isa     => Str,
    default => 'api/form/field/validate';
 
+=item default_charset
+
+=cut
+
 has 'default_charset' => is => 'ro', isa => Str, default => 'utf-8';
+
+=item default_field_traits
+
+=cut
 
 has 'default_field_traits' =>
    is      => 'ro',
    isa     => ArrayRef,
    default => sub { [ qw( Label Toggle ) ] };
 
+=item default_form_class
+
+=cut
+
 has 'default_form_class' => is => 'ro', isa => Str, default => TT_THEME;
+
+=item default_form_legend
+
+=cut
 
 has 'default_form_legend' =>
    is      => 'lazy',
@@ -50,21 +75,124 @@ has 'default_form_legend' =>
       return $label;
    };
 
+=item default_form_wrapper_class
+
+=cut
+
 has 'default_form_wrapper_class' =>
    is      => 'ro',
    isa     => Str,
    default => 'form-wrapper';
 
+=item default_request_token
+
+=cut
+
 has 'default_request_token' => is => 'ro', isa => Str, default => '_verify';
+
+=item default_validate_method
+
+=cut
 
 has 'default_validate_method' =>
    is      => 'ro',
    isa     => Str,
    default => 'WCom.Form.Util.validateField';
 
+=item default_wrapper_tag
+
+=cut
+
 has 'default_wrapper_tag' => is => 'ro', isa => Str, default => 'fieldset';
 
+=item do_form_wrapper
+
+=cut
+
+has '+do_form_wrapper' => is => 'rw', default => TRUE;
+
+=item enctype
+
+=cut
+
+has '+enctype' => is => 'rw', default => 'multipart/form-data';
+
+=item error_message
+
+=cut
+
+has '+error_message' =>
+   is      => 'rw',
+   default => 'Please fix the errors below';
+
+=item is_html5
+
+=cut
+
+has '+is_html5' => is => 'rw', default => TRUE;
+
+=item messages_before_start
+
+=cut
+
+has '+messages_before_start' => is => 'rw', default => FALSE;
+
+=item success_message
+
+=cut
+
+has '+success_message' =>
+   is      => 'rw',
+   default => 'The form was successfully submitted';
+
+=item log
+
+=item has_log
+
+Predicate
+
+=cut
+
 has 'log' => is => 'ro', predicate => 'has_log';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods
+
+=over 3
+
+=item before_build_fields
+
+=cut
+
+around 'before_build_fields' => sub {
+   my ($orig, $self) = @_;
+
+   $orig->($self);
+   $self->set_tag( legend => $self->default_form_legend );
+   $self->set_tag( wrapper_tag => $self->default_wrapper_tag );
+   $self->set_form_element_attr( 'accept-charset' => $self->default_charset );
+   $self->add_form_element_class( $self->default_form_class );
+   $self->add_form_wrapper_class( $self->default_form_wrapper_class );
+
+   for my $trait_name (@{ $self->default_field_traits }) {
+      $self->add_field_trait($self->get_field_trait($trait_name));
+   }
+
+   if (my $name = $self->default_request_token) {
+      my $meta = get_meta($self);
+
+      $meta->add_to_field_list({ name => $name, type => 'RequestToken' });
+   }
+
+   return;
+};
+
+=item html_attributes
+
+=cut
 
 around 'html_attributes' => sub {
    my ($orig, $self, $obj, $type, $attrs, $result) = @_;
@@ -94,29 +222,6 @@ around 'html_attributes' => sub {
    return $attrs;
 };
 
-around 'before_build_fields' => sub {
-   my ($orig, $self) = @_;
-
-   $orig->($self);
-   $self->set_tag( legend => $self->default_form_legend );
-   $self->set_tag( wrapper_tag => $self->default_wrapper_tag );
-   $self->set_form_element_attr( 'accept-charset' => $self->default_charset );
-   $self->add_form_element_class( $self->default_form_class );
-   $self->add_form_wrapper_class( $self->default_form_wrapper_class );
-
-   for my $trait_name (@{ $self->default_field_traits }) {
-      $self->add_field_trait($self->get_field_trait($trait_name));
-   }
-
-   if (my $name = $self->default_request_token) {
-      my $meta = get_meta($self);
-
-      $meta->add_to_field_list({ name => $name, type => 'RequestToken' });
-   }
-
-   return;
-};
-
 sub _add_field_validation {
    my ($self, $field, $attrs) = @_;
 
@@ -144,32 +249,11 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Role::Defaults - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Role::Defaults;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 

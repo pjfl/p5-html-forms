@@ -14,32 +14,35 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Widget::Form::Simple - One-line description of the modules purpose
+HTML::Forms::Widget::Form::Simple - Default form widget
 
 =head1 Synopsis
 
-   use HTML::Forms::Widget::Form::Simple;
-   # Brief but working code examples
+   use Moo;
+
+   with 'HTML::Forms::Widget::Form::Simple';
 
 =head1 Description
 
+Default form widget
+
 =head1 Configuration and Environment
 
-Defines the following attributes;
-
-=over 3
-
-=back
+Defines no attributes
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

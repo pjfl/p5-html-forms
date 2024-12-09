@@ -2,14 +2,44 @@ package HTML::Forms::Render::MinimalCSS;
 
 use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS FALSE NUL TRUE );
 use HTML::Forms::Types     qw( HashRef Object Str );
-use HTML::Tiny;
 use Path::Tiny             qw( path );
-use Try::Tiny;
 use Unexpected::Functions  qw( NotFound ReadFailed throw );
+use HTML::Tiny;
+use Try::Tiny;
 use Moo::Role;
 use MooX::HandlesVia;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Render::MinimalCSS - Adds CSS to a form
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Render::MinimalCSS';
+
+=head1 Description
+
+Adds CSS to a form. Only used in testing standalone forms
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=cut
+
 has '_html' => is => 'ro', isa => Object, default => sub { HTML::Tiny->new };
+
+=item style_name
+
+=cut
 
 has 'style_name' => is => 'ro', isa => Str, default => 'hforms-minimal';
 
@@ -22,6 +52,18 @@ has '_styles' =>
       _add_style => 'set',
       _has_style => 'exists',
    };
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item before_build_fields
+
+=cut
 
 around 'before_build_fields' => sub {
    my ($orig, $self) = @_;
@@ -66,38 +108,19 @@ use namespace::autoclean;
 
 1;
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Render::MinimalCSS - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Render::MinimalCSS;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
+__END__
 
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

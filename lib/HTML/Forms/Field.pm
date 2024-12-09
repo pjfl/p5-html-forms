@@ -23,20 +23,64 @@ use Sub::HandlesVia;
 
 =head1 Name
 
-HTML::Forms::Field - One-line description of the modules purpose
+HTML::Forms::Field - Base class for the field objects
 
 =head1 Synopsis
 
-   use HTML::Forms::Field;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+   with    'HTML::Forms::Role::Defaults';
+
+   has '+title'        => default => 'Registration Request';
+   has '+info_message' => default => 'Answer the registration questions';
+   has '+item_class'   => default => 'User';
+   has '+no_update'    => default => TRUE;
+
+   has_field 'name' => label => 'User Name', required => TRUE;
+
+   has_field 'email' => type => 'Email', required => TRUE;
+
+   has_field 'submit' => type => 'Button';
 
 =head1 Description
+
+Base class for the field objects
 
 =head1 Configuration and Environment
 
 Defines the following attributes;
 
 =over 3
+
+=item Mutable booleans defaulting false
+
+=over 3
+
+=item C<disabled> - If true the field is disabled
+
+=item C<hide_info> - If true do not display the field C<info>
+
+=item C<is_contains> - Set to true if this is a container for other fields
+
+=item C<no_value_if_empty> - If true do not validate when no input defined on a nullable field
+
+=item C<not_nullable> - If true then the field cannot be null
+
+=item C<noupdate> - If true do not try to update the result with this field value
+
+=item C<password> - If true C<fif> will return null
+
+=item C<readonly> - If true the field is read only
+
+=item C<validate_inline> - If true set JS handler to validate field
+
+=item C<validate_when_empty> - If true validate the field even if it has no value
+
+=item C<writeonly> - If true prevents setting of field value from result object
+
+=back
 
 =cut
 
@@ -52,6 +96,10 @@ has [ 'disabled',
       'validate_when_empty',
       'writeonly' ] => is => 'rw', isa => Bool, default => FALSE;
 
+=item accessor
+
+=cut
+
 has 'accessor' =>
    is      => 'rw',
    isa     => Str,
@@ -64,6 +112,12 @@ has 'accessor' =>
       return $accessor;
    };
 
+=item has__active
+
+Predicate
+
+=cut
+
 # 'active' is cleared whenever the form is cleared. Ephemeral activation.
 has '_active' =>
    is         => 'rw',
@@ -73,13 +127,28 @@ has '_active' =>
 
 =item active_column
 
-Provides support for L<HTML::Forms::Model::DBIC>
+An immutable string which defaults to C<active>. Provides support for
+L<HTML::Forms::Model::DBIC>
 
 =cut
 
 has 'active_column' => is => 'ro', isa => Str, default => 'active';
 
+=item default
+
+A lazy mutable untyped attribute. The default value for the field
+
+=cut
+
 has 'default' => is => 'rw', lazy => TRUE;
+
+=item default_method
+
+=item has_default_method
+
+Predicate
+
+=cut
 
 has 'default_method' =>
    is          => 'lazy',
@@ -89,13 +158,37 @@ has 'default_method' =>
    predicate   => 'has_default_method',
    writer      => '_set_default_method';
 
+=item default_over_obj
+
+=cut
+
 has 'default_over_obj' => is => 'rw', isa => Bool, default => FALSE;
+
+=item deflation
+
+=item has_deflation
+
+Predicate
+
+=cut
 
 has 'deflation' => is => 'rw', isa => CodeRef, predicate => 'has_deflation';
 
+=item do_label
+
+=cut
+
 has 'do_label' => is => 'rw', isa => Bool, default => TRUE;
 
+=item do_wrapper
+
+=cut
+
 has 'do_wrapper' => is => 'rw', isa => Bool, default => TRUE;
+
+=item element_wrapper_class
+
+=cut
 
 has 'element_wrapper_class' =>
    is          => 'rw',
@@ -108,13 +201,29 @@ has 'element_wrapper_class' =>
       has_element_wrapper_class  => 'count',
    };
 
+=item fif_from_value
+
+=cut
+
 has 'fif_from_value' => is => 'ro', isa => Str;
+
+=item form
+
+=item has_form
+
+Predicate
+
+=cut
 
 has 'form'   =>
    is        => 'rw',
    isa       => HFs,
    predicate => 'has_form',
    weak_ref  => TRUE;
+
+=item html_name
+
+=cut
 
 has 'html_name' =>
    is      => 'rw',
@@ -128,7 +237,15 @@ has 'html_name' =>
    },
    lazy    => TRUE;
 
+=item html5_type_attr
+
+=cut
+
 has 'html5_type_attr' => is => 'rw', isa => Str, default => 'text';
+
+=item id
+
+=cut
 
 has 'id'   =>
    is      => 'rw',
@@ -136,20 +253,56 @@ has 'id'   =>
    builder => sub { shift->html_name },
    lazy    => TRUE;
 
+=item inactive
+
+=cut
+
 has 'inactive' => is => 'rw', isa => Bool, clearer => 'clear_inactive';
 
+=item info
+
+=cut
+
 has 'info' => is => 'rw', isa => Str;
+
+=item init_value
+
+=item has_init_value
+
+Predicate
+
+=cut
 
 has 'init_value' =>
    is        => 'rw',
    clearer   => 'clear_init_value',
    predicate => 'has_init_value';
 
+=item input_param
+
+=cut
+
 has 'input_param' => is => 'rw', isa => Str;
+
+=item input_without_param
+
+=item has_input_without_param
+
+Predicate
+
+=cut
 
 has 'input_without_param' => is => 'rw', predicate => 'has_input_without_param';
 
+=item js_package
+
+=cut
+
 has 'js_package' => is => 'ro', isa => Str, default => 'WCom.Form.Util';
+
+=item label
+
+=cut
 
 has 'label' =>
    is       => 'rw',
@@ -165,6 +318,10 @@ has 'label' =>
       return $label;
    },
    lazy     => TRUE;
+
+=item localise_method
+
+=cut
 
 has 'localise_method' =>
    is          => 'lazy',
@@ -182,6 +339,10 @@ has 'localise_method' =>
    handles_via => 'Code',
    handles     => { _localise => 'execute' };
 
+=item messages
+
+=cut
+
 has 'messages' =>
    is          => 'rw',
    isa         => HashRef[Str],
@@ -193,9 +354,25 @@ has 'messages' =>
       set_message        => 'set',
    };
 
+=item name
+
+=cut
+
 has 'name'   => is => 'rw', isa => Str, required => TRUE;
 
+=item order
+
+=cut
+
 has 'order'  => is => 'rw', isa => Int,  default => 0;
+
+=item parent
+
+=item has_parent
+
+Predicate
+
+=cut
 
 has 'parent' => is => 'rw', predicate => 'has_parent', weak_ref => TRUE;
 
@@ -204,6 +381,14 @@ has '_pin_result' =>
    isa    => HFsFieldResult,
    reader => '_get_pin_result',
    writer => '_set_pin_result';
+
+=item result
+
+=item has_result
+
+Predicate
+
+=cut
 
 has 'result' =>
    is        => 'ro',
@@ -218,13 +403,33 @@ has 'result' =>
    weak_ref  => TRUE,
    writer    => '_set_result';
 
+=item set_default
+
+=cut
+
 has 'set_default' => is => 'ro', isa => Str, writer => '_set_default';
+
+=item set_validate
+
+=cut
 
 has 'set_validate' => is => 'ro', isa => Str;
 
+=item style
+
+=cut
+
 has 'style' => is => 'rw', isa => Str;
 
+=item C<tabindex>
+
+=cut
+
 has 'tabindex' => is => 'rw', isa => Int;
+
+=item tags
+
+=cut
 
 has 'tags'       =>
     is           => 'rw',
@@ -239,9 +444,21 @@ has 'tags'       =>
       tag_exists => 'exists',
     };
 
+=item temp
+
+=cut
+
 has 'temp' => is => 'rw';
 
+=item title
+
+=cut
+
 has 'title' => is => 'rw', isa => Str;
+
+=item trim
+
+=cut
 
 has 'trim' =>
    is      => 'rw',
@@ -259,9 +476,21 @@ has 'trim' =>
       },
    } };
 
+=item type
+
+=cut
+
 has 'type' => is => 'rw', isa => Str, default => sub { ref shift };
 
+=item type_attr
+
+=cut
+
 has 'type_attr' => is => 'rw', isa => Str, default => 'text';
+
+=item validate_method
+
+=cut
 
 has 'validate_method' =>
    is          => 'lazy',
@@ -270,9 +499,21 @@ has 'validate_method' =>
    handles_via => 'Code',
    handles     => { _validate => 'execute', };
 
+=item widget
+
+=cut
+
 has 'widget' => is => 'rw', isa => Str;
 
+=item widget_wrapper
+
+=cut
+
 has 'widget_wrapper' => is => 'rw', isa => Str;
+
+=item widget_name_space
+
+=cut
 
 has 'widget_name_space' =>
    is          => 'ro',
@@ -282,12 +523,42 @@ has 'widget_name_space' =>
    handles_via => 'Array',
    handles     => { add_widget_name_space => 'push', };
 
+=item wrapper_tags
+
+=cut
+
 has 'wrapper_tags' =>
    is          => 'rw',
    isa         => HashRef,
    builder     => sub { {} },
    handles_via => 'Hash',
    handles     => { has_wrapper_tags => 'count', };
+
+=item deflate_method
+
+=item has_deflate_method
+
+Predicate
+
+=item deflate_value_method
+
+=item has_deflate_value_method
+
+Predicate
+
+=item inflate_method
+
+=item has_inflate_method
+
+Predicate
+
+=item inflate_default_method
+
+=item has_inflate_default_method
+
+Predicate
+
+=cut
 
 {  # Create inflation/deflation methods
    for my $attr (qw(deflate deflate_value inflate inflate_default)) {
@@ -300,6 +571,26 @@ has 'wrapper_tags' =>
          writer      => "_set_${attr}_method";
    }
 }
+
+=item element_attr
+
+=item element_class
+
+=item add_element_class
+
+=item label_attr
+
+=item label_class
+
+=item add_label_class
+
+=item wrapper_attr
+
+=item wrapper_class
+
+=item add_wrapper_class
+
+=cut
 
 {  # Create the attributes and methods for; element_attr, element_class,
    # label_attr, label_class, wrapper_attr, wrapper_class
@@ -362,6 +653,8 @@ Defines the following methods;
 
 =over 3
 
+=item BUILD
+
 =cut
 
 sub BUILD {
@@ -401,12 +694,19 @@ our $class_messages = {
    'wrong_value'     => 'Wrong value',
 };
 
-# Public methods
+=item add_element_wrapper_class
+
+=cut
+
 sub add_element_wrapper_class {
    my $self = shift;
 
    return $self->_add_element_wrapper_class(is_arrayref $_[0] ? @{$_[0]} : @_);
 }
+
+=item add_error
+
+=cut
 
 sub add_error {
    my ($self, @message) = @_;
@@ -425,6 +725,10 @@ sub add_error {
    return $self->push_errors($out);
 }
 
+=item add_standard_element_classes
+
+=cut
+
 sub add_standard_element_classes {
    my ($self, $result, $class) = @_;
 
@@ -434,17 +738,29 @@ sub add_standard_element_classes {
    return;
 }
 
+=item add_standard_element_wrapper_classes
+
+=cut
+
 sub add_standard_element_wrapper_classes {
    my ($self, $result, $class) = @_;
 
    return;
 }
 
+=item add_standard_label_classes
+
+=cut
+
 sub add_standard_label_classes {
    my ($self, $result, $class) = @_;
 
    return;
 }
+
+=item add_standard_wrapper_classes
+
+=cut
 
 sub add_standard_wrapper_classes {
    my ($self, $result, $class) = @_;
@@ -458,13 +774,28 @@ sub add_standard_wrapper_classes {
    return;
 }
 
+=item attributes
+
+Proxy for C<element_attributes>
+
+=cut
+
 sub attributes {
    return shift->element_attributes(@_);
 }
 
+=item build_element_wrapper_class
+
+=cut
+
 sub build_element_wrapper_class { [] }
 
-# This is not a "true" builder, because sometimes 'default_method' is not set
+=item build_default_method
+
+This is not a "true" builder, because sometimes C<default_method> is not set
+
+=cut
+
 sub build_default_method {
    my $self = shift;
    my $form = $self->form;
@@ -483,6 +814,10 @@ sub build_default_method {
    return;
 }
 
+=item build_result
+
+=cut
+
 sub build_result {
    my $self   = shift;
    my @parent = $self->parent && $self->parent->result
@@ -496,6 +831,10 @@ sub build_result {
    $self->_set_result($result);
 }
 
+=item build_validate_method
+
+=cut
+
 sub build_validate_method {
    my $self = shift;
    my $form = $self->form; weaken $form;
@@ -507,6 +846,10 @@ sub build_validate_method {
         ? sub { $form->$set_validate } : sub { };
 }
 
+=item clear_data
+
+=cut
+
 sub clear_data  {
    my $self = shift;
 
@@ -516,6 +859,10 @@ sub clear_data  {
    return;
 }
 
+=item clone_field
+
+=cut
+
 sub clone_field {
    my ($self, %params) = @_;
 
@@ -523,6 +870,10 @@ sub clone_field {
 
    return $class->new({ %{ data_clone($self) }, %params });
 }
+
+=item dump
+
+=cut
 
 sub dump {
    my $self = shift;
@@ -550,6 +901,10 @@ sub _emit {
 
    return Dumper($v);
 }
+
+=item element_attributes
+
+=cut
 
 sub element_attributes {
    my ($self, $result) = @_;
@@ -590,6 +945,10 @@ sub element_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+=item element_wrapper_attributes
+
+=cut
+
 sub element_wrapper_attributes {
    my ($self, $result) = @_;
 
@@ -609,6 +968,10 @@ sub element_wrapper_attributes {
 
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
+
+=item C<fif>
+
+=cut
 
 sub fif {
    my ($self, $result) = @_;
@@ -640,6 +1003,10 @@ sub fif {
    return NUL;
 }
 
+=item for_field
+
+=cut
+
 sub for_field {
    my $self      = shift;
    my $label_tag = $self->get_tag('label_tag') || 'label';
@@ -648,6 +1015,10 @@ sub for_field {
 
    return ' for="' . $self->id . '"';
 }
+
+=item full_accessor
+
+=cut
 
 sub full_accessor {
    my $self   = shift;
@@ -665,6 +1036,10 @@ sub full_accessor {
         ? "${parent_accessor}.${accessor}" : $accessor;
 }
 
+=item full_name
+
+=cut
+
 sub full_name {
    my $self = shift;
    my $name = $self->name;
@@ -676,6 +1051,10 @@ sub full_name {
         ? "${parent_name}.${name}" : $name;
 }
 
+=item get_class_messages
+
+=cut
+
 sub get_class_messages  {
    my $self = shift;
    my $messages = { %{$class_messages} };
@@ -686,6 +1065,10 @@ sub get_class_messages  {
    return $messages;
 }
 
+=item get_default_value
+
+=cut
+
 sub get_default_value {
    my $self = shift;
 
@@ -693,6 +1076,10 @@ sub get_default_value {
    return $self->default  if defined $self->default;
    return;
 }
+
+=item get_message
+
+=cut
 
 sub get_message {
    my ($self, $msg) = @_;
@@ -706,6 +1093,10 @@ sub get_message {
    # then look for messages up through inherited field classes
    return $self->get_class_messages->{$msg};
 }
+
+=item get_tag
+
+=cut
 
 sub get_tag {
    my ($self, $name) = @_;
@@ -725,11 +1116,19 @@ sub get_tag {
    return NUL;
 }
 
+=item has_flag
+
+=cut
+
 sub has_flag {
    my ($self, $flag_name) = @_;
 
    return $self->can($flag_name) ? $self->$flag_name : undef;
 }
+
+=item has_input
+
+=cut
 
 sub has_input {
    my $self = shift;
@@ -737,15 +1136,27 @@ sub has_input {
    return $self->has_result ? $self->result->has_input : undef;
 }
 
+=item has_value
+
+=cut
+
 sub has_value {
    my $self = shift;
 
    return $self->has_result ? $self->result->has_value : undef;
 }
 
+=item html_element
+
+=cut
+
 sub html_element {
    return 'input';
 }
+
+=item input
+
+=cut
 
 sub input {
    my ($self, @args) = @_;
@@ -756,11 +1167,19 @@ sub input {
    return @args ? $self->result->_set_input(@args) : $self->result->input;
 }
 
+=item input_defined
+
+=cut
+
 sub input_defined {
    my $self = shift;
 
    return $self->has_input ? has_some_value($self->input) : undef;
 }
+
+=item input_type
+
+=cut
 
 sub input_type {
    my $self = shift;
@@ -769,11 +1188,19 @@ sub input_type {
         ? $self->html5_type_attr : $self->type_attr;
 }
 
+=item is_active
+
+=cut
+
 sub is_active {
    my $self = shift;
 
    return !$self->is_inactive;
 }
+
+=item is_checkbox
+
+=cut
 
 sub is_checkbox {
    my $self = shift;
@@ -781,7 +1208,15 @@ sub is_checkbox {
    return lc $self->widget eq 'checkbox' ? TRUE : FALSE;
 }
 
+=item is_form
+
+=cut
+
 sub is_form { FALSE }
+
+=item is_inactive
+
+=cut
 
 sub is_inactive {
    my $self = shift;
@@ -789,6 +1224,10 @@ sub is_inactive {
    return (($self->inactive && !$self->_active)
        || (!$self->inactive && $self->has__active && !$self->_active));
 }
+
+=item label_attributes
+
+=cut
 
 sub label_attributes {
    my ($self, $result) = @_;
@@ -810,11 +1249,19 @@ sub label_attributes {
    return is_hashref $mod_attr ? $mod_attr : $attr;
 }
 
+=item loc_label
+
+=cut
+
 sub loc_label {
    my $self = shift;
 
    return $self->_localise($self->label);
 }
+
+=item merge_tags
+
+=cut
 
 sub merge_tags {
    my ($self, $new) = @_;
@@ -823,6 +1270,10 @@ sub merge_tags {
 
    return $self->tags(merge $new, $old);
 }
+
+=item push_errors
+
+=cut
 
 sub push_errors {
    my ($self, @errors) = @_;
@@ -834,6 +1285,10 @@ sub push_errors {
    return;
 }
 
+=item reset_result
+
+=cut
+
 sub reset_result {
    my $self = shift;
 
@@ -842,17 +1297,29 @@ sub reset_result {
    return;
 }
 
+=item C<uwrapper>
+
+=cut
+
 sub uwrapper {
    my $self = shift;
 
    return ucc_widget($self->widget_wrapper || NUL) || 'simple';
 }
 
+=item C<uwidget>
+
+=cut
+
 sub uwidget {
    my $self = shift;
 
    return ucc_widget($self->widget || NUL) || 'simple';
 }
+
+=item value
+
+=cut
 
 sub value {
    my ($self, @args) = @_;
@@ -864,6 +1331,10 @@ sub value {
 
    return @args ? $result->_set_value(@args) : $result->value;
 }
+
+=item value_changed
+
+=cut
 
 sub value_changed {
    my $self = shift;
@@ -879,6 +1350,10 @@ sub value_changed {
 
    return $cmp[0] ne $cmp[1];
 }
+
+=item wrapper_attributes
+
+=cut
 
 sub wrapper_attributes {
    my ($self, $result) = @_;
@@ -902,6 +1377,10 @@ sub wrapper_attributes {
 
    return $mod_attr && is_hashref $mod_attr ? $mod_attr : $attr;
 }
+
+=item wrapper_tag
+
+=cut
 
 sub wrapper_tag {
    my $self = shift;

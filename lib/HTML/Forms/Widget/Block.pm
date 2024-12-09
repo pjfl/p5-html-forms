@@ -8,7 +8,37 @@ use Scalar::Util           qw( weaken );
 use Moo;
 use MooX::HandlesVia;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Widget::Block - Blocks
+
+=head1 Synopsis
+
+   use HTML::Forms::Widget::Block;
+
+=head1 Description
+
+Blocks
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item after_plist
+
+=cut
+
 has 'after_plist' => is => 'rw', isa => Str, default => NUL;
+
+=item C<attr>
+
+=cut
 
 has 'attr' =>
    is          => 'rw',
@@ -21,6 +51,10 @@ has 'attr' =>
       set__attr    => 'set',
    };
 
+=item build_render_list_method
+
+=cut
+
 has 'build_render_list_method' =>
    is          => 'rw',
    isa         => CodeRef,
@@ -28,6 +62,10 @@ has 'build_render_list_method' =>
    handles_via => 'Code',
    handles     => { build_render_list => 'execute_method', },
    lazy        => TRUE;
+
+=item class
+
+=cut
 
 has 'class'    =>
    is          => 'rw',
@@ -39,11 +77,31 @@ has 'class'    =>
       has_class => 'count',
    };
 
+=item content
+
+=cut
+
 has 'content' => is => 'rw', isa => Str, default => NUL;
+
+=item form
+
+=cut
 
 has 'form' => is => 'ro', isa => HFs, required => TRUE, weak_ref => TRUE;
 
+=item label
+
+=item has_label
+
+Predicate
+
+=cut
+
 has 'label' => is => 'rw', isa => Str, predicate => 'has_label';
+
+=item label_class
+
+=cut
 
 has 'label_class' =>
    is          => 'rw',
@@ -55,9 +113,21 @@ has 'label_class' =>
       has_label_class => 'count',
    };
 
+=item label_tag
+
+=cut
+
 has 'label_tag' => is => 'rw', isa => Str, default => 'span';
 
+=item name
+
+=cut
+
 has 'name' => is => 'ro', isa => Str, required => TRUE;
+
+=item render_list
+
+=cut
 
 has 'render_list' =>
    is          => 'rw',
@@ -72,13 +142,32 @@ has 'render_list' =>
    },
    lazy        => TRUE;
 
+=item tag
+
+=cut
+
 has 'tag' => is => 'rw', isa => Str, default => 'div';
+
+=item wrapper
+
+=cut
 
 has 'wrapper' => is => 'rw', isa => Bool, default => TRUE;
 
 with 'HTML::Forms::Role::RenderWithTT';
 
-# Public methods
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item block_label_attributes
+
+=cut
+
 sub block_label_attributes {
    my ($self, $result) = @_;
 
@@ -94,6 +183,10 @@ sub block_label_attributes {
    return $attr;
 }
 
+=item block_wrapper_attributes
+
+=cut
+
 sub block_wrapper_attributes {
    my ($self, $result) = @_;
 
@@ -108,6 +201,10 @@ sub block_wrapper_attributes {
 
    return $attr;
 }
+
+=item default_build_render_list
+
+=cut
 
 sub default_build_render_list {
    my $self = shift;
@@ -140,3 +237,54 @@ use namespace::autoclean;
 1;
 
 __END__
+
+=back
+
+=head1 Diagnostics
+
+None
+
+=head1 Dependencies
+
+=over 3
+
+=item L<Moo>
+
+=back
+
+=head1 Incompatibilities
+
+There are no known incompatibilities in this module
+
+=head1 Bugs and Limitations
+
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-Forms.
+Patches are welcome
+
+=head1 Acknowledgements
+
+Larry Wall - For the Perl programming language
+
+=head1 Author
+
+Peter Flanigan, C<< <pjfl@cpan.org> >>
+
+=head1 License and Copyright
+
+Copyright (c) 2023 Peter Flanigan. All rights reserved
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself. See L<perlartistic>
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+=cut
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:
+# vim: expandtab shiftwidth=3:

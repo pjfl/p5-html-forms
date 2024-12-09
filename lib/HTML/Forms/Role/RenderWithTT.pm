@@ -4,12 +4,41 @@ use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS TRUE TT_THEME SPC );
 use HTML::Forms::Types     qw( ArrayRef HashRef Str Template );
 use HTML::Forms::Util      qw( process_attrs );
 use Scalar::Util           qw( weaken );
-use Template;
 use Unexpected::Functions  qw( throw );
+use Template;
 use Moo::Role;
 use MooX::HandlesVia;
 
 requires qw( form );
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Role::RenderWithTT - Generates markup for and processes input from HTML forms
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Role::RenderWithTT';
+
+
+=head1 Description
+
+Provides a render method that uses L<Template>
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item default_tt_vars
+
+=cut
 
 has 'default_tt_vars' =>
    is      => 'lazy',
@@ -28,6 +57,10 @@ has 'default_tt_vars' =>
       };
    };
 
+=item tt_config
+
+=cut
+
 has 'tt_config' =>
    is      => 'rw',
    isa     => HashRef,
@@ -41,6 +74,10 @@ has 'tt_config' =>
    },
    lazy    => TRUE;
 
+=item tt_engine
+
+=cut
+
 has 'tt_engine' =>
    is      => 'rw',
    isa     => Template,
@@ -51,6 +88,10 @@ has 'tt_engine' =>
    },
    lazy    => TRUE;
 
+=item tt_include_path
+
+=cut
+
 has 'tt_include_path' =>
    is          => 'rw',
    isa         => ArrayRef,
@@ -59,11 +100,19 @@ has 'tt_include_path' =>
    handles     => { add_tt_include_path => 'push', },
    lazy        => TRUE;
 
+=item tt_options
+
+=cut
+
 has 'tt_options' =>
    is      => 'rw',
    isa     => HashRef,
    builder => sub { { ENCODING => 'utf8', TRIM => TRUE } },
    lazy    => TRUE;
+
+=item tt_theme
+
+=cut
 
 has 'tt_theme' =>
    is      => 'rw',
@@ -78,6 +127,10 @@ has 'tt_theme' =>
    },
    lazy    => TRUE;
 
+=item tt_template
+
+=cut
+
 has 'tt_template' =>
    is      => 'rw',
    isa     => Str,
@@ -88,10 +141,26 @@ has 'tt_template' =>
    },
    lazy    => TRUE;
 
+=item tt_vars
+
+=cut
+
 has 'tt_vars' =>
    is      => 'rw',
    isa     => HashRef,
    builder => sub { {} };
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item render
+
+=cut
 
 sub render {
    my $self = shift;
@@ -114,34 +183,11 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Role::RenderWithTT - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use Moo;
-
-   with 'HTML::Forms::Role::RenderWithTT';
-
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 

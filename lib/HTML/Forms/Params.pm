@@ -6,7 +6,44 @@ use Ref::Util              qw( is_arrayref is_hashref );
 use Unexpected::Functions  qw( throw );
 use Moo;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Params - One-line description of the modules purpose
+
+=head1 Synopsis
+
+   use HTML::Forms::Params;
+   # Brief but working code examples
+
+=head1 Description
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item separator
+
+=cut
+
 has 'separator' => is => 'rw', isa => Str, default => DOT;
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item collapse_hash
+
+=cut
 
 sub collapse_hash {
    my $self = shift;
@@ -17,6 +54,10 @@ sub collapse_hash {
 
    return $flat;
 }
+
+=item expand_hash
+
+=cut
 
 sub expand_hash {
    my ($self, $flat, $sep) = @_;
@@ -58,11 +99,19 @@ sub expand_hash {
    return $deep;
 }
 
+=item join_name
+
+=cut
+
 sub join_name {
    my ($self, @array) = @_;
 
    return join substr( $self->separator, 0, 1 ), @array;
 }
+
+=item split_name
+
+=cut
 
 sub split_name {
    my ($self, $name, $sep) = @_;
@@ -90,6 +139,7 @@ sub split_name {
    return ($first, @segments);
 }
 
+# Private methods
 sub _collapse_hash {
    my ($self, $deep, $flat, @segments) = @_;
 
@@ -128,38 +178,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Params - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Params;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

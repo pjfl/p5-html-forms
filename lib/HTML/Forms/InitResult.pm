@@ -6,6 +6,57 @@ use Ref::Util              qw( is_arrayref is_plain_hashref );
 use Scalar::Util           qw( blessed );
 use Moo::Role;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::InitResult - Initialise result
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::InitResult';
+
+=head1 Description
+
+Initialise result
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item find_sub_item
+
+   $item = $self->find_sub_item( $item, $field_name_arry );
+
+This is used for reloading repeatable fields from the database if they've
+changed and for finding field values in the C<init_object> when we have an item
+and the C<use_init_obj_when_no_accessor_in_item> flag is set
+
+=cut
+
+sub find_sub_item {
+   my ($self, $item, $field_name_array) = @_;
+
+   my $this_fname = shift @{ $field_name_array };
+   my $field = $self->field( $this_fname );
+   my $new_item = $self->_get_value( $field, $item );
+
+   $new_item = $field->find_sub_item( $new_item, $field_name_array )
+      if scalar @{ $field_name_array };
+
+   return $new_item;
+}
+
 sub _get_value {
    my ($self, $field, $item) = @_;
 
@@ -181,60 +232,23 @@ sub _result_from_object {
    return $self_result;
 }
 
-# This is used for reloading repeatables form the database if they've changed
-# and for finding field values in the init_object when we have an item and the
-# 'use_init_obj_when_no_accessor_in_item' flag is set
-sub find_sub_item {
-   my ($self, $item, $field_name_array) = @_;
-
-   my $this_fname = shift @{ $field_name_array };
-   my $field = $self->field( $this_fname );
-   my $new_item = $self->_get_value( $field, $item );
-
-   $new_item = $field->find_sub_item( $new_item, $field_name_array )
-      if scalar @{ $field_name_array };
-
-   return $new_item;
-}
-
 use namespace::autoclean;
 
 1;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::InitResult - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::InitResult;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

@@ -6,6 +6,34 @@ use Unexpected::Functions  qw( throw );
 use Moo::Role;
 use MooX::HandlesVia;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Result::Role - Results
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Result::Role';
+
+=head1 Description
+
+Results
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item errors
+
+=cut
+
 has 'errors'   =>
    is          => 'rw',
    isa         => ArrayRef[Str],
@@ -18,6 +46,10 @@ has 'errors'   =>
       has_errors   => 'count',
       num_errors   => 'count',
    };
+
+=item error_results
+
+=cut
 
 has 'error_results' =>
     is              => 'rw',
@@ -32,7 +64,19 @@ has 'error_results' =>
         num_error_results   => 'count',
     };
 
+=item name
+
+=cut
+
 has 'name' => is => 'rw', isa => Str, required => TRUE;
+
+=item input
+
+=item has_input
+
+Predicate
+
+=cut
 
 has 'input'  =>
    is        => 'ro',
@@ -56,6 +100,10 @@ has '_results'  =>
         set_result_at_index => 'set',
     };
 
+=item warnings
+
+=cut
+
 has 'warnings'  =>
     is          => 'rw',
     isa         => ArrayRef[Str],
@@ -69,6 +117,18 @@ has 'warnings'  =>
         num_warnings   => 'count',
     };
 
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item errors_by_id
+
+=cut
+
 sub errors_by_id {
    my $self = shift;
    my %errors;
@@ -79,6 +139,10 @@ sub errors_by_id {
 
    return \%errors;
 }
+
+=item errors_by_name
+
+=cut
 
 sub errors_by_name {
    my $self = shift;
@@ -92,10 +156,19 @@ sub errors_by_name {
    return \%errors;
 }
 
+=item field
+
+=cut
+
 sub field { shift->get_result(@_) }
 
-# This ought to be named 'result' for consistency, but the result objects are
-# named 'result'. also providing 'field' method for compatibility
+=item get_result
+
+This ought to be named 'result' for consistency, but the result objects are
+named 'result'. also providing 'field' method for compatibility
+
+=cut
+
 sub get_result {
    my ($self, $name, $fatal) = @_;
 
@@ -122,7 +195,15 @@ sub get_result {
    return;
 }
 
+=item is_valid
+
+=cut
+
 sub is_valid { shift->validated }
+
+=item validated
+
+=cut
 
 sub validated { $_[0]->has_input && !$_[0]->has_error_results }
 
@@ -130,3 +211,55 @@ use namespace::autoclean;
 
 1;
 
+__END__
+
+=back
+
+=head1 Diagnostics
+
+None
+
+=head1 Dependencies
+
+=over 3
+
+=item L<Moo::Role>
+
+=back
+
+=head1 Incompatibilities
+
+There are no known incompatibilities in this module
+
+=head1 Bugs and Limitations
+
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-Forms.
+Patches are welcome
+
+=head1 Acknowledgements
+
+Larry Wall - For the Perl programming language
+
+=head1 Author
+
+Peter Flanigan, C<< <pjfl@cpan.org> >>
+
+=head1 License and Copyright
+
+Copyright (c) 2023 Peter Flanigan. All rights reserved
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself. See L<perlartistic>
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+=cut
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:
+# vim: expandtab shiftwidth=3:

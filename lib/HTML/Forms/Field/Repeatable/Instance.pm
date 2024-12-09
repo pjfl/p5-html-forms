@@ -6,11 +6,57 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Repeatable::Instance - Instance of a repeatable field group
+
+=head1 Synopsis
+
+   use HTML::Forms::Field::Repeatable::Instance;
+
+=head1 Description
+
+Instance of a repeatable field group
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item do_label
+
+=cut
+
 has '+do_label' => default => FALSE;
+
+=item do_wrapper
+
+=cut
 
 has '+do_wrapper' => default => TRUE;
 
+=item no_value_if_empty
+
+=cut
+
 has '+no_value_if_empty' => default => TRUE;
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
 
 sub BUILD {
    my $self = shift;
@@ -20,6 +66,10 @@ sub BUILD {
 
    return;
 }
+
+=item build_tags
+
+=cut
 
 sub build_tags {
    return { wrapper => TRUE };
@@ -31,38 +81,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Repeatable::Instance - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Repeatable::Instance;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Compound>
 
 =back
 

@@ -8,7 +8,38 @@ use Moo::Role;
 
 requires qw( widget_name_space );
 
-# Public methods
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Widget::ApplyRole - Applies widget roles
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Widget::ApplyRole';
+
+=head1 Description
+
+Applies widget roles
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item apply_widget_role
+
+=cut
+
 sub apply_widget_role {
    my ($self, $target, $widget_name, $dir) = @_;
 
@@ -21,6 +52,10 @@ sub apply_widget_role {
    return;
 }
 
+=item get_field_trait
+
+=cut
+
 sub get_field_trait {
    my ($self, $trait) = @_;
 
@@ -30,6 +65,10 @@ sub get_field_trait {
 
    return $role;
 }
+
+=item get_widget_role
+
+=cut
 
 sub get_widget_role {
    my ($self, $widget_name, $dir) = @_;
@@ -61,38 +100,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Widget::ApplyRole - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Widget::ApplyRole;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

@@ -84,7 +84,7 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.span(warningAttr, error));
             element.removeAttribute('disabled');
          }
-         if (field.info) {
+         if (field.info && !field.hideInfo) {
             const infoAttr = { className: 'alert alert-info' };
             container.appendChild(this.h.div(infoAttr, field.info));
          }

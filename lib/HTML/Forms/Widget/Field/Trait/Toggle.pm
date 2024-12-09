@@ -11,6 +11,34 @@ use MooX::HandlesVia;
 
 requires qw( form input name validate widget );
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Widget::Field::Trait::Toggle - Toggle trait
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Widget::Field::Trait::Toggle';
+
+=head1 Description
+
+Toggle trait
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item toggle
+
+=cut
+
 has 'toggle' =>
    is          => 'ro',
    isa         => HashRef[ArrayRef],
@@ -22,7 +50,15 @@ has 'toggle' =>
       has_toggle   => 'count',
    };
 
+=item toggle_class
+
+=cut
+
 has 'toggle_class' => is => 'ro', isa => Str, default => 'toggle';
+
+=item toggle_config
+
+=cut
 
 has 'toggle_config' =>
    is      => 'lazy',
@@ -36,6 +72,10 @@ has 'toggle_config' =>
       return { config => $self->toggle, event => $event };
    };
 
+=item toggle_config_encoded
+
+=cut
+
 has 'toggle_config_encoded' =>
    is      => 'lazy',
    isa     => Str,
@@ -45,16 +85,40 @@ has 'toggle_config_encoded' =>
       return encode_only_entities( encode_json( $self->toggle_config ) );
    };
 
+=item toggle_config_key
+
+=cut
+
 has 'toggle_config_key' =>
    is      => 'ro',
    isa     => Str,
    default => 'data-toggle-config';
+
+=item toggle_event
+
+=item has_toggle_event
+
+Predicate
+
+=cut
 
 has 'toggle_event' =>
    is        => 'ro',
    isa       => Str,
    predicate => 'has_toggle_event',
    writer    => '_toggle_event';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
 
 sub BUILD {
    my $self = shift;
@@ -76,6 +140,10 @@ sub BUILD {
    return;
 };
 
+=item validate
+
+=cut
+
 before 'validate' => sub {
    my $self = shift;
 
@@ -84,7 +152,10 @@ before 'validate' => sub {
    return;
 };
 
-# Public methods
+=item clear_disabled_fields
+
+=cut
+
 sub clear_disabled_fields {
    my $self = shift;
 
@@ -103,6 +174,10 @@ sub clear_disabled_fields {
       }
    }
 }
+
+=item get_disabled_fields
+
+=cut
 
 sub get_disabled_fields {
    my ($self, $value) = @_;
@@ -166,38 +241,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Widget::Field::Trait::Toggle - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Widget::Field::Trait::Toggle;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

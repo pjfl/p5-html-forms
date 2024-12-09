@@ -4,30 +4,21 @@ use HTML::Forms::Constants qw( FALSE TRUE );
 use HTML::Forms::Types     qw( HFs );
 use Moo;
 
-has 'form' => is => 'ro', isa => HFs, required => TRUE, weak_ref => TRUE;
-
-with 'HTML::Forms::Role::RenderWithTT';
-
-use namespace::autoclean;
-
-1;
-
-__END__
-
 =pod
 
 =encoding utf-8
 
 =head1 Name
 
-HTML::Forms::Render::WithTT - One-line description of the modules purpose
+HTML::Forms::Render::WithTT - Render form using L<Template>
 
 =head1 Synopsis
 
    use HTML::Forms::Render::WithTT;
-   # Brief but working code examples
 
 =head1 Description
+
+Render form using L<Template>
 
 =head1 Configuration and Environment
 
@@ -35,17 +26,37 @@ Defines the following attributes;
 
 =over 3
 
+=item form
+
+=cut
+
+has 'form' => is => 'ro', isa => HFs, required => TRUE, weak_ref => TRUE;
+
+with 'HTML::Forms::Role::RenderWithTT';
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
+=cut
+
+use namespace::autoclean;
+
+1;
+
+__END__
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo>
 
 =back
 

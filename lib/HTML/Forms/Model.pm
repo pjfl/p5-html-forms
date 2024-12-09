@@ -6,56 +6,6 @@ use Scalar::Util           qw( blessed );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
-has 'item' =>
-   is      => 'rw',
-   builder => 'build_item',
-   clearer => 'clear_item',
-   lazy    => TRUE,
-   trigger => sub { shift->set_item( @_ ) };
-
-has 'item_class' => is  => 'rwp', isa => Str;
-
-has 'item_id' =>
-   is      => 'rw',
-   clearer => 'clear_item_id',
-   trigger => sub { shift->set_item_id( @_ ) };
-
-sub build_item { return }
-
-sub clear_model {}
-
-sub guess_field_type {
-   # Not used. Was called by Model::CDBI
-   throw "Don't know how to determine field type of [_1]", [ $_[1] ];
-}
-
-sub lookup_label {
-}
-
-sub lookup_options {
-   # Called by Field::Select when no options available
-}
-
-sub set_item {
-   my ($self, $item) = @_; $self->_set_item_class( blessed $item ); return;
-}
-
-sub set_item_id {}
-
-sub update_model {
-   # Called by Forms::process if form was posted and it validated
-}
-
-sub validate_model {
-   # Called by Forms::validate_form as part of form validation
-}
-
-use namespace::autoclean;
-
-1;
-
-__END__
-
 =pod
 
 =encoding utf-8
@@ -77,17 +27,130 @@ Defines the following attributes;
 
 =over 3
 
+=item item
+
+=item clear_item
+
+Clearer
+
+=cut
+
+has 'item' =>
+   is      => 'rw',
+   builder => 'build_item',
+   clearer => 'clear_item',
+   lazy    => TRUE,
+   trigger => sub { shift->set_item( @_ ) };
+
+=item item_class
+
+=cut
+
+has 'item_class' => is  => 'rwp', isa => Str;
+
+=item item_id
+
+=item clear_item_id
+
+=cut
+
+has 'item_id' =>
+   is      => 'rw',
+   clearer => 'clear_item_id',
+   trigger => sub { shift->set_item_id( @_ ) };
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods'
+
+=over 3
+
+=item build_item
+
+=cut
+
+sub build_item { return }
+
+=item clear_model
+
+=cut
+
+sub clear_model {}
+
+=item guess_field_type
+
+=cut
+
+sub guess_field_type {
+   # Not used. Was called by Model::CDBI
+   throw "Don't know how to determine field type of [_1]", [ $_[1] ];
+}
+
+=item lookup_label
+
+=cut
+
+sub lookup_label {
+}
+
+=item lookup_options
+
+=cut
+
+sub lookup_options {
+   # Called by Field::Select when no options available
+}
+
+=item set_item
+
+
+=cut
+
+sub set_item {
+   my ($self, $item) = @_; $self->_set_item_class( blessed $item ); return;
+}
+
+=item set_item_id
+
+=cut
+
+sub set_item_id {}
+
+=item update_model
+
+=cut
+
+sub update_model {
+   # Called by Forms::process if form was posted and it validated
+}
+
+=item validate_model
+
+=cut
+
+sub validate_model {
+   # Called by Forms::validate_form as part of form validation
+}
+
+use namespace::autoclean;
+
+1;
+
+__END__
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

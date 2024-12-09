@@ -9,15 +9,49 @@ use Ref::Util              qw( is_arrayref );
 use Sub::Install           qw( install_sub );
 use Unexpected::Functions  qw( throw );
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Moo - One-line description of the modules purpose
+
+=head1 Synopsis
+
+   use HTML::Forms::Moo;
+   # Brief but working code examples
+
+=head1 Description
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=head1 Subroutines/Methods
+
+Defines the following functions;
+
+=over 3
+
+=cut
+
 my @banished_keywords = ( META );
 
 my @block_attributes  = qw(  );
 my @page_attributes   = qw(  );
 
-# Public functions
+=item default_meta_config
+
+=cut
+
 sub default_meta_config () {
    return found_hfs => FALSE;
 }
+
+=item import
+
+=cut
 
 sub import {
    my ($class, @args) = @_;
@@ -115,38 +149,17 @@ sub _assert_no_banished_keywords {
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Moo - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Moo;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Sub::Install>
 
 =back
 

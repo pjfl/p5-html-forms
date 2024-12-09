@@ -2,14 +2,42 @@ package HTML::Forms::Render::Javascript;
 
 use HTML::Forms::Constants qw( DISTDIR EXCEPTION_CLASS FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef CodeRef HashRef Object Str );
-use HTML::Tiny;
 use Path::Tiny             qw( path );
 use Ref::Util              qw( is_coderef );
-use Try::Tiny;
 use Unexpected::Functions  qw( NotFound PackageUndefined
                                ReadFailed throw UnknownPackage );
+use HTML::Tiny;
+use Try::Tiny;
 use Moo::Role;
 use MooX::HandlesVia;
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Render::Javascript - Adds JS to standalone forms
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Render::Javascript';
+
+=head1 Description
+
+Only used when creating standalone forms to include the necessary JS
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item render_js_after
+
+=cut
 
 has '+render_js_after' => is => 'rw', default => TRUE;
 
@@ -33,6 +61,18 @@ has '_wanted_packages' =>
    handles     => {
       load_js_package => 'push',
    };
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item render
+
+=cut
 
 before 'render' => sub {
    my $self = shift;
@@ -73,6 +113,7 @@ before 'render' => sub {
    return;
 };
 
+# Private methods
 sub _load_package {
    my ($self, $package) = @_;
 
@@ -129,40 +170,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Render::Javascript - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Render::Javascript;
-   # Brief but working code examples
-
-=head1 Description
-
-Only used when creating standalone forms to include the necessary JS
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 

@@ -38,6 +38,7 @@ __DATA__
 BUILDARGS
 BottomLeft
 BottomRight
+Captcha
 CSV
 DBIC
 DBIxClass
@@ -56,6 +57,7 @@ ResultSet
 SERIALISERS
 SPC
 Stateful
+SVG
 TopLeft
 UnknownView
 chartable
@@ -70,6 +72,7 @@ instantiation
 js
 merchantability
 mouseover
+nullable
 params
 peter
 redis
@@ -82,5 +85,5 @@ serialiser
 sortable
 sql
 statetable
-SVG
-
+subfield
+untyped

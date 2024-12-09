@@ -3,10 +3,38 @@ package HTML::Forms::Blocks;
 use HTML::Forms::Constants qw( EXCEPTION_CLASS NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef HashRef Object Str );
 use HTML::Forms::Util      qw( get_meta );
-use HTML::Forms::Widget::Block;
 use Unexpected::Functions  qw( throw );
+use HTML::Forms::Widget::Block;
 use Moo::Role;
 use MooX::HandlesVia;
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Blocks - Blocks
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Blocks';
+
+=head1 Description
+
+Blocks
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item block_list
+
+=cut
 
 has 'block_list' =>
    is          => 'rw',
@@ -15,6 +43,10 @@ has 'block_list' =>
    handles_via => 'Array',
    handles     => { has_block_list => 'count' },
    lazy        => TRUE;
+
+=item blocks
+
+=cut
 
 has 'blocks' =>
    is          => 'lazy',
@@ -28,6 +60,10 @@ has 'blocks' =>
       has_blocks   => 'count',
    };
 
+=item render_list
+
+=cut
+
 has 'render_list' =>
    is          => 'rw',
    isa         => ArrayRef[Str],
@@ -40,6 +76,18 @@ has 'render_list' =>
       has_render_list    => 'count',
    },
    lazy        => TRUE;
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item build_fields
+
+=cut
 
 after 'build_fields' => sub {
    my $self = shift;
@@ -62,6 +110,10 @@ after 'build_fields' => sub {
    return;
 };
 
+=item get_renderer
+
+=cut
+
 sub get_renderer {
    my ($self, $name) = @_;
 
@@ -77,6 +129,10 @@ sub get_renderer {
 
    throw "Did not find a field or block with name ${name}\n";
 }
+
+=item make_block
+
+=cut
 
 sub make_block {
    my ($self, $block_attr) = @_;
@@ -114,10 +170,11 @@ sub make_block {
    return;
 }
 
+# Private methods
 # loops through all inherited classes and composed roles
 # to find blocks specified with 'has_block'
 sub _build_meta_block_list {
-   my $self   = shift;
+   my $self = shift;
 
    return [] unless get_meta($self);
 
@@ -149,3 +206,54 @@ use namespace::autoclean;
 1;
 
 __END__
+
+=back
+
+=head1 Diagnostics
+
+None
+
+=head1 Dependencies
+
+=over 3
+
+=item L<Moo::Role>
+
+=back
+
+=head1 Incompatibilities
+
+There are no known incompatibilities in this module
+
+=head1 Bugs and Limitations
+
+There are no known bugs in this module. Please report problems to
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-Forms.
+Patches are welcome
+
+=head1 Acknowledgements
+
+Larry Wall - For the Perl programming language
+
+=head1 Author
+
+Peter Flanigan, C<< <pjfl@cpan.org> >>
+
+=head1 License and Copyright
+
+Copyright (c) 2023 Peter Flanigan. All rights reserved
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself. See L<perlartistic>
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+
+=cut
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:
+# vim: expandtab shiftwidth=3:

@@ -7,11 +7,41 @@ use MooX::HandlesVia;
 
 with 'HTML::Forms::Result::Role';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Result - Result class
+
+=head1 Synopsis
+
+   use HTML::Forms::Result;
+
+=head1 Description
+
+Result class
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item form
+
+=cut
+
 has 'form'   =>
    is       => 'ro',
    isa      => HFs,
    #  handles => ['render' ],
    weak_ref => TRUE;
+
+=item form_errors
+
+=cut
 
 has 'form_errors' =>
    is          => 'rw',
@@ -26,7 +56,15 @@ has 'form_errors' =>
       push_form_errors  => 'push',
    };
 
+=item ran_validation
+
+=cut
+
 has 'ran_validation' => is => 'rw', isa => Bool, default => FALSE;
+
+=item has_value
+
+=cut
 
 has '_value'  =>
     is        => 'ro',
@@ -35,11 +73,27 @@ has '_value'  =>
     reader    => '_get_value',
     writer    => '_set_value';
 
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item C<fif>
+
+=cut
+
 sub fif {
    my $self = shift;
 
    return $self->form->fields_fif( $self );
 }
+
+=item form_and_field_errors
+
+=cut
 
 sub form_and_field_errors {
     my $self = shift;
@@ -48,6 +102,10 @@ sub form_and_field_errors {
 
     return (@form_errors, @field_errors);
 }
+
+=item peek
+
+=cut
 
 sub peek {
     my $self = shift;
@@ -59,12 +117,20 @@ sub peek {
     return $string;
 }
 
+=item validated
+
+=cut
+
 sub validated {
     my $self = shift;
 
     return $self->has_input && !$self->has_error_results
        && !$self->has_form_errors ? TRUE : FALSE;
 }
+
+=item value
+
+=cut
 
 sub value { shift->_get_value || {} }
 
@@ -74,32 +140,11 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Result - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Result;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 

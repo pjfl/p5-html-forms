@@ -56,6 +56,10 @@ has 'renderer_class' =>
 
 An optional instance of L<DBIx::Class::Schema>
 
+=item has_schema
+
+Predicate
+
 =cut
 
 has 'schema' =>
@@ -69,7 +73,9 @@ has 'schema' =>
 
 =over 3
 
-=item new_with_context( $name, \%options )
+=item new_with_context
+
+   $form = $manager->new_with_context( $name, \%options )
 
 =cut
 

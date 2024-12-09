@@ -4,6 +4,38 @@ use HTML::Forms::Constants qw( EXCEPTION_CLASS );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Widget::Form::Complex - Complex form widget
+
+=head1 Synopsis
+
+   use Moo;
+
+   with 'HTML::Forms::Widget::Form::Complex';
+
+=head1 Description
+
+Complex form widget
+
+=head1 Configuration and Environment
+
+Defines no attributes
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item C<renderx>
+
+=cut
+
 sub renderx {
    my ($self, %args) = @_;
 
@@ -25,38 +57,17 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Widget::Form::Complex - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Widget::Form::Complex;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 
