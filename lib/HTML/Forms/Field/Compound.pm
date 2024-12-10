@@ -9,18 +9,73 @@ extends 'HTML::Forms::Field';
 with    'HTML::Forms::Fields';
 with    'HTML::Forms::InitResult';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Compound - Field that contains fields
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Compound';
+
+=head1 Description
+
+Field that contains fields
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item is_compound
+
+=cut
+
 has 'is_compound' => is => 'ro', isa => Bool, default => TRUE;
 
+=item item
+
+=cut
+
 has 'item'        => is => 'rw', clearer => 'clear_item';
+
+=item primary_key
+
+=item has_primary_key
+
+Predicate
+
+=cut
 
 has 'primary_key' =>
    is             => 'rw',
    isa            => ArrayRef,
    predicate      => 'has_primary_key';
 
+=item do_label
+
+=cut
+
 has '+do_label'   => default => FALSE;
 
+=item do_wrapper
+
+=cut
+
 has '+do_wrapper' => default => FALSE;
+
+=item field_name_space
+
+=cut
 
 has '+field_name_space' =>
    builder => sub {
@@ -30,7 +85,23 @@ has '+field_name_space' =>
            ? $self->form->field_name_space : [];
    };
 
+=item widget
+
+=cut
+
 has '+widget' => default => 'Compound';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
 
 sub BUILD {
    my $self = shift;
@@ -39,7 +110,12 @@ sub BUILD {
    return;
 }
 
-# This is for testing compound fields outside of a form
+=item test_validate_field
+
+This is for testing compound fields outside of a form
+
+=cut
+
 sub test_validate_field {
    my $self = shift;
 
@@ -60,6 +136,10 @@ sub test_validate_field {
 
    return;
 }
+
+=item clear_data
+
+=cut
 
 after 'clear_data' => sub {
    my $self = shift;
@@ -90,38 +170,21 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Compound - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Compound;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field'>
+
+=item L<HTML::Forms::Fields>
+
+=item L<HTML::Forms::InitResult>
 
 =back
 
@@ -145,7 +208,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

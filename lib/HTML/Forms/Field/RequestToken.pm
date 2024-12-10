@@ -9,6 +9,45 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Hidden';
 
+our $class_messages = {
+   'token_fail' => 'Submission failed. [_1]. Please reload and try again.',
+};
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::RequestToken - Generates request token
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'RequestToken';
+
+=head1 Description
+
+Generates request token
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item default_method
+
+=item has_default_method
+
+Predicate
+
+=cut
+
 has '+default_method' => builder => sub {
    my $self    = shift;
    my $expires = $self->expiration_time;
@@ -17,15 +56,35 @@ has '+default_method' => builder => sub {
    return sub { get_token($expires, $prefix) };
 };
 
+=item C<noupdate>
+
+=cut
+
 has '+noupdate' => default => TRUE;
+
+=item expiration_time
+
+=cut
 
 has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
 
+=item token_prefix
+
+=cut
+
 has 'token_prefix' => is => 'lazy', isa => Str, builder => 'build_token_prefix';
 
-our $class_messages = {
-   'token_fail' => 'Submission failed. [_1]. Please reload and try again.',
-};
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
 
 sub BUILD {
    my $self = shift;
@@ -34,11 +93,19 @@ sub BUILD {
    return;
 }
 
+=item get_class_messages
+
+=cut
+
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages  } };
 }
+
+=item build_token_prefix
+
+=cut
 
 sub build_token_prefix {
    my $self    = shift;
@@ -48,6 +115,10 @@ sub build_token_prefix {
 
    return (blessed $session ? $session->serialise : $session->{id}) // NUL;
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my ($self, $value) = @_;
@@ -67,38 +138,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::RequestToken - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::RequestToken;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::RequestToken>
 
 =back
 
@@ -118,11 +168,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

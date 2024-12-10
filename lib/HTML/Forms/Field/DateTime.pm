@@ -2,12 +2,13 @@ package HTML::Forms::Field::DateTime;
 
 use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH META TIME_FMT TIME_MATCH );
 use HTML::Forms::Types     qw( Str );
+use HTML::Forms::Util      qw( now );
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Date';
 
-has '+default' => default => sub { shift->_now_dt->truncate( to => 'minute' ) };
+has '+default' => default => sub { now()->truncate( to => 'minute' ) };
 
 has '+format' => is => 'lazy', isa => Str, default => DATE_FMT . 'T' . TIME_FMT;
 
@@ -78,11 +79,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

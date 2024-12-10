@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Only 20 more field classes to add POD boilerplate
           - All POD boilerplate except for field classes
           - More POD link fixes
           - Fixes POD links in markdown

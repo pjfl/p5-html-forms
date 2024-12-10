@@ -8,35 +8,119 @@ use Moo;
 
 extends 'HTML::Forms::Field::Text';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::DataStructure - Add and remove groups of fields
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'DataStructure';
+
+=head1 Description
+
+Add and remove groups of fields. Like L<HTML::Forms::Field::Repeatable> but
+better
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item html5_type_attr
+
+=cut
+
 has '+html5_type_attr' => default => 'hidden';
+
+=item drag_title
+
+=cut
 
 has 'drag_title' =>
    is      => 'ro',
    isa     => Str,
    default => 'Drag and drop to reorder rows';
 
+=item fixed
+
+=cut
+
 has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
 
+=item icons
+
+=cut
+
 has 'icons' => is => 'rw', isa => Str, default => NUL;
+
+=item is_row_readonly
+
+=cut
 
 has 'is_row_readonly' =>
    is      => 'ro',
    isa     => CodeRef,
    default => sub { sub { FALSE } };
 
+=item reorderable
+
+=cut
+
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
+
+=item row_class
+
+=cut
 
 has 'row_class' => is => 'ro', isa => Str, default => 'ds-row';
 
+=item single_hash
+
+=cut
+
 has 'single_hash' => is => 'ro', isa => Bool, default => FALSE;
+
+=item store_as_hash
+
+=cut
 
 has 'store_as_hash' => is => 'ro', isa => Bool, default => FALSE;
 
+=item structure
+
+=cut
+
 has 'structure' => is => 'ro', isa => ArrayRef[HashRef], required => TRUE;
+
+=item type_attr
+
+=cut
 
 has '+type_attr' => default => 'hidden';
 
+=item widget
+
+=cut
+
 has '+widget' => default => 'DataStructure';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines no methods
+
+=cut
 
 sub _build_element_attr {
    my $self     = shift;
@@ -71,38 +155,15 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::DataStructure - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::DataStructure;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
-=back
-
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
@@ -126,7 +187,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

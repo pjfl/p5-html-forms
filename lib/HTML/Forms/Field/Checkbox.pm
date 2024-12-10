@@ -6,21 +6,96 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
-has 'checkbox_value'       => is => 'rw', default => TRUE;
+=pod
 
-has '+html5_type_attr'     => default => 'checkbox';
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Checkbox - Checkboxes
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Checkbox';
+
+=head1 Description
+
+Checkboxes
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item checkbox_value
+
+=cut
+
+has 'checkbox_value' => is => 'rw', default => TRUE;
+
+=item html5_type_attr
+
+=cut
+
+has '+html5_type_attr' => default => 'checkbox';
+
+=item input_without_param
+
+=item has_input_without_param
+
+Predicate
+
+=cut
 
 has '+input_without_param' => default => FALSE;
 
-has 'option_label'         => is => 'rw';
+=item option_label
 
-has 'option_wrapper'       => is => 'rw';
+=cut
 
-has '+type_attr'           => default => 'checkbox';
+has 'option_label' => is => 'rw';
 
-has '+widget'              => default => 'Checkbox';
+=item option_wrapper
 
-has '+wrapper_class'       => default => 'input-checkbox';
+=cut
+
+has 'option_wrapper' => is => 'rw';
+
+=item type_attr
+
+=cut
+
+has '+type_attr' => default => 'checkbox';
+
+=item widget
+
+=cut
+
+has '+widget' => default => 'Checkbox';
+
+=item wrapper_class
+
+=cut
+
+has '+wrapper_class' => default => 'input-checkbox';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
 
 around 'BUILD' => sub {
    my ($orig, $self) = @_;
@@ -29,6 +104,10 @@ around 'BUILD' => sub {
    $orig->($self);
    return;
 };
+
+=item validate
+
+=cut
 
 sub validate {
     my $self = shift;
@@ -45,38 +124,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Checkbox - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Checkbox;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field>
 
 =back
 
@@ -100,7 +158,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

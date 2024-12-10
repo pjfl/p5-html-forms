@@ -1,22 +1,66 @@
 package HTML::Forms::Field::TimeWithZone;
 
-use DateTime::TimeZone;
 use HTML::Forms::Constants qw( DOT META NUL TIME_RE TRUE );
 use HTML::Forms::Types     qw( HFsField Maybe Str );
 use HTML::Forms::Util      qw( quote_single );
+use HTML::Forms::Field::Result;
 use HTML::Forms::Field::Hour;
 use HTML::Forms::Field::Minute;
 use HTML::Forms::Field::Select;
+use DateTime::TimeZone;
 use Moo;
 use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Hidden';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::TimeWithZone - Time with time zone
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'TimeWithZone';
+
+=head1 Description
+
+Time with time zone
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item do_label
+
+=cut
+
 has '+do_label' => default => TRUE;
+
+=item widget
+
+=cut
 
 has '+widget'   => default => 'TimeWithZone';
 
+=item wrapper_class
+
+=cut
+
 has '+wrapper_class' => default => 'input-time-with-zone';
+
+=item hours
+
+=cut
 
 has 'hours' =>
    is      => 'lazy',
@@ -42,6 +86,10 @@ has 'hours' =>
       return $field;
    };
 
+=item C<mins>
+
+=cut
+
 has 'mins' =>
    is      => 'lazy',
    isa     => HFsField,
@@ -66,10 +114,18 @@ has 'mins' =>
       return $field;
    };
 
+=item update_js_method
+
+=cut
+
 has 'update_js_method' =>
    is      => 'lazy',
    isa     => Str,
    default => sub { shift->js_package . DOT . 'updateTimeWithZone' };
+
+=item zone
+
+=cut
 
 has 'zone' =>
    is      => 'lazy',
@@ -130,6 +186,18 @@ has '_zone' =>
       return $zone;
    };
 
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
+
 around 'BUILD' => sub {
    my ($orig, $self) = @_;
 
@@ -143,6 +211,7 @@ around 'BUILD' => sub {
    return;
 };
 
+# Private methods
 sub _update_js {
    my ($self, $event) = @_;
 
@@ -164,38 +233,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::TimeWithZone - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::TimeWithZone;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Hidden>
 
 =back
 
@@ -215,11 +263,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

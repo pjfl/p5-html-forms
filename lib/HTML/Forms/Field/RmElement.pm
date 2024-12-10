@@ -6,11 +6,66 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Display';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::RmElement - Adds a remove element to a repeatable field
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'AddElement';
+
+=head1 Description
+
+Adds a remove element to a repeatable field
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item do_wrapper
+
+=cut
+
 has '+do_wrapper' => default => TRUE;
+
+=item value
+
+=item has_value
+
+Predicate
+
+=cut
 
 has '+value' => default => 'Remove';
 
+=item widget
+
+=cut
+
 has '+widget' => default => 'RepeatableControl';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item element_attributes
+
+=cut
 
 around 'element_attributes' => sub {
    my ($orig, $self, $result) = @_;
@@ -30,38 +85,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::RmElement - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::RmElement;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Display>
 
 =back
 
@@ -81,11 +115,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

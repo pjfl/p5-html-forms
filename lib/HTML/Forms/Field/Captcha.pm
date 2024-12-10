@@ -9,7 +9,46 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
+our $class_messages = {
+   'captcha_verify_failed' => 'Verification incorrect. Try again.',
+};
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Captcha - Is the user a robot?
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Captcha';
+
+=head1 Description
+
+Generates and processes C<captcha> fields
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item address_key
+
+=cut
+
 has 'address_key' => is => 'rw', isa => Str, default => NUL;
+
+=item capture
+
+=cut
 
 has 'capture' =>
    is      => 'lazy',
@@ -20,21 +59,49 @@ has 'capture' =>
       return $self->captcha_class->new;
    };
 
+=item captcha_class
+
+=cut
+
 has 'captcha_class' =>
    is      => 'lazy',
    isa     => LoadableClass,
    coerce  => TRUE,
    default => 'Captcha::reCAPTCHA';
 
+=item captcha_type
+
+=cut
+
 has 'captcha_type' => is => 'rw', isa => Str, default => 'local';
+
+=item domains
+
+=cut
 
 has 'domains' => is => 'rw', isa => ArrayRef, builder => sub { [] };
 
+=item gd_font
+
+=cut
+
 has 'gd_font' => is => 'rw', isa => Str, default => 'Large';
+
+=item height
+
+=cut
 
 has 'height' => is => 'rw', isa => Int, default => 20;
 
+=item image
+
+=cut
+
 has 'image' => is => 'rw';
+
+=item image_attr
+
+=cut
 
 has 'image_attr' =>
    is      => 'lazy',
@@ -47,50 +114,112 @@ has 'image_attr' =>
       return { attributes => $attr, src => $form->captcha_image_url };
    };
 
+=item image_class
+
+=cut
+
 has 'image_class' =>
    is      => 'lazy',
    isa     => LoadableClass,
    coerce  => TRUE,
    default => 'GD::SecurityImage';
 
+=item lines
+
+=cut
+
 has 'lines' => is => 'rw', isa => Int, default => 2;
+
+=item response_key
+
+=cut
 
 has 'response_key' =>
    is      => 'rw',
    isa     => Str,
    default => 'g-recaptcha-response';
 
-has 'size'       => is => 'ro', isa => Int, default => 8;
+=item size
 
-has 'scramble'   => is => 'rw', isa => Int, default => 0;
+=cut
+
+has 'size' => is => 'ro', isa => Int, default => 8;
+
+=item scramble
+
+=cut
+
+has 'scramble' => is => 'rw', isa => Int, default => 0;
+
+=item secret_key
+
+=cut
 
 has 'secret_key' => is => 'rw', isa => Str, default => NUL;
 
-has 'site_key'   => is => 'rw', isa => Str, default => NUL;
+=item site_key
 
-has 'theme'      => is => 'rw', isa => Str, default => NUL;
+=cut
 
-has 'width'      => is => 'rw', isa => Int, default => 80;
+has 'site_key' => is => 'rw', isa => Str, default => NUL;
 
+=item theme
 
-has '+noupdate'      => default => TRUE;
+=cut
 
-has '+widget'        => default => 'Captcha';
+has 'theme' => is => 'rw', isa => Str, default => NUL;
+
+=item width
+
+=cut
+
+has 'width' => is => 'rw', isa => Int, default => 80;
+
+=item C<noupdate>
+
+=cut
+
+has '+noupdate' => default => TRUE;
+
+=item widget
+
+=cut
+
+has '+widget' => default => 'Captcha';
+
+=item wrapper_class
+
+=cut
 
 has '+wrapper_class' => default => 'input-captcha';
 
-our $class_messages = {
-   'captcha_verify_failed' => 'Verification incorrect. Try again.',
-};
+=back
 
-# Public methods
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item C<fif>
+
+=cut
+
 sub fif { }
+
+=item get_class_messages
+
+=cut
 
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages } };
 }
+
+=item get_default_value
+
+=cut
 
 sub get_default_value {
    my $self = shift;
@@ -119,6 +248,10 @@ sub get_default_value {
    return;
 }
 
+=item get_html
+
+=cut
+
 sub get_html {
    my $self    = shift;
    my $options = {};
@@ -127,6 +260,10 @@ sub get_html {
 
    return $self->capture->get_html_v2($self->site_key, $options);
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self = shift;
@@ -217,38 +354,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Captcha - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Captcha;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field>
 
 =back
 
@@ -268,11 +384,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

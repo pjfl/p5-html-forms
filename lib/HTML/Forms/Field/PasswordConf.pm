@@ -7,26 +7,97 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-has 'pass_conf_message' => is => 'ro', isa => Str;
-
-has 'password_field' => is => 'ro', isa => Str, default => 'password';
-
-has '+html5_type_attr' => default => 'password';
-
-has '+password' => default => TRUE;
-
-has '+required' => default => TRUE;
-
-has '+type_attr' => default => 'password';
-
-has '+widget' => default => 'Password';
-
-has '+wrapper_class' => default => 'input-password';
-
 our $class_messages = {
    required => 'Please enter a password confirmation',
    pass_not_matched => 'The password confirmation does not match the password',
 };
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::PasswordConf - Password confirmation
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'PasswordConf';
+
+=head1 Description
+
+Password confirmation
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item pass_conf_message
+
+=cut
+
+has 'pass_conf_message' => is => 'ro', isa => Str;
+
+=item password_field
+
+=cut
+
+has 'password_field' => is => 'ro', isa => Str, default => 'password';
+
+=item html5_type_attr
+
+=cut
+
+has '+html5_type_attr' => default => 'password';
+
+=item password
+
+=cut
+
+has '+password' => default => TRUE;
+
+=item required
+
+=cut
+
+has '+required' => default => TRUE;
+
+=item type_attr
+
+=cut
+
+has '+type_attr' => default => 'password';
+
+=item widget
+
+=cut
+
+has '+widget' => default => 'Password';
+
+=item wrapper_class
+
+=cut
+
+has '+wrapper_class' => default => 'input-password';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=cut
 
 sub get_class_messages {
    my $self     = shift;
@@ -37,6 +108,10 @@ sub get_class_messages {
 
    return $messages;
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self     = shift;
@@ -55,38 +130,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::PasswordConf - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::PasswordConf;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
@@ -106,11 +160,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

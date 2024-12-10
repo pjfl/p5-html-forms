@@ -8,20 +8,6 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-has 'decimal_symbol' => is => 'ro', isa => Str, default => DOT;
-
-has 'decimal_symbol_for_db' => is => 'ro', isa => Str, default => DOT;
-
-has 'precision' => is => 'rw', isa => Int|Undef, default => 2;
-
-has '+deflate_method' => default => \&deflate_float;
-
-has '+inflate_method' => default => \&inflate_float;
-
-has '+size' => default => 8;
-
-has '+wrapper_class' => default => 'input-number';
-
 our $class_messages = {
    'float_precision' =>
       'May have a maximum of [quant,_1,digit] after the decimal point, but has [_2]',
@@ -30,6 +16,91 @@ our $class_messages = {
    'float_size' =>
       'Total size of number must be less than or equal to [_1], but is [_2]',
 };
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Float - Float numeric input
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Float';
+
+=head1 Description
+
+Float numeric input
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item decimal_symbol
+
+=cut
+
+has 'decimal_symbol' => is => 'ro', isa => Str, default => DOT;
+
+=item decimal_symbol_for_db
+
+=cut
+
+has 'decimal_symbol_for_db' => is => 'ro', isa => Str, default => DOT;
+
+=item precision
+
+=cut
+
+has 'precision' => is => 'rw', isa => Int|Undef, default => 2;
+
+=item deflate_method
+
+=item has_deflate_method
+
+=cut
+
+has '+deflate_method' => default => \&deflate_float;
+
+=item inflate_method
+
+=item has_inflate_method
+
+=cut
+
+has '+inflate_method' => default => \&inflate_float;
+
+=item size
+
+=cut
+
+has '+size' => default => 8;
+
+=item wrapper_class
+
+=cut
+
+has '+wrapper_class' => default => 'input-number';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item deflate_float
+
+=cut
 
 sub deflate_float {
    my ($self, $value) = @_;
@@ -44,11 +115,19 @@ sub deflate_float {
    return $value;
 }
 
+=item get_class_messages
+
+=cut
+
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages  } };
 }
+
+=item inflate_float
+
+=cut
 
 sub inflate_float {
    my ($self, $value) = @_;
@@ -59,6 +138,10 @@ sub inflate_float {
 
    return $value;
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self = shift;
@@ -106,38 +189,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Float - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Float;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
@@ -157,11 +219,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

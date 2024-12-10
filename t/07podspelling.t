@@ -39,6 +39,7 @@ BUILDARGS
 BottomLeft
 BottomRight
 Captcha
+Checkboxes
 CSV
 DBIC
 DBIxClass

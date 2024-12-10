@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 68 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 69 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -1457,17 +1457,16 @@ L<validated|HTML::Forms/validated>
 
 Consider this fragment from a controller/model method that processes a form
 C<GET> or C<POST>. It stashes the form object (for rendering in the HTML
-template) and if posted successfully stashes a redirect to the login page with
-a message that should be displayed to the user
+template) and if posted successfully stashes a redirect to the give action path
+with a message that should be displayed to the user
 
-   my $form = $self->new_form('Register', { context => $context });
+   my $form = $self->new_form('form_name', { context => $context });
 
    if ($form->process( posted => $context->posted )) {
-      my $job     = $context->stash->{job};
-      my $login   = $context->uri_for_action('page/login');
-      my $message = 'Registration request [_1] dispatched';
+      my $location = $context->uri_for_action('action/path');
+      my $message  = 'Show this to the user';
 
-      $context->stash(redirect $login, [$message, $job->label]);
+      $context->stash(redirect $location, [$message]);
       return;
    }
 
@@ -1535,12 +1534,12 @@ sub set_active {
 Called from L<process|HTML::Forms/process>. The C<@args> is either a hash
 reference or a list of keys and values. The hash reference is used to
 instantiate the C<params> hash reference, the list is used to set attributes on
-the form object. L<HTML::Forms::Model/build_item> is called if we have an
-C<item_id> and no C<item>. The C<result> object is cleared, fields have their
-activation state set, L<update_fields|HTML::Forms/update_fields> is called,
-C<posted> is set to true if we has C<params> and C<posted> wasn't supplied to
-the constructor. The C<result> is initialised. If C<posted> the result is
-cleared again and then initialised from the C<params> provided
+the form object. L<build_item|HTML::Forms::Model/build_item> is called if we
+have an C<item_id> and no C<item>. The C<result> object is cleared, fields have
+their activation state set, L<update_fields|HTML::Forms/update_fields> is
+called, C<posted> is set to true if we has C<params> and C<posted> wasn't
+supplied to the constructor. The C<result> is initialised. If C<posted> the
+result is cleared again and then initialised from the C<params> provided
 
 =cut
 
@@ -1805,7 +1804,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

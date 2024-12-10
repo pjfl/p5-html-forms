@@ -1,9 +1,9 @@
 package HTML::Forms::Field::Select;
 
-use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Constants qw( DOT FALSE META NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HFsSelectOptions
                                Int Num Str Undef );
+use HTML::Entities         qw( encode_entities );
 use HTML::Forms::Util      qw( convert_full_name get_meta );
 use Ref::Util              qw( is_arrayref is_hashref );
 use Scalar::Util           qw( weaken );
@@ -13,19 +13,83 @@ use Sub::HandlesVia;
 
 extends 'HTML::Forms::Field';
 
+our $class_messages = {
+   'select_invalid_value' => '[_1] is not a valid value',
+   'select_not_multiple'  => 'This field does not take multiple values',
+};
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Select - Select from options
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Select';
+
+=head1 Description
+
+Select from options
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item auto_widget_size
+
+=cut
+
 has 'auto_widget_size' => is => 'ro', isa => Int, default => 0;
+
+=item do_not_reload
+
+=cut
 
 has 'do_not_reload' => is => 'ro', isa => Bool, default => FALSE;
 
+=item empty_select
+
+=cut
+
 has 'empty_select' => is => 'rw', isa => Str;
+
+=item has_many
+
+=cut
 
 has 'has_many' => is => 'rw', isa => Str;
 
+=item label_column
+
+=cut
+
 has 'label_column' => is => 'ro', isa => Str, default => 'name';
+
+=item multiple
+
+=cut
 
 has 'multiple' => is => 'rw', isa => Bool, default => FALSE;
 
+=item no_option_validation
+
+=cut
+
 has 'no_option_validation' => is => 'rw', isa => Bool, default => FALSE;
+
+=item options
+
+=cut
 
 has 'options'   =>
     is          => 'rw',
@@ -42,7 +106,15 @@ has 'options'   =>
     },
     lazy        => TRUE;
 
+=item options_from
+
+=cut
+
 has 'options_from' => is => 'rw', isa => Str, default => 'none';
+
+=item options_index
+
+=cut
 
 has 'options_index' =>
    is          => 'rw',
@@ -55,6 +127,14 @@ has 'options_index' =>
       reset_options_index => 'reset'
    };
 
+=item options_method
+
+=item has_options_method
+
+Predicate
+
+=cut
+
 has 'options_method' =>
    is          => 'ro',
    isa         => CodeRef,
@@ -63,11 +143,31 @@ has 'options_method' =>
    predicate   => 'has_options_method',
    writer      => '_set_options_method';
 
+=item set_options
+
+=cut
+
 has 'set_options' => is => 'ro', isa => Str;
+
+=item size
+
+=cut
 
 has 'size' => is => 'rw', isa => Int|Undef;
 
+=item sort_column
+
+=cut
+
 has 'sort_column' => is => 'ro', isa => ArrayRef[Str]|Str;
+
+=item sort_options_method
+
+=item has_sort_options_method
+
+Predicate
+
+=cut
 
 has 'sort_options_method' =>
    is          => 'rw',
@@ -76,24 +176,88 @@ has 'sort_options_method' =>
    handles     => { sort_options => 'execute' },
    predicate   => 'has_sort_options_method';
 
+=item value_when_empty
+
+=cut
+
 has 'value_when_empty' => is => 'lazy', builder => 'build_value_when_empty';
 
+=item deflate_method
+
+=item has_deflate_method
+
+Predicate
+
+=cut
+
 has '+deflate_method' => default => sub { _build_deflate_method( shift ) };
+
+=item input_without_param
+
+=item has_input_without_param
+
+Predicate
+
+=cut
 
 has '+input_without_param' =>
    builder => 'build_input_without_param',
    lazy    => TRUE;
 
+=item widget
+
+=cut
+
 has '+widget' => default => 'Select';
+
+=item wrapper_class
+
+=cut
 
 has '+wrapper_class' => default => 'input-select';
 
-our $class_messages = {
-   'select_invalid_value' => '[_1] is not a valid value',
-   'select_not_multiple'  => 'This field does not take multiple values',
-};
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
+
+sub BUILD {
+   my $self = shift;
+
+   $self->select_widget;
+   $self->build_options_method;
+
+   if ($self->options && $self->has_options) {
+      $self->options_from('build');
+      $self->default_from_options($self->options);
+   }
+
+   $self->input_without_param;
+
+   if ($self->multiple) {
+      $self->add_label_class('select-multiple');
+      $self->add_element_class('select-multiple');
+   }
+
+   return;
+}
+
+=item clear_data
+
+=cut
 
 after 'clear_data' => sub { shift->reset_options_index };
+
+=item value
+
+=cut
 
 before 'value' => sub {
    my $self = shift;
@@ -121,26 +285,9 @@ before 'value' => sub {
    return;
 };
 
-sub BUILD {
-   my $self = shift;
+=item build_input_without_param
 
-   $self->select_widget;
-   $self->build_options_method;
-
-   if ($self->options && $self->has_options) {
-      $self->options_from('build');
-      $self->default_from_options($self->options);
-   }
-
-   $self->input_without_param;
-
-   if ($self->multiple) {
-      $self->add_label_class('select-multiple');
-      $self->add_element_class('select-multiple');
-   }
-
-   return;
-}
+=cut
 
 sub build_input_without_param {
    my $self = shift;
@@ -153,7 +300,17 @@ sub build_input_without_param {
    return NUL;
 }
 
+=item build_options
+
+Return an empty array reference
+
+=cut
+
 sub build_options { [] }
+
+=item build_options_method
+
+=cut
 
 sub build_options_method {
    my $self        = shift;
@@ -174,11 +331,19 @@ sub build_options_method {
    return;
 }
 
+=item build_value_when_empty
+
+=cut
+
 sub build_value_when_empty {
    my $self = shift;
 
    return $self->multiple ? [] : undef;
 }
+
+=item default_from_options
+
+=cut
 
 sub default_from_options {
    my ($self, $options) = @_;
@@ -194,15 +359,27 @@ sub default_from_options {
    return;
 }
 
+=item get_class_messages
+
+=cut
+
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages } };
 }
 
+=item html_element
+
+=cut
+
 sub html_element {
    return 'select';
 }
+
+=item next_option_id
+
+=cut
 
 sub next_option_id {
    my $self = shift;
@@ -211,6 +388,10 @@ sub next_option_id {
    $self->inc_options_index;
    return $id;
 }
+
+=item select_widget
+
+=cut
 
 sub select_widget {
     my $self = shift;
@@ -235,6 +416,7 @@ sub select_widget {
     return;
 }
 
+# Private methods
 sub _build_deflate_method {
    my $self = shift;
 
@@ -368,38 +550,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Select - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Select;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field>
 
 =back
 
@@ -423,7 +584,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

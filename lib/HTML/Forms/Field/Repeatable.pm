@@ -15,16 +15,67 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Repeatable - Repeatable fields
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Repeatable';
+
+=head1 Description
+
+Repeatable fields
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item widget
+
+=cut
+
 has '+widget' => default => 'Repeatable';
 
+=item auto_id
+
+=cut
+
 has 'auto_id' => is => 'rw', isa => Bool, default => FALSE;
+
+=item contains
+
+=item has_contains
+
+Predicate
+
+=cut
 
 has 'contains' =>
    is          => 'rw',
    isa         => HFsField,
    predicate   => 'has_contains';
 
+=item index
+
+=cut
+
 has 'index' => is => 'rw', isa => Int, default => 0;
+
+=item init_contains
+
+=cut
 
 has 'init_contains' =>
    is          => 'rw',
@@ -35,20 +86,51 @@ has 'init_contains' =>
       has_init_contains => 'count',
    };
 
+=item instance_wrapper_class
+
+=cut
+
 has 'instance_wrapper_class' =>
    is      => 'ro',
    isa     => Str,
    default => 'input-repeatable';
 
+=item is_repeatable
+
+=cut
+
 has 'is_repeatable'  => is => 'ro', isa => Bool, default => TRUE;
+
+=item num_extra
+
+=cut
 
 has 'num_extra'      => is => 'rw', isa => Int, default => 0;
 
+=item num_when_empty
+
+=cut
+
 has 'num_when_empty' => is => 'rw', isa => Int, default => 1;
+
+=item setup_for_js
+
+=cut
 
 has 'setup_for_js'   => is => 'rw', isa => Bool, default => TRUE;
 
-# Public methods
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item add_extra
+
+=cut
+
 sub add_extra {
    my ($self, $count) = @_;
 
@@ -60,6 +142,10 @@ sub add_extra {
 
    return $self->index( $index );
 }
+
+=item clone_element
+
+=cut
 
 sub clone_element {
    my ($self, $index) = @_;
@@ -73,6 +159,10 @@ sub clone_element {
 
    return $field;
 }
+
+=item clone_fields
+
+=cut
 
 sub clone_fields {
    my ($self, $parent, $fields) = @_;
@@ -91,6 +181,10 @@ sub clone_fields {
 
    return;
 }
+
+=item create_element
+
+=cut
 
 sub create_element {
    my $self = shift;
@@ -154,6 +248,10 @@ sub create_element {
    return $instance;
 }
 
+=item init_state
+
+=cut
+
 sub init_state {
    my $self = shift;
 
@@ -169,6 +267,10 @@ sub init_state {
    $self->clear_fields;
    return;
 }
+
+=item render_repeatable_js
+
+=cut
 
 sub render_repeatable_js {
    my $self = shift;
@@ -371,38 +473,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Repeatable - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Repeatable;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Compound>
 
 =back
 
@@ -426,7 +507,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

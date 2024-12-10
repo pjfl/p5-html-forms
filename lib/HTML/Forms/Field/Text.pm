@@ -7,32 +7,26 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field';
 
-has 'size' => is => 'lazy', isa => Int|Undef, default => 0;
-
-has '+widget' => default => 'Text';
-
-has '+wrapper_class' => default => 'input-text';
-
-use namespace::autoclean -except => META;
-
-1;
-
-__END__
-
 =pod
 
 =encoding utf-8
 
 =head1 Name
 
-HTML::Forms::Field::Text - One-line description of the modules purpose
+HTML::Forms::Field::Text - Basic text field
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Text;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Text';
 
 =head1 Description
+
+Basic text field
 
 =head1 Configuration and Environment
 
@@ -40,17 +34,47 @@ Defines the following attributes;
 
 =over 3
 
+=item size
+
+=cut
+
+has 'size' => is => 'lazy', isa => Int|Undef, default => 0;
+
+=item widget
+
+=cut
+
+has '+widget' => default => 'Text';
+
+=item wrapper_class
+
+=cut
+
+has '+wrapper_class' => default => 'input-text';
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
+=cut
+
+use namespace::autoclean -except => META;
+
+1;
+
+__END__
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field>
 
 =back
 
@@ -74,7 +98,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

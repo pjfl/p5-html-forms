@@ -7,22 +7,85 @@ use HTML::Forms::Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-has 'ne_username' => is => 'rw', isa => Str;
-
-has '+html5_type_attr' => default => 'password';
-
-has '+password' => default => TRUE;
-
-has '+type_attr' => default => 'password';
-
-has '+widget' => default => 'Password';
-
-has '+wrapper_class' => default => 'input-password';
-
 our $class_messages = {
    'required' => 'Please enter a password in this field',
    'password_ne_username' => 'Password must not match [_1]',
 };
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Password - Password field
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Password';
+
+=head1 Description
+
+Password field
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item ne_username
+
+=cut
+
+has 'ne_username' => is => 'rw', isa => Str;
+
+=item html5_type_attr
+
+=cut
+
+has '+html5_type_attr' => default => 'password';
+
+=item password
+
+=cut
+
+has '+password' => default => TRUE;
+
+=item type_attr
+
+=cut
+
+has '+type_attr' => default => 'password';
+
+=item widget
+
+=cut
+
+has '+widget' => default => 'Password';
+
+=item wrapper_class
+
+=cut
+
+has '+wrapper_class' => default => 'input-password';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item validate_field
+
+=cut
 
 after 'validate_field' => sub {
    my $self = shift;
@@ -35,6 +98,10 @@ after 'validate_field' => sub {
    return;
 };
 
+=item get_class_messages
+
+=cut
+
 sub get_class_messages {
    my $self     = shift;
    my $messages = { %{ $self->next::method }, %{ $class_messages  } };
@@ -43,6 +110,10 @@ sub get_class_messages {
 
    return $messages;
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self = shift;
@@ -66,38 +137,17 @@ use namespace::autoclean -except => META;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Password - Generates markup for and processes input from HTML forms
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Password;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
@@ -117,11 +167,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2023 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

@@ -1,20 +1,60 @@
 package HTML::Forms::Field::Date;
 
-use DateTime;
-use DateTime::Format::Strptime;
 use HTML::Forms::Constants qw( DATE_FMT DATE_MATCH EXCEPTION_CLASS
                                FALSE NUL TRUE );
 use HTML::Forms::Types     qw( Bool CodeRef Str );
 use HTML::Forms::Util      qw( now );
 use Ref::Util              qw( is_coderef );
 use Scalar::Util           qw( blessed );
-use Try::Tiny;
 use Unexpected::Functions  qw( throw );
+use DateTime;
+use DateTime::Format::Strptime;
+use Try::Tiny;
 use Moo;
 
 extends 'HTML::Forms::Field::Text';
 
+our $class_messages = {
+   'date_early' => 'Start date is too early',
+   'date_late'  => 'End date is too late',
+};
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Date - Date input field
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Date';
+
+=head1 Description
+
+Date input field
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item C<clearable>
+
+=cut
+
 has 'clearable' => is => 'ro', isa => Bool, default => FALSE;
+
+=item date_end
+
+=cut
 
 has 'date_end' =>
    is      => 'lazy',
@@ -22,15 +62,35 @@ has 'date_end' =>
    default => NUL,
    clearer => 'clear_date_end';
 
+=item date_start
+
+=cut
+
 has 'date_start' =>
    is      => 'lazy',
    isa     => CodeRef|Str,
    default => NUL,
    clearer => 'clear_date_start';
 
+=item deflate_method
+
+=item has_deflate_method
+
+Predicate
+
+=cut
+
 has '+deflate_method' => default => sub { shift->_build_deflate_method };
 
+=item format
+
+=cut
+
 has 'format' => is => 'lazy', isa => Str, default => DATE_FMT;
+
+=item format
+
+=cut
 
 has 'format_error' =>
    is      => 'lazy',
@@ -41,21 +101,65 @@ has 'format_error' =>
       return 'Please enter a date in the format ' . $self->format;
    };
 
+=item locale
+
+=cut
+
 has 'locale' => is => 'ro', isa => Str, default => 'en_GB';
+
+=item pattern
+
+=cut
 
 has 'pattern' => is => 'ro', isa => Str, default => DATE_MATCH;
 
+=item time_zone
+
+=cut
+
 has 'time_zone' => is => 'rw', isa => Str, default => 'UTC';
 
-has '+default' => default => sub { shift->_now_dt->truncate( to => 'day' ) };
+=item default
+
+=cut
+
+has '+default' => default => sub { now()->truncate( to => 'day' ) };
+
+=item html5_type_attr
+
+=cut
 
 has '+html5_type_attr' => default => 'date';
 
+=item size
+
+=cut
+
 has '+size' => default => 10;
+
+=item type_attr
+
+=cut
 
 has '+type_attr' => default => 'date';
 
+=item wrapper_class
+
+=cut
+
 has '+wrapper_class' => default => 'input-date';
+
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item get_tag
+
+=cut
 
 before 'get_tag' => sub {
    my $self = shift;
@@ -73,6 +177,10 @@ before 'get_tag' => sub {
    return;
 };
 
+=item add_standard_element_classes
+
+=cut
+
 around 'add_standard_element_classes' => sub {
    my ($orig, $self, $result, $classes) = @_;
 
@@ -82,6 +190,10 @@ around 'add_standard_element_classes' => sub {
 
    return;
 };
+
+=item element_attributes
+
+=cut
 
 around 'element_attributes' => sub {
    my ($orig, $self, $result) = @_;
@@ -99,6 +211,10 @@ around 'element_attributes' => sub {
    return $attr;
 };
 
+=item init_value
+
+=cut
+
 after 'init_value' => sub {
    my ($self, $value) = @_;
 
@@ -107,17 +223,19 @@ after 'init_value' => sub {
    return;
 };
 
-our $class_messages = {
-   'date_early' => 'Start date is too early',
-   'date_late'  => 'End date is too late',
-};
+=item get_class_messages
 
-# Public methods
+=cut
+
 sub get_class_messages {
    my $self = shift;
 
    return { %{ $self->next::method }, %{ $class_messages } };
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self    = shift;
@@ -235,48 +353,23 @@ sub _get_strf_format {
    return $format;
 }
 
-sub _now_dt {
-   my $self = shift; return now;
-}
-
 use namespace::autoclean;
 
 1;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Field::Date - One-line description of the modules purpose
-
-=head1 Synopsis
-
-   use HTML::Forms::Field::Date;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
@@ -300,7 +393,7 @@ Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2018 Peter Flanigan. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

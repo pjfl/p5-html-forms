@@ -20,16 +20,63 @@ my $DEFAULT_INTERVALS = [
    { value => 'year', label => 'Years'  },
 ];
 
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Field::Interval - Numeric intervals
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Interval';
+
+=head1 Description
+
+Numeric interval field
+
+=head1 Configuration and Environment
+
+Defines the following attributes;
+
+=over 3
+
+=item do_label
+
+=cut
+
 has '+do_label' => default => TRUE;
+
+=item widget
+
+=cut
 
 has '+widget'   => default => 'Interval';
 
+=item wrapper_class
+
+=cut
+
 has '+wrapper_class' => default => 'input-interval';
+
+=item interval_options
+
+=cut
 
 has 'interval_options' =>
    is      => 'ro',
    isa     => ArrayRef[HashRef],
    builder => sub { $DEFAULT_INTERVALS };
+
+=item interval_string
+
+=cut
 
 has 'interval_string' =>
    is      => 'lazy',
@@ -42,6 +89,10 @@ has 'interval_string' =>
       return interval_to_string($interval, $default_period);
    };
 
+=item period_class
+
+=cut
+
 has 'period_class' =>
    is      => 'ro',
    isa     => Str,
@@ -52,7 +103,15 @@ has '_toggle_copy' =>
    isa     => HashRef[ArrayRef],
    default => sub { my $self = shift; return { %{ $self->toggle } } };
 
+=item unit_class
+
+=cut
+
 has 'unit_class' => is => 'ro', isa => Str, default => 'input-text';
+
+=item update_js_method
+
+=cut
 
 has 'update_js_method' =>
    is      => 'lazy',
@@ -60,6 +119,10 @@ has 'update_js_method' =>
    default => sub { shift->_js_package . DOT . 'updateInterval' };
 
 has '_js_package' => is => 'ro', isa => Str, default => 'WCom.Form.Toggle';
+
+=item period
+
+=cut
 
 has 'period' =>
    is      => 'lazy',
@@ -88,6 +151,10 @@ has 'period' =>
       return $field;
    };
 
+=item unit
+
+=cut
+
 has 'unit' =>
    is      => 'lazy',
    isa     => HFsField,
@@ -112,6 +179,18 @@ has 'unit' =>
       return $field;
    };
 
+=back
+
+=head1 Subroutines/Methods
+
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=cut
+
 around 'BUILD' => sub {
    my ($orig, $self) = @_;
 
@@ -134,6 +213,10 @@ around 'BUILD' => sub {
    return;
 };
 
+=item get_disabled_fields
+
+=cut
+
 around 'get_disabled_fields' => sub {
    my ($orig, $self, $value) = @_;
 
@@ -144,6 +227,10 @@ around 'get_disabled_fields' => sub {
    return $orig->($self, $period);
 };
 
+=item default_period
+
+=cut
+
 sub default_period {
    my $self     = shift;
    my $interval = $self->interval_string or return;
@@ -151,6 +238,10 @@ sub default_period {
 
    return $period;
 }
+
+=item default_unit
+
+=cut
 
 sub default_unit {
    my $self     = shift;
@@ -160,6 +251,10 @@ sub default_unit {
    return $unit;
 }
 
+=item update_js
+
+=cut
+
 sub update_js {
    my ($self, $event) = @_;
 
@@ -168,6 +263,10 @@ sub update_js {
    return sprintf '%s="%s(%s)"', $event, $self->update_js_method,
       quote_single($self->id);
 }
+
+=item validate
+
+=cut
 
 sub validate {
    my $self = shift;
@@ -183,41 +282,21 @@ use namespace::autoclean -except => META;
 
 1;
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-[% module %] - [% abstract %]
-
-=head1 Synopsis
-
-has_field 'interval_field' => (
-   type    => '+HTML::Forms::Field::Interval',
-   toggle  => { hour => ['display_field'] },
-   default => '1 hours',
-);
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
+__END__
 
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Hidden>
+
+=item L<HTML::Forms::Widget::Field::Trait::Toggle>
 
 =back
 
@@ -228,7 +307,7 @@ There are no known incompatibilities in this module
 =head1 Bugs and Limitations
 
 There are no known bugs in this module. Please report problems to
-http://rt.cpan.org/NoAuth/Bugs.html?Dist=[% distname %].
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-Forms.
 Patches are welcome
 
 =head1 Acknowledgements
@@ -237,11 +316,11 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-[% author %], C<< <[% author_email %]> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 
-Copyright (c) [% copyright_year %] [% copyright %]. All rights reserved
+Copyright (c) 2024 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>

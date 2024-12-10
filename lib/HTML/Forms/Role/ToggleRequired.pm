@@ -79,7 +79,7 @@ Defines the following attributes;
 
 =over 3
 
-=item L<Class::Usul>
+=item L<Moo::Role>
 
 =back
 
