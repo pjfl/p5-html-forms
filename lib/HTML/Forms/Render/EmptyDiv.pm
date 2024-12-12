@@ -34,23 +34,6 @@ Defines the following attributes;
 
 =over 3
 
-=item container
-
-A lazy string containing the C<container_tag> which is returned by the
-C<render> method
-
-=cut
-
-has 'container' =>
-   is      => 'lazy',
-   isa     => Str,
-   default => sub {
-      my $self = shift;
-      my $tag  = $self->container_tag;
-
-      return $self->_html->$tag($self->data);
-   };
-
 =item container_tag
 
 Immutable string which defaults to C<div>. The HTML element to return when
@@ -60,62 +43,6 @@ rendering
 
 has 'container_tag' => is => 'ro', isa => Str, default => 'div';
 
-=item data
-
-A hash reference of keys and values applied to the attributes of the
-C<container>
-
-=cut
-
-has 'data' =>
-   is      => 'lazy',
-   isa     => HashRef,
-   default => sub {
-      my $self = shift;
-      my $form = $self->form;
-      my $form_attr = $form->attributes;
-
-      $form_attr->{className} = join SPC, @{delete $form_attr->{class}};
-
-      my $wrapper_attr = $form->form_wrapper_attributes;
-
-      $wrapper_attr->{className} = join SPC, @{delete $wrapper_attr->{class}};
-
-      my $error_message = $form->has_error_message
-         && ($form->result->has_errors || $form->result->has_form_errors)
-         ? $form->localise($form->error_message) : NUL;
-      my $info_message = $form->has_info_message
-         ? $form->localise($form->info_message || NUL) : NUL;
-      my $success_message = $form->has_success_message
-         && $form->result->validated
-         ? $form->localise($form->success_message) : NUL;
-      my $tags = {
-         map {
-            (my $key = $_) =~ s{ _(\w{1}) }{\u$1}gmx;
-            $key => delete $form->form_tags->{$_}
-         } keys %{$form->form_tags}
-      };
-
-      my $config = {
-            attributes      => $form_attr,
-            doFormWrapper   => json_bool $form->do_form_wrapper,
-            errorMsg        => $error_message,
-            fields          => $self->_serialise_fields,
-            infoMessage     => $info_message,
-            msgsBeforeStart => json_bool $form->messages_before_start,
-            name            => $form->name,
-            pageSize        => $self->page_size,
-            successMsg      => $success_message,
-            tags            => $tags,
-            wrapperAttr     => $wrapper_attr,
-      };
-
-      return {
-         'class'            => 'html-forms',
-         'data-form-config' => $self->_json->encode($config),
-      };
-   };
-
 =item form
 
 A required weak reference to the L<HTML::Forms> object
@@ -124,18 +51,63 @@ A required weak reference to the L<HTML::Forms> object
 
 has 'form' => is => 'ro', isa => HFs, required => TRUE, weak_ref => TRUE;
 
-=item page_size
+=item form_class
+
+An immutable string which defaults to C<html-forms>. Class applied to the
+serialised form element. This is searched for by the browser JS
 
 =cut
 
-has 'page_size' => is => 'ro', isa => Int, default => 0;
+has 'form_class' => is => 'ro', isa => Str, default => 'html-forms';
 
-# Private attributes
-has '_html' =>
+=item html
+
+An immutable instance of L<HTML::Tiny>
+
+=cut
+
+has 'html' =>
    is      => 'ro',
    isa     => class_type('HTML::Tiny'),
    default => sub { HTML::Tiny->new };
 
+=item num_pages
+
+An immutable integer that defaults to one. The number of tabs/pages to spread
+the fields accross. Set either this or C<page_size> not both
+
+=cut
+
+has 'num_pages' => is => 'ro', isa => Int, default => 1;
+
+=item page_size
+
+An immutable integer that defaults to zero. If non zero the number of fields
+to display per page. This makes the form display across a set of tabs/pages
+
+=cut
+
+has 'page_size' =>
+   is       => 'lazy',
+   isa      => Int,
+   init_arg => undef,
+   default  => sub {
+      my $self = shift;
+
+      return $self->_page_size if ($self->num_pages < 2);
+
+      my $field_count = @{$self->form->sorted_fields};
+
+      return int $field_count / $self->num_pages;
+   };
+
+has '_page_size' =>
+   is       => 'ro',
+   isa      => Int,
+   init_arg => 'page_size',
+   default  => 0;
+
+# Private attributes
 has '_json' =>
    is      => 'ro',
    isa     => class_type(JSON::MaybeXS::JSON),
@@ -147,18 +119,27 @@ has '_json' =>
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
 =over 3
 
 =item render
 
-Returns an HTML string containing the empty C<div>
+Returns an HTML string containing the empty C<container_tag> which has class
+and data attributes set. The class is used to trigger JS in the browser, the
+data is used to configure that JS
 
 =cut
 
 sub render {
    my $self = shift;
+   my $tag  = $self->container_tag;
+   my $data = {
+      'class'            => $self->form_class,
+      'data-form-config' => $self->_serialise_form
+   };
 
-   return $self->container;
+   return $self->html->$tag($data);
 }
 
 # Private methods
@@ -241,6 +222,47 @@ sub _serialise_field {
       if $field->can('has_toggle') && $field->has_toggle;
 
    return $attr;
+}
+
+sub _serialise_form {
+   my $self = shift;
+   my $form = $self->form;
+   my $form_attr = $form->attributes;
+
+   $form_attr->{className} = join SPC, @{delete $form_attr->{class}};
+
+   my $wrapper_attr = $form->form_wrapper_attributes;
+
+   $wrapper_attr->{className} = join SPC, @{delete $wrapper_attr->{class}};
+
+   my $error_message = $form->has_error_message
+      && ($form->result->has_errors || $form->result->has_form_errors)
+      ? $form->localise($form->error_message) : NUL;
+   my $info_message = $form->has_info_message
+      ? $form->localise($form->info_message || NUL) : NUL;
+   my $success_message = $form->has_success_message
+      && $form->result->validated
+      ? $form->localise($form->success_message) : NUL;
+   my $tags = {
+      map {
+         (my $key = $_) =~ s{ _(\w{1}) }{\u$1}gmx;
+         $key => delete $form->form_tags->{$_}
+      } keys %{$form->form_tags}
+   };
+
+   return $self->_json->encode({
+      attributes      => $form_attr,
+      doFormWrapper   => json_bool $form->do_form_wrapper,
+      errorMsg        => $error_message,
+      fields          => $self->_serialise_fields,
+      infoMessage     => $info_message,
+      msgsBeforeStart => json_bool $form->messages_before_start,
+      name            => $form->name,
+      pageSize        => $self->page_size,
+      successMsg      => $success_message,
+      tags            => $tags,
+      wrapperAttr     => $wrapper_attr,
+   });
 }
 
 use namespace::autoclean;

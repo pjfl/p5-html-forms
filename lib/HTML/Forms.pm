@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 69 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 70 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -658,7 +658,14 @@ has 'posted' =>
    clearer   => 'clear_posted',
    predicate => 'has_posted';
 
-has '_renderer' =>
+=item renderer
+
+A lazy immutable instance of the C<renderer_class> which handles the C<render>
+method
+
+=cut
+
+has 'renderer' =>
    is      => 'lazy',
    isa     => Object,
    handles => ['render'],
