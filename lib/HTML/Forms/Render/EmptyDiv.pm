@@ -1,7 +1,7 @@
 package HTML::Forms::Render::EmptyDiv;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL SPC TRUE );
-use HTML::Forms::Types     qw( HashRef HFs Int Str );
+use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFs Int Str );
 use HTML::Forms::Util      qw( json_bool );
 use Type::Utils            qw( class_type );
 use Unexpected::Functions  qw( throw );
@@ -60,6 +60,8 @@ serialised form element. This is searched for by the browser JS
 
 has 'form_class' => is => 'ro', isa => Str, default => 'html-forms';
 
+has '_has_page_breaks' => is => 'rw', isa => Bool, default => FALSE;
+
 =item html
 
 An immutable instance of L<HTML::Tiny>
@@ -80,10 +82,22 @@ the fields accross. Set either this or C<page_size> not both
 
 has 'num_pages' => is => 'ro', isa => Int, default => 1;
 
+=item page_names
+
+An immutable array reference of strings with an empty default. Used to name
+the tabs/pages in a multi-page form
+
+=cut
+
+has 'page_names' => is => 'ro', isa => ArrayRef[Str], default => sub { [] };
+
 =item page_size
 
 An immutable integer that defaults to zero. If non zero the number of fields
 to display per page. This makes the form display across a set of tabs/pages
+
+Alternatively set C<< tags => { page_break => TRUE } >> on the field
+declaration to create a page break on that field
 
 =cut
 
@@ -170,6 +184,10 @@ sub _serialise_field {
    $label_attr->{className} = join SPC, @{delete $label_attr->{class}};
    $label_attr->{htmlFor}   = $field->id;
 
+   my $page_break = $field->get_tag('page_break') // FALSE;
+
+   $self->_has_page_breaks(TRUE) if $page_break;
+
    my $wrapper_attr = $field->wrapper_attributes // {};
 
    $wrapper_attr->{className} = join SPC, @{delete $wrapper_attr->{class}};
@@ -194,6 +212,7 @@ sub _serialise_field {
       labelRight  => json_bool $field->get_tag('label_right') // FALSE,
       labelTag    => $field->get_tag('label_tag') || 'label',
       name        => $field->name,
+      pageBreak   => json_bool $page_break,
       result      => {
          allErrors   => [ map { $form->localise($_) } $result->all_errors ],
          allWarnings => [ map { $form->localise($_) } $result->all_warnings ]
@@ -249,15 +268,18 @@ sub _serialise_form {
          $key => delete $form->form_tags->{$_}
       } keys %{$form->form_tags}
    };
+   my $fields = $self->_serialise_fields;
 
    return $self->_json->encode({
       attributes      => $form_attr,
       doFormWrapper   => json_bool $form->do_form_wrapper,
       errorMsg        => $error_message,
-      fields          => $self->_serialise_fields,
+      fields          => $fields,
+      hasPageBreaks   => json_bool $self->_has_page_breaks,
       infoMessage     => $info_message,
       msgsBeforeStart => json_bool $form->messages_before_start,
       name            => $form->name,
+      pageNames       => $self->page_names,
       pageSize        => $self->page_size,
       successMsg      => $success_message,
       tags            => $tags,

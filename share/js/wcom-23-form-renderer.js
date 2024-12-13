@@ -31,7 +31,7 @@ WCom.Form.Renderer = (function() {
          if (!config.msgsBeforeStart) this._formMessages(wrapper);
          if (config.infoMessage) this._formInformation(wrapper);
          const pageSize = config.pageSize;
-         if (pageSize > 0) {
+         if (pageSize > 0 || config.hasPageBreaks) {
             this.pages = [];
             this.pageItems = [];
             this.pageItemSelected = 0;
@@ -42,10 +42,12 @@ WCom.Form.Renderer = (function() {
          let pageCount = 0;
          let page = wrapper;
          for (const field of config.fields) {
-            if (pageSize > 0 && fieldCount == 0)
+            if (field.pageBreak) fieldCount = 0;
+            if ((pageSize > 0 || config.hasPageBreaks) && fieldCount == 0)
                page = this._page(wrapper, pageCount++);
             this._field(page, field);
-            if (pageSize > 0 && ++fieldCount >= pageSize) fieldCount = 0;
+            fieldCount += 1;
+            if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
          }
          this.animateButtons(this.form, '.input-field button');
          WCom.Form.Util.focusFirst(this.form);
@@ -57,21 +59,21 @@ WCom.Form.Renderer = (function() {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
+         container.appendChild(wrapper);
          const className = 'HTMLField' + field.widget;
          const fieldWidget = eval('new ' + className + '(field)');
          const element = fieldWidget.render(wrapper);
          if (field.depends)
             element.setAttribute('data-field-depends', field.depends);
-         if (field.disabled)
-            element.setAttribute('disabled', 'disabled');
          if (field.toggle)
             element.setAttribute('data-toggle-config', field.toggle);
+         if (field.disabled)
+            element.setAttribute('disabled', 'disabled');
          if (field.doLabel && field.label && field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
          this._fieldErrors(wrapper, field, element);
-         container.appendChild(wrapper);
       }
       _fieldErrors(container, field, element) {
          const errorAttr = { className: 'alert alert-error' };
@@ -138,7 +140,9 @@ WCom.Form.Renderer = (function() {
          const attr = {
             onclick: function(event) { this._selectPage(count) }.bind(this)
          };
-         this.pageItems[count] = this.h.li(attr, 'Page ' + (count + 1));
+         const pageName = this.config.pageNames[count];
+         const label = pageName ? pageName : 'Page ' + (count + 1);
+         this.pageItems[count] = this.h.li(attr, label);
          if (count == this.pageItemSelected)
             this.pageItems[count].classList.add('selected');
          this.pageList.appendChild(this.pageItems[count]);

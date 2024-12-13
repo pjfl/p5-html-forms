@@ -223,85 +223,78 @@ WCom.Form.DataStructure = (function() {
          this.fieldRenderer = {
             // TODO: More field types
             datetime: function(specification, value = '') {
-               const el = this.h.input({
+               return this.h.input({
                   className: 'input input-datetime ds-input',
                   type: 'datetime-local',
                   value
                });
-               el.setAttribute('data-ds-name', specification['name']);
-               if (specification['readonly'])
-                  el.setAttribute('readonly', 'readonly');
-               return el;
             }.bind(this),
             display: function(specification, value = '') {
-               const el = this.h.span({
+               return this.h.span({
                   className: 'output output-display ds-output'
                }, value);
-               el.setAttribute('data-ds-name', specification['name']);
-               return el;
             }.bind(this),
             hidden: function(specification, value = '') {
-               const el = this.h.hidden({
+               return this.h.hidden({
                   className: 'input input-hidden ds-input', value
                });
-               el.setAttribute('data-ds-name', specification['name']);
-               if (specification['readonly'])
-                  el.setAttribute('readonly', 'readonly');
-               return el;
             }.bind(this),
             text: function(specification, value = '') {
-               const el = this.h.text({
+               return this.h.text({
                   className: 'input input-text ds-input', value
                });
-               el.setAttribute('data-ds-name', specification['name']);
-               if (specification['readonly'])
-                  el.setAttribute('readonly', 'readonly');
-               return el;
             }.bind(this),
             textarea: function(specification, value = '') {
-               const el = this.h.textarea({
-                  className: 'input input-textarea ds-input', value
-               });
-               el.setAttribute('data-ds-name', specification['name']);
-               if (specification['readonly'])
-                  el.setAttribute('readonly', 'readonly');
-               return el;
+               return this.h.textarea({
+                  className: 'input input-textarea ds-input'
+               }, value);
             }.bind(this)
          };
-         const form = this.hidden.form;
+         const form = this._closestForm(this.hidden);
          if (form) form.addEventListener('submit', this.submitHandler);
+      }
+      _closestForm(el) {
+         while (el && el.tagName != 'FORM') el = el.parentNode;
+         return el;
       }
       _closestRow(el) {
          while (el && el.tagName != 'TR') el = el.parentNode;
          return el;
       }
-      createField(specification, item) {
+      createField(column, item) {
          const useDefault = !item;
          item ||= {};
-         let value = item[specification.name];
-         if (!value && specification.readonly) return;
-         if (useDefault) value = specification.value;
-         const renderer = this.fieldRenderer[specification.type];
+         let value = item[column.name];
+         if (!value && useDefault) value = column.value;
+         if (!value && column.readonly) return;
+         const renderer = this.fieldRenderer[column.type];
          if (!renderer) return;
-         const field = renderer.call(this, specification, value, item);
-         if (this.isObject) this.registerValidation(field, specification.name);
+         const field = renderer.call(this, column, value, item);
+         field.setAttribute('data-ds-name', column.name);
+         if (column.readonly) field.setAttribute('readonly', 'readonly');
+         if (this.isObject) this.registerValidation(field, column.name);
          return field;
       }
       createRow(item, index) {
          const readonly = this.readonly[index];
          const row = this.h.tr({ className: this.rowClass });
          const fields = {};
-         let tag;
+         let tags;
          for (const column of this.structure) {
             const field = this.createField(column, item);
             if (!field) continue;
             if (readonly) field.setAttribute('readonly', 'readonly');
             if (column.tag) {
-               if (tag) tag.appendChild(field);
-               else {
-                  tag = this.h.span({ className: 'ds-tag' }, field);
-                  fields[column.tag].prepend(tag);
+               if (!tags) {
+                  tags = this.h.span({ className: 'ds-tag' });
+                  fields[column.tag].prepend(tags);
                }
+               const labelAttr = { className: 'ds-tag-label' };
+               if (column.tagLabelLeft)
+                  tags.appendChild(this.h.span(labelAttr, column.tagLabelLeft));
+               tags.appendChild(field);
+               if (column.tagLabelRight)
+                  tags.appendChild(this.h.span(labelAttr, column.tagLabelRight));
             }
             else {
                const className = 'ds-field'
@@ -320,12 +313,13 @@ WCom.Form.DataStructure = (function() {
             row.appendChild(this.h.td({ className: 'ds-reorderable' }, knob));
          }
          if (!this.singleRow && !this.fixed && !readonly) {
-            const button = this.h.button({
-               className: 'small',
+            const button = this.h.span({
+               className: 'ds-remove-icon',
                onclick: function(event) {
                   this._closestRow(event.target).remove();
-               }.bind(this)
-            }, 'Delete');
+               }.bind(this),
+               title: 'Remove'
+            }, this.h.icon({ name: 'close', icons: this.icons }));
             row.appendChild(this.h.td({ className: 'ds-remove' }, button));
          }
          this.table.querySelector('tbody').appendChild(row);
@@ -355,7 +349,6 @@ WCom.Form.DataStructure = (function() {
          const data = (this.isObject) ? {} : [];
          for (const row of this.table.querySelectorAll('tr')) {
             if (row.querySelectorAll('th').length) continue;
-            const item = {};
             if (this.isObject) {
                const nameEl = row.querySelector('[data-ds-name="name"]');
                const name = nameEl.value;
@@ -374,14 +367,17 @@ WCom.Form.DataStructure = (function() {
                data[name] = value;
             }
             else {
+               const item = {};
                for (const cell of row.querySelectorAll('.ds-field')) {
-                  const field = cell.querySelector('.ds-input');
-                  const name = field.getAttribute('data-ds-name');
-                  const type = field.getAttribute('type');
-                  const value = type == 'radio' || type == 'checkbox'
-                        ? (field.getAttribute('checked') ? field.value : '')
-                        : field.value;
-                  item[name] = value;
+                  for (const field of cell.querySelectorAll('.ds-input')) {
+                     const name = field.getAttribute('data-ds-name');
+                     const type = field.getAttribute('type');
+                     if (type == 'radio' || type == 'checkbox') {
+                        const checked = field.getAttribute('checked');
+                        item[name] = checked ? field.value : '';
+                     }
+                     else item[name] = field.value;
+                  }
                }
                data.push(item);
             }
@@ -471,16 +467,17 @@ WCom.Form.DataStructure = (function() {
          this.setupReorderable();
          this.table.classList.remove('hide');
          if (!this.singleRow && !this.fixed && !this.hasLoaded) {
-            const addButton = this.h.button({
-               className: 'small',
+            const addButton = this.h.span({
+               className: 'ds-add-icon',
                onclick: function(event) {
                   event.preventDefault();
                   this.createRow();
                   this.setupReorderable();
                   const trigger = this.container.dataset['dsAddRow'];
                   if (trigger) trigger();
-               }.bind(this)
-            }, 'Add');
+               }.bind(this),
+               title: 'Add'
+            }, this.h.icon({ name: 'add', icons: this.icons }));
             this.container.appendChild(addButton);
             this.hasLoaded = true;
          }

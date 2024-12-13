@@ -304,6 +304,11 @@ Defines the following attributes;
 
     Predicate
 
+- renderer
+
+    A lazy immutable instance of the `renderer_class` which handles the `render`
+    method
+
 - renderer\_args
 
     An immutable hash reference passed to the constructor of the `renderer` object
