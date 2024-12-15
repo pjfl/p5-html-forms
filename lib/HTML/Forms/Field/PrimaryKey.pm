@@ -39,14 +39,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::PrimaryKey - One-line description of the modules purpose
+HTML::Forms::Field::PrimaryKey - A primary key
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::PrimaryKey;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'PrimaryKey';
 
 =head1 Description
+
+A primary key
 
 =head1 Configuration and Environment
 
@@ -54,17 +60,31 @@ Defines the following attributes;
 
 =over 3
 
+=item wrapper_class
+
+=item is_primary_key
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field>
 
 =back
 

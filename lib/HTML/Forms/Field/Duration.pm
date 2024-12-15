@@ -32,8 +32,8 @@ sub validate {
       unless ($child->has_value && $child->value =~ m{ \A \d+ \z }mx) {
          $self->add_error(
             $self->get_message('duration_invalid'),
-            $self->loc_label,
-            $child->loc_label
+            $self->localise_label,
+            $child->localise_label
          );
          next;
       }
@@ -59,14 +59,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Duration - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Duration - A date and time duration
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Duration;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Duration';
 
 =head1 Description
+
+A date and time duration
 
 =head1 Configuration and Environment
 
@@ -74,17 +80,31 @@ Defines the following attributes;
 
 =over 3
 
+=item wrapper_class
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=item validate
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Compound>
 
 =back
 

@@ -71,6 +71,7 @@ $form = My::Form->new( init_object => {
 # additional test for init_object provided defaults
 ok $form, 'non-db form created OK';
 is $form->field( 'optname' )->value, 'Over Again', 'get right value from form';
+is $form->field('optname')->temp, 'First', 'Bizarre temp attribute';
 
 $form->process( {} );
 

@@ -36,14 +36,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::TextArea - One-line description of the modules purpose
+HTML::Forms::Field::TextArea - A text area
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::TextArea;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'TextArea';
 
 =head1 Description
+
+A text area
 
 =head1 Configuration and Environment
 
@@ -51,17 +57,33 @@ Defines the following attributes;
 
 =over 3
 
+=item cols
+
+=item rows
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item BUILD
+
+=item html_element
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 

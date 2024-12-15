@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Completed placeholders for POD
           - Shiny buttons for DataStructure
           - Added number of pages and page size to renderer
           - Only 20 more field classes to add POD boilerplate

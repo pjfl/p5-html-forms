@@ -28,14 +28,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Reset - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Reset - Reset button
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Reset;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Reset';
 
 =head1 Description
+
+Reset button
 
 =head1 Configuration and Environment
 
@@ -43,17 +49,27 @@ Defines the following attributes;
 
 =over 3
 
+=item value
+
+=item has_value
+
+Predicate
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::NoValue>
 
 =back
 

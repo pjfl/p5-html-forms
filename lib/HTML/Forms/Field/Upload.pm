@@ -90,14 +90,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Upload - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Upload - File upload
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Upload;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Upload';
 
 =head1 Description
+
+File upload
 
 =head1 Configuration and Environment
 
@@ -105,17 +111,33 @@ Defines the following attributes;
 
 =over 3
 
+=item max_size
+
+=item min_size
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=item validate
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::NoValue>
 
 =back
 

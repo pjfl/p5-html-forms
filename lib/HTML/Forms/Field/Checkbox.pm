@@ -112,7 +112,7 @@ around 'BUILD' => sub {
 sub validate {
     my $self = shift;
 
-    $self->add_error($self->get_message('required'), $self->loc_label)
+    $self->add_error($self->get_message('required'), $self->localise_label)
        if $self->required && !$self->value;
 
     return;

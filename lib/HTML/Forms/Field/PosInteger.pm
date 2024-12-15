@@ -37,32 +37,44 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::PosInteger - One-line description of the modules purpose
+HTML::Forms::Field::PosInteger - An positive integer
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::PosInteger;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'PosInteger';
 
 =head1 Description
 
+An positive integer
+
 =head1 Configuration and Environment
 
-Defines the following attributes;
-
-=over 3
-
-=back
+Defines no attributes
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Integer>
 
 =back
 

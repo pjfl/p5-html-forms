@@ -25,31 +25,42 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Timezone - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Timezone - List of time zones
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Timezone;
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Timezone';
 
 =head1 Description
 
+List of time zones
+
 =head1 Configuration and Environment
 
-Defines the following attributes;
-
-=over 3
-
-=back
+Defines no attributes
 
 =head1 Subroutines/Methods
 
+=over 3
+
+=item build_options
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<DateTime>
+=item L<HTML::Forms::Field::Select>
 
 =back
 

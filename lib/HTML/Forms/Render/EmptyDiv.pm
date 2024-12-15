@@ -62,7 +62,7 @@ has 'form_class' => is => 'ro', isa => Str, default => 'html-forms';
 
 has '_has_page_breaks' => is => 'rw', isa => Bool, default => FALSE;
 
-=item html
+=item C<html>
 
 An immutable instance of L<HTML::Tiny>
 
@@ -76,7 +76,7 @@ has 'html' =>
 =item num_pages
 
 An immutable integer that defaults to one. The number of tabs/pages to spread
-the fields accross. Set either this or C<page_size> not both
+the fields across. Set either this or C<page_size> not both
 
 =cut
 
@@ -207,7 +207,7 @@ sub _serialise_field {
       id          => $field->id,
       info        => $field->info,
       inputType   => $field->input_type,
-      label       => $field->loc_label,
+      label       => $field->localise_label,
       labelAttr   => $label_attr,
       labelRight  => json_bool $field->get_tag('label_right') // FALSE,
       labelTag    => $field->get_tag('label_tag') || 'label',

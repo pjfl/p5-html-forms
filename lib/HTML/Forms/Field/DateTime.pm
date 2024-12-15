@@ -34,14 +34,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::DateTime - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::DateTime - Date and time
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::DateTime;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'DateTime';
 
 =head1 Description
+
+Date and time
 
 =head1 Configuration and Environment
 
@@ -49,17 +55,25 @@ Defines the following attributes;
 
 =over 3
 
+=item wrapper_class
+
+=item pattern
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Checkbox>
 
 =back
 

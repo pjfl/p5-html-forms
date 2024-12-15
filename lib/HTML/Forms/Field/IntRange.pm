@@ -51,14 +51,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::IntRange - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::IntRange - Integer range
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::IntRange;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'IntRange';
 
 =head1 Description
+
+Integer range
 
 =head1 Configuration and Environment
 
@@ -66,17 +72,27 @@ Defines the following attributes;
 
 =over 3
 
+=item label_format
+
 =back
 
 =head1 Subroutines/Methods
 
+=over 3
+
+=item build_options
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Select>
 
 =back
 

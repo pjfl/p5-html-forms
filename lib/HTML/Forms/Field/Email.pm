@@ -64,14 +64,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Email - Generates markup for and processes input from HTML forms
+HTML::Forms::Field::Email - An email address
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Email;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Email';
 
 =head1 Description
+
+An email address
 
 =head1 Configuration and Environment
 
@@ -79,17 +85,31 @@ Defines the following attributes;
 
 =over 3
 
+=item email_valid_params
+
+=item preserve_case
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 

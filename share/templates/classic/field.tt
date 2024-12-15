@@ -99,7 +99,7 @@
 
 [% BLOCK label -%]
 [%   label_tag  = f.get_tag( 'label_tag' ) || 'label' -%]
-[%   label_text = f.loc_label | html -%]
+[%   label_text = f.localise_label | html -%]
 [%   IF label_text %]
 [%     IF label_tag != 'legend' -%]
 [%       label_text = f.get_tag('label_before') _ label_text _ f.get_tag( 'label_after' ) -%]

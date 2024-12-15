@@ -19,20 +19,27 @@ use namespace::autoclean;
 
 __END__
 
+
 =pod
 
 =encoding utf-8
 
 =head1 Name
 
-HTML::Forms::Field::Submit - One-line description of the modules purpose
+HTML::Forms::Field::Submit - A submit button
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Submit;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Submit';
 
 =head1 Description
+
+A submit button
 
 =head1 Configuration and Environment
 
@@ -40,17 +47,27 @@ Defines the following attributes;
 
 =over 3
 
+=item value
+
+=item has_value
+
+Predicate
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines no methods
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::NoValue>
 
 =back
 

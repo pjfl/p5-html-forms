@@ -50,14 +50,20 @@ __END__
 
 =head1 Name
 
-HTML::Forms::Field::Integer - One-line description of the modules purpose
+HTML::Forms::Field::Integer - An integer
 
 =head1 Synopsis
 
-   use HTML::Forms::Field::Integer;
-   # Brief but working code examples
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+
+   has_field 'field_name' => type => 'Integer';
 
 =head1 Description
+
+An integer
 
 =head1 Configuration and Environment
 
@@ -65,17 +71,29 @@ Defines the following attributes;
 
 =over 3
 
+=item size
+
 =back
 
 =head1 Subroutines/Methods
 
+Defines the following methods;
+
+=over 3
+
+=item get_class_messages
+
+=back
+
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
 =over 3
 
-=item L<Class::Usul>
+=item L<HTML::Forms::Field::Text>
 
 =back
 
