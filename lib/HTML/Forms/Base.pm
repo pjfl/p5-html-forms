@@ -35,6 +35,8 @@ Defines the following methods;
 
 =item has_render_list
 
+Returns false
+
 =cut
 
 sub has_render_list {
@@ -42,6 +44,8 @@ sub has_render_list {
 }
 
 =item build_render_list
+
+Returns an empty array reference
 
 =cut
 

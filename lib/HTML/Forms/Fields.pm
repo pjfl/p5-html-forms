@@ -1,10 +1,10 @@
 package HTML::Forms::Fields;
 
+use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS FALSE META NUL TRUE );
+use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFsArrayRefStr HFsField
+                               Str Undef );
 use Class::Load            qw( load_optional_class );
 use Data::Clone            qw( clone );
-use HTML::Forms::Constants qw( DOT EXCEPTION_CLASS FALSE META NUL TRUE );
-use HTML::Forms::Types     qw( ArrayRef Bool HashRef
-                               HFsArrayRefStr HFsField Str Undef );
 use HTML::Forms::Util      qw( get_meta merge );
 use Ref::Util              qw( is_arrayref is_hashref );
 use Unexpected::Functions  qw( throw );
@@ -30,13 +30,19 @@ HTML::Forms::Fields - Handles collections of fields
 
 =head1 Description
 
-Implements the collection methods for field objects
+Implements the collection methods for field objects. It is applied to the
+L<HTML::Forms> class
 
 =head1 Configuration and Environment
 
 Defines the following attributes;
 
 =over 3
+
+=item field_list
+
+A mutable hash or array reference with an empty default. If supplied the
+keys and values will be used by C<build_fields> to construct fields
 
 =cut
 
@@ -48,6 +54,11 @@ has '_field_list' =>
 
 =item field_name_space
 
+A lazy mutable array reference of string with an empty default. List of name
+spaces searched for field classes
+
+Handles; C<add_field_name_space> via the array trait
+
 =cut
 
 has 'field_name_space' =>
@@ -55,13 +66,17 @@ has 'field_name_space' =>
    isa         => HFsArrayRefStr,
    builder     => sub { [] },
    coerce      => TRUE,
+   lazy        => TRUE,
    handles_via => 'Array',
-   handles     => {
-      add_field_name_space => 'push',
-   },
-   lazy        => TRUE;
+   handles     => { add_field_name_space => 'push' };
 
 =item fields
+
+A lazy mutable array reference of field object with an empty default. The forms
+collection of fields
+
+Handles; C<add_field>, C<all_fields>, C<clear_fields>, C<has_fields>,
+C<num_fields>, C<push_fields>, and C<set_field_at> via the array trait
 
 =cut
 
@@ -69,6 +84,7 @@ has 'fields' =>
    is          => 'rw',
    isa         => ArrayRef[HFsField],
    builder     => sub { [] },
+   lazy        => TRUE,
    handles_via => 'Array',
    handles     => {
       add_field    => 'push',
@@ -79,16 +95,26 @@ has 'fields' =>
       push_field   => 'push',
       set_field_at => 'set',
       _pop_field   => 'pop',
-   },
-   lazy         => TRUE;
+   };
 
 =item fields_from_model
 
+A mutable boolean which defaults false. If true and the C<model_fields> method
+exists it is called by C<build_fields>. The method should return an array
+reference of keys and values which will be used to construct field object.  The
+keys are field names and the values are hash references containing the field
+attributes
+
 =cut
 
-has 'fields_from_model' => is => 'rw', isa => Bool;
+has 'fields_from_model' => is => 'rw', isa => Bool, default => FALSE;
 
 =item include
+
+A mutable array reference of field names with an empty default. If set only
+fields in this list will be included in collection
+
+Handles; C<has_include> via the array trait
 
 =cut
 
@@ -96,11 +122,18 @@ has 'include' =>
    is          => 'rw',
    isa         => ArrayRef,
    builder     => sub { [] },
+   lazy        => TRUE,
    handles_via => 'Array',
-   handles     => { has_include => 'count' },
-   lazy        => TRUE;
+   handles     => { has_include => 'count' };
 
 =item update_subfields
+
+A mutable hash reference with an empty default. Used by C<build_fields> when
+assembling the attributes used to create field object. Keys; C<all>,
+C<by_flag>, C<by_type>, and field names
+
+Handles; C<clear_update_subfields> and C<has_update_subfields> via the hash
+trait
 
 =cut
 
@@ -116,6 +149,10 @@ has 'update_subfields' =>
 
 =item widget_tags
 
+A mutable hash reference of tags. Applied to fields by C<build_fields>
+
+Handles; C<has_widget_tags> via the hash trait
+
 =cut
 
 has 'widget_tags' =>
@@ -123,9 +160,7 @@ has 'widget_tags' =>
    isa         => HashRef,
    builder     => sub { {} },
    handles_via => 'Hash',
-   handles     => {
-      has_widget_tags => 'count',
-   };
+   handles     => { has_widget_tags => 'count' };
 
 =back
 
@@ -137,50 +172,41 @@ Defines the following methods;
 
 =item build_fields
 
+Instantiates the field objects. Has three sources; the meta field list
+(C<has_field> declarations in the form class), the C<field_list> supplied to
+the constructor, and if it exists a call to C<model_fields>
+
 =cut
 
 sub build_fields {
    my $self = shift;
    my $meta_flist = $self->_build_meta_field_list;
 
-   $self->_process_field_array( $meta_flist, 0 ) if $meta_flist;
+   $self->_process_field_array($meta_flist, 0) if $meta_flist;
 
    if (my $flist = $self->_has_field_list) {
-      if (is_arrayref( $flist ) && is_hashref( $flist->[ 0 ] )) {
-         $self->_process_field_array( $flist );
+      if (is_arrayref($flist) && is_hashref($flist->[0])) {
+         $self->_process_field_array($flist);
       }
-      else { $self->_process_field_list( $flist ) }
+      else { $self->_process_field_list($flist) }
    }
 
-   my $mlist; $mlist = $self->model_fields if $self->fields_from_model;
+   my $mlist;
 
-   $self->_process_field_list( $mlist ) if $mlist;
+   $mlist = $self->model_fields
+      if $self->fields_from_model && $self->can('model_fields');
+
+   $self->_process_field_list($mlist) if $mlist;
 
    $self->_order_fields if $self->has_fields;
 
    return;
 }
 
-=item clean_fields
-
-=cut
-
-sub clean_fields {
-   my ($self, $fields) = @_;
-
-   return clone( $fields ) unless $self->has_include;
-
-   my %include = map { $_ => 1 } @{ $self->include };
-   my @fields;
-
-   for my $field ( @{ $fields } ) {
-      push @fields, clone( $field ) if exists $include{ $field->{name} };
-   }
-
-   return \@fields;
-}
-
 =item clear_data
+
+Calls C<clear_result> and C<clear_active>. Also calls C<clear_data> on each
+of the field objects
 
 =cut
 
@@ -195,13 +221,9 @@ sub clear_data {
    return;
 }
 
-=item dump_fields
-
-=cut
-
-sub dump_fields { shift->dump( @_ ) }
-
 =item dump
+
+Writes to C<stderr> a dump of the fields attributes
 
 =cut
 
@@ -215,7 +237,17 @@ sub dump {
    return;
 }
 
+=item dump_fields
+
+A synonym for C<dump>
+
+=cut
+
+sub dump_fields { shift->dump(@_) }
+
 =item dump_validated
+
+Writes to C<stderr> a dump of validated field attributes
 
 =cut
 
@@ -238,6 +270,8 @@ sub dump_validated {
 
 =item field
 
+   $field = $self->field($field_name, $fatal, $form);
+
 =cut
 
 sub field {
@@ -247,15 +281,15 @@ sub field {
    # to it
    return unless defined $name;
 
-   return $self->index->{ $name }
-       if $self->form && $self == $self->form && exists $self->index->{ $name };
+   return $self->index->{$name}
+       if $self->form && $self == $self->form && exists $self->index->{$name};
 
    if ($name =~ m{ \. }mx) {
       my @names = split m{ \. }mx, $name;
 
       $f ||= $self->form || $self;
 
-      for my $fname (@names) { $f = $f->field( $fname ) or return }
+      for my $fname (@names) { $f = $f->field($fname) or return }
 
       return $f;
    }
@@ -265,12 +299,14 @@ sub field {
       }
    }
 
-   throw 'Field [_1] not found in [_2]', [ $name, $self ] if $fatal;
+   throw 'Field [_1] not found in [_2]', [$name, $self] if $fatal;
 
    return;
 }
 
 =item field_index
+
+   $index = $self->field_index($field_name);
 
 =cut
 
@@ -288,6 +324,8 @@ sub field_index {
 }
 
 =item fields_fif
+
+   $params = $self->fields_fif($result, $prefix);
 
 =cut
 
@@ -344,7 +382,34 @@ sub fields_set_value {
    return $self->_set_value( \%value_hash );
 }
 
+=item filter_fields
+
+   $fields = $self->filter_fields($fields);
+
+Clones the list of supplied fields. If C<has_include> is true only return
+the fields listed in C<include>. Called from C<build_fields> when it is
+constructing the field list
+
+=cut
+
+sub filter_fields {
+   my ($self, $fields) = @_;
+
+   return clone($fields) unless $self->has_include;
+
+   my %include = map { $_ => 1 } @{$self->include};
+   my @fields;
+
+   for my $field (@{$fields}) {
+      push @fields, clone($field) if exists $include{$field->{name}};
+   }
+
+   return \@fields;
+}
+
 =item new_field_with_traits
+
+   $field = $self->new_field_with_traits($class, $field_attributes);
 
 =cut
 
@@ -360,6 +425,8 @@ sub new_field_with_traits {
 }
 
 =item propagate_error
+
+   $self->propagate_error($result);
 
 =cut
 
@@ -402,6 +469,8 @@ sub sorted_fields {
 }
 
 =item subfield
+
+   $field = $self->subfield($field_name);
 
 =cut
 
@@ -777,9 +846,9 @@ sub _order_last {
 sub _process_field_array {
    my ($self, $fields) = @_;
 
-   $fields = $self->clean_fields( $fields );
+   $fields = $self->filter_fields($fields);
 
-   my $num_fields   = scalar @{ $fields };
+   my $num_fields   = scalar @{$fields};
    my $num_dots     = 0;
    my $count_fields = 0;
 
@@ -893,7 +962,7 @@ None
 
 =over 3
 
-=item L<Moo>
+=item L<Moo::Role>
 
 =back
 

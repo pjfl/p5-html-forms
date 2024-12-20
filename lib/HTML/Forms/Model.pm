@@ -12,14 +12,19 @@ use Moo::Role;
 
 =head1 Name
 
-HTML::Forms::Model - One-line description of the modules purpose
+HTML::Forms::Model - Model base class
 
 =head1 Synopsis
 
-   use HTML::Forms::Model;
-   # Brief but working code examples
+   use Moo;
+
+   extends 'HTML::Forms::Model';
 
 =head1 Description
+
+Model base class which does nothing. Applied to the L<HTML::Forms> class it is
+expected that these methods will be overridden thereby implementing a concrete
+storage model
 
 =head1 Configuration and Environment
 
@@ -28,6 +33,8 @@ Defines the following attributes;
 =over 3
 
 =item item
+
+A mutable untyped attribute. The object used to instantiate and edit form
 
 =item clear_item
 
@@ -44,11 +51,16 @@ has 'item' =>
 
 =item item_class
 
+An immutable string without default. The class of the item created by the
+create form
+
 =cut
 
 has 'item_class' => is  => 'rwp', isa => Str;
 
 =item item_id
+
+A mutable untyped attribute. Can be supplied in place of the C<item>
 
 =item clear_item_id
 
@@ -63,11 +75,13 @@ has 'item_id' =>
 
 =head1 Subroutines/Methods
 
-Defines the following methods'
+Defines the following methods;
 
 =over 3
 
 =item build_item
+
+Dummy method returns undef
 
 =cut
 
@@ -75,11 +89,15 @@ sub build_item { return }
 
 =item clear_model
 
+Dummy method
+
 =cut
 
 sub clear_model {}
 
 =item guess_field_type
+
+Will raise an exception if called
 
 =cut
 
@@ -90,12 +108,16 @@ sub guess_field_type {
 
 =item lookup_label
 
+Dummy method
+
 =cut
 
 sub lookup_label {
 }
 
 =item lookup_options
+
+Dummy method
 
 =cut
 
@@ -105,6 +127,9 @@ sub lookup_options {
 
 =item set_item
 
+   $self->set_item($item);
+
+Sets the C<item_class> attribute to the class of the supplied C<item>
 
 =cut
 
@@ -114,11 +139,15 @@ sub set_item {
 
 =item set_item_id
 
+Dummy method
+
 =cut
 
 sub set_item_id {}
 
 =item update_model
+
+Dummy Method
 
 =cut
 
@@ -127,6 +156,8 @@ sub update_model {
 }
 
 =item validate_model
+
+Dummy method
 
 =cut
 

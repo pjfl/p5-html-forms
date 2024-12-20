@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Added some more POD
           - Completed placeholders for POD
           - Shiny buttons for DataStructure
           - Added number of pages and page size to renderer

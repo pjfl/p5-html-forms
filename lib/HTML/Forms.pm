@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 72 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 73 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -1780,11 +1780,21 @@ information to C<stderr>
 
 =over 3
 
-=item L<Data::Clone>
+=item L<HTML::Forms::Base>
 
-=item L<Moo>
+=item L<HTML::Forms::Model>
 
-=item L<Unexpected>
+=item L<HTML::Forms::Fields>
+
+=item L<HTML::Forms::InitResult>
+
+=item L<HTML::Forms::Widget::ApplyRole>
+
+=item L<HTML::Forms::Blocks>
+
+=item L<HTML::Forms::Params>
+
+=item L<HTML::Forms::Result>
 
 =back
 

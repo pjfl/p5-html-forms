@@ -1838,7 +1838,13 @@ None
 
 =over 3
 
-=item L<Moo>
+=item L<HTML::Forms::Validate>
+
+=item L<HTML::Forms::Widget::ApplyRole>
+
+=item L<HTML::Forms::Field::Result>
+
+=item L<HTML::Forms::Moo>
 
 =back
 
