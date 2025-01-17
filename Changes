@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Changed event register method name in JS utils
           - Added some more POD
           - Completed placeholders for POD
           - Shiny buttons for DataStructure
