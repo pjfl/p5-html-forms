@@ -3,6 +3,7 @@ package HTML::Forms::Render::EmptyDiv;
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE NUL SPC TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFs Int Str );
 use HTML::Forms::Util      qw( json_bool );
+use Ref::Util              qw( is_arrayref );
 use Type::Utils            qw( class_type );
 use Unexpected::Functions  qw( throw );
 use JSON::MaybeXS;
@@ -122,7 +123,7 @@ has '_page_size' =>
    default  => 0;
 
 # Private attributes
-has '_json' =>
+has '_json_parser' =>
    is      => 'ro',
    isa     => class_type(JSON::MaybeXS::JSON),
    default => sub {
@@ -232,6 +233,7 @@ sub _serialise_field {
    $attr->{emptySelect}  = $field->empty_select  if $field->can('empty_select');
    $attr->{fif}          = $field->fif           if $field->can('fif');
    $attr->{html}         = $field->html          if $field->can('html');
+   $attr->{icons}        = $field->icons         if $field->can('icons');
    $attr->{multiple}     = $field->multiple      if $field->can('multiple');
    $attr->{options}      = $field->options       if $field->can('options');
    $attr->{rows}         = $field->rows          if $field->can('rows');
@@ -257,8 +259,12 @@ sub _serialise_form {
    my $error_message = $form->has_error_message
       && ($form->result->has_errors || $form->result->has_form_errors)
       ? $form->localise($form->error_message) : NUL;
+
    my $info_message = $form->has_info_message
-      ? $form->localise($form->info_message || NUL) : NUL;
+      ? is_arrayref $form->info_message
+      ? [ map { $form->localise($_) } @{$form->info_message} ]
+      : $form->localise($form->info_message) : NUL;
+
    my $success_message = $form->has_success_message
       && $form->result->validated
       ? $form->localise($form->success_message) : NUL;
@@ -270,7 +276,7 @@ sub _serialise_form {
    };
    my $fields = $self->_serialise_fields;
 
-   return $self->_json->encode({
+   return $self->_json_parser->encode({
       attributes      => $form_attr,
       doFormWrapper   => json_bool $form->do_form_wrapper,
       errorMsg        => $error_message,

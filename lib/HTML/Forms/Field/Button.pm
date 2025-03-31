@@ -1,16 +1,35 @@
 package HTML::Forms::Field::Button;
 
-use HTML::Forms::Constants qw( DOT FALSE NUL );
+use HTML::Forms::Constants qw( DOT FALSE NUL TRUE );
 use HTML::Forms::Types     qw( Str );
+use Type::Utils            qw( class_type );
+use JSON::MaybeXS;
 use Moo;
 
 extends 'HTML::Forms::Field::NoValue';
 
-has 'display_as' => is => 'lazy', isa => Str, default => sub { shift->label };
+has 'display_as' => is => 'lazy', isa => Str, default => sub {
+   my $self = shift;
+
+   return $self->label unless $self->icons;
+
+   my $args = { icons => $self->icons, name => $self->label };
+
+   return $self->_json_parser->encode($args);
+};
 
 has '+do_label' => default => FALSE;
 
 has '+html5_type_attr' => default => 'submit';
+
+has 'icons' => is => 'rw', isa => Str, default => NUL;
+
+has '_json_parser' =>
+   is      => 'ro',
+   isa     => class_type(JSON::MaybeXS::JSON),
+   default => sub {
+      return JSON::MaybeXS->new( convert_blessed => TRUE, utf8 => FALSE );
+   };
 
 has '+type_attr' => default => 'submit';
 

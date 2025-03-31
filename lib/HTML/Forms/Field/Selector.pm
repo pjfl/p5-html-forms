@@ -20,7 +20,7 @@ has 'click_handler' =>
 
 has 'display_as' => is => 'lazy', isa => Str, default => sub { shift->label };
 
-has 'selector' => is => 'rw', isa => Str, default => NUL;
+has 'selector' => is => 'rw', isa => Str, default => NUL, lazy => TRUE;
 
 has '+widget' => default => 'Selector';
 

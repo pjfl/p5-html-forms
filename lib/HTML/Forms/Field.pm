@@ -1015,14 +1015,6 @@ sub attributes {
    return shift->element_attributes(@_);
 }
 
-=item build_element_wrapper_class
-
-Returns an empty array reference. Can be overloaded in subclasses
-
-=cut
-
-sub build_element_wrapper_class { [] }
-
 =item build_default_method
 
 Builds the method that is used to provide the field default value. This is not
@@ -1047,6 +1039,14 @@ sub build_default_method {
 
    return;
 }
+
+=item build_element_wrapper_class
+
+Returns an empty array reference. Can be overloaded in subclasses
+
+=cut
+
+sub build_element_wrapper_class { [] }
 
 =item build_result
 

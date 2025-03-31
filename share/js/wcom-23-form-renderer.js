@@ -29,7 +29,6 @@ WCom.Form.Renderer = (function() {
          if (config.msgsBeforeStart) this._formMessages(this.container);
          const wrapper = this._formWrapper();
          if (!config.msgsBeforeStart) this._formMessages(wrapper);
-         if (config.infoMessage) this._formInformation(wrapper);
          const pageSize = config.pageSize;
          if (pageSize > 0 || config.hasPageBreaks) {
             this.pages = [];
@@ -45,6 +44,7 @@ WCom.Form.Renderer = (function() {
             if (field.pageBreak) fieldCount = 0;
             if ((pageSize > 0 || config.hasPageBreaks) && fieldCount == 0)
                page = this._page(wrapper, pageCount++);
+            else if (fieldCount == 0) this._formInformation(page, pageCount);
             this._field(page, field);
             fieldCount += 1;
             if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
@@ -55,11 +55,11 @@ WCom.Form.Renderer = (function() {
       // Private
       _field(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
+         container.appendChild(wrapper);
          if (field.doLabel && field.label && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
-         container.appendChild(wrapper);
          const className = 'HTMLField' + field.widget;
          const fieldWidget = eval('new ' + className + '(field)');
          const element = fieldWidget.render(wrapper);
@@ -91,11 +91,15 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.div(infoAttr, field.info));
          }
       }
-      _formInformation(container) {
+      _formInformation(container, index) {
          const config = this.config;
          if (!config.infoMessage) return;
          const className = config.tags.infoClass || 'alert alert-info';
-         container.appendChild(this.h.div({ className }, config.infoMessage));
+         let message = config.infoMessage;
+         if (this.h.typeOf(config.infoMessage) == 'array') {
+            message = config.infoMessage[index];
+         }
+         container.appendChild(this.h.div({ className }, message));
       }
       _formMessages(container) {
          const config = this.config;
@@ -150,6 +154,7 @@ WCom.Form.Renderer = (function() {
          if (count != this.pageItemSelected)
             this.pages[count].classList.add('hide');
          wrapper.appendChild(this.pages[count]);
+         this._formInformation(this.pages[count], count);
          return this.pages[count];
       }
       _selectPage(count) {
@@ -168,7 +173,7 @@ WCom.Form.Renderer = (function() {
          this.attr = {
             ...field.attributes,
             id: field.id,
-            name: field.htmlName || field.name
+            name: field.htmlName || field.name,
          };
          if (field.handlers) this._handlers();
          if (field.htmlElement == 'input') this.attr.type = field.inputType;
@@ -186,7 +191,13 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          const field = this.field;
          const element = this.h[field.htmlElement](this.attr);
-         if (field.displayAs) element.appendChild(this.h.span(field.displayAs));
+         if (field.displayAs) {
+            let displayAs;
+            if (field.icons)
+               displayAs = this.h.icon(JSON.parse(field.displayAs));
+            else displayAs = this.h.span(field.displayAs);
+            element.appendChild(displayAs);
+         }
          wrapper.appendChild(element);
          return element;
       }
@@ -335,6 +346,10 @@ WCom.Form.Renderer = (function() {
          const field = this.field;
          this.attr.value = field.fif;
          const handler = field.clickHandler; delete field.clickHandler;
+         let title;
+         if (field.htmlElement == 'icon') {
+            title = this.attr.title; delete this.attr.title;
+         }
          const element = this.h.input(this.attr);
          element.setAttribute('readonly', 'readonly');
          wrapper.appendChild(element);
@@ -342,10 +357,16 @@ WCom.Form.Renderer = (function() {
             id: field.id + '_select',
             name: field.htmlName + '_select',
             onclick: function(event) { eval(handler) },
+            title,
             type: 'submit',
             value: ''
          };
-         const button = this.h.button(attr, this.h.span(field.displayAs));
+         let displayAs;
+         if (field.htmlElement == 'icon') {
+            displayAs = this.h.icon(JSON.parse(field.displayAs));
+         }
+         else { displayAs = this.h.span(field.displayAs) }
+         const button = this.h.button(attr, displayAs);
          wrapper.appendChild(button);
          return element;
       }

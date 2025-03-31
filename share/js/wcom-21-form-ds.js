@@ -239,6 +239,11 @@ WCom.Form.DataStructure = (function() {
                   className: 'input input-hidden ds-input', value
                });
             }.bind(this),
+            image: function(specification, value = '') {
+               return this.h.img({
+                  className: 'output output-image ds-output', src: value
+               });
+            }.bind(this),
             text: function(specification, value = '') {
                return this.h.text({
                   className: 'input input-text ds-input', value
@@ -287,7 +292,7 @@ WCom.Form.DataStructure = (function() {
             if (column.tag) {
                if (!tags) {
                   tags = this.h.span({ className: 'ds-tag' });
-                  fields[column.tag].prepend(tags);
+                  if (fields[column.tag]) fields[column.tag].prepend(tags);
                }
                const labelAttr = { className: 'ds-tag-label' };
                if (column.tagLabelLeft)

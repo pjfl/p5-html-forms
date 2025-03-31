@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 74 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 75 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -487,7 +487,7 @@ Predicate
 
 has 'info_message' =>
    is        => 'rw',
-   isa       => Str,
+   isa       => ArrayRef[Str]|Str,
    clearer   => 'clear_info_message',
    predicate => 'has_info_message';
 
