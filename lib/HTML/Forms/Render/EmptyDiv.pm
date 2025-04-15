@@ -44,6 +44,15 @@ rendering
 
 has 'container_tag' => is => 'ro', isa => Str, default => 'div';
 
+=item current_page
+
+A mutable integer that defaults to zero. The page that is displayed when a
+multi-page form is rendered
+
+=cut
+
+has 'current_page' => is => 'rw', isa => Int, default => 0;
+
 =item form
 
 A required weak reference to the L<HTML::Forms> object
@@ -274,13 +283,13 @@ sub _serialise_form {
          $key => delete $form->form_tags->{$_}
       } keys %{$form->form_tags}
    };
-   my $fields = $self->_serialise_fields;
 
    return $self->_json_parser->encode({
       attributes      => $form_attr,
+      currentPage     => $self->current_page,
       doFormWrapper   => json_bool $form->do_form_wrapper,
       errorMsg        => $error_message,
-      fields          => $fields,
+      fields          => $self->_serialise_fields,
       hasPageBreaks   => json_bool $self->_has_page_breaks,
       infoMessage     => $info_message,
       msgsBeforeStart => json_bool $form->messages_before_start,

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Datastructure field has add/remove callbacks
           - Buttons can display as icons
           - Changed event register method name in JS utils
           - Added some more POD

@@ -193,11 +193,15 @@ WCom.Form.DataStructure = (function() {
          this.hidden = this.container.querySelector('input[type=hidden]');
          const config = this.hidden.dataset[dsName];
          this.config = config ? JSON.parse(config) : {};
+         this.addHandler = this.config['add-handler'];
+         this.addIcon = this.config['add-icon'] || 'add';
+         this.addTitle = this.config['add-title'] || 'Add';
          this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
          this.fixed = this.config['fixed'] || false;
          this.icons = this.config['icons'];
          this.isObject = this.config['is-object'] || false;
          this.readonly = this.config['readonly'];
+         this.removeCallback = this.config['remove-callback'];
          this.reorderable = this.config['reorderable'] || false;
          this.rowClass = this.config['row-class'] || '';
          this.structure = this.config['structure'];
@@ -241,7 +245,10 @@ WCom.Form.DataStructure = (function() {
             }.bind(this),
             image: function(specification, value = '') {
                return this.h.img({
-                  className: 'output output-image ds-output', src: value
+                  className: 'output output-image ds-output',
+                  height: specification.height,
+                  src: value,
+                  width: specification.width
                });
             }.bind(this),
             text: function(specification, value = '') {
@@ -257,6 +264,15 @@ WCom.Form.DataStructure = (function() {
          };
          const form = this._closestForm(this.hidden);
          if (form) form.addEventListener('submit', this.submitHandler);
+      }
+      _addSelectHandler(field, column, item) {
+         let handler = column.select;
+         if (typeof handler == 'string') {
+            handler = function(event) {
+               eval(column.select.replace('%value', item.id));
+            }.bind(this);
+         }
+         field.addEventListener('click', handler);
       }
       _closestForm(el) {
          while (el && el.tagName != 'FORM') el = el.parentNode;
@@ -277,6 +293,7 @@ WCom.Form.DataStructure = (function() {
          const field = renderer.call(this, column, value, item);
          field.setAttribute('data-ds-name', column.name);
          if (column.readonly) field.setAttribute('readonly', 'readonly');
+         if (column.select) this._addSelectHandler(field, column, item);
          if (this.isObject) this.registerValidation(field, column.name);
          return field;
       }
@@ -318,10 +335,19 @@ WCom.Form.DataStructure = (function() {
             row.appendChild(this.h.td({ className: 'ds-reorderable' }, knob));
          }
          if (!this.singleRow && !this.fixed && !readonly) {
+            let callback = this.removeCallback;
+            if (callback && typeof(callback) == 'string')
+               callback = function(event) {
+                  eval(this.removeCallback)
+               }.bind(this);
             const button = this.h.span({
                className: 'ds-remove-icon',
                onclick: function(event) {
+                  event.preventDefault();
+                  if (!confirm('Remove?')) return false;
                   this._closestRow(event.target).remove();
+                  if (callback) callback(event);
+                  return true;
                }.bind(this),
                title: 'Remove'
             }, this.h.icon({ name: 'close', icons: this.icons }));
@@ -472,17 +498,21 @@ WCom.Form.DataStructure = (function() {
          this.setupReorderable();
          this.table.classList.remove('hide');
          if (!this.singleRow && !this.fixed && !this.hasLoaded) {
-            const addButton = this.h.span({
-               className: 'ds-add-icon',
+            const addButton = this.h.button({
                onclick: function(event) {
-                  event.preventDefault();
-                  this.createRow();
-                  this.setupReorderable();
-                  const trigger = this.container.dataset['dsAddRow'];
-                  if (trigger) trigger();
+                  if (this.addHandler) eval(this.addHandler);
+                  else {
+                     event.preventDefault();
+                     this.createRow();
+                     this.setupReorderable();
+                     const trigger = this.container.dataset['dsAddRow'];
+                     if (trigger) trigger();
+                  }
                }.bind(this),
-               title: 'Add'
-            }, this.h.icon({ name: 'add', icons: this.icons }));
+               title: this.addTitle
+            }, this.h.icon({
+               className: 'ds-add-icon', name: this.addIcon, icons: this.icons
+            }));
             this.container.appendChild(addButton);
             this.hasLoaded = true;
          }

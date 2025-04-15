@@ -117,7 +117,7 @@ has 'pattern' => is => 'ro', isa => Str, default => DATE_MATCH;
 
 =cut
 
-has 'time_zone' => is => 'rw', isa => Str, default => 'UTC';
+has 'time_zone' => is => 'rw', isa => Str, default => NUL;
 
 =item default
 
@@ -218,7 +218,7 @@ around 'element_attributes' => sub {
 after 'init_value' => sub {
    my ($self, $value) = @_;
 
-   $self->time_zone( $value->time_zone->name ) if $value;
+   $self->time_zone($value->time_zone->name) if $value && !$self->time_zone;
 
    return;
 };

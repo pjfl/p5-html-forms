@@ -60,17 +60,10 @@ form.classic {
         font-size: 0.8rem; padding: 0.5rem 0 0;
     }
     .ds-add-icon {
-        background: #grads[button-bg]; border-radius: 3px;
-        box-shadow: 2px 2px 2px #colours[panel-shadow];
-        color: #colours[checkbox-true-bg]; cursor: pointer;
-        font-family: #fonts[system]; font-size: smaller;
-        font-weight: bold; padding: 0.25rem;
+        font-family: #fonts[system]; font-size: smaller; font-weight: bold;
         svg {
             vertical-align: middle;
         }
-    }
-    .ds-add-icon:hover {
-        box-shadow: inset 0 0 3px #colours[panel-shadow];
     }
     .ds-form {
         border-spacing: 0 0.5rem; position: relative;
@@ -92,6 +85,11 @@ form.classic {
         }
         .ds-field.hide, .ds-reorderable.hide, .ds-remove.hide {
             display: none;
+        }
+        .ds-input.input-text[readonly=readonly] {
+            background: #colours[panel-bg]; border: 0;
+            border-radius: 0; color: #colours[text];
+
         }
         .ds-output {
             font-size: 0.8rem; margin-right: 0.25rem;

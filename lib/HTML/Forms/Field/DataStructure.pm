@@ -36,6 +36,24 @@ Defines the following attributes;
 
 =over 3
 
+=item add_handler
+
+=cut
+
+has 'add_handler' => is => 'rw', isa => Str, default => NUL;
+
+=item add_icon
+
+=cut
+
+has 'add_icon' => is => 'ro', isa => Str, default => 'add';
+
+=item add_title
+
+=cut
+
+has 'add_title' => is => 'ro', isa => Str, default => 'Add';
+
 =item html5_type_attr
 
 =cut
@@ -71,6 +89,12 @@ has 'is_row_readonly' =>
    is      => 'ro',
    isa     => CodeRef,
    default => sub { sub { FALSE } };
+
+=item remove_callback
+
+=cut
+
+has 'remove_callback' => is => 'ro', isa => Str, default => NUL;
 
 =item reorderable
 
@@ -132,15 +156,19 @@ sub _build_element_attr {
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
-         'drag-title'  => $self->drag_title,
-         'fixed'       => json_bool $self->fixed,
-         'icons'       => $self->icons,
-         'is-object'   => json_bool $self->store_as_hash,
-         'readonly'    => $readonly,
-         'reorderable' => json_bool $self->reorderable,
-         'row-class'   => $self->row_class,
-         'single-hash' => json_bool $self->single_hash,
-         'structure'   => $self->structure,
+         'add-handler'     => $self->add_handler,
+         'add-icon'        => $self->add_icon,
+         'add-title'       => $self->add_title,
+         'drag-title'      => $self->drag_title,
+         'fixed'           => json_bool $self->fixed,
+         'icons'           => $self->icons,
+         'is-object'       => json_bool $self->store_as_hash,
+         'readonly'        => $readonly,
+         'remove-callback' => $self->remove_callback,
+         'reorderable'     => json_bool $self->reorderable,
+         'row-class'       => $self->row_class,
+         'single-hash'     => json_bool $self->single_hash,
+         'structure'       => $self->structure,
       }))
    };
 }

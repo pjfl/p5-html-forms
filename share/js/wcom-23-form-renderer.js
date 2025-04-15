@@ -50,7 +50,11 @@ WCom.Form.Renderer = (function() {
             if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
          }
          this.animateButtons(this.form, '.input-field button');
-         WCom.Form.Util.focusFirst(this.form);
+         if (pageSize > 0 || config.hasPageBreaks) {
+            this._selectPage(config.currentPage);
+            WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
+         }
+         else WCom.Form.Util.focusFirst(this.form);
       }
       // Private
       _field(container, field) {
@@ -158,8 +162,10 @@ WCom.Form.Renderer = (function() {
          return this.pages[count];
       }
       _selectPage(count) {
-         this.pageItems[this.pageItemSelected].classList.remove('selected');
-         this.pages[this.pageItemSelected].classList.add('hide');
+         if (this.pageItems[this.pageItemSelected])
+            this.pageItems[this.pageItemSelected].classList.remove('selected');
+         if (this.pages[this.pageItemSelected])
+            this.pages[this.pageItemSelected].classList.add('hide');
          this.pageItemSelected = count;
          this.pageItems[this.pageItemSelected].classList.add('selected');
          this.pages[this.pageItemSelected].classList.remove('hide');
