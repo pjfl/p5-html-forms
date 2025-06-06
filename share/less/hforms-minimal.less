@@ -336,7 +336,16 @@ form.classic {
         display: inline-flex;
     }
     .input-button.right {
-        position: absolute; right: 0.5rem;
+        margin-right: 0; position: absolute; right: 0;
+    }
+    .input-button a.form-button {
+        background: #grads[button-bg];
+        border: 2px outset #colours[button-border]; border-radius: 50px;
+        color: #colours[link]; cursor: pointer; display: inline-block;
+        font-family: #fonts[system]; font-size: 0.7rem; letter-spacing: 0.1rem;
+        line-height: 0.8rem; margin: 0.5rem 0; overflow: hidden;
+        padding: 0.366rem 0.75rem; position: relative; text-decoration: none;
+        text-transform: uppercase; transition: border 0.5s, color 0.5s;
     }
     .input-captcha input, .input-captcha .field-label,
     .input-display .field-label, .field-label.select-multiple,

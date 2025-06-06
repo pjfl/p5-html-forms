@@ -7,7 +7,7 @@ around 'validate_form' => sub {
 
    my @modified_fields;
 
-   for my $field ($self->fields) {
+   for my $field (@{$self->fields}) {
       next unless $field->can( 'get_disabled_fields' );
 
       my $params = $self->params->{ $field->full_name };

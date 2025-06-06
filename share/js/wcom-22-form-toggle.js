@@ -10,7 +10,6 @@ WCom.Form.Toggle = (function() {
          setTimeout(function() { el.classList.add('hide') }, 850);
       }
       else {
-         el.style.opacity = 0;
          el.classList.remove('hide');
          el.animate({ opacity: 1 }, { duration: 800, fill: 'forwards' });
       }
@@ -21,9 +20,9 @@ WCom.Form.Toggle = (function() {
       if (type != 'radio') {
          if (tagName == 'button' || type == 'submit') return;
          if (tagName == 'select' || type == 'hidden' || type == 'text') {
-            if (el.onchange) el.onchange();
+            el.dispatchEvent(new Event('change') );
          }
-         else if (el.onclick) { el.onclick(); }
+         else el.dispatchEvent(new Event('click'));
       }
       else {
          const buttons = document.getElementsByName(el.name);
@@ -31,7 +30,8 @@ WCom.Form.Toggle = (function() {
             const checkedButtons = [];
             checkedButtons.push(...buttons.filter(button => button.checked));
             if (!checkedButtons.length) checkedButtons.push(buttons[0]);
-            if (checkedButtons[0].onclick) checkedButtons[0].onclick();
+            if (checkedButtons[0])
+               checkedButtons[0].dispatchEvent(new Event('click'));
          }
       }
    };
@@ -95,15 +95,29 @@ WCom.Form.Toggle = (function() {
       const updateElement = function(field, method) {
          const el = document.getElementById(idPrefix + field);
          if (el) {
-            if (el.classList.contains(triggerClass)) {
-               if (method == 'show') turnTheseOn.push(el);
-               else turnTheseOff.push(el);
-            }
             if (pageLoading) {
                if (method == 'hide') el.classList.add('hide');
                else el.classList.remove('hide');
             }
             else animate(el, method);
+         }
+         const inputEl = document.getElementById(field);
+         if (!inputEl) return;
+         if (inputEl.classList.contains(triggerClass)) {
+            if (method == 'show') turnTheseOn.push(inputEl);
+            else turnTheseOff.push(inputEl);
+         }
+         if (method == 'hide') {
+            if (inputEl.getAttribute('required') == 'required') {
+               inputEl.removeAttribute('required');
+               inputEl.setAttribute('was_required', true);
+            }
+         }
+         else {
+            if (inputEl.getAttribute('was_required')) {
+               inputEl.setAttribute('required', 'required');
+               inputEl.removeAttribute('was_required');
+            }
          }
       };
       const tagName = el.tagName.toLowerCase();
@@ -112,7 +126,6 @@ WCom.Form.Toggle = (function() {
             = type    in getEnabled ? getEnabled[type](el, config)
             : tagName in getEnabled ? getEnabled[tagName](el, config)
             : [];
-
       if (turningOff) {
          for (const field of enabledFields) updateElement(field, 'hide');
       }

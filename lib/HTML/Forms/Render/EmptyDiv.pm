@@ -241,6 +241,7 @@ sub _serialise_field {
    $attr->{displayAs}    = $field->display_as    if $field->can('display_as');
    $attr->{emptySelect}  = $field->empty_select  if $field->can('empty_select');
    $attr->{fif}          = $field->fif           if $field->can('fif');
+   $attr->{href}         = $field->href          if $field->can('href');
    $attr->{html}         = $field->html          if $field->can('html');
    $attr->{icons}        = $field->icons         if $field->can('icons');
    $attr->{multiple}     = $field->multiple      if $field->can('multiple');

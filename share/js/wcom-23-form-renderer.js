@@ -55,6 +55,7 @@ WCom.Form.Renderer = (function() {
             WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
          }
          else WCom.Form.Util.focusFirst(this.form);
+         setTimeout(function() { WCom.Form.Toggle.scan(this.form) }, 500);
       }
       // Private
       _field(container, field) {
