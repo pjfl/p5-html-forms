@@ -197,13 +197,13 @@ WCom.Form.DataStructure = (function() {
          this.addIcon = this.config['add-icon'] || 'add';
          this.addTitle = this.config['add-title'] || 'Add';
          this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
+         this.fieldGroupDirn = this.config['field-group-dirn'] || '';
          this.fixed = this.config['fixed'] || false;
          this.icons = this.config['icons'];
          this.isObject = this.config['is-object'] || false;
          this.readonly = this.config['readonly'];
          this.removeCallback = this.config['remove-callback'];
          this.reorderable = this.config['reorderable'] || false;
-         this.rowClass = this.config['row-class'] || '';
          this.structure = this.config['structure'];
          this.drag = new Drag();
          this.hasLoaded = false;
@@ -279,7 +279,8 @@ WCom.Form.DataStructure = (function() {
          return el;
       }
       _closestRow(el) {
-         while (el && el.tagName != 'TR') el = el.parentNode;
+         while (el && !(el.tagName == 'DIV' && el.classList.contains('ds-row')))
+            el = el.parentNode;
          return el;
       }
       createField(column, item) {
@@ -299,7 +300,9 @@ WCom.Form.DataStructure = (function() {
       }
       createRow(item, index) {
          const readonly = this.readonly[index];
-         const row = this.h.tr({ className: this.rowClass });
+         const attr = { className: 'ds-field-group ' + this.fieldGroupDirn };
+         const group = this.h.div(attr);
+         const row = this.h.div({ className: 'ds-row' }, group);
          const fields = {};
          let tags;
          for (const column of this.structure) {
@@ -321,8 +324,8 @@ WCom.Form.DataStructure = (function() {
             else {
                const className = 'ds-field'
                      + (column.classes ? ' ' + column.classes : '');
-               fields[column.name] = this.h.td({ className }, field);
-               row.appendChild(fields[column.name]);
+               fields[column.name] = this.h.div({ className }, field);
+               group.appendChild(fields[column.name]);
             }
          }
          if (this.reorderable) {
@@ -332,7 +335,7 @@ WCom.Form.DataStructure = (function() {
             const knob = this.h.span({
                className: 'knob', title: this.dragTitle
             }, icon);
-            row.appendChild(this.h.td({ className: 'ds-reorderable' }, knob));
+            group.appendChild(this.h.div({ className: 'ds-reorderable' }, knob));
          }
          if (!this.singleRow && !this.fixed && !readonly) {
             let callback = this.removeCallback;
@@ -351,18 +354,18 @@ WCom.Form.DataStructure = (function() {
                }.bind(this),
                title: 'Remove'
             }, this.h.icon({ name: 'close', icons: this.icons }));
-            row.appendChild(this.h.td({ className: 'ds-remove' }, button));
+            row.appendChild(this.h.div({ className: 'ds-remove' }, button));
          }
-         this.table.querySelector('tbody').appendChild(row);
+         this.table.appendChild(row);
       }
       dropCallback(tr, row, dropTarget) {
          const selected = row.querySelector(
-            'td > input[data-ds-name="selected"]'
+            '.ds-field > input[data-ds-name="selected"]'
          );
          if (selected && selected.getAttribute('checked')) {
             selected.removeAttribute('checked');
             const cells = tr.querySelectorAll(
-               'td > input[data-ds-name="selected"]'
+               '.ds-field > input[data-ds-name="selected"]'
             );
             for (const cell of cells) {
                cell.setAttribute('checked', 'checked');
@@ -371,15 +374,14 @@ WCom.Form.DataStructure = (function() {
          row.remove();
          if (dropTarget.parentNode)
             dropTarget.parentNode.replaceChild(tr, dropTarget);
-         for (const cell of tr.querySelectorAll('td'))
-            cell.classList.remove('hide');
+         tr.classList.remove('hide');
          // TODO: Drop highlight. Also where highlight come from?
       }
       getValue() {
          const errors = [];
          const data = (this.isObject) ? {} : [];
-         for (const row of this.table.querySelectorAll('tr')) {
-            if (row.querySelectorAll('th').length) continue;
+         for (const row of this.table.querySelectorAll('.ds-row')) {
+            if (row.querySelectorAll('.ds-header-cell').length) continue;
             if (this.isObject) {
                const nameEl = row.querySelector('[data-ds-name="name"]');
                const name = nameEl.value;
@@ -440,19 +442,14 @@ WCom.Form.DataStructure = (function() {
          const dragNode = eventRow.cloneNode(true);
          dragNode.style.width = (eventRow.offsetWidth - 1) + 'px';
          dragNode.classList.add('ds-reorderable-drag');
-         const cells = dragNode.querySelectorAll('td');
          let index = 0;
-         for (const cell of eventRow.querySelectorAll('td')) {
-            cells[index++].style.width = cell.offsetWidth + 'px';
-            cell.classList.add('hide');
-         }
+         eventRow.classList.add('hide');
          const table = this.table;
          const tableOffset = this.h.getOffset(table);
-         const tbody = table.querySelector('tbody');
-         tbody.prepend(dragNode);
-         const dropTarget = this.h.tr({
+         table.prepend(dragNode);
+         const dropTarget = this.h.div({
             className: 'ds-reorderable-drop'
-         }, this.h.td({ colSpan: cells.length }));
+         }, this.h.div({}));
          dropTarget.style.height = height + 'px';
          eventRow.parentNode.insertBefore(dropTarget, eventRow.nextSibling);
          this.drag.start(event, {
@@ -466,29 +463,28 @@ WCom.Form.DataStructure = (function() {
             dropCallback: function(dropNode, dragNode) {
                this.dropCallback(eventRow, dragNode, dropTarget)
             }.bind(this),
-            dropTargets: table.querySelectorAll('tr'),
+            dropTargets: table.querySelectorAll('.ds-row, .ds-header'),
             fixLeft: this.h.getOffset(eventRow).left + 1,
             table,
             hoverCallback: function(hoverNode, dragNode, isHover) {
-               if (hoverNode.tagName == 'THEAD') tbody.prependChild(dropTarget);
-               else hoverNode.parentNode.insertBefore(
+               hoverNode.parentNode.insertBefore(
                   dropTarget, hoverNode.nextSibling
                );
             }.bind(this)
          });
       }
       _header() {
-         const row = this.h.tr();
-         const header = this.h.thead({}, row);
+         const header = this.h.div({ className: 'ds-header' });
+         const attr = { className: 'ds-header-cell' };
          for (const column of this.structure)
-            row.appendChild(this.h.th(column.label));
-         if (this.reorderable) row.appendChild(this.h.th());
-         if (!this.fixed) row.appendChild(this.h.th());
+            header.appendChild(this.h.div(attr, column.label));
+         if (this.reorderable) header.appendChild(this.h.div(attr));
+         if (!this.fixed) header.appendChild(this.h.div(attr));
          return header;
       }
       render() {
          const attr = { className: 'ds-form hide' };
-         const table = this.h.table(attr, [this._header(), this.h.tbody()]);
+         const table = this.h.div(attr, this._header());
          this.table = this.display(this.container, 'table', table);
          let index = 0;
          if (this.singleRow) this.createRow(this.sourceData[0], index);

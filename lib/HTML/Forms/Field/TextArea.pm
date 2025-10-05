@@ -5,7 +5,7 @@ use Moo;
 
 extends 'HTML::Forms::Field::Text';
 
-has 'cols'    => is => 'rw', isa => Int, default => 28;
+has 'cols'    => is => 'rw', isa => Int;
 
 has 'rows'    => is => 'rw', isa => Int;
 

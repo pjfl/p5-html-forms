@@ -4,10 +4,10 @@ use mro;
 use strictures;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE META TRUE );
-use HTML::Forms::Meta;
 use Ref::Util              qw( is_arrayref );
 use Sub::Install           qw( install_sub );
 use Unexpected::Functions  qw( throw );
+use HTML::Forms::Meta;
 
 =pod
 
@@ -15,14 +15,15 @@ use Unexpected::Functions  qw( throw );
 
 =head1 Name
 
-HTML::Forms::Moo - One-line description of the modules purpose
+HTML::Forms::Moo - Custom subroutine importer for forms
 
 =head1 Synopsis
 
    use HTML::Forms::Moo;
-   # Brief but working code examples
 
 =head1 Description
+
+Custom subroutine importer for forms
 
 =head1 Configuration and Environment
 
@@ -43,6 +44,9 @@ my @page_attributes   = qw(  );
 
 =item default_meta_config
 
+Returns a list of keys and values which sets the C<found_hfs> flag to false by
+default. This is overridden by the arguments passed to the C<import> call
+
 =cut
 
 sub default_meta_config () {
@@ -50,6 +54,10 @@ sub default_meta_config () {
 }
 
 =item import
+
+Install the following subroutines into the calling package; C<apply>,
+C<has_block>, C<has_field>, and C<has_page>. Also installs an instance of
+L<HTML::Forms::Meta> with a name defined by the C<META> constant
 
 =cut
 

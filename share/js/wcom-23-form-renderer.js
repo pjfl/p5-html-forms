@@ -61,7 +61,7 @@ WCom.Form.Renderer = (function() {
       _field(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
          container.appendChild(wrapper);
-         if (field.doLabel && field.label && !field.labelRight) {
+         if (field.doLabel && field.label.length && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
@@ -74,7 +74,7 @@ WCom.Form.Renderer = (function() {
             element.setAttribute('data-toggle-config', field.toggle);
          if (field.disabled)
             element.setAttribute('disabled', 'disabled');
-         if (field.doLabel && field.label && field.labelRight) {
+         if (field.doLabel && field.label.length && field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
@@ -286,7 +286,7 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          const field = this.field;
          const attr = { ...field.attributes, href: field.href, id: field.id };
-         const element = this.h.a(attr, field.displayAs);
+         const element = this.h.a(attr, this.h.span({}, field.displayAs));
          wrapper.appendChild(element);
          return element;
       }
@@ -412,8 +412,8 @@ WCom.Form.Renderer = (function() {
    }
    class HTMLFieldTextarea extends HTMLField {
       render(wrapper) {
-         this.attr.cols = this.field.cols;
-         this.attr.rows = this.field.rows;
+         if (this.field.cols) this.attr.cols = this.field.cols;
+         if (this.field.rows) this.attr.rows = this.field.rows;
          const element = this.h.textarea(this.attr, this.field.fif);
          wrapper.appendChild(element);
          return element;

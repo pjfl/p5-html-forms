@@ -3,12 +3,14 @@
     button-border: gainsboro;
     button-disabled-bg: gainsboro;
     button-hover: limegreen;
+    button-lighter-bg: whitesmoke;
     button-text: black;
     checkbox-false-bg: firebrick;
     checkbox-true-bg: seagreen;
     close: firebrick;
     disabled: gray;
-    ds-tile-bg: ivory;
+    ds-tile-bg: wheat;
+    ds-tile-lighter-bg: whitesmoke;
     error-bg: lightpink;
     field-active: bisque;
     field-border: gainsboro;
@@ -28,28 +30,34 @@
     system: Roboto, system-ui, sans-serif;
 }
 #grads() {
-    button-bg: linear-gradient(0deg, #colours[button-bg], whitesmoke);
+    button-bg: linear-gradient(
+        0deg, #colours[button-bg], #colours[button-lighter-bg]
+    );
     button-border-bg: radial-gradient(
         #colours[button-hover], transparent, transparent
     );
     button-disabled-bg: linear-gradient(
-        0deg, #colours[button-disabled-bg], whitesmoke
+        0deg, #colours[button-disabled-bg], #colours[button-lighter-bg]
     );
-    ds-tile: linear-gradient(0deg, whitesmoke, #colours[ds-tile-bg]);
-    error-fade: linear-gradient(to right, transparent, #colours[error-bg] 80%);
+    error-fade: linear-gradient(
+        to right, transparent, #colours[error-bg] 80%
+    );
 }
 #sizes() {
+    alert-max-width: 20rem;
     checkbox-height: 1.25rem;
     checkbox-knob-width: 20px;
     checkbox-width: 40px;
-    error-max: 50rem;
-    field-max: 20rem;
-    field-min: 12rem;
+    error-max-width: 50rem;
+    field-max-width: 40rem;
+    label-width: 7rem;
+    select-max-width: 10rem;
+    textarea-min-width: 15rem;
 }
 form.classic {
     background: #colours[panel-bg]; border-radius: 5px;
     box-shadow: 3px 3px 3px; color: #colours[line]; display: inline-block;
-    margin: 0 1rem; position: relative;
+    margin: 0 1rem; padding-bottom: 0.25rem; position: relative;
     div {
         color: #colours[text];
     }
@@ -57,7 +65,7 @@ form.classic {
         font-family: #fonts[system];
     }
     .alert-info {
-        font-size: 0.8rem; padding: 0.5rem 0 0;
+        font-size: 0.8rem; padding-bottom: 0.5rem;
     }
     .ds-add-icon {
         font-family: #fonts[system]; font-size: smaller; font-weight: bold;
@@ -66,30 +74,37 @@ form.classic {
         }
     }
     .ds-form {
-        border-spacing: 0 0.5rem; position: relative;
-        th {
+        display: flex; flex-direction: column; position: relative;
+        row-gap: 0.5rem;
+        .ds-header {
             font-family: #fonts[system]; font-size: 0.8rem; font-weight: normal;
         }
-        tr {
-            vertical-align: middle;
-        }
-        tr.separate {
-            background: #grads[ds-tile];
+        .ds-row {
+            background: #colours[ds-tile-bg];
             border-radius: 5px; box-shadow: 3px 3px 3px #colours[line];
-            .ds-field, .ds-remove {
-                padding-bottom: 0.5rem;
-            }
+            display: flex; justify-content: space-between;
         }
         .ds-field {
+            border-radius: 5px;
+            border-bottom-right-radius: 0; border-top-right-radius: 0;
             display: flex; flex-direction: column;
+            padding: 0.5rem 0 0.5rem 0.5rem;
+            input[readonly=readonly] {
+                background: #colours[ds-tile-bg] !important;
+            }
         }
-        .ds-field.hide, .ds-reorderable.hide, .ds-remove.hide {
+        .ds-field.hide {
             display: none;
+        }
+        .ds-field-group {
+            display: flex;
+        }
+        .ds-field-group.vertical {
+            flex-direction: column;
         }
         .ds-input.input-text[readonly=readonly] {
             background: #colours[panel-bg]; border: 0;
             border-radius: 0; color: #colours[text];
-
         }
         .ds-output {
             font-size: 0.8rem; margin-right: 0.25rem;
@@ -97,18 +112,23 @@ form.classic {
         .ds-reorderable-drag {
             position: absolute;
         }
-        .ds-reorderable .knob {
-            display: block; height: 20px; width: 20px;
+        .ds-reorderable {
+            margin: auto; padding-left: 0.5rem;
+            .knob {
+                display: block; height: 20px; width: 20px;
+            }
         }
         .ds-remove {
-            padding-top: 0.66rem;  vertical-align: top;
+            border-radius: 5px;
+            border-bottom-left-radius: 0; border-top-left-radius: 0;
+            padding: 0.5rem;
             .ds-remove-icon {
                 align-items: center; background: #grads[button-bg];
                 border-radius: 3px;
                 box-shadow: 2px 2px 2px #colours[panel-shadow];
                 color: #colours[close]; cursor: pointer; display: flex;
                 font-family: #fonts[system]; font-size: smaller;
-                font-weight: bold; height: 100%; padding: 0 0.25rem;
+                font-weight: bold; padding: 0 0.25rem;
                 img, svg {
                     height: 20px; width: 20px; vertical-align: middle;
                 }
@@ -124,7 +144,6 @@ form.classic {
         }
     }
     .form-wrapper {
-        border-collapse: separate; border-spacing: 0 0.25rem;
         border-radius: 5px; padding: 0 1rem; position: relative;
         .form-title {
             color: #colours[text]; font-family: #fonts[system];
@@ -133,16 +152,15 @@ form.classic {
     }
     .form-wrapper.wide .input-field {
         input, select, textarea, .alert {
-            max-width: #sizes[field-max];
+            max-width: #sizes[field-max-width];
         }
     }
     .form-wrapper:has(.input-field span.field-label) .input-button button {
         margin-top: 1rem;
     }
     .field-label {
-        display: table-cell; font-family: #fonts[system]; font-size: 0.8rem;
-        line-height: 1rem; padding: 0.5rem 0.5rem 0.5rem 0;
-        position: relative; white-space: nowrap;
+        font-family: #fonts[system]; font-size: 0.8rem; grid-area: label;
+        line-height: 1rem; position: relative; white-space: nowrap;
         .label-sep-after {
             position: absolute; right: 0.25rem;
         }
@@ -194,17 +212,28 @@ form.classic {
     .input-field:has(span.field-label)::before {
         content: ''; display: block; height: 22px;
     }
+    .input-field:has(label.field-label) {
+        display: grid;
+        grid-template-columns: #sizes[label-width] max-content auto;
+        grid-template-areas: "label field selector";
+        justify-items: start;
+        min-width: 20rem;
+    }
     .input-field {
-        display: table-row; position: relative;
+        padding-bottom: 0.5rem; position: relative;
         input {
             height: 1.5rem;
         }
         input, select, textarea {
-            display: table-cell; font-family: #fonts[data];
-            max-width: #sizes[field-max];
+            font-family: #fonts[data]; grid-area: field;
+            max-width: #sizes[field-max-width];
+        }
+        select {
+            max-width: #sizes[select-max-width];
         }
         textarea {
-            min-width: #sizes[field-max];
+            box-sizing: content-box; min-height: 3lh;
+            min-width: #sizes[textarea-min-width]; overflow: auto;
         }
         input, select.select-multiple, textarea {
             border-radius: 5px; font-size: 0.85rem;
@@ -233,7 +262,8 @@ form.classic {
         }
         .alert {
             border-radius: 5px; display: block; font-size: 0.8rem;
-            margin-top: 0.25rem; max-width: #sizes[field-min]; padding: 0.5rem;
+            margin-top: 0.25rem; max-width: #sizes[alert-max-width];
+            padding: 0.5rem;
         }
         .alert-error {
             background: #colours[error-bg];
@@ -248,10 +278,13 @@ form.classic {
         }
     }
     .input-field.inline {
-        display: inline-block; margin-right: 0.5rem; vertical-align: top;
+        display: inline-grid !important; margin-right: 0.5rem;
     }
     .input-field.hide {
-        display: none;
+        display: none !important;
+    }
+    .input-field.input-button {
+        padding-bottom: 0;
     }
     .input-boolean {
         .checkbox-wrapper {
@@ -322,9 +355,6 @@ form.classic {
         button[disabled=disabled], button[disabled=disabled]::after {
             background: #grads[button-disabled-bg];
         }
-        input {
-            margin: 0.5rem 0;
-        }
     }
     .input-button {
         align-items: center; display: flex; justify-content: right;
@@ -336,7 +366,7 @@ form.classic {
         display: inline-flex;
     }
     .input-button.right {
-        margin-right: 0; position: absolute; right: 0;
+        margin-right: 0; position: absolute; right: 0.5rem;
     }
     .input-button a.form-button {
         background: #grads[button-bg];
@@ -347,10 +377,8 @@ form.classic {
         padding: 0.366rem 0.75rem; position: relative; text-decoration: none;
         text-transform: uppercase; transition: border 0.5s, color 0.5s;
     }
-    .input-captcha input, .input-captcha .field-label,
-    .input-display .field-label, .field-label.select-multiple,
-    .field-label.input-textarea {
-        vertical-align: middle;
+    .input-selector button {
+        grid-area: selector; margin: 0 0 0 0.5rem;
     }
     .input-duration .input-select-integer, .input-interval .input-group,
     .input-repeatable div, .input-time-with-zone .input-group {
@@ -379,8 +407,7 @@ form.classic {
             font-size: 0.8rem; line-height: 1rem; max-width: 50rem;
         }
         pre code {
-            display: inline-block;
-            white-space: break-spaces;
+            display: inline-block; white-space: break-spaces;
         }
     }
     .input-integer {
@@ -398,30 +425,23 @@ form.classic {
         }
     }
     .input-password .reveal {
-        position: absolute; right: 0.25rem; top: 0.125rem;
+        position: absolute; right: 2rem; top: 0;
     }
     .input-select option {
         font-family: #fonts[data];
     }
-    .input-selector button {
-        margin-left: 0.5rem;
-    }
-    .input-textarea textarea {
-        overflow: auto;
-    }
     .input-display span {
-        display: table-cell; font-size: 0.8rem;
-        padding: 0.5rem 0.5rem 0.5rem 0.25rem;
-        vertical-align: middle; white-space: nowrap;
+        font-size: 0.8rem; grid-area: field;
+        padding-left: 0.25rem; white-space: nowrap;
     }
     .label-right {
         text-align: right;
         label {
-            padding: 0.5rem 0 0.5rem 0.5rem; text-align: left;
+            text-align: left;
         }
     }
     .page-list {
-        list-style-type: none; margin: 0; padding: 0;
+        list-style-type: none; margin: 0; padding: 0 0 0.5rem 0;
         li {
             border-bottom: 1px solid #colours[line];
             border-top-left-radius: 5px; border-top-right-radius: 5px;
@@ -439,11 +459,9 @@ form.classic {
     }
 }
 .form-error {
-    background: #colours[error-bg];
-    border: 1px solid #colours[line]; border-radius: 5px;
-    box-shadow: 3px 3px 3px #colours[panel-shadow];
-    max-width: #sizes[error-max]; overflow: hidden;
-    padding: 0.5rem;
+    background: #colours[error-bg]; border: 1px solid #colours[line];
+    border-radius: 5px; box-shadow: 3px 3px 3px #colours[panel-shadow];
+    max-width: #sizes[error-max-width]; overflow: hidden; padding: 0.5rem;
     h1, h2, h3 {
         margin: 0.5rem 0 !important;
     }
@@ -453,7 +471,7 @@ form.classic {
         font-family: #fonts[system]; font-size: 0.8rem;
         .card {
             font-family: #fonts[data]; margin-top: 0.25rem;
-            max-width: #sizes[error-max]; padding: 0 0.25rem;
+            max-width: #sizes[error-max-width]; padding: 0 0.25rem;
             p {
                 margin: 0; max-height: 6rem; overflow: hidden;
                 position: relative;

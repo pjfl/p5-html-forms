@@ -69,6 +69,12 @@ has 'drag_title' =>
    isa     => Str,
    default => 'Drag and drop to reorder rows';
 
+=item field_group_direction
+
+=cut
+
+has 'field_group_direction' => is => 'ro', isa => Str, default => 'horizontal';
+
 =item fixed
 
 =cut
@@ -101,12 +107,6 @@ has 'remove_callback' => is => 'ro', isa => Str, default => NUL;
 =cut
 
 has 'reorderable' => is => 'ro', isa => Bool, default => FALSE;
-
-=item row_class
-
-=cut
-
-has 'row_class' => is => 'ro', isa => Str, default => 'ds-row';
 
 =item single_hash
 
@@ -156,19 +156,19 @@ sub _build_element_attr {
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
-         'add-handler'     => $self->add_handler,
-         'add-icon'        => $self->add_icon,
-         'add-title'       => $self->add_title,
-         'drag-title'      => $self->drag_title,
-         'fixed'           => json_bool $self->fixed,
-         'icons'           => $self->icons,
-         'is-object'       => json_bool $self->store_as_hash,
-         'readonly'        => $readonly,
-         'remove-callback' => $self->remove_callback,
-         'reorderable'     => json_bool $self->reorderable,
-         'row-class'       => $self->row_class,
-         'single-hash'     => json_bool $self->single_hash,
-         'structure'       => $self->structure,
+         'add-handler'      => $self->add_handler,
+         'add-icon'         => $self->add_icon,
+         'add-title'        => $self->add_title,
+         'drag-title'       => $self->drag_title,
+         'field-group-dirn' => $self->field_group_direction,
+         'fixed'            => json_bool $self->fixed,
+         'icons'            => $self->icons,
+         'is-object'        => json_bool $self->store_as_hash,
+         'readonly'         => $readonly,
+         'remove-callback'  => $self->remove_callback,
+         'reorderable'      => json_bool $self->reorderable,
+         'single-hash'      => json_bool $self->single_hash,
+         'structure'        => $self->structure,
       }))
    };
 }

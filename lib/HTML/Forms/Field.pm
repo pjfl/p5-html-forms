@@ -1575,9 +1575,13 @@ Returns the localised C<label> attribute
 =cut
 
 sub localise_label {
-   my $self = shift;
+   my $self  = shift;
+   my $label = $self->label;
 
-   return $self->_localise($self->label);
+   $label =~ s{ \A \s+ }{}mx;
+   $label =~ s{ \s+ \z }{}mx;
+
+   return $label ? $self->_localise($label) : NUL;
 }
 
 =item merge_tags

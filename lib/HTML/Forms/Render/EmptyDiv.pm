@@ -237,7 +237,8 @@ sub _serialise_field {
       if $field->can('checkbox_value');
    $attr->{clickHandler} = $field->click_handler
       if $field->can('click_handler');
-   $attr->{cols}         = $field->cols          if $field->can('cols');
+   $attr->{cols}         = $field->cols
+      if $field->can('cols') && $field->cols;
    $attr->{displayAs}    = $field->display_as    if $field->can('display_as');
    $attr->{emptySelect}  = $field->empty_select  if $field->can('empty_select');
    $attr->{fif}          = $field->fif           if $field->can('fif');
@@ -246,7 +247,8 @@ sub _serialise_field {
    $attr->{icons}        = $field->icons         if $field->can('icons');
    $attr->{multiple}     = $field->multiple      if $field->can('multiple');
    $attr->{options}      = $field->options       if $field->can('options');
-   $attr->{rows}         = $field->rows          if $field->can('rows');
+   $attr->{rows}         = $field->rows
+      if $field->can('rows') && $field->rows;
    $attr->{size}         = $field->size          if $field->can('size');
    $attr->{src}          = $field->src           if $field->can('src');
    $attr->{toggle}       = $field->toggle_config_encoded
