@@ -50,6 +50,7 @@
     checkbox-width: 40px;
     error-max-width: 50rem;
     field-max-width: 40rem;
+    field-min-width: 20rem;
     label-width: 7rem;
     select-max-width: 10rem;
     textarea-min-width: 15rem;
@@ -61,11 +62,11 @@ form.classic {
     div {
         color: #colours[text];
     }
-    .alert, .alert-info {
-        font-family: #fonts[system];
+    .alert {
+        font-family: #fonts[system]; font-size: 0.8rem;
     }
     .alert-info {
-        font-size: 0.8rem; padding-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
     }
     .ds-add-icon {
         font-family: #fonts[system]; font-size: smaller; font-weight: bold;
@@ -159,8 +160,8 @@ form.classic {
         margin-top: 1rem;
     }
     .field-label {
-        font-family: #fonts[system]; font-size: 0.8rem; grid-area: label;
-        line-height: 1rem; position: relative; white-space: nowrap;
+        display: flex; font-family: #fonts[system]; font-size: 0.8rem;
+        grid-area: label; position: relative; white-space: nowrap;
         .label-sep-after {
             position: absolute; right: 0.25rem;
         }
@@ -213,11 +214,11 @@ form.classic {
         content: ''; display: block; height: 22px;
     }
     .input-field:has(label.field-label) {
-        display: grid;
+        align-items: flex-start; display: grid;
         grid-template-columns: #sizes[label-width] max-content auto;
-        grid-template-areas: "label field selector";
-        justify-items: start;
-        min-width: 20rem;
+        grid-template-areas: "label input selector" "label alert selector";
+        justify-items: start; min-width: #sizes[field-min-width];
+        row-gap: 0.25rem;
     }
     .input-field {
         padding-bottom: 0.5rem; position: relative;
@@ -225,7 +226,8 @@ form.classic {
             height: 1.5rem;
         }
         input, select, textarea {
-            font-family: #fonts[data]; grid-area: field;
+            border-radius: 5px; font-size: 0.85rem;
+            font-family: #fonts[data]; grid-area: input;
             max-width: #sizes[field-max-width];
         }
         select {
@@ -234,9 +236,6 @@ form.classic {
         textarea {
             box-sizing: content-box; min-height: 3lh;
             min-width: #sizes[textarea-min-width]; overflow: auto;
-        }
-        input, select.select-multiple, textarea {
-            border-radius: 5px; font-size: 0.85rem;
         }
         input:focus, textarea:focus {
             background: #colours[field-active];
@@ -262,7 +261,7 @@ form.classic {
         }
         .alert {
             border-radius: 5px; display: block; font-size: 0.8rem;
-            margin-top: 0.25rem; max-width: #sizes[alert-max-width];
+            grid-area: alert; max-width: #sizes[alert-max-width];
             padding: 0.5rem;
         }
         .alert-error {
@@ -286,12 +285,18 @@ form.classic {
     .input-field.input-button {
         padding-bottom: 0;
     }
+    .input-boolean, .input-captcha, .input-display, .input-duration,
+    .input-integer, .input-interval, .input-money, .input-number,
+    .input-password, .input-select, .input-selector, .input-text,
+    .input-textarea, .input-time-with-zone  {
+        align-items: center;
+    }
     .input-boolean {
         .checkbox-wrapper {
-            display: inline-block; isolation: isolate; position: relative;
+            grid-area: input; isolation: isolate; position: relative;
             input[type=checkbox] {
                 height: #sizes[checkbox-height]; margin: 0; opacity: 0;
-                position: relative; top: 4px; width: #sizes[checkbox-width];
+                position: relative; width: #sizes[checkbox-width];
                 z-index: 3;
             }
         }
@@ -299,7 +304,7 @@ form.classic {
             background: #grads[button-bg];
             border: 2px inset #colours[button-border]; border-radius: 10px;
             content: ''; display: block; position: absolute;
-            height: #sizes[checkbox-height]; left: 0; top: 4px;
+            height: #sizes[checkbox-height]; left: 0; top: -1px;
             width: #sizes[checkbox-knob-width]; z-index: 2;
         }
         .checkbox-wrapper:has(input[type=checkbox]:checked)::after {
@@ -309,7 +314,7 @@ form.classic {
             background: #colours[checkbox-false-bg];
             border: 2px inset #colours[button-border]; border-radius: 10px;
             content: ''; display: block; position: absolute;
-            height: #sizes[checkbox-height]; left: 0; top: 4px;
+            height: #sizes[checkbox-height]; left: 0;
             width: #sizes[checkbox-width]; z-index: 1;
         }
         .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
@@ -401,7 +406,7 @@ form.classic {
     }
     .input-immutable {
         h1, h2, h3, h4, h5 {
-            margin: 1rem 0;
+            margin: 0 0 0.5rem 0;
         }
         p, pre code {
             font-size: 0.8rem; line-height: 1rem; max-width: 50rem;
@@ -431,7 +436,7 @@ form.classic {
         font-family: #fonts[data];
     }
     .input-display span {
-        font-size: 0.8rem; grid-area: field;
+        font-size: 0.8rem; grid-area: input;
         padding-left: 0.25rem; white-space: nowrap;
     }
     .label-right {
@@ -458,6 +463,9 @@ form.classic {
         display: none;
     }
 }
+form.classic.filemanager {
+    padding: 0.5rem;
+}
 .form-error {
     background: #colours[error-bg]; border: 1px solid #colours[line];
     border-radius: 5px; box-shadow: 3px 3px 3px #colours[panel-shadow];
@@ -467,8 +475,8 @@ form.classic {
     }
 }
 .form-messages {
+    margin-bottom: 0.5rem;
     .alert {
-        font-family: #fonts[system]; font-size: 0.8rem;
         .card {
             font-family: #fonts[data]; margin-top: 0.25rem;
             max-width: #sizes[error-max-width]; padding: 0 0.25rem;
@@ -483,8 +491,11 @@ form.classic {
             }
         }
     }
-    .alert-severe .card {
-        background: #colours[error-bg]; border-radius: 5px;
+    .alert-error, .alert-error-message, .alert-severe .card {
+        border-radius: 5px; background: #colours[error-bg]; padding: 0.25rem;
+    }
+    .alert-error-message {
+        display: block;
     }
 }
 .selector form.classic {

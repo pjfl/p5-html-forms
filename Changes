@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Moved form messages after form info
           - Uses CSS grid for form layout
           - Serialise href attr. Toggle.js unrequires hidden fields
           - Datastructure field has add/remove callbacks

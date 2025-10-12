@@ -28,7 +28,6 @@ WCom.Form.Renderer = (function() {
             this.form.setAttribute('novalidate', 'novalidate');
          if (config.msgsBeforeStart) this._formMessages(this.container);
          const wrapper = this._formWrapper();
-         if (!config.msgsBeforeStart) this._formMessages(wrapper);
          const pageSize = config.pageSize;
          if (pageSize > 0 || config.hasPageBreaks) {
             this.pages = [];
@@ -105,6 +104,7 @@ WCom.Form.Renderer = (function() {
             message = config.infoMessage[index];
          }
          container.appendChild(this.h.div({ className }, message));
+         if (!config.msgsBeforeStart) this._formMessages(container);
       }
       _formMessages(container) {
          const config = this.config;
@@ -112,12 +112,16 @@ WCom.Form.Renderer = (function() {
          let className = config.tags.messagesWrapperClass || 'form-messages';
          const wrapper = this.h.div({ className });
          if (config.errorMsg) {
-            className = config.tags.errorClass || 'alert alert-severe';
-            wrapper.appendChild(this.h.div({ className }, config.errorMsg));
+            className = config.tags.errorClass || 'alert alert-error-message';
+            wrapper.appendChild(this.h.span({ className }, config.errorMsg));
          }
          else if (config.successMsg) {
-            className = config.tags.successClass || 'alert alert-success';
-            wrapper.appendChild(this.h.div({ className }, config.successMsg));
+            className = config.tags.successClass || 'alert alert-success-message';
+            wrapper.appendChild(this.h.span({ className }, config.successMsg));
+         }
+         if (config.errors.length) {
+            className = config.tags.errorClass || 'alert alert-error';
+            wrapper.appendChild(this.h.span({ className }, config.errors));
          }
          container.appendChild(wrapper);
       }
@@ -353,10 +357,7 @@ WCom.Form.Renderer = (function() {
          const field = this.field;
          this.attr.value = field.fif;
          const handler = field.clickHandler; delete field.clickHandler;
-         let title;
-         if (field.htmlElement == 'icon') {
-            title = this.attr.title; delete this.attr.title;
-         }
+         const title = this.attr.title; delete this.attr.title;
          const element = this.h.input(this.attr);
          element.setAttribute('readonly', 'readonly');
          wrapper.appendChild(element);
@@ -373,8 +374,7 @@ WCom.Form.Renderer = (function() {
             displayAs = this.h.icon(JSON.parse(field.displayAs));
          }
          else { displayAs = this.h.span(field.displayAs) }
-         const button = this.h.button(attr, displayAs);
-         wrapper.appendChild(button);
+         wrapper.appendChild(this.h.button(attr, displayAs));
          return element;
       }
    }

@@ -280,6 +280,7 @@ sub _serialise_form {
    my $success_message = $form->has_success_message
       && $form->result->validated
       ? $form->localise($form->success_message) : NUL;
+
    my $tags = {
       map {
          (my $key = $_) =~ s{ _(\w{1}) }{\u$1}gmx;
@@ -292,6 +293,7 @@ sub _serialise_form {
       currentPage     => $self->current_page,
       doFormWrapper   => json_bool $form->do_form_wrapper,
       errorMsg        => $error_message,
+      errors          => [$form->all_form_errors],
       fields          => $self->_serialise_fields,
       hasPageBreaks   => json_bool $self->_has_page_breaks,
       infoMessage     => $info_message,
