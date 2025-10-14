@@ -404,7 +404,11 @@ WCom.Form.Renderer = (function() {
             const handler = function(event) {
                WCom.Form.Util.revealPassword(id);
             };
-            const attr = { className: 'reveal', onmouseover: handler };
+            const attr = {
+               className: 'reveal',
+               onmouseover: handler,
+               title: 'Toggle show password'
+            };
             wrapper.appendChild(this.h.span(attr, '👁'));
          }
          return element;
