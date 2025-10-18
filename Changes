@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Replaced maps with variables in CSS
           - Pixel aligned labels and input fields
           - Moved form messages after form info
           - Uses CSS grid for form layout

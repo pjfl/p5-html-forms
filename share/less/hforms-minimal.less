@@ -1,3 +1,14 @@
+@alert-max-width: 20rem;
+@checkbox-height: 1.25rem;
+@checkbox-knob-width: 20px;
+@checkbox-width: 40px;
+@error-max-width: 50rem;
+@field-max-width: 40rem;
+@field-min-width: 20rem;
+@label-width: 7rem;
+@select-max-width: 10rem;
+@selector-min-width: 15rem;
+@textarea-min-width: 15rem;
 #colours() {
     button-bg: bisque;
     button-border: gainsboro;
@@ -42,18 +53,6 @@
     error-fade: linear-gradient(
         to right, transparent, #colours[error-bg] 80%
     );
-}
-#sizes() {
-    alert-max-width: 20rem;
-    checkbox-height: 1.25rem;
-    checkbox-knob-width: 20px;
-    checkbox-width: 40px;
-    error-max-width: 50rem;
-    field-max-width: 40rem;
-    field-min-width: 20rem;
-    label-width: 7rem;
-    select-max-width: 10rem;
-    textarea-min-width: 15rem;
 }
 form.classic {
     background: #colours[panel-bg]; border-radius: 5px;
@@ -151,7 +150,7 @@ form.classic {
     }
     .form-wrapper.wide .input-field {
         input, select, textarea, .alert {
-            max-width: #sizes[field-max-width];
+            max-width: @field-max-width;
         }
     }
     .form-wrapper:has(.input-field span.field-label) .input-button button {
@@ -201,12 +200,10 @@ form.classic {
             border-radius: 50px; padding-left: 0.75rem;
         }
         input.digit:first-child {
-            border-bottom-left-radius: 50px;
-            border-top-left-radius: 50px;
+            border-bottom-left-radius: 50px; border-top-left-radius: 50px;
         }
         input.digit:last-child {
-            border-bottom-right-radius: 50px;
-            border-top-right-radius: 50px;
+            border-bottom-right-radius: 50px; border-top-right-radius: 50px;
         }
     }
     .input-field:has(span.field-label)::before {
@@ -214,9 +211,9 @@ form.classic {
     }
     .input-field:has(label.field-label) {
         align-items: flex-start; display: grid;
-        grid-template-columns: #sizes[label-width] max-content auto;
+        grid-template-columns: @label-width max-content auto;
         grid-template-areas: "label input selector" "label alert selector";
-        justify-items: start; min-width: #sizes[field-min-width];
+        justify-items: start; min-width: @field-min-width;
         row-gap: 0.25rem;
     }
     .input-field {
@@ -226,15 +223,14 @@ form.classic {
             grid-area: input;
         }
         input {
-            height: 1.5rem; max-width: #sizes[field-max-width];
+            height: 1.5rem; max-width: @field-max-width;
         }
         select {
-            background: #grads[button-bg]; max-width: #sizes[select-max-width];
+            background: #grads[button-bg]; max-width: @select-max-width;
         }
         textarea {
-            box-sizing: content-box; max-width: #sizes[field-max-width];
-            min-height: 3lh; min-width: #sizes[textarea-min-width];
-            overflow: auto;
+            box-sizing: content-box; max-width: @field-max-width;
+            min-height: 3lh; min-width: @textarea-min-width; overflow: auto;
         }
         input:focus, textarea:focus {
             background: #colours[field-active];
@@ -260,8 +256,7 @@ form.classic {
         }
         .alert {
             border-radius: 5px; display: block; font-size: 0.8rem;
-            grid-area: alert; max-width: #sizes[alert-max-width];
-            padding: 0.5rem;
+            grid-area: alert; max-width: @alert-max-width; padding: 0.5rem;
         }
         .alert-error {
             background: #colours[error-bg];
@@ -295,27 +290,26 @@ form.classic {
             grid-area: input; isolation: isolate;
             padding-top: 0.2rem; position: relative;
             input[type=checkbox] {
-                height: #sizes[checkbox-height]; margin: 0; opacity: 0;
-                position: relative; width: #sizes[checkbox-width];
-                z-index: 3;
+                height: @checkbox-height; margin: 0; opacity: 0;
+                position: relative; width: @checkbox-width; z-index: 3;
             }
         }
         .checkbox-wrapper::after {
             background: #grads[button-bg];
             border: 2px inset #colours[button-border]; border-radius: 10px;
             content: ''; display: block; position: absolute;
-            height: #sizes[checkbox-height]; left: 0; top: 3px;
-            width: #sizes[checkbox-knob-width]; z-index: 2;
+            height: @checkbox-height; left: 0; top: 3px;
+            width: @checkbox-knob-width; z-index: 2;
         }
         .checkbox-wrapper:has(input[type=checkbox]:checked)::after {
-            left: #sizes[checkbox-knob-width];
+            left: @checkbox-knob-width;
         }
         .checkbox-wrapper::before {
             background: #colours[checkbox-false-bg];
             border: 2px inset #colours[button-border]; border-radius: 10px;
             content: ''; display: block; position: absolute;
-            height: #sizes[checkbox-height]; left: 0;
-            width: #sizes[checkbox-width]; z-index: 1;
+            height: @checkbox-height; left: 0; width: @checkbox-width;
+            z-index: 1;
         }
         .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
             background: #colours[checkbox-true-bg];
@@ -436,8 +430,8 @@ form.classic {
         font-family: #fonts[data];
     }
     .input-display span {
-        font-size: 0.8rem; grid-area: input;
-        padding: 0.2rem 0 0 0.25rem; white-space: nowrap;
+        font-size: 0.8rem; grid-area: input; padding: 0.2rem 0 0 0.25rem;
+        white-space: nowrap;
     }
     .label-right {
         text-align: right;
@@ -455,8 +449,7 @@ form.classic {
         }
         li.selected {
             border: 1px solid #colours[line];
-            border-bottom: 1px solid transparent;
-            color: #colours[text];
+            border-bottom: 1px solid transparent; color: #colours[text];
         }
     }
     .form-page.hide {
@@ -469,7 +462,7 @@ form.classic.filemanager {
 .form-error {
     background: #colours[error-bg]; border: 1px solid #colours[line];
     border-radius: 5px; box-shadow: 3px 3px 3px #colours[panel-shadow];
-    max-width: #sizes[error-max-width]; overflow: hidden; padding: 0.5rem;
+    max-width: @error-max-width; overflow: hidden; padding: 0.5rem;
     h1, h2, h3 {
         margin: 0.5rem 0 !important;
     }
@@ -479,7 +472,7 @@ form.classic.filemanager {
     .alert {
         .card {
             font-family: #fonts[data]; margin-top: 0.25rem;
-            max-width: #sizes[error-max-width]; padding: 0 0.25rem;
+            max-width: @error-max-width; padding: 0 0.25rem;
             p {
                 margin: 0; max-height: 6rem; overflow: hidden;
                 position: relative;
@@ -499,5 +492,5 @@ form.classic.filemanager {
     }
 }
 .selector form.classic {
-    box-shadow: none; margin: 0; min-width: 15rem;
+    box-shadow: none; margin: 0; min-width: @selector-min-width;
 }
