@@ -1,8 +1,8 @@
 package HTML::Forms::Widget::Field::Trait::Toggle;
 
 use HTML::Forms::Constants qw( TRUE );
-use HTML::Forms::Types     qw( ArrayRef HashRef Str );
-use HTML::Forms::Util      qw( encode_only_entities );
+use HTML::Forms::Types     qw( ArrayRef Bool HashRef Str );
+use HTML::Forms::Util      qw( encode_only_entities json_bool );
 use JSON::MaybeXS          qw( encode_json );
 use List::Util             qw( first );
 use Ref::Util              qw( is_coderef );
@@ -35,6 +35,12 @@ Defines the following attributes;
 
 =over 3
 
+=item toggle_animation
+
+=cut
+
+has 'toggle_animation' => is => 'ro', isa => Bool, default => TRUE;
+
 =item toggle
 
 =cut
@@ -66,10 +72,14 @@ has 'toggle_config' =>
    builder => sub {
       my $self  = shift;
       my $event = $self->has_toggle_event      ? $self->toggle_event
-                : lc $self->widget eq 'select' ? 'onchange'
-                : 'onclick';
+                : lc $self->widget eq 'select' ? 'change'
+                : 'click';
 
-      return { config => $self->toggle, event => $event };
+      return {
+         config    => $self->toggle,
+         event     => $event,
+         noanimate => json_bool !$self->toggle_animation,
+      };
    };
 
 =item toggle_config_encoded

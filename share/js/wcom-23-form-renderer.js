@@ -54,7 +54,7 @@ WCom.Form.Renderer = (function() {
             WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
          }
          else WCom.Form.Util.focusFirst(this.form);
-         setTimeout(function() { WCom.Form.Toggle.scan(this.form) }, 500);
+         WCom.Form.Toggle.scan(this.form);
       }
       // Private
       _field(container, field) {
@@ -69,10 +69,15 @@ WCom.Form.Renderer = (function() {
          const element = fieldWidget.render(wrapper);
          if (field.depends)
             element.setAttribute('data-field-depends', field.depends);
-         if (field.toggle)
-            element.setAttribute('data-toggle-config', field.toggle);
          if (field.disabled)
             element.setAttribute('disabled', 'disabled');
+         if (field.toggle) {
+            element.setAttribute('data-toggle-config', field.toggle);
+            const event = JSON.parse(field.toggle).event;
+            element.addEventListener(event, function(){
+               WCom.Form.Toggle.toggleFields(element.name);
+            }.bind(this))
+         }
          if (field.doLabel && field.label.length && field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
@@ -216,12 +221,13 @@ WCom.Form.Renderer = (function() {
    class HTMLFieldCheckbox extends HTMLField {
       render(wrapper) {
          const field = this.field;
-         const element = this.h.span({ className: 'checkbox-wrapper' });
          this.attr.type = field.inputType;
          this.attr.value = field.checkboxValue;
          if (field.fif == field.checkboxValue) this.attr.checked = 'checked';
-         element.appendChild(this.h.input(this.attr));
-         wrapper.appendChild(element);
+         const element = this.h.input(this.attr);
+         const boxwrap = this.h.span({ className: 'checkbox-wrapper' });
+         boxwrap.appendChild(element);
+         wrapper.appendChild(boxwrap);
          return element;
       }
    }
@@ -268,6 +274,7 @@ WCom.Form.Renderer = (function() {
             id: id,
             name: id,
             oninput: this._handler(field.id, count),
+            required: (this.attr.required == 'required' ? true : false),
             size: 1,
             type: field.inputType,
             value: ''

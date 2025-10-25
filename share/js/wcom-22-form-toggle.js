@@ -10,8 +10,11 @@ WCom.Form.Toggle = (function() {
          setTimeout(function() { el.classList.add('hide') }, 850);
       }
       else {
-         el.classList.remove('hide');
-         el.animate({ opacity: 1 }, { duration: 800, fill: 'forwards' });
+         if (el.classList.contains('hide')) {
+            el.style.opacity = 0;
+            el.classList.remove('hide');
+            el.animate({ opacity: 1 }, { duration: 800, fill: 'forwards' });
+         }
       }
    };
    const fireHandler = function(el) {
@@ -19,10 +22,12 @@ WCom.Form.Toggle = (function() {
       const type = el.type ? el.type.toLowerCase() : '';
       if (type != 'radio') {
          if (tagName == 'button' || type == 'submit') return;
-         if (tagName == 'select' || type == 'hidden' || type == 'text') {
-            el.dispatchEvent(new Event('change') );
-         }
-         else el.dispatchEvent(new Event('click'));
+         setTimeout(function () {
+            if (tagName == 'select' || type == 'hidden' || type == 'text') {
+               el.dispatchEvent(new Event('change') );
+            }
+            else el.dispatchEvent(new Event('click'));
+         }, 500);
       }
       else {
          const buttons = document.getElementsByName(el.name);
@@ -30,8 +35,11 @@ WCom.Form.Toggle = (function() {
             const checkedButtons = [];
             checkedButtons.push(...buttons.filter(button => button.checked));
             if (!checkedButtons.length) checkedButtons.push(buttons[0]);
-            if (checkedButtons[0])
-               checkedButtons[0].dispatchEvent(new Event('click'));
+            if (checkedButtons[0]) {
+               setTimeout(function () {
+                  checkedButtons[0].dispatchEvent(new Event('click'));
+               }, 500);
+            }
          }
       }
    };
@@ -86,16 +94,16 @@ WCom.Form.Toggle = (function() {
    let turningOff  = false;
    const toggleFields = function(id) {
       const el = document.getElementById(id);
-      if (!el) return;
-      const data = el.dataset[dsName];
-      if (!data) return;
-      const config        = JSON.parse(data)['config'];
+      if (!el || !el.dataset[dsName]) return;
+      const data          = JSON.parse(el.dataset[dsName]);
+      const config        = data['config'];
+      const noanimate     = data['noanimate'];
       const turnTheseOff  = [];
       const turnTheseOn   = [];
       const updateElement = function(field, method) {
          const el = document.getElementById(idPrefix + field);
          if (el) {
-            if (pageLoading) {
+            if (pageLoading || noanimate) {
                if (method == 'hide') el.classList.add('hide');
                else el.classList.remove('hide');
             }

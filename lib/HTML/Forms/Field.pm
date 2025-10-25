@@ -81,6 +81,8 @@ Defines the following attributes;
 
 =item C<is_contains> - Set to true if this is a container for other fields
 
+=item C<label_top> - When true the label is rendered in and above the  field
+
 =item C<no_value_if_empty> - If true do not validate when no input defined on a nullable field
 
 =item C<not_nullable> - If true then the field cannot be null
@@ -104,6 +106,7 @@ Defines the following attributes;
 has [ 'disabled',
       'hide_info',
       'is_contains',
+      'label_top',
       'no_value_if_empty',
       'not_nullable',
       'noupdate',

@@ -201,6 +201,7 @@ around 'html_attributes' => sub {
 
    if ($type eq 'element') {
       $self->_add_field_validation($obj, $attrs) if $obj->validate_inline;
+      $obj->tags->{label_tag} = 'span' if $obj->label_top;
    }
 
    if ($type eq 'label') {
