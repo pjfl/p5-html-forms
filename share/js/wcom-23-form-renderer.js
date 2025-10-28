@@ -48,7 +48,8 @@ WCom.Form.Renderer = (function() {
             fieldCount += 1;
             if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
          }
-         this.animateButtons(this.form, '.input-field button');
+         const btnSelect = '.input-field button, .input-field a.form-button';
+         this.animateButtons(this.form, btnSelect);
          if (pageSize > 0 || config.hasPageBreaks) {
             this._selectPage(config.currentPage);
             WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
