@@ -79,11 +79,11 @@ WCom.Form.Util = (function () {
    };
    const scan = function(content = document, options = {}) {
       if (WCom.Form.Renderer.scan(content, options)) return;
-      const forms = content.getElementsByTagName('form');
+      const formClass = options.formClass
+            ? options.formClass : defaultFormClass;
+      const forms = content.querySelector('form.' + formClass);
       if (!forms) return;
-      const formClass = options.formClass ? options.formClass : defaultFormClass;
       for (const form of forms) {
-         if (!form.classList.contains(formClass)) continue;
          WCom.Form.DataStructure.manager.scan(form);
          WCom.Form.Toggle.scan(form);
          WCom.Util.Markup.animateButtons(form, '.input-field button');

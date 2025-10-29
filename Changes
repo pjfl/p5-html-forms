@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Label alignment improvements in CSS
           - Links displayed as buttons get animation
           - Toggle code cleanup
           - Replaced maps with variables in CSS

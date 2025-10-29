@@ -14,6 +14,7 @@ WCom.Form.Renderer = (function() {
       }
       render() {
          const config = this.config;
+         if (!config) return;
          const attr = config.attributes;
          this.form = this.h.form({
             acceptCharset: attr['accept-charset'],
@@ -29,7 +30,8 @@ WCom.Form.Renderer = (function() {
          if (config.msgsBeforeStart) this._formMessages(this.container);
          const wrapper = this._formWrapper();
          const pageSize = config.pageSize;
-         if (pageSize > 0 || config.hasPageBreaks) {
+         const hasPages = pageSize > 0 || config.hasPageBreaks ? true : false;
+         if (hasPages) {
             this.pages = [];
             this.pageItems = [];
             this.pageItemSelected = 0;
@@ -41,16 +43,17 @@ WCom.Form.Renderer = (function() {
          let page = wrapper;
          for (const field of config.fields) {
             if (field.pageBreak) fieldCount = 0;
-            if ((pageSize > 0 || config.hasPageBreaks) && fieldCount == 0)
-               page = this._page(wrapper, pageCount++);
-            else if (fieldCount == 0) this._formInformation(page, pageCount);
+            if (fieldCount == 0) {
+               if (hasPages) page = this._page(wrapper, pageCount++);
+               else this._formInformation(page, pageCount);
+            }
             this._field(page, field);
             fieldCount += 1;
             if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
          }
          const btnSelect = '.input-field button, .input-field a.form-button';
          this.animateButtons(this.form, btnSelect);
-         if (pageSize > 0 || config.hasPageBreaks) {
+         if (hasPages) {
             this._selectPage(config.currentPage);
             WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
          }
@@ -60,7 +63,6 @@ WCom.Form.Renderer = (function() {
       // Private
       _field(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
-         container.appendChild(wrapper);
          if (field.doLabel && field.label.length && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
@@ -68,22 +70,13 @@ WCom.Form.Renderer = (function() {
          const className = 'HTMLField' + field.widget;
          const fieldWidget = eval('new ' + className + '(field)');
          const element = fieldWidget.render(wrapper);
-         if (field.depends)
-            element.setAttribute('data-field-depends', field.depends);
-         if (field.disabled)
-            element.setAttribute('disabled', 'disabled');
-         if (field.toggle) {
-            element.setAttribute('data-toggle-config', field.toggle);
-            const event = JSON.parse(field.toggle).event;
-            element.addEventListener(event, function(){
-               WCom.Form.Toggle.toggleFields(element.name);
-            }.bind(this))
-         }
+         this._setElementAttributes(field, element);
          if (field.doLabel && field.label.length && field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
          this._fieldErrors(wrapper, field, element);
+         container.appendChild(wrapper);
       }
       _fieldErrors(container, field, element) {
          const errorAttr = { className: 'alert alert-error' };
@@ -180,6 +173,19 @@ WCom.Form.Renderer = (function() {
          this.pageItemSelected = count;
          this.pageItems[this.pageItemSelected].classList.add('selected');
          this.pages[this.pageItemSelected].classList.remove('hide');
+      }
+      _setElementAttributes(field, element) {
+         if (field.depends)
+            element.setAttribute('data-field-depends', field.depends);
+         if (field.disabled)
+            element.setAttribute('disabled', 'disabled');
+         if (field.toggle) {
+            element.setAttribute('data-toggle-config', field.toggle);
+            const event = JSON.parse(field.toggle).event;
+            element.addEventListener(event, function(){
+               WCom.Form.Toggle.toggleFields(element.name);
+            }.bind(this))
+         }
       }
    }
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);

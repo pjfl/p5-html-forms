@@ -476,15 +476,21 @@ WCom.Form.DataStructure = (function() {
       _header() {
          const header = this.h.div({ className: 'ds-header' });
          const attr = { className: 'ds-header-cell' };
-         for (const column of this.structure)
-            header.appendChild(this.h.div(attr, column.label));
+         let hasLabels = false;
+         for (const column of this.structure) {
+            if (column.label) {
+               header.appendChild(this.h.div(attr, column.label));
+               hasLabels = true;
+            }
+         }
          if (this.reorderable) header.appendChild(this.h.div(attr));
          if (!this.fixed) header.appendChild(this.h.div(attr));
-         return header;
+         return hasLabels ? header : false;
       }
       render() {
-         const attr = { className: 'ds-form hide' };
-         const table = this.h.div(attr, this._header());
+         const table = this.h.div({ className: 'ds-form hide' });
+         const header = this._header()
+         if (header) table.appendChild(header);
          this.table = this.display(this.container, 'table', table);
          let index = 0;
          if (this.singleRow) this.createRow(this.sourceData[0], index);
@@ -507,7 +513,11 @@ WCom.Form.DataStructure = (function() {
                }.bind(this),
                title: this.addTitle
             }, this.h.icon({
-               className: 'ds-add-icon', name: this.addIcon, icons: this.icons
+               className: 'ds-add-icon',
+               height: '14px',
+               icons: this.icons,
+               name: this.addIcon,
+               width: '14px'
             }));
             this.container.appendChild(addButton);
             this.hasLoaded = true;
