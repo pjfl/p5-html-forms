@@ -195,6 +195,8 @@ WCom.Form.DataStructure = (function() {
          this.config = config ? JSON.parse(config) : {};
          this.addHandler = this.config['add-handler'];
          this.addIcon = this.config['add-icon'] || 'add';
+         this.addIconHeight = this.config['add-icon-height'] || '14px';
+         this.addIconWidth = this.config['add-icon-width'] || '14px';
          this.addTitle = this.config['add-title'] || 'Add';
          this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
          this.fieldGroupDirn = this.config['field-group-dirn'] || '';
@@ -514,10 +516,10 @@ WCom.Form.DataStructure = (function() {
                title: this.addTitle
             }, this.h.icon({
                className: 'ds-add-icon',
-               height: '14px',
+               height: this.addIconHeight,
                icons: this.icons,
                name: this.addIcon,
-               width: '14px'
+               width: this.addIconWidth
             }));
             this.container.appendChild(addButton);
             this.hasLoaded = true;

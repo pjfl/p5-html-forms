@@ -48,6 +48,18 @@ has 'add_handler' => is => 'rw', isa => Str, default => NUL;
 
 has 'add_icon' => is => 'ro', isa => Str, default => 'add';
 
+=item add_icon_height
+
+=cut
+
+has 'add_icon_height' => is => 'ro', isa => Str;
+
+=item add_icon_width
+
+=cut
+
+has 'add_icon_width' => is => 'ro', isa => Str;
+
 =item add_title
 
 =cut
@@ -158,6 +170,8 @@ sub _build_element_attr {
       'data-ds-specification' => encode_only_entities(encode_json({
          'add-handler'      => $self->add_handler,
          'add-icon'         => $self->add_icon,
+         'add-icon-height'  => $self->add_icon_height,
+         'add-icon-width'   => $self->add_icon_width,
          'add-title'        => $self->add_title,
          'drag-title'       => $self->drag_title,
          'field-group-dirn' => $self->field_group_direction,

@@ -4,7 +4,7 @@
 @checkbox-width: 40px;
 @error-max-width: 50rem;
 @field-max-width: 40rem;
-@field-min-width: 20rem;
+@field-min-width: 16rem;
 @filemanager-min-width: 10rem;
 @label-width: 7rem;
 @select-max-width: 10rem;
@@ -153,7 +153,7 @@ form.classic {
         content: ''; display: block; height: 22px;
     }
     .input-field {
-        padding-bottom: 0.75rem; position: relative;
+        padding-bottom: 0.5rem; position: relative;
         input, select, textarea {
             border-radius: 5px; font-size: 0.85rem; font-family: #fonts[data];
             grid-area: input;
@@ -298,18 +298,19 @@ form.classic {
     }
     .input-button {
         align-items: center; display: flex; justify-content: right;
+        padding-top: 0.25rem;
     }
     .input-button.expand button {
         flex: 2;
     }
     .input-button.right {
-        margin-right: 0; position: absolute; right: 0.5rem;
+        margin-right: 0 !important; position: absolute; right: 0.5rem;
     }
     .input-selector button {
         grid-area: selector;
     }
     .input-display span {
-        font-size: 0.8rem; grid-area: input; padding: 0.25rem 0.35rem;
+        font-size: 0.8rem; grid-area: input; padding: 0.125rem 0.35rem;
         white-space: nowrap;
     }
     .input-display:has(img) {
@@ -363,7 +364,7 @@ form.classic {
         cursor: pointer; grid-area: selector;
     }
     .input-select:has(label.select-multiple) {
-        align-items: flex-start !important; padding-bottom: 0.25rem;
+        align-items: flex-start !important; padding-bottom: 0rem;
         label.select-multiple {
             padding-top: 2px;
         }

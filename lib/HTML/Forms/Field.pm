@@ -1000,7 +1000,8 @@ sub add_standard_wrapper_classes {
    my ($self, $result, $class) = @_;
 
 
-   push @{$class}, 'input-field' unless ($class->[0] // NUL) =~ m{ compound }mx;
+   unshift @{$class}, 'input-field'
+      unless ($class->[0] // NUL) =~ m{ compound }mx;
    push @{$class}, 'input-error'
       if $result->has_error_results || $result->has_errors;
    push @{$class}, 'input-warning' if $result->has_warnings;

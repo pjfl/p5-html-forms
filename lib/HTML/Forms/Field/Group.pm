@@ -15,7 +15,7 @@ has '+noupdate' => default => TRUE;
 has '+widget' => default => 'Group';
 
 sub _build_element_class {
-   return [ 'input-display input-field' ];
+   return [ 'input-field input-display' ];
 }
 
 sub _build_wrapper_class {
