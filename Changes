@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds DS flex direction
           - Added settable icon height and width
           - Label alignment improvements in CSS
           - Links displayed as buttons get animation

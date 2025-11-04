@@ -1,14 +1,22 @@
-@alert-max-width: 20rem;
+@button-font-size: 0.7rem;
+@data-font-size: 0.85rem;
+@system-font-size: 0.8rem;
+@alert-max-width: 14rem;
 @checkbox-height: 1.25rem;
 @checkbox-knob-width: 20px;
 @checkbox-width: 40px;
+@ds-form-horizontal-max-width: 21rem;
 @error-max-width: 50rem;
-@field-max-width: 40rem;
-@field-min-width: 16rem;
+@field-min-width: 12rem;
 @filemanager-min-width: 10rem;
+@form-min-width: 16rem;
+@form-wide-min-width: 40rem;
 @label-width: 7rem;
-@select-max-width: 10rem;
-@selector-min-width: 15rem;
+@label-narrow-width: 5rem;
+@select-max-width: 12rem;
+@select-option-min-width: 8rem;
+@selector-min-width: 16rem;
+@textarea-max-width: 24rem;
 @textarea-min-width: 15rem;
 #colours() {
     button-bg: bisque;
@@ -56,122 +64,119 @@
     );
 }
 form.classic {
+    --label-width: @label-width;
     background: #colours[panel-bg]; border-radius: 5px;
-    box-shadow: 3px 3px 3px; color: #colours[line]; display: inline-block;
-    position: relative;
-    div {
-        color: #colours[text];
-    }
+    box-shadow: 3px 3px 3px #colours[panel-shadow]; color: #colours[text];
+    display: inline-block; padding-bottom: 0.125rem; position: relative;
     .alert {
-        font-family: #fonts[system]; font-size: 0.8rem;
-    }
-    .form-page.hide {
-        display: none;
+        font-family: #fonts[system]; font-size: @system-font-size;
     }
     .form-wrapper {
-        border-radius: 5px; padding: 0 1rem 0.25rem 1rem; position: relative;
+        border-radius: 5px; min-width: @form-min-width;
+        padding: 0 1rem 0.25rem 1rem; position: relative;
         .form-title {
             color: #colours[text]; font-family: #fonts[system];
             margin-left: -2px;
         }
-    }
-    .form-wrapper.wide .input-field {
-        input, select, textarea, .alert {
-            max-width: @field-max-width;
+        &:has(.input-field span.field-label) .input-button button {
+            margin-top: 1rem;
         }
+    }
+    &.narrow, .form-wrapper.narrow {
+        --label-width: @label-narrow-width;
+    }
+    &.wide, .form-wrapper.wide {
+        min-width: @form-wide-min-width;
     }
     .form-page > .alert-info, .form-wrapper > .alert-info, & > .alert-info {
         padding-bottom: 0.5rem;
     }
-    .form-wrapper:has(.input-field span.field-label) .input-button button {
-        margin-top: 1rem;
-    }
-    .input-field:has(label.field-label) {
-        align-items: baseline; column-gap: 0.5rem; display: grid;
-        grid-template-columns: @label-width min-content auto;
-        grid-template-areas: "label input selector" "label alert alert";
-        justify-items: start; min-width: @field-min-width;
-    }
-    .input-field.label-right:has(label.field-label) {
-        grid-template-columns: min-content auto @label-width;
-        grid-template-areas: "selector input label" "alert alert label";
-        input, select, span, textarea {
-            justify-self: end;
-        }
-    }
-    .input-field.hide {
-        display: none !important; opacity: 0;
-    }
-    .input-field.inline:not(.hide) {
-        display: inline-grid !important; margin-right: 0.5rem;
-        &:not(.input-datastructure):has(label.field-label) {
-            grid-template-columns: min-content min-content auto !important;
-        }
-        .input-field {
-            padding-bottom: 0;
-        }
-    }
-    .input-field:has(span.digit-input-wrapper) .field-label::after,
-    .input-field:has(input[required=required]) .field-label::after,
-    .input-field:has(select[required=required]) .field-label::after,
-    .input-field:has(textarea[required=required]) .field-label::after {
-        color: #colours[field-required]; content: '*'; min-width: 2ch;
-        padding-left: 0.25rem;
-    }
-    .input-field:has(span.digit-input-wrapper > input:valid) .field-label::after,
-    .input-field:has(input:valid) .field-label::after,
-    .input-field:has(select:valid) .field-label::after,
-    .input-field:has(textarea:valid) .field-label::after {
-        content: ' ';
-    }
-    .input-field:has(input:focus) span.field-label {
-        background: #colours[field-selected-bg];
-        border: 2px inset #colours[field-border];
-        border-bottom: 2px solid #colours[field-selected-bg];
-        border-top-left-radius: 5px; border-top-right-radius: 5px;
-    }
-    .input-field:hover span.field-label,
-    .input-field:has(input:focus) span.field-label,
-    .input-field:has(input:valid) span.field-label {
-        top: -3px;
-    }
-    .input-field:has(span.field-label) {
-        input {
-            height: 1.75rem; max-width: unset; outline: 0;
-        }
-        input[type=password], input[type=text]:not(.digit) {
-            border-radius: 50px; padding-left: 0.75rem;
-        }
-        input.digit:first-child {
-            border-bottom-left-radius: 50px; border-top-left-radius: 50px;
-        }
-        input.digit:last-child {
-            border-bottom-right-radius: 50px; border-top-right-radius: 50px;
-        }
-    }
-    .input-field:has(span.field-label)::before {
-        content: ''; display: block; height: 22px;
+    .form-wrapper > .alert-info {
+        padding-top: 0.25rem;
     }
     .input-field {
         padding-bottom: 0.5rem; position: relative;
+        &:has(label.field-label) {
+            align-items: baseline; column-gap: 0.5rem; display: grid;
+            grid-template-columns: var(--label-width) min-content auto;
+            grid-template-areas: "label input selector" "label alert alert";
+            justify-items: start; min-width: @field-min-width;
+        }
+        &.label-right:has(label.field-label) {
+            grid-template-columns: min-content auto var(--label-width);
+            grid-template-areas: "selector input label" "alert alert label";
+            input, select, span, textarea {
+                justify-self: end;
+            }
+        }
+        &.hide {
+            display: none !important; opacity: 0;
+        }
+        &.inline:not(.hide) {
+            display: inline-grid !important; margin-right: 0.5rem;
+            &:not(.input-datastructure):has(label.field-label) {
+                grid-template-columns: min-content min-content auto !important;
+            }
+            .input-field {
+                padding-bottom: 0;
+            }
+        }
+        &:has(span.field-label) {
+            display: grid;
+            grid-template-columns: 0 min-content auto;
+            grid-template-areas: "label input selector" "label alert alert";
+            justify-content: center;
+            input {
+                height: 1.75rem; margin-top: 1.25rem; max-width: unset;
+                outline: 0;
+            }
+            input[type=password], input[type=text]:not(.digit) {
+                border-radius: 50px; padding-left: 0.75rem;
+            }
+            input.digit:first-child {
+                border-bottom-left-radius: 50px; border-top-left-radius: 50px;
+            }
+            input.digit:last-child {
+                border-bottom-right-radius: 50px; border-top-right-radius: 50px;
+            }
+        }
+        span.field-label {
+            border: 2px solid transparent; padding: 2px 0.25rem;
+            position: absolute; top: 1.25rem; transition: top 0.5s;
+            translate: 0.5rem;
+        }
+        &:hover span.field-label,
+        &:has(input:focus) span.field-label,
+        &:has(input:valid) span.field-label {
+            top: -0.25rem;
+        }
+        &:has(.digit-input-wrapper) .field-label::after,
+        &:has(input[required=required]) .field-label::after,
+        &:has(select[required=required]) .field-label::after,
+        &:has(textarea[required=required]) .field-label::after {
+            color: #colours[field-required]; content: '*'; min-width: 2ch;
+            padding-left: 0.25rem;
+        }
+        &:has(.digit-input-wrapper > input:valid) .field-label::after,
+        &:has(input:valid) .field-label::after,
+        &:has(select:valid) .field-label::after,
+        &:has(textarea:valid) .field-label::after {
+            content: ' ';
+        }
         input, select, textarea {
-            border-radius: 5px; font-size: 0.85rem; font-family: #fonts[data];
-            grid-area: input;
+            border-radius: 5px; font-family: #fonts[data];
+            font-size: @data-font-size; grid-area: input;
         }
         input {
-            height: 1.5rem; max-width: @field-max-width;
+            height: 1.5rem;
         }
         select {
             background: #grads[button-bg]; max-width: @select-max-width;
         }
-        span.field-label {
-            border: 2px solid transparent; left: 0.5rem; padding: 2px 0.25rem;
-            position: absolute; top: 22px; transition: top 0.5s;
-        }
         textarea {
-            box-sizing: content-box; max-width: @field-max-width;
-            min-height: 3lh; min-width: @textarea-min-width; overflow: auto;
-            padding-left: 0.25rem;
+            box-sizing: content-box; min-height: 3lh;
+            max-width: @textarea-max-width; min-width: @textarea-min-width;
+            overflow: auto; padding-left: 0.25rem;
         }
         input:focus, textarea:focus {
             background: #colours[field-active];
@@ -187,36 +192,79 @@ form.classic {
             background: #colours[panel-bg]; border: 0; color: #colours[text];
         }
         input[type=submit] {
-            font-family: #fonts[system]; font-size: 0.8rem;
+            font-family: #fonts[system]; font-size: @system-font-size;
         }
         select.select-multiple option {
-            min-width: 8rem;
+            min-width: @select-option-min-width;
         }
         select.select-multiple option[selected=selected] {
             background: #colours[field-selected-bg];
         }
         .alert {
-            border-radius: 5px; display: block; font-size: 0.8rem;
+            border-radius: 5px; display: block; font-size: @system-font-size;
             grid-area: alert; margin-top: 0.25rem; max-width: @alert-max-width;
             padding: 0.25rem 0.5rem;
         }
         .alert-error {
             background: #colours[error-bg];
+            box-shadow: 3px 3px 3px #colours[panel-shadow];
         }
         .alert-info {
             background: #colours[field-selected-bg];
         }
         .field-label {
-            font-family: #fonts[system]; font-size: 0.8rem; grid-area: label;
-            position: relative; white-space: nowrap;
+            font-family: #fonts[system]; font-size: @system-font-size;
+            grid-area: label; position: relative; white-space: nowrap;
             .label-sep-after {
                 position: absolute; right: 0.25rem;
             }
         }
-        .input-hidden {
-            .alert {
-                max-width: 100%;
+        &.input-button, &.input-filter, &.input-hidden .alert {
+            max-width: 100%;
+        }
+    }
+    .data-structure, .input-button, .input-selector {
+        isolation: isolate;
+        button, a.form-button {
+            background: #grads[button-bg];
+            border: 2px outset #colours[button-border]; border-radius: 50px;
+            color: #colours[link]; cursor: pointer; display: inline-block;
+            font-family: #fonts[system]; font-size: @button-font-size;
+            letter-spacing: 0.1rem; line-height: 0.8rem; overflow: hidden;
+            padding: 0.366rem 0.75rem; position: relative;
+            text-decoration: none; text-transform: uppercase;
+            transition: border 0.5s, color 0.5s;
+            span, svg {
+                font-size: @button-font-size; letter-spacing: 0.1rem;
+                position: relative; text-decoration: none;
+                text-transform: uppercase; white-space: nowrap; z-index: 3;
             }
+            span.icon-wrapper {
+                display: block;
+                svg {
+                    vertical-align: top;
+                }
+            }
+        }
+        button:hover, a.form-button:hover {
+            border: 2px inset #colours[button-border];
+            color: #colours[button-text];
+        }
+        button::before, a.form-button::before {
+            background: #grads[button-border-bg]; content: ''; display: block;
+            height: 3rem; left: var(--x); opacity: 0; position: absolute;
+            top: var(--y); transform: translate(-50%, -50%);
+            transition: opacity 0.5s; width: 3rem; z-index: 1;
+        }
+        button:hover::before, a.form-button:hover::before {
+            opacity: 1;
+        }
+        button::after, a.form-button::after {
+            background: #grads[button-bg]; border-radius: 50px; content: '';
+            inset: 3px; position: absolute; z-index: 2;
+        }
+        button[disabled=disabled], button[disabled=disabled]::after {
+            background: #grads[button-disabled-bg];
         }
     }
     .input-boolean {
@@ -248,73 +296,31 @@ form.classic {
         .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
             background: #colours[checkbox-true-bg];
         }
-    }
-    .input-boolean:has(.label-checkbox) {
-        align-items: center !important;
-    }
-    .data-structure, .input-button, .input-selector {
-        isolation: isolate;
-        button, a.form-button {
-            background: #grads[button-bg];
-            border: 2px outset #colours[button-border]; border-radius: 50px;
-            color: #colours[link]; cursor: pointer; display: inline-block;
-            font-family: #fonts[system]; font-size: 0.7rem;
-            letter-spacing: 0.1rem; line-height: 0.8rem; overflow: hidden;
-            padding: 0.366rem 0.75rem; position: relative;
-            text-decoration: none; text-transform: uppercase;
-            transition: border 0.5s, color 0.5s;
-            span, svg {
-                font-size: 0.7rem; letter-spacing: 0.1rem; position: relative;
-                text-decoration: none; text-transform: uppercase;
-                white-space: nowrap; z-index: 3;
-            }
-            span.icon-wrapper {
-                display: block;
-                svg {
-                    vertical-align: top;
-                }
-            }
-        }
-        button:hover, a.form-button:hover {
-            border: 2px inset #colours[button-border];
-            color: #colours[button-text];
-        }
-        button::before, a.form-button::before {
-            background: #grads[button-border-bg]; content: ''; display: block;
-            height: 3rem; left: var(--x); opacity: 0; position: absolute;
-            top: var(--y); transform: translate(-50%, -50%);
-            transition: opacity 0.5s; width: 3rem; z-index: 1;
-        }
-        button:hover::before, a.form-button:hover::before {
-            opacity: 1;
-        }
-        button::after, a.form-button::after {
-            background: #grads[button-bg]; border-radius: 50px; content: '';
-            inset: 3px; position: absolute; z-index: 2;
-        }
-        button[disabled=disabled], button[disabled=disabled]::after {
-            background: #grads[button-disabled-bg];
+        &:has(.label-checkbox) {
+            align-items: center !important;
         }
     }
     .input-button {
         align-items: center; display: flex; justify-content: right;
         padding-top: 0.25rem;
-    }
-    .input-button.expand button {
-        flex: 2;
-    }
-    .input-button.right {
-        margin-right: 0 !important; position: absolute; right: 0.5rem;
+        &.expand button {
+            flex: 2;
+        }
+        &.right {
+            margin-right: 0 !important; position: absolute; right: 0.5rem;
+        }
     }
     .input-selector button {
         grid-area: selector;
     }
-    .input-display span {
-        font-size: 0.8rem; grid-area: input; padding: 0.125rem 0.35rem;
-        white-space: nowrap;
-    }
-    .input-display:has(img) {
-        align-items: flex-start !important;
+    .input-display {
+        span {
+            font-size: @system-font-size; grid-area: input;
+            padding: 0.125rem 0.35rem; white-space: nowrap;
+        }
+        &:has(img) {
+            align-items: flex-start !important;
+        }
     }
     .input-duration .input-select-integer, .input-interval .input-group,
     .input-repeatable div, .input-time-with-zone .input-group {
@@ -340,7 +346,7 @@ form.classic {
             margin: 0 0 0.5rem 0;
         }
         p, pre code {
-            font-size: 0.8rem; line-height: 1rem; max-width: 50rem;
+            font-size: @system-font-size; line-height: 1rem; max-width: 50rem;
         }
         pre code {
             display: inline-block; white-space: break-spaces;
@@ -375,18 +381,8 @@ form.classic {
             padding-top: 3px;
         }
     }
-    .page-list {
-        list-style-type: none; margin: 0; padding: 0 0 0.5rem 0;
-        li {
-            border-bottom: 1px solid #colours[line];
-            border-top-left-radius: 5px; border-top-right-radius: 5px;
-            cursor: pointer; display: inline;
-            font-family: #fonts[system]; font-size: 0.8rem; padding: 0 0.5rem;
-        }
-        li.selected {
-            border: 1px solid #colours[line];
-            border-bottom: 1px solid transparent; color: #colours[text];
-        }
+    .digit-input-wrapper {
+        display: flex; grid-area: input;
     }
     .ds-add-icon {
         font-family: #fonts[system]; font-size: smaller; font-weight: bold;
@@ -395,22 +391,23 @@ form.classic {
         }
     }
     .ds-form {
-        display: flex; flex-direction: column; padding-bottom: 0.5rem;
-        position: relative; row-gap: 0.5rem;
+        display: flex; flex-direction: column; padding-bottom: 1rem;
+        position: relative; gap: 0.5rem;
         .ds-header {
-            font-family: #fonts[system]; font-size: 0.8rem; font-weight: normal;
-            padding-top: 0.2rem;
+            font-family: #fonts[system]; font-size: @system-font-size;
+            font-weight: normal; padding-top: 0.2rem;
         }
         .ds-row {
             background: #colours[ds-tile-bg];
-            border-radius: 5px; box-shadow: 3px 3px 3px #colours[line];
-            display: flex; justify-content: space-between;
+            border-radius: 5px; box-shadow: 3px 3px 3px #colours[panel-shadow];
+            display: flex; justify-content: space-between; padding: 0.5rem;
         }
         .ds-field {
-            border-radius: 5px;
-            border-bottom-right-radius: 0; border-top-right-radius: 0;
-            display: flex; flex-direction: column;
-            padding: 0.5rem 0 0.5rem 0.5rem;
+            border-radius: 5px; border-bottom-right-radius: 0;
+            border-top-right-radius: 0; display: flex; flex-direction: column;
+            img {
+                aspect-ratio: 16 / 9; inline-size: 100%; object-fit: contain;
+            }
             input[readonly=readonly] {
                 background: #colours[ds-tile-bg] !important;
             }
@@ -426,10 +423,11 @@ form.classic {
         }
         .ds-input.input-text[readonly=readonly] {
             background: #colours[panel-bg]; border: 0;
-            border-radius: 0; color: #colours[text];
+            border-radius: 0; color: #colours[text]; padding: 0;
         }
         .ds-output {
-            font-size: 0.8rem; margin-right: 0.25rem;
+            box-sizing: content-box; font-size: @system-font-size;
+            margin-right: 0.25rem;
         }
         .ds-reorderable-drag {
             position: absolute;
@@ -441,9 +439,8 @@ form.classic {
             }
         }
         .ds-remove {
-            border-radius: 5px;
-            border-bottom-left-radius: 0; border-top-left-radius: 0;
-            padding: 0.5rem;
+            border-radius: 5px; border-bottom-left-radius: 0;
+            border-top-left-radius: 0; padding: 0.125rem 0 0 0.25rem;
             .ds-remove-icon {
                 align-items: center; background: #grads[button-bg];
                 border-radius: 3px;
@@ -460,19 +457,44 @@ form.classic {
                 color: #colours[text];
             }
         }
+        .ds-tag {
+            padding-bottom: 0.25rem;
+        }
         .ds-tag-label {
-            font-family: #fonts[system]; font-size: 0.8rem;
+            font-family: #fonts[system]; font-size: @system-font-size;
             margin-right: 0.25rem;
         }
+        &.horizontal {
+            flex-direction: row; overflow-x: auto;
+            max-width: @ds-form-horizontal-max-width;
+            overscroll-behavior-inline: contain; scroll-behavior: smooth;
+            &.snaps-inline {
+                scroll-snap-type: inline mandatory;
+            }
+            &.snaps-inline > * {
+                scroll-snap-align: start;
+            }
+        }
     }
-}
-form.classic.filemanager {
-    padding: 0.5rem;
-}
-.modal .filemanager {
-    margin: 0; min-width: @filemanager-min-width;
-    .input-field:has(label.field-label) {
-        grid-template-columns: auto max-content auto;
+    .form-page.hide {
+        display: none;
+    }
+    .page-list {
+        list-style-type: none; margin: 0; padding: 0 0 0.5rem 0;
+        li {
+            border-bottom: 1px solid #colours[line];
+            border-top-left-radius: 5px; border-top-right-radius: 5px;
+            color: #colours[disabled]; cursor: pointer; display: inline;
+            font-family: #fonts[system]; font-size: @system-font-size;
+            padding: 0 0.5rem;
+        }
+        li.selected {
+            border: 1px solid #colours[line];
+            border-bottom: 1px solid transparent; color: #colours[text];
+        }
+    }
+    &.filemanager {
+        padding: 0.5rem;
     }
 }
 .form-error {
@@ -501,15 +523,23 @@ form.classic.filemanager {
         }
     }
     .alert-error, .alert-error-message, .alert-severe .card {
-        border-radius: 5px; background: #colours[error-bg]; padding: 0.25rem;
+        border-radius: 5px; background: #colours[error-bg];
+        box-shadow: 3px 3px 3px #colours[panel-shadow];
+        padding: 0.25rem;
     }
     .alert-error, .alert-error-message {
         margin-left: -0.25rem;
     }
+    &:has(span) {
+        display: inline-flex; flex-direction: column; padding-bottom: 0.5rem;
+    }
 }
-.form-messages:has(span) {
-    display: inline-flex; flex-direction: column; padding-bottom: 0.25rem;
+.modal .filemanager {
+    margin: 0; min-width: @filemanager-min-width;
+    .input-field:has(label.field-label) {
+        grid-template-columns: auto max-content auto;
+    }
 }
-.selector form.classic {
+.selector form.classic:not(.wide) {
     box-shadow: none; margin: 0; min-width: @selector-min-width;
 }

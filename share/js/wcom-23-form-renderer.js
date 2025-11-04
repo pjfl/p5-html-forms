@@ -127,6 +127,11 @@ WCom.Form.Renderer = (function() {
       _formWrapper() {
          const config = this.config;
          if (!config.doFormWrapper) {
+            if (config.wrapperAttr) {
+               for (const className of config.wrapperAttr.className.split(/ /)) {
+                  this.form.classList.add(className);
+               }
+            }
             this.container.appendChild(this.form);
             return this.form;
          }
@@ -412,6 +417,7 @@ WCom.Form.Renderer = (function() {
    }
    class HTMLFieldPassword extends HTMLFieldText {
       render(wrapper) {
+         this.field.fif = '';
          const element = super.render(wrapper);
          if (this.field.reveal) {
             const id = this.field.id;

@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 85 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 86 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef
@@ -346,7 +346,7 @@ for my $attr ('form_element', 'form_wrapper') {
    has "${attr}_attr" =>
       is          => 'rw',
       isa         => HashRef,
-      builder     => sub { {} },
+      default     => sub { {} },
       handles_via => 'Hash',
       handles     => {
          "delete_${attr}_attr" => 'delete',
@@ -358,7 +358,7 @@ for my $attr ('form_element', 'form_wrapper') {
    has "${attr}_class" =>
       is          => 'rw',
       isa         => HFsArrayRefStr,
-      builder     => sub { [] },
+      default     => sub { [] },
       coerce      => TRUE,
       handles_via => 'Array',
       handles     => {

@@ -201,6 +201,7 @@ WCom.Form.DataStructure = (function() {
          this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
          this.fieldGroupDirn = this.config['field-group-dirn'] || '';
          this.fixed = this.config['fixed'] || false;
+         this.flexDirection = this.config['flex-direction'];
          this.icons = this.config['icons'];
          this.isObject = this.config['is-object'] || false;
          this.readonly = this.config['readonly'];
@@ -490,7 +491,9 @@ WCom.Form.DataStructure = (function() {
          return hasLabels ? header : false;
       }
       render() {
-         const table = this.h.div({ className: 'ds-form hide' });
+         const direction = this.flexDirection;
+         const className = `ds-form ${direction} snaps-inline hide`;
+         const table = this.h.div({ className });
          const header = this._header()
          if (header) table.appendChild(header);
          this.table = this.display(this.container, 'table', table);

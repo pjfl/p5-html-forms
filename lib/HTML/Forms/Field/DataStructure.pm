@@ -93,6 +93,12 @@ has 'field_group_direction' => is => 'ro', isa => Str, default => 'horizontal';
 
 has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
 
+=item flex_direction
+
+=cut
+
+has 'flex_direction' => is => 'ro', isa => Str, default => 'vertical';
+
 =item icons
 
 =cut
@@ -176,6 +182,7 @@ sub _build_element_attr {
          'drag-title'       => $self->drag_title,
          'field-group-dirn' => $self->field_group_direction,
          'fixed'            => json_bool $self->fixed,
+         'flex-direction'   => $self->flex_direction,
          'icons'            => $self->icons,
          'is-object'        => json_bool $self->store_as_hash,
          'readonly'         => $readonly,
