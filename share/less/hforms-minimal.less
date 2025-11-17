@@ -2,12 +2,14 @@
 @data-font-size: 0.85rem;
 @system-font-size: 0.8rem;
 @alert-max-width: 14rem;
+@display-text-max-width: 20rem;
+@display-text-min-width: 15rem;
 @checkbox-height: 1.25rem;
 @checkbox-knob-width: 20px;
 @checkbox-width: 40px;
 @ds-form-horizontal-max-width: 21rem;
 @error-max-width: 50rem;
-@field-min-width: 12rem;
+@field-min-width: 15rem;
 @filemanager-min-width: 10rem;
 @form-min-width: 16rem;
 @form-wide-min-width: 40rem;
@@ -316,7 +318,15 @@ form.classic {
     .input-display {
         span {
             font-size: @system-font-size; grid-area: input;
+            max-width: @display-text-max-width;
             padding: 0.125rem 0.35rem; white-space: nowrap;
+        }
+        span.breaking-text {
+            min-width: @display-text-min-width;
+            white-space: break-spaces;
+        }
+        span.code {
+            min-width: @display-text-min-width; white-space: unset;
         }
         &:has(img) {
             align-items: flex-start !important;

@@ -205,7 +205,11 @@ sub is_valid { shift->validated }
 
 =cut
 
-sub validated { $_[0]->has_input && !$_[0]->has_error_results }
+sub validated {
+   my $self = shift;
+
+   $self->has_input && !$self->has_errors && !$self->has_error_results;
+}
 
 use namespace::autoclean;
 

@@ -212,7 +212,7 @@ WCom.Form.DataStructure = (function() {
          this.hasLoaded = false;
          this.identifier = Math.random().toString().replace(/\D+/g, '');
          this.mousedownHandler = this._mousedownHandler.bind(this);
-         this.submitHandler = this._submitHandler.bind(this);
+         WCom.Util.Event.registerOnunload(this._submitHandler.bind(this));
          const data = this.hidden.value ? JSON.parse(this.hidden.value) : [];
          const isArray = Array.isArray(data);
          if (this.config['single-hash']) {
@@ -265,8 +265,6 @@ WCom.Form.DataStructure = (function() {
                }, value);
             }.bind(this)
          };
-         const form = this._closestForm(this.hidden);
-         if (form) form.addEventListener('submit', this.submitHandler);
       }
       _addSelectHandler(field, column, item) {
          let handler = column.select;
@@ -276,10 +274,6 @@ WCom.Form.DataStructure = (function() {
             }.bind(this);
          }
          field.addEventListener('click', handler);
-      }
-      _closestForm(el) {
-         while (el && el.tagName != 'FORM') el = el.parentNode;
-         return el;
       }
       _closestRow(el) {
          while (el && !(el.tagName == 'DIV' && el.classList.contains('ds-row')))
@@ -496,7 +490,7 @@ WCom.Form.DataStructure = (function() {
          const table = this.h.div({ className });
          const header = this._header()
          if (header) table.appendChild(header);
-         this.table = this.display(this.container, 'table', table);
+         this.table = this.addReplace(this.container, 'table', table);
          let index = 0;
          if (this.singleRow) this.createRow(this.sourceData[0], index);
          else {
@@ -554,7 +548,9 @@ WCom.Form.DataStructure = (function() {
                text: value.errors.join(', '),
                title: 'Errors in ' + this.title
             });
+            return false;
          }
+         return true;
       }
    }
    Object.assign(DataStructure.prototype, WCom.Util.Markup);
