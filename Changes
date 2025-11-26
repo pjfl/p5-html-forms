@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - CSS colour refactoring
           - Validated now checks for has_errors and has_error_results
           - Adds DS flex direction
           - Added settable icon height and width

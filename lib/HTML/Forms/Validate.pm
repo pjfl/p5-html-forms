@@ -233,20 +233,20 @@ sub validate_field {
 
       $continue_validation = FALSE;
    }
-   elsif ($self->DOES( 'HTML::Forms::Field::Repeatable' )) {}
+   elsif ($self->DOES('HTML::Forms::Field::Repeatable')) {}
    elsif (!$self->has_input) { $continue_validation = FALSE }
    elsif (!$self->input_defined) {
       if ($self->not_nullable) {
          $self->_set_value( $self->input );
          # Handles the case where a compound field value needs to have empty
          # subfields
-         $continue_validation = FALSE unless $self->has_flag( 'is_compound' );
+         $continue_validation = FALSE unless $self->has_flag('is_compound');
       }
-      elsif ($self->no_value_if_empty || $self->has_flag( 'is_contains' )) {
+      elsif ($self->no_value_if_empty || $self->has_flag('is_contains')) {
          $continue_validation = FALSE;
       }
       else {
-         $self->_set_value( undef );
+         $self->_set_value(undef);
          $continue_validation = FALSE;
       }
    }

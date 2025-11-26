@@ -85,9 +85,9 @@ Defines the following attributes;
 
 =item C<no_value_if_empty> - If true do not validate when no input defined on a nullable field
 
-=item C<not_nullable> - If true then the field cannot be null
-
 =item C<noupdate> - If true do not try to update the result with this field value
+
+=item C<not_nullable> - If true then the field cannot be null
 
 =item C<password> - If true C<fif> will return null
 

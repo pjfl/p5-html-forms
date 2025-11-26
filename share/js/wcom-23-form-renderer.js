@@ -63,6 +63,8 @@ WCom.Form.Renderer = (function() {
       // Private
       _field(container, field) {
          const wrapper = this.h.div(field.wrapperAttr);
+         if (wrapper.classList.contains('break'))
+            container.appendChild(this.h.div({ className: 'field-break' }));
          if (field.doLabel && field.label.length && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
@@ -243,6 +245,20 @@ WCom.Form.Renderer = (function() {
          return element;
       }
    }
+   class HTMLFieldColour extends HTMLField {
+      render(wrapper) {
+         this.attr.list = 'custom-colours';
+         const element = this.h.colour(this.attr);
+         wrapper.appendChild(element);
+         const options = [];
+         for (const option of this.field.options) {
+            options.push(this.h.option({ value: option.value }));
+         }
+         const list = this.h.datalist({ id: 'custom-colours' }, options);
+         wrapper.appendChild(list);
+         return element;
+      }
+   }
    class HTMLFieldDataStructure extends HTMLField {
       render(wrapper) {
          const field = this.field;
@@ -284,8 +300,10 @@ WCom.Form.Renderer = (function() {
             ...field.attributes,
             className: 'digit',
             id: id,
+            inputmode: 'numeric',
             name: id,
             oninput: this._handler(field.id, count),
+            pattern: '[0-9]',
             required: (this.attr.required == 'required' ? true : false),
             size: 1,
             type: field.inputType,
