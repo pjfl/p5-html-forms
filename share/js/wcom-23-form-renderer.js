@@ -72,12 +72,12 @@ WCom.Form.Renderer = (function() {
          const className = 'HTMLField' + field.widget;
          const fieldWidget = eval('new ' + className + '(field)');
          const element = fieldWidget.render(wrapper);
-         this._setElementAttributes(field, element);
+         if (element) this._setElementAttributes(field, element);
          if (field.doLabel && field.label.length && field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
-         this._fieldErrors(wrapper, field, element);
+         if (element) this._fieldErrors(wrapper, field, element);
          container.appendChild(wrapper);
       }
       _fieldErrors(container, field, element) {
@@ -248,6 +248,7 @@ WCom.Form.Renderer = (function() {
    class HTMLFieldColour extends HTMLField {
       render(wrapper) {
          this.attr.list = 'custom-colours';
+         this.attr.colorspace = 'oklch';
          const element = this.h.colour(this.attr);
          wrapper.appendChild(element);
          const options = [];
@@ -334,10 +335,8 @@ WCom.Form.Renderer = (function() {
    }
    class HTMLFieldNoValue extends HTMLField {
       render(wrapper) {
-         const element = this.h.span();
-         element.innerHTML = this.field.html;
-         wrapper.appendChild(element);
-         return element;
+         wrapper.innerHTML = this.field.html;
+         return;
       }
    }
    class HTMLFieldSelect extends HTMLField {
