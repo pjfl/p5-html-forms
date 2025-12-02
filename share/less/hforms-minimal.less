@@ -1,22 +1,16 @@
 /* Colours */
 @alert-bg: lightpink;
-@button-bg: bisque;
-@button-bg-disabled: gainsboro;
-@button-bg-lighter: whitesmoke;
+@button-bg-disabled: linear-gradient(0deg, gainsboro, whitesmoke);
 @button-border: gainsboro;
-@button-border-hover: limegreen;
+@button-border-highlight: radial-gradient(limegreen, transparent, transparent);
 @button-text: seagreen;
 @button-text-hover: black;
 @checkbox-bg-false: firebrick;
 @checkbox-bg-true: seagreen;
-@ds-tile-bg: bisque;
-@field-bg-focus: bisque;
-@field-bg-selected: bisque;
 @field-text-required: firebrick;
 @form-bg: ivory;
-@form-bg-border: bisque;
 @form-bg-border-focus: seagreen;
-@form-bg-lighter: hsl(from @form-bg h s l / 0.25);
+@form-bg-semitrans: hsl(from @form-bg h s l / 0.25);
 @line-border: gray;
 @panel-shadow: gray;
 @text: black;
@@ -45,43 +39,47 @@
 @textarea-min-width: 15rem;
 /* Font Sizes and Weights */
 @button-font-size: 0.7rem;
-@button-font-weight: 415;
+@button-font-weight: 410;
 @data-font-size: 0.8rem;
 @data-font-weight: normal;
 @system-font-size: 0.8rem;
+@title-font-size: 1rem;
+@title-font-weight: normal;
 #fonts() {
-    code: 'Cascadia Code', 'Menlo', 'DejaVu Sans Mono', ui-monospace, monospace;
     cursive: 'Segoe Print', 'Bradley Hand', 'Chilanka', casual, cursive;
-    data: 'DejaVu Serif', 'Sitka Small', serif;
-    mono: 'Nimbus Mono PS', 'Courier New', monospace;
-    system: 'Roboto', system-ui, sans-serif;
-}
-#grads() {
-    alert-bg-long: linear-gradient(to right, transparent, @alert-bg 80%);
-    button-bg: linear-gradient(0deg, @button-bg, @button-bg-lighter);
-    button-bg-border: radial-gradient(
-        @button-border-hover, transparent, transparent
-    );
-    button-bg-disabled: linear-gradient(
-        0deg, @button-bg-disabled, @button-bg-lighter
-    );
+    mono: 'Cascadia Code', 'Menlo', 'DejaVu Sans Mono', ui-monospace, monospace;
+    sans: 'Segoe UI', 'Roboto', 'Helvetica', system-ui, sans-serif;
+    serif: 'DejaVu Serif', 'Sitka Small', serif;
 }
 form.classic {
-    --label-width: @label-width; background: @form-bg-lighter;
-    border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow; color: @text;
+    --label-width: @label-width;
+    background: @form-bg-semitrans; border-radius: 5px;
+    box-shadow: 3px 3px 3px @panel-shadow; color: @text;
     display: inline-block; padding: 0 0.5rem 0.5rem; position: relative;
-    .alert {
-        font-family: #fonts[system]; font-size: @system-font-size;
-    }
-    .form-wrapper {
-        border-radius: 5px; min-width: @form-min-width; margin: 0;
-        padding: 0 1rem 0.25rem 1rem; position: relative;
-        .form-title {
-            color: @text; font-family: #fonts[system];
-            margin-left: -2px;
+    &.shiny {
+        @property --angle {
+            syntax: '<angle>'; initial-value: 0deg; inherits: false;
         }
-        &:has(.input-field span.field-label) .input-button button {
-            margin-top: 1rem;
+        @keyframes spin {
+            from { --angle: 0deg; }
+            to { --angle: 360deg; }
+        }
+        &::after {
+            animation: 3s spin linear infinite;
+            background: conic-gradient(
+                from var(--angle), transparent 70%, var(--base-colour)
+            );
+            border-radius: 5px; content: ''; height: 100%; left: 50%;
+            position: absolute; top: 50%; translate: -50% -50%;
+            width: 100%; z-index: -1;
+        }
+        &:focus-within::after {
+            background: conic-gradient(
+                from var(--angle), transparent 70%, @form-bg-border-focus
+            );
+        }
+        .form-wrapper {
+            background: @form-bg;
         }
     }
     &.narrow, .form-wrapper.narrow {
@@ -89,6 +87,24 @@ form.classic {
     }
     &.wide, .form-wrapper.wide {
         min-width: @form-min-width-wide;
+    }
+    .alert {
+        font-family: #fonts[sans]; font-size: @system-font-size;
+    }
+    .form-wrapper {
+        border-radius: 5px; min-width: @form-min-width; margin: 0;
+        padding: 0 1rem; position: relative;
+        &:has(.input-button.expand) {
+            padding-bottom: 0.5rem;
+        }
+        &:has(.input-field span.field-label) .input-button button {
+            margin-top: 1rem;
+        }
+        .form-title {
+            color: @text; font-family: #fonts[sans];
+            font-size: @title-font-size; font-weight: @title-font-weight;
+            margin-left: -2px; text-transform: uppercase;
+        }
     }
     .form-page > .alert-info, .form-wrapper > .alert-info, & > .alert-info {
         padding-bottom: 0.5rem;
@@ -103,6 +119,7 @@ form.classic {
             grid-template-columns: var(--label-width) min-content auto;
             grid-template-areas: "label input selector" "label alert alert";
             justify-items: start; min-width: @field-min-width;
+            row-gap: 0.25rem;
         }
         &.label-right:has(label.field-label) {
             grid-template-columns: min-content auto var(--label-width);
@@ -133,8 +150,7 @@ form.classic {
             }
         }
         &:has(span.field-label) {
-            display: grid;
-            grid-template-columns: 0 min-content auto;
+            display: grid; grid-template-columns: 0 min-content auto;
             grid-template-areas: "label input selector" "label alert alert";
             justify-content: center;
             input {
@@ -174,8 +190,11 @@ form.classic {
         &:has(textarea:valid) .field-label::after {
             content: ' ';
         }
+        &.input-button, &.input-filter, &.input-hidden .alert {
+            max-width: 100%;
+        }
         input, select, textarea {
-            border-radius: 5px; font-family: #fonts[data];
+            border-radius: 5px; font-family: #fonts[serif];
             font-size: @data-font-size; font-weight: @data-font-weight;
             grid-area: input;
         }
@@ -183,7 +202,7 @@ form.classic {
             height: 1.75rem;
         }
         select {
-            background: #grads[button-bg]; max-width: @select-max-width;
+            background: var(--button-bg); max-width: @select-max-width;
             padding: 0.25rem;
             &.select-multiple option {
                 padding: 0.125rem;
@@ -195,7 +214,7 @@ form.classic {
             overflow: auto; padding: 0.25rem;
         }
         input:focus, textarea:focus {
-            background: @field-bg-focus;
+            background: var(--base-colour);
         }
         input[type=date], input[type=email], input[type=password],
         input[type=text] {
@@ -204,7 +223,7 @@ form.classic {
         input[type=file] {
             height: unset;
             &::file-selector-button {
-                background: #grads[button-bg];
+                background: var(--button-bg);
                 border: 2px outset @button-border; border-radius: 50px;
                 color: @button-text; cursor: pointer;
                 font-size: @button-font-size; font-weight: @button-font-weight;
@@ -219,50 +238,46 @@ form.classic {
             color: @text-disabled;
         }
         input[readonly=readonly][type=datetime-local] {
-            background: @form-bg-lighter; border: 0; color: @text;
+            background: @form-bg-semitrans; border: 0; color: @text;
         }
         input[type=submit], select:not(.select-multiple) option {
-            font-family: #fonts[system]; font-size: @system-font-size;
+            font-family: #fonts[sans]; font-size: @system-font-size;
         }
         select.select-multiple option {
             min-width: @select-option-min-width;
         }
         select.select-multiple option[selected=selected] {
-            background: @field-bg-selected;
+            background: var(--base-colour);
         }
         .alert {
             border-radius: 5px; display: block; font-size: @system-font-size;
-            grid-area: alert; margin-top: 0.25rem; max-width: @alert-max-width;
+            grid-area: alert; max-width: @alert-max-width;
             padding: 0.25rem 0.5rem;
         }
         .alert-error {
-            background: @alert-bg;
-            box-shadow: 3px 3px 3px @panel-shadow;
+            background: @alert-bg; box-shadow: 3px 3px 3px @panel-shadow;
         }
         .alert-info {
-            background: @field-bg-selected;
+            background: var(--base-colour);
         }
         .field-label {
-            font-family: #fonts[system]; font-size: @system-font-size;
+            font-family: #fonts[sans]; font-size: @system-font-size;
             grid-area: label; position: relative; white-space: nowrap;
             .label-sep-after {
                 position: absolute; right: 0.25rem;
             }
         }
-        &.input-button, &.input-filter, &.input-hidden .alert {
-            max-width: 100%;
-        }
     }
     .data-structure, .input-button, .input-selector {
         isolation: isolate;
         button, a.form-button {
-            background: #grads[button-bg];
-            border: 2px outset @button-border; border-radius: 50px;
-            color: @button-text; cursor: pointer; display: inline-block;
-            overflow: hidden; position: relative; text-decoration: none;
+            background: var(--button-bg); border: 2px outset @button-border;
+            border-radius: 50px; color: @button-text; cursor: pointer;
+            display: inline-block; overflow: hidden;
+            position: relative; text-decoration: none;
             transition: border 0.5s, color 0.5s;
             span, svg {
-                font-family: #fonts[system]; font-size: @button-font-size;
+                font-family: #fonts[sans]; font-size: @button-font-size;
                 font-weight: @button-font-weight; letter-spacing: 0.1rem;
                 position: relative; text-decoration: none;
                 text-transform: uppercase; white-space: nowrap; z-index: 3;
@@ -275,16 +290,16 @@ form.classic {
             }
         }
         button {
-             padding: 0.25rem 0.75rem;
+            padding: 0.25rem 0.75rem;
         }
         a.form-button {
-             padding: 0.15rem 0.75rem;
+            line-height: 1.38rem; padding: 0 0.75rem;
         }
         button:hover, a.form-button:hover {
             border: 2px inset @button-border; color: @button-text-hover;
         }
         button::before, a.form-button::before {
-            background: #grads[button-bg-border]; content: ''; display: block;
+            background: @button-border-highlight; content: ''; display: block;
             height: 3rem; left: var(--x); opacity: 0; position: absolute;
             top: var(--y); transform: translate(-50%, -50%);
             transition: opacity 0.5s; width: 3rem; z-index: 1;
@@ -293,14 +308,17 @@ form.classic {
             opacity: 1;
         }
         button::after, a.form-button::after {
-            background: #grads[button-bg]; border-radius: 50px; content: '';
+            background: var(--button-bg); border-radius: 50px; content: '';
             inset: 3px; position: absolute; z-index: 2;
         }
         button[disabled=disabled], button[disabled=disabled]::after {
-            background: #grads[button-bg-disabled];
+            background: @button-bg-disabled;
         }
     }
     .input-boolean {
+        &:has(.label-checkbox) {
+            align-items: center !important;
+        }
         .checkbox-wrapper {
             display: flex; grid-area: input; isolation: isolate;
             padding: 2px 0; position: relative;
@@ -308,29 +326,28 @@ form.classic {
                 height: @checkbox-height; margin: 0; opacity: 0;
                 position: relative; width: @checkbox-width; z-index: 3;
             }
-        }
-        .checkbox-wrapper::after {
-            background: #grads[button-bg];
-            border: 2px inset @button-border; border-radius: 10px;
-            content: ''; display: block; position: absolute;
-            height: @checkbox-height; left: 0;
-            width: @checkbox-width-knob; z-index: 2;
-        }
-        .checkbox-wrapper:has(input[type=checkbox]:checked)::after {
-            left: @checkbox-width-knob;
-        }
-        .checkbox-wrapper::before {
-            background: @checkbox-bg-false;
-            border: 2px inset @button-border; border-radius: 10px;
-            content: ''; display: block; position: absolute;
-            height: @checkbox-height; left: 0; width: @checkbox-width;
-            z-index: 1;
-        }
-        .checkbox-wrapper:has(input[type=checkbox]:checked)::before {
-            background: @checkbox-bg-true;
-        }
-        &:has(.label-checkbox) {
-            align-items: center !important;
+            &::before {
+                background: @checkbox-bg-false;
+                border: 2px inset @button-border; border-radius: 10px;
+                content: ''; display: block; position: absolute;
+                height: @checkbox-height; left: 0; width: @checkbox-width;
+                z-index: 1;
+            }
+            &::after {
+                background: var(--button-bg);
+                border: 2px inset @button-border; border-radius: 10px;
+                content: ''; display: block; position: absolute;
+                height: @checkbox-height; left: 0;
+                width: @checkbox-width-knob; z-index: 2;
+            }
+            &:has(input[type=checkbox]:checked) {
+                &::before {
+                    background: @checkbox-bg-true;
+                }
+                &::after {
+                    left: @checkbox-width-knob;
+                }
+            }
         }
     }
     .input-button {
@@ -340,26 +357,26 @@ form.classic {
             flex: 2;
         }
         &.right {
-            margin-right: 0 !important; position: absolute; right: 0.5rem;
+            margin-right: 0 !important; position: absolute; right: 1rem;
         }
     }
     .input-selector button {
         grid-area: selector;
     }
     .input-display {
-        span {
-            font-family: #fonts[data]; font-size: @data-font-size;
-            grid-area: input; max-width: @display-text-max-width;
-            padding: 3px 0.25rem 1px 0.35rem; white-space: nowrap;
-        }
-        span.breaking-text {
-            min-width: @display-text-min-width; white-space: break-spaces;
-        }
-        span.code {
-            min-width: @display-text-min-width; white-space: unset;
-        }
         &:has(img) {
             align-items: flex-start !important;
+        }
+        span {
+            font-family: #fonts[serif]; font-size: @data-font-size;
+            grid-area: input; max-width: @display-text-max-width;
+            padding: 3px 0.25rem 1px 0.35rem; white-space: nowrap;
+            &.breaking-text {
+                min-width: @display-text-min-width; white-space: break-spaces;
+            }
+            &.code {
+                min-width: @display-text-min-width; white-space: unset;
+            }
         }
     }
     .input-duration .input-select-integer, .input-interval .input-group,
@@ -427,81 +444,6 @@ form.classic {
     .ds-form {
         display: flex; flex-direction: column; padding-bottom: 1rem;
         position: relative; gap: 0.5rem;
-        .ds-header {
-            font-family: #fonts[system]; font-size: @system-font-size;
-            font-weight: normal; padding-top: 0.2rem;
-        }
-        .ds-row {
-            background: @ds-tile-bg;
-            border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
-            display: flex; justify-content: space-between; padding: 0.5rem;
-        }
-        .ds-field {
-            border-radius: 5px; border-bottom-right-radius: 0;
-            border-top-right-radius: 0; display: flex; flex-direction: column;
-            img {
-                aspect-ratio: 16 / 9; inline-size: 100%; object-fit: contain;
-            }
-            input[readonly=readonly] {
-                background: @ds-tile-bg !important; font-family: #fonts[system];
-                font-size: @system-font-size; font-weight: normal;
-                &.input-datetime {
-                    margin-left: -0.25rem;
-                }
-            }
-            &.hide {
-                display: none;
-            }
-        }
-        .ds-field-group {
-            display: flex;
-            &.vertical {
-                flex-direction: column;
-            }
-        }
-        .ds-input.input-text[readonly=readonly] {
-            background: @form-bg-lighter; border: 0; border-radius: 0;
-            color: @text; padding: 0;
-        }
-        .ds-output {
-            box-sizing: content-box; font-size: @system-font-size;
-            margin-right: 0.25rem;
-        }
-        .ds-reorderable-drag {
-            position: absolute;
-        }
-        .ds-reorderable {
-            margin: auto; padding-left: 0.5rem;
-            .knob {
-                display: block; height: 20px; width: 20px;
-            }
-        }
-        .ds-remove {
-            border-radius: 5px; border-bottom-left-radius: 0;
-            border-top-left-radius: 0; padding: 0.125rem 0 0 0.25rem;
-            .ds-remove-icon {
-                align-items: center; background: #grads[button-bg];
-                border-radius: 3px;
-                box-shadow: 2px 2px 2px @panel-shadow;
-                color: @text-close; cursor: pointer; display: flex;
-                font-family: #fonts[system]; font-size: @system-font-size;
-                font-weight: bold; padding: 0 0.25rem;
-                img, svg {
-                    height: 20px; width: 20px; vertical-align: middle;
-                }
-                &:hover {
-                    box-shadow: inset 0 0 3px @panel-shadow;
-                    color: @text;
-                }
-            }
-        }
-        .ds-tag {
-            padding-bottom: 0.25rem;
-        }
-        .ds-tag-label {
-            font-family: #fonts[system]; font-size: @system-font-size;
-            margin-right: 0.25rem;
-        }
         &.horizontal {
             flex-direction: row; overflow-x: auto;
             max-width: @ds-form-max-width-horizontal;
@@ -514,6 +456,81 @@ form.classic {
                 scroll-snap-align: start;
             }
         }
+        .ds-header {
+            font-family: #fonts[sans]; font-size: @system-font-size;
+            font-weight: normal; padding-top: 0.2rem;
+        }
+        .ds-row {
+            background: var(--base-colour); border-radius: 5px;
+            box-shadow: 3px 3px 3px @panel-shadow; display: flex;
+            justify-content: space-between; padding: 0.5rem;
+        }
+        .ds-field {
+            border-radius: 5px; border-bottom-right-radius: 0;
+            border-top-right-radius: 0; display: flex; flex-direction: column;
+            &.hide {
+                display: none;
+            }
+            img {
+                aspect-ratio: 16 / 9; inline-size: 100%; object-fit: contain;
+            }
+            input[readonly=readonly] {
+                background: var(--base-colour) !important;
+                font-family: #fonts[sans]; font-size: @system-font-size;
+                font-weight: normal;
+                &.input-datetime {
+                    margin-left: -0.25rem;
+                }
+            }
+        }
+        .ds-field-group {
+            display: flex;
+            &.vertical {
+                flex-direction: column;
+            }
+        }
+        .ds-input.input-text[readonly=readonly] {
+            background: @form-bg-semitrans; border: 0; border-radius: 0;
+            color: @text; padding: 0;
+        }
+        .ds-output {
+            box-sizing: content-box; font-size: @system-font-size;
+            margin-right: 0.25rem;
+        }
+        .ds-reorderable {
+            margin: auto; padding-left: 0.5rem;
+            .knob {
+                display: block; height: 20px; width: 20px;
+            }
+        }
+        .ds-reorderable-drag {
+            position: absolute;
+        }
+        .ds-remove {
+            border-radius: 5px; border-bottom-left-radius: 0;
+            border-top-left-radius: 0; padding: 0.125rem 0 0 0.25rem;
+            .ds-remove-icon {
+                align-items: center; background: var(--button-bg);
+                border-radius: 3px; box-shadow: 2px 2px 2px @panel-shadow;
+                color: @text-close; cursor: pointer; display: flex;
+                font-family: #fonts[sans]; font-size: @system-font-size;
+                font-weight: bold; padding: 0 0.25rem;
+                &:hover {
+                    box-shadow: inset 0 0 3px @panel-shadow;
+                    color: @text;
+                }
+                img, svg {
+                    height: 20px; width: 20px; vertical-align: middle;
+                }
+            }
+        }
+        .ds-tag {
+            padding-bottom: 0.25rem;
+        }
+        .ds-tag-label {
+            font-family: #fonts[sans]; font-size: @system-font-size;
+            margin-right: 0.25rem;
+        }
     }
     .form-page.hide {
         display: none;
@@ -524,38 +541,12 @@ form.classic {
             border-bottom: 1px solid @line-border;
             border-top-left-radius: 5px; border-top-right-radius: 5px;
             color: @text-disabled; cursor: pointer; display: inline;
-            font-family: #fonts[system]; font-size: @system-font-size;
+            font-family: #fonts[sans]; font-size: @system-font-size;
             padding: 0 0.5rem;
-        }
-        li.selected {
-            border: 1px solid @line-border;
-            border-bottom: 1px solid transparent; color: @text;
-        }
-    }
-    &.shiny {
-        @property --angle {
-            syntax: '<angle>'; initial-value: 0deg; inherits: false;
-        }
-        @keyframes spin {
-            from { --angle: 0deg; }
-            to { --angle: 360deg; }
-        }
-        &::after {
-            animation: 3s spin linear infinite;
-            background: conic-gradient(
-                from var(--angle), transparent 70%, @form-bg-border
-            );
-            border-radius: 5px; content: ''; height: 100%; left: 50%;
-            position: absolute; top: 50%; translate: -50% -50%;
-            width: 100%; z-index: -1;
-        }
-        &:focus-within::after {
-            background: conic-gradient(
-                from var(--angle), transparent 70%, @form-bg-border-focus
-            );
-        }
-        .form-wrapper {
-            background: @form-bg;
+            &.selected {
+                border: 1px solid @line-border;
+                border-bottom: 1px solid transparent; color: @text;
+            }
         }
     }
 }
@@ -568,10 +559,13 @@ form.classic {
     }
 }
 .form-messages {
-    display: none;
+    display: inline-flex; flex-direction: column; padding-bottom: 0.5rem;
+    &:empty {
+        display: none;
+    }
     .alert {
         .card {
-            font-family: #fonts[data]; font-weight: @data-font-weight;
+            font-family: #fonts[serif]; font-weight: @data-font-weight;
             margin-top: 0.25rem; max-width: @error-max-width;
             padding: 0 0.25rem;
             p {
@@ -579,7 +573,8 @@ form.classic {
                 position: relative;
             }
             p.long::after {
-                background-image: #grads[alert-bg-long];
+                background:
+                    linear-gradient(to right, transparent, @alert-bg 80%);
                 bottom: 0; content: ''; height: 1rem;
                 position: absolute; right: 0; width: 100%;
             }
@@ -591,9 +586,6 @@ form.classic {
     }
     .alert-error, .alert-error-message {
         margin-left: -0.25rem;
-    }
-    &:has(span) {
-        display: inline-flex; flex-direction: column; padding-bottom: 0.5rem;
     }
 }
 .modal .filemanager {

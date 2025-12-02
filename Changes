@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - CSS done for now
           - More CSS refactoring
           - CSS colour refactoring
           - Validated now checks for has_errors and has_error_results
