@@ -49,7 +49,7 @@ has 'default_charset' => is => 'ro', isa => Str, default => 'utf-8';
 has 'default_field_traits' =>
    is      => 'ro',
    isa     => ArrayRef,
-   default => sub { [ qw( Label Toggle ) ] };
+   default => sub { [ qw( Grouped Label Toggle ) ] };
 
 =item default_form_class
 

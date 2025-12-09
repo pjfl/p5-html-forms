@@ -167,23 +167,29 @@ sub render {
 }
 
 # Private methods
-sub _serialise_fields {
-   my $self   = shift;
-   my $fields = [];
+sub _field_groups {
+   my ($self, $fields) = @_;
 
-   for my $field (@{$self->form->sorted_fields}) {
-      push @{$fields}, $self->_serialise_field($field);
+   my $groups = {};
+
+   for my $field (@{$fields}) {
+      next unless exists $field->{fieldGroup} && $field->{fieldGroup};
+
+      my $group = $field->{fieldGroup};
+
+      $groups->{$group} //= [];
+      push @{$groups->{$group}}, $field->{name};
    }
 
-   return $fields;
+   return $groups;
 }
 
 sub _serialise_field {
    my ($self, $field) = @_;
 
-   my $form = $self->form;
+   my $form       = $self->form;
    my $field_attr = $field->attributes;
-   my $disabled = delete $field_attr->{disabled};
+   my $disabled   = delete $field_attr->{disabled};
 
    $field_attr->{className} = join SPC, @{delete $field_attr->{class} // []};
 
@@ -205,32 +211,33 @@ sub _serialise_field {
    my $handlers = delete $field_attr->{javascript};
    my $result   = $field->result;
    my $attr     = {
-      attributes  => $field_attr,
-      depends     => $depends,
-      disabled    => $disabled,
-      doLabel     => json_bool $field->do_label,
-      dsSpec      => $ds_spec,
-      handlers    => $handlers,
-      hideInfo    => json_bool $field->hide_info,
-      htmlElement => $field->html_element,
-      htmlName    => $field->html_name,
-      id          => $field->id,
-      info        => $field->info,
-      inputType   => $field->input_type,
-      label       => $field->localise_label,
-      labelAttr   => $label_attr,
-      labelRight  => json_bool $field->get_tag('label_right') // FALSE,
-      labelTag    => $field->get_tag('label_tag') || 'label',
-      name        => $field->name,
-      pageBreak   => json_bool $page_break,
-      result      => {
+      attributes   => $field_attr,
+      depends      => $depends,
+      disabled     => $disabled,
+      doLabel      => json_bool $field->do_label,
+      dsSpec       => $ds_spec,
+      handlers     => $handlers,
+      hideInfo     => json_bool $field->hide_info,
+      htmlElement  => $field->html_element,
+      htmlName     => $field->html_name,
+      id           => $field->id,
+      info         => $field->info,
+      inputType    => $field->input_type,
+      label        => $field->localise_label,
+      labelAttr    => $label_attr,
+      labelRight   => json_bool $field->get_tag('label_right') // FALSE,
+      labelTag     => $field->get_tag('label_tag') || 'label',
+      name         => $field->name,
+      noSpellCheck => json_bool $field->get_tag('nospellcheck') // FALSE,
+      pageBreak    => json_bool $page_break,
+      result       => {
          allErrors   => [ map { $form->localise($_) } $result->all_errors ],
          allWarnings => [ map { $form->localise($_) } $result->all_warnings ]
       },
-      reveal      => json_bool $field->get_tag('reveal'),
-      value       => $field->value,
-      widget      => $field->widget || 'Text',
-      wrapperAttr => $wrapper_attr,
+      reveal       => json_bool $field->get_tag('reveal'),
+      value        => $field->value,
+      widget       => $field->widget || 'Text',
+      wrapperAttr  => $wrapper_attr,
    };
 
    $attr->{checkboxValue} = $field->checkbox_value
@@ -239,22 +246,34 @@ sub _serialise_field {
       if $field->can('click_handler');
    $attr->{cols}         = $field->cols
       if $field->can('cols') && $field->cols;
-   $attr->{displayAs}    = $field->display_as    if $field->can('display_as');
-   $attr->{emptySelect}  = $field->empty_select  if $field->can('empty_select');
-   $attr->{fif}          = $field->fif           if $field->can('fif');
-   $attr->{href}         = $field->href          if $field->can('href');
-   $attr->{html}         = $field->html          if $field->can('html');
-   $attr->{icons}        = $field->icons         if $field->can('icons');
-   $attr->{multiple}     = $field->multiple      if $field->can('multiple');
-   $attr->{options}      = $field->options       if $field->can('options');
+   $attr->{displayAs}    = $field->display_as   if $field->can('display_as');
+   $attr->{emptySelect}  = $field->empty_select if $field->can('empty_select');
+   $attr->{fieldGroup}   = $field->field_group  if $field->can('field_group');
+   $attr->{fif}          = $field->fif          if $field->can('fif');
+   $attr->{href}         = $field->href         if $field->can('href');
+   $attr->{html}         = $field->html         if $field->can('html');
+   $attr->{icons}        = $field->icons        if $field->can('icons');
+   $attr->{multiple}     = $field->multiple     if $field->can('multiple');
+   $attr->{options}      = $field->options      if $field->can('options');
    $attr->{rows}         = $field->rows
       if $field->can('rows') && $field->rows;
-   $attr->{size}         = $field->size          if $field->can('size');
-   $attr->{src}          = $field->src           if $field->can('src');
+   $attr->{size}         = $field->size         if $field->can('size');
+   $attr->{src}          = $field->src          if $field->can('src');
    $attr->{toggle}       = $field->toggle_config_encoded
       if $field->can('has_toggle') && $field->has_toggle;
 
    return $attr;
+}
+
+sub _serialise_fields {
+   my $self   = shift;
+   my $fields = [];
+
+   for my $field (@{$self->form->sorted_fields}) {
+      push @{$fields}, $self->_serialise_field($field);
+   }
+
+   return $fields;
 }
 
 sub _serialise_form {
@@ -288,13 +307,17 @@ sub _serialise_form {
       } keys %{$form->form_tags}
    };
 
+   my $fields = $self->_serialise_fields;
+   my $groups = $self->_field_groups($fields);
+
    return $self->_json_parser->encode({
       attributes      => $form_attr,
       currentPage     => $self->current_page,
       doFormWrapper   => json_bool $form->do_form_wrapper,
       errorMsg        => $error_message,
       errors          => [$form->all_form_errors],
-      fields          => $self->_serialise_fields,
+      fieldGroups     => $groups,
+      fields          => $fields,
       hasPageBreaks   => json_bool $self->_has_page_breaks,
       infoMessage     => $info_message,
       msgsBeforeStart => json_bool $form->messages_before_start,

@@ -11,6 +11,11 @@ WCom.Form.Renderer = (function() {
          const data = container.dataset[dsName];
          if (!data) return;
          this.config = JSON.parse(data);
+         this.fieldGroups = this.config.fieldGroups;
+         this.fieldIndex = {};
+         for (const field of this.config.fields) {
+            this.fieldIndex[field.name] = field;
+         }
       }
       render() {
          const config = this.config;
@@ -42,6 +47,7 @@ WCom.Form.Renderer = (function() {
          let pageCount = 0;
          let page = wrapper;
          for (const field of config.fields) {
+            if (field.fieldGroup) continue;
             if (field.pageBreak) fieldCount = 0;
             if (fieldCount == 0) {
                if (hasPages) page = this._page(wrapper, pageCount++);
@@ -62,39 +68,9 @@ WCom.Form.Renderer = (function() {
       }
       // Private
       _field(container, field) {
-         const wrapper = this.h.div(field.wrapperAttr);
-         if (wrapper.classList.contains('break'))
-            container.appendChild(this.h.div({ className: 'field-break' }));
-         if (field.doLabel && field.label.length && !field.labelRight) {
-            const label = this.h[field.labelTag](field.labelAttr, field.label);
-            wrapper.appendChild(label);
-         }
          const className = 'HTMLField' + field.widget;
-         const fieldWidget = eval('new ' + className + '(field)');
-         const element = fieldWidget.render(wrapper);
-         if (element) this._setElementAttributes(field, element);
-         if (field.doLabel && field.label.length && field.labelRight) {
-            const label = this.h[field.labelTag](field.labelAttr, field.label);
-            wrapper.appendChild(label);
-         }
-         if (element) this._fieldErrors(wrapper, field, element);
-         container.appendChild(wrapper);
-      }
-      _fieldErrors(container, field, element) {
-         const errorAttr = { className: 'alert alert-error' };
-         for (const error of field.result.allErrors) {
-            container.appendChild(this.h.span(errorAttr, error));
-            element.removeAttribute('disabled');
-         }
-         const warningAttr = { className: 'alert alert-warning' };
-         for (const warning of field.result.allWarnings) {
-            container.appendChild(this.h.span(warningAttr, error));
-            element.removeAttribute('disabled');
-         }
-         if (field.info && !field.hideInfo) {
-            const infoAttr = { className: 'alert alert-info' };
-            container.appendChild(this.h.div(infoAttr, field.info));
-         }
+         const widget = eval('new ' + className + '(this, field)');
+         widget.renderField(container);
       }
       _formInformation(container, index) {
          const config = this.config;
@@ -117,7 +93,8 @@ WCom.Form.Renderer = (function() {
             wrapper.appendChild(this.h.span({ className }, config.errorMsg));
          }
          else if (config.successMsg) {
-            className = config.tags.successClass || 'alert alert-success-message';
+            className = config.tags.successClass
+               || 'alert alert-success-message';
             wrapper.appendChild(this.h.span({ className }, config.successMsg));
          }
          if (config.errors.length) {
@@ -181,24 +158,12 @@ WCom.Form.Renderer = (function() {
          this.pageItems[this.pageItemSelected].classList.add('selected');
          this.pages[this.pageItemSelected].classList.remove('hide');
       }
-      _setElementAttributes(field, element) {
-         if (field.depends)
-            element.setAttribute('data-field-depends', field.depends);
-         if (field.disabled)
-            element.setAttribute('disabled', 'disabled');
-         if (field.toggle) {
-            element.setAttribute('data-toggle-config', field.toggle);
-            const event = JSON.parse(field.toggle).event;
-            element.addEventListener(event, function(){
-               WCom.Form.Toggle.toggleFields(element.name);
-            }.bind(this))
-         }
-      }
    }
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);
    // Field baseclass
    class HTMLField {
-      constructor(field) {
+      constructor(form, field) {
+         this.form = form;
          this.field = field;
          this.attr = {
             ...field.attributes,
@@ -209,9 +174,58 @@ WCom.Form.Renderer = (function() {
          if (field.htmlElement == 'input') this.attr.type = field.inputType;
          if (field.value !== undefined) this.attr.value = field.value;
       }
+      renderField(container) {
+         const field = this.field;
+         const wrapper = this.h.div(field.wrapperAttr);
+         if (field.doLabel && field.label.length && !field.labelRight) {
+            const label = this.h[field.labelTag](field.labelAttr, field.label);
+            wrapper.appendChild(label);
+         }
+         const element = this.render(wrapper);
+         if (element) this._setElementAttributes(field, element);
+         if (field.doLabel && field.label.length && field.labelRight) {
+            const label = this.h[field.labelTag](field.labelAttr, field.label);
+            wrapper.appendChild(label);
+         }
+         if (element) this._fieldAlerts(wrapper, field, element);
+         if (field.doLabel) {
+            if (field.labelTag == 'span') wrapper.classList.add('floating');
+            else wrapper.classList.add('fixed');
+         }
+         container.appendChild(wrapper);
+      }
+      _fieldAlerts(container, field, element) {
+         const errorAttr = { className: 'alert alert-error' };
+         for (const error of field.result.allErrors) {
+            container.appendChild(this.h.span(errorAttr, error));
+            element.removeAttribute('disabled');
+         }
+         const warningAttr = { className: 'alert alert-warning' };
+         for (const warning of field.result.allWarnings) {
+            container.appendChild(this.h.span(warningAttr, error));
+            element.removeAttribute('disabled');
+         }
+         if (field.info && !field.hideInfo) {
+            const infoAttr = { className: 'alert alert-info' };
+            container.appendChild(this.h.div(infoAttr, field.info));
+         }
+      }
       _handlers() {
          for (const [ev, handler] of Object.entries(this.field.handlers)) {
             this.attr[ev] = function(event) { eval(handler) };
+         }
+      }
+      _setElementAttributes(field, element) {
+         if (field.depends)
+            element.setAttribute('data-field-depends', field.depends);
+         if (field.disabled) element.setAttribute('disabled', 'disabled');
+         if (field.noSpellCheck) element.setAttribute('spellcheck', 'false');
+         if (field.toggle) {
+            element.setAttribute('data-toggle-config', field.toggle);
+            const event = JSON.parse(field.toggle).event;
+            element.addEventListener(event, function(){
+               WCom.Form.Toggle.toggleFields(element.name);
+            }.bind(this))
          }
       }
    }
@@ -313,6 +327,25 @@ WCom.Form.Renderer = (function() {
       }
       _handler(id, count) {
          return function(event) { WCom.Form.Util.updateDigits(id, count) }
+      }
+   }
+   class HTMLFieldGroup extends HTMLField {
+      render(wrapper) {
+         const form = this.form;
+         const fields = form.fieldGroups[this.field.name];
+         if (!fields) return;
+         if (this.field.info && !this.field.hideInfo) {
+            const infoAttr = { className: 'alert alert-info' };
+            wrapper.appendChild(this.h.div(infoAttr, this.field.info));
+         }
+         for (const field_name of fields) {
+            const field = form.fieldIndex[field_name];
+            if (!field) continue;
+            const className = 'HTMLField' + field.widget;
+            const widget = eval('new ' + className + '(form, field)');
+            widget.renderField(wrapper);
+         }
+         return;
       }
    }
    class HTMLFieldImage extends HTMLField {
@@ -455,6 +488,7 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          if (this.field.cols) this.attr.cols = this.field.cols;
          if (this.field.rows) this.attr.rows = this.field.rows;
+         
          const element = this.h.textarea(this.attr, this.field.fif);
          wrapper.appendChild(element);
          return element;

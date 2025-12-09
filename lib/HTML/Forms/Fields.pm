@@ -609,7 +609,7 @@ sub _find_parent {
 
       throw 'Field [_1] has a parent which is not a Group field',
          [ $field_attr->{name} ]
-         unless $group->isa( 'HTML::Forms::Field::Group' );
+         unless $group && $group->isa( 'HTML::Forms::Field::Group' );
    }
    elsif (!($self->form && $self == $self->form)) { $parent = $self }
 

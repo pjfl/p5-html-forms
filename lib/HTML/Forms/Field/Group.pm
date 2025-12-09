@@ -6,8 +6,6 @@ use Moo;
 
 extends 'HTML::Forms::Field::Compound';
 
-has 'description' => is => 'ro', isa => Str, predicate => 'has_description';
-
 has '+do_wrapper' => default => TRUE;
 
 has '+noupdate' => default => TRUE;

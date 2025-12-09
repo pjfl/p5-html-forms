@@ -24,7 +24,7 @@ WCom.Form.Util = (function () {
       }
    };
    const focusFirst = function(form) {
-      const selector = 'div.input-field:not(.input-hidden) input';
+      const selector = 'div.input-field:not(.input-hidden) input, div.input-field:not(.input-hidden) select';
       const field = form.querySelector(selector);
       if (field) setTimeout(function() { field.focus() }, 500);
    };
