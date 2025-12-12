@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Fibonaci series for label widths
           - Implements Group in FE
           - CSS done for now
           - More CSS refactoring

@@ -2,6 +2,7 @@
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
 @checkbox-bg-true: seagreen;
+@display-tile-border: gainsboro;
 @exception-bg: lightpink;
 @field-focus-outline: darkorange;
 @field-required: firebrick;
@@ -36,7 +37,7 @@
 
 @error-max-width: 50rem;
 
-@field-min-width: 12.5rem;
+@field-min-width: 12rem;
 @field-row-gap: 0.5rem;
 @field-col-gap: 0.5rem;
 
@@ -49,9 +50,11 @@
 @input-max-width: 24rem;
 @input-max-width-compound: 12rem;
 
-@label-width: 7.5rem;
-@label-width-narrow: 5rem;
-@label-width-wide: 10rem;
+@label-width-base: 2rem;
+@label-width-tiny: 3rem;
+@label-width-narrow: (@label-width-base + @label-width-tiny);
+@label-width: (@label-width-tiny + @label-width-narrow);
+@label-width-wide: (@label-width-narrow + @label-width);
 
 @select-min-width: 4rem;
 @select-max-width: 12rem;
@@ -59,8 +62,10 @@
 
 @selector-min-width: 16rem;
 
+@tile-min-width: 8ch;
+
 @textarea-min-height: 3lh;
-@textarea-min-width: 15rem;
+@textarea-min-width: 20rem;
 @textarea-max-width: 40rem;
 
 /* Font Sizes and Weights */
@@ -135,7 +140,8 @@ form.classic {
             max-width: @input-max-width-compound !important;
         }
         .alert-info {
-            background: var(--bg-base); border-radius: 5px;
+            background: var(--bg-dark); border-radius: 5px;
+            box-shadow: 3px 3px 3px @panel-shadow;
             left: calc(var(--label-width) + @field-col-gap);
             padding: 0.25rem; position: absolute; top: -2rem;
             white-space: nowrap;
@@ -148,7 +154,7 @@ form.classic {
         border-radius: 5px;
         min-width: @form-min-width; max-width: @form-max-width;
         margin: 0; padding: 0 1rem @field-row-gap; position: relative;
-        &:has(.input-field span.field-label) .input-button button {
+        &:has(.input-field.floating) .input-button button {
             margin-top: 1rem;
         }
         .form-title {
@@ -220,11 +226,6 @@ form.classic {
                 padding-bottom: 0;
             }
         }
-        &:hover, &:has(input:focus), &:has(input:valid) {
-            span.field-label {
-                top: -0.25rem;
-            }
-        }
         &:has(.digit-input-wrapper),
         &:has(input[required=required]),
         &:has(select[required=required]),
@@ -242,11 +243,21 @@ form.classic {
                 content: ' ';
             }
         }
+        &:hover, &:has(input:focus), &:has(input:valid) {
+            span.field-label {
+                top: -0.25rem;
+            }
+        }
+        span.field-label {
+            border: 2px solid transparent; padding: 0.125rem 0.25rem;
+            position: absolute; top: 1.3175rem; transition: top 0.5s;
+            translate: 0.5rem;
+        }
         input, select, textarea {
             border-radius: 5px; font-family: #fonts[serif];
             font-size: @data-font-size; font-weight: @data-font-weight;
             grid-area: input;
-            &:focus {
+            &:focus:not(.digit) {
                 outline: 1px solid @field-focus-outline;
             }
         }
@@ -259,12 +270,11 @@ form.classic {
                 padding: 0.125rem 0.25rem;
             }
             &[type=file] {
-                height: unset;
                 &::file-selector-button {
                     background: var(--button-bg);
                     border: 2px outset @button-border; border-radius: 50px;
                     color: @text-link; cursor: pointer;
-                    font-size: @button-font-size;
+                    font-family: #fonts[sans]; font-size: @button-font-size;
                     font-weight: @button-font-weight; letter-spacing: 0.1rem;
                     line-height: 0.8rem; padding: 0.366rem 0.75rem;
                     text-transform: uppercase;
@@ -276,7 +286,7 @@ form.classic {
             &[readonly=readonly] {
                 color: @text-disabled;
             }
-            &[readonly=readonly][type=datetime-local] {
+            &[readonly=readonly][type=datetime-local]:not(.tile) {
                 background: var(--form-bg-semitrans);
                 border: 0; color: @text-dark;
             }
@@ -312,11 +322,6 @@ form.classic {
                 background: var(--bg-base);
             }
         }
-        span.field-label {
-            border: 2px solid transparent; padding: 0.125rem 0.25rem;
-            position: absolute; top: 1.5rem; transition: top 0.5s;
-            translate: 0.5rem;
-        }
         .alert {
             border-radius: 5px; display: block;
             grid-area: alert; max-width: @alert-max-width;
@@ -327,7 +332,8 @@ form.classic {
             background: @exception-bg; box-shadow: 3px 3px 3px @panel-shadow;
         }
         .alert-info {
-            background: var(--bg-base); min-width: 12.5rem;
+            background: var(--bg-dark); box-shadow: 3px 3px 3px @panel-shadow;
+            min-width: 12.5rem;
         }
         .field-label {
             font-family: #fonts[sans]; font-size: @system-font-size;
@@ -417,7 +423,7 @@ form.classic {
         .ds-row {
             background: var(--bg-base); border-radius: 5px;
             box-shadow: 3px 3px 3px @panel-shadow; display: flex;
-            justify-content: space-between; padding: 0.5rem;
+            justify-content: space-between; padding: @field-row-gap;
         }
         .ds-field {
             border-radius: 5px; border-bottom-right-radius: 0;
@@ -539,6 +545,11 @@ form.classic {
             margin-right: 0 !important; position: absolute; right: 1rem;
         }
     }
+    .input-datetime input.tile {
+        background: var(--bg-lightest);
+        border: 2px inset @display-tile-border; border-radius: 5px;
+        color: @text-disabled; font-size: (@data-font-size - 0.0625rem);
+    }
     .input-display {
         &:has(img) {
             align-items: flex-start !important;
@@ -546,7 +557,7 @@ form.classic {
         span {
             font-family: #fonts[serif]; font-size: @data-font-size;
             grid-area: input; max-width: @display-text-max-width;
-            padding: 0.25rem 0.25rem 0.25rem 0.35rem;
+            padding: 0.25rem;
             &.breaking-text {
                 min-width: @display-text-min-width; white-space: break-spaces;
             }
@@ -555,6 +566,11 @@ form.classic {
             }
             &.datetime {
                 white-space: nowrap;
+            }
+            &.tile {
+                background: var(--bg-lightest);
+                border: 2px inset @display-tile-border; border-radius: 5px;
+                color: @text-disabled; min-width: @tile-min-width;
             }
         }
     }
@@ -621,13 +637,13 @@ form.classic {
         }
     }
     .page-list {
-        list-style-type: none; margin: 0; padding: 0 0 0.5rem 0;
+        list-style-type: none; margin: 0; padding: @field-row-gap 0;
         li {
             border-bottom: 1px solid @line-border;
             border-top-left-radius: 5px; border-top-right-radius: 5px;
             color: @text-disabled; cursor: pointer; display: inline;
             font-family: #fonts[sans]; font-size: @system-font-size;
-            padding: 0.25rem 0.5rem;
+            padding: 0.125rem 0.5rem;
             &.selected {
                 border: 1px solid @line-border;
                 border-bottom: 1px solid transparent;
@@ -639,7 +655,8 @@ form.classic {
 .form-error {
     background: @exception-bg; border: 1px solid @line-border;
     border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
-    max-width: @error-max-width; overflow: hidden; padding: 0.5rem;
+    max-width: @error-max-width; overflow: hidden;
+    padding: @field-row-gap @field-col-gap;
     h1, h2, h3, h4, h5 {
         margin: 0.5rem 0 !important;
     }
