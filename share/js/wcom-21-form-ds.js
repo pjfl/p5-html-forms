@@ -1,5 +1,8 @@
-// Package WCom.Form.DataStructure
-// Dependencies WCom.Util WCom.Form.Util
+/** @file HTML Forms - Data Structure
+    @classdesc Allows rows of fields to be added/removed from a form
+    @author pjfl@cpan.org (Peter Flanigan)
+    @version 0.1.93
+*/
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
    const triggerClass = 'data-structure';

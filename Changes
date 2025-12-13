@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Added version numbers to LESS and JS
           - Fibonaci series for label widths
           - Implements Group in FE
           - CSS done for now

@@ -1,5 +1,8 @@
-// Package WCom.Form.Toggle
-// Dependencies WCom.Util
+/** @file HTML Forms - Toggle
+    @classdesc Toggles field visibility based on the values of other fields
+    @author pjfl@cpan.org (Peter Flanigan)
+    @version 0.1.93
+*/
 WCom.Form.Toggle = (function() {
    const dsName = 'toggleConfig';
    const triggerClass = 'toggle';

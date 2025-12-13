@@ -1,5 +1,8 @@
-// Package WCom.Form.Renderer
-// Dependencies WCom.Util WCom.Form.Util
+/** @file HTML Forms - Renderer
+    @classdesc Renders forms
+    @author pjfl@cpan.org (Peter Flanigan)
+    @version 0.1.93
+*/
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
    const triggerClass = 'html-forms';

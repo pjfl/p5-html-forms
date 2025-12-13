@@ -1,4 +1,8 @@
-// Package WCom.Form.Util
+/** @file HTML Forms - Utilities
+    @classdesc Exports functions used by the other HTML Forms Modules
+    @author pjfl@cpan.org (Peter Flanigan)
+    @version 0.1.93
+*/
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
    const defaultFormClass = 'classic';
