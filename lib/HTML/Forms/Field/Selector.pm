@@ -15,7 +15,7 @@ has 'click_handler' =>
       my $self     = shift;
       my $selector = $self->selector;
 
-      return "event.preventDefault(); ${selector}";
+      return "${selector}";
    };
 
 has 'display_as' => is => 'lazy', isa => Str, default => sub { shift->label };

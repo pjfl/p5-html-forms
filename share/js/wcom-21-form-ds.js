@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.93
+    @version 0.1.94
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -270,13 +270,12 @@ WCom.Form.DataStructure = (function() {
          };
       }
       _addSelectHandler(field, column, item) {
-         let handler = column.select;
-         if (typeof handler == 'string') {
-            handler = function(event) {
-               eval(column.select.replace('%value', item.id));
-            }.bind(this);
+         if (typeof column.select == 'string') {
+            const method = column.select.replace('%value', item.id);
+            const handler = this.getEventHandler(method);
+            field.addEventListener('click', handler);
          }
-         field.addEventListener('click', handler);
+         else { field.addEventListener('click', column.select) }
       }
       _closestRow(el) {
          while (el && !(el.tagName == 'DIV' && el.classList.contains('ds-row')))
@@ -340,14 +339,12 @@ WCom.Form.DataStructure = (function() {
          if (!this.singleRow && !this.fixed && !readonly) {
             let callback = this.removeCallback;
             if (callback && typeof(callback) == 'string')
-               callback = function(event) {
-                  eval(this.removeCallback)
-               }.bind(this);
+               callback = this.getEventHandler(this.removeCallback);
             const button = this.h.span({
                className: 'ds-remove-icon',
                onclick: function(event) {
                   event.preventDefault();
-                  if (!confirm('Remove?')) return false;
+                  if (!confirm('Remove related entity?')) return false;
                   this._closestRow(event.target).remove();
                   if (callback) callback(event);
                   return true;
@@ -493,7 +490,7 @@ WCom.Form.DataStructure = (function() {
          const table = this.h.div({ className });
          const header = this._header()
          if (header) table.appendChild(header);
-         this.table = this.addReplace(this.container, 'table', table);
+         this.table = this.addOrReplace(this.container, table, this.table);
          let index = 0;
          if (this.singleRow) this.createRow(this.sourceData[0], index);
          else {
@@ -502,17 +499,17 @@ WCom.Form.DataStructure = (function() {
          this.setupReorderable();
          this.table.classList.remove('hide');
          if (!this.singleRow && !this.fixed && !this.hasLoaded) {
+            const defaultHandler = function(event) {
+               event.preventDefault();
+               this.createRow();
+               this.setupReorderable();
+               const trigger = this.container.dataset['dsAddRow'];
+               if (trigger) trigger();
+            }.bind(this);
+            const handler = this.addHandler
+                  ? this.getEventHandler(this.addHandler) : defaultHandler;
             const addButton = this.h.button({
-               onclick: function(event) {
-                  if (this.addHandler) eval(this.addHandler);
-                  else {
-                     event.preventDefault();
-                     this.createRow();
-                     this.setupReorderable();
-                     const trigger = this.container.dataset['dsAddRow'];
-                     if (trigger) trigger();
-                  }
-               }.bind(this),
+               onclick: handler,
                title: this.addTitle
             }, this.h.icon({
                className: 'ds-add-icon',
@@ -557,11 +554,13 @@ WCom.Form.DataStructure = (function() {
       }
    }
    Object.assign(DataStructure.prototype, WCom.Util.Markup);
+   Object.assign(DataStructure.prototype, WCom.Util.Modifiers);
    class Manager {
       constructor() {
          this.ds = {};
       }
-      async reload(target, url) {
+      async reload(args) {
+         const { target, url } = args;
          const ds = this.ds[target];
          const response = await fetch(url, { method: 'GET' });
          ds.sourceData = await response.json();

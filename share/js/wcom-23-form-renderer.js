@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.93
+    @version 0.1.94
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -53,7 +53,13 @@ WCom.Form.Renderer = (function() {
             if (field.fieldGroup) continue;
             if (field.pageBreak) fieldCount = 0;
             if (fieldCount == 0) {
-               if (hasPages) page = this._page(wrapper, pageCount++);
+               if (hasPages) {
+                  if (!this.pageWrapper) {
+                     this.pageWrapper = this.h.div({ className:'page-wrapper'});
+                     wrapper.appendChild(this.pageWrapper);
+                  }
+                  page = this._page(this.pageWrapper, pageCount++);
+               }
                else this._formInformation(page, pageCount);
             }
             this._field(page, field);
@@ -110,7 +116,7 @@ WCom.Form.Renderer = (function() {
          const config = this.config;
          if (!config.doFormWrapper) {
             if (config.wrapperAttr) {
-               for (const className of config.wrapperAttr.className.split(/ /)) {
+               for (const className of config.wrapperAttr.className.split(/ /)){
                   this.form.classList.add(className);
                }
             }
@@ -153,13 +159,20 @@ WCom.Form.Renderer = (function() {
          return this.pages[count];
       }
       _selectPage(count) {
+         const changed = this.pageItemSelected == count ? false : true;
          if (this.pageItems[this.pageItemSelected])
             this.pageItems[this.pageItemSelected].classList.remove('selected');
-         if (this.pages[this.pageItemSelected])
-            this.pages[this.pageItemSelected].classList.add('hide');
+         const oldPage = this.pages[this.pageItemSelected];
+         if (changed && oldPage) oldPage.classList.add('fade');
          this.pageItemSelected = count;
          this.pageItems[this.pageItemSelected].classList.add('selected');
          this.pages[this.pageItemSelected].classList.remove('hide');
+         setTimeout(function() {
+            if (changed && oldPage) {
+               oldPage.classList.add('hide');
+               oldPage.classList.remove('fade');
+            }
+         }.bind(this), (1000 * 0.5));
       }
    }
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);
@@ -173,7 +186,7 @@ WCom.Form.Renderer = (function() {
             id: field.id,
             name: field.htmlName || field.name,
          };
-         if (field.handlers) this._handlers();
+         if (field.handlers) this._setHandlers(this.attr, field.handlers);
          if (field.htmlElement == 'input') this.attr.type = field.inputType;
          if (field.value !== undefined) this.attr.value = field.value;
       }
@@ -213,11 +226,6 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.div(infoAttr, field.info));
          }
       }
-      _handlers() {
-         for (const [ev, handler] of Object.entries(this.field.handlers)) {
-            this.attr[ev] = function(event) { eval(handler) };
-         }
-      }
       _setElementAttributes(field, element) {
          if (field.depends)
             element.setAttribute('data-field-depends', field.depends);
@@ -226,13 +234,22 @@ WCom.Form.Renderer = (function() {
          if (field.toggle) {
             element.setAttribute('data-toggle-config', field.toggle);
             const event = JSON.parse(field.toggle).event;
-            element.addEventListener(event, function(){
+            element.addEventListener(event, function() {
                WCom.Form.Toggle.toggleFields(element.name);
-            }.bind(this))
+            }.bind(this));
+         }
+      }
+      _setHandlers(acc, handlers) {
+         for (const [ev, handler] of Object.entries(handlers)) {
+            if (handler.match(/^WCom\./)) {
+               acc[ev] = this.getEventHandler(handler, this.field.allowDefault);
+            }
+            else { console.warn(`Unknown event handler: ${handler}`) }
          }
       }
    }
    Object.assign(HTMLField.prototype, WCom.Util.Markup);
+   Object.assign(HTMLField.prototype, WCom.Util.Modifiers);
    // Field subclasses
    class HTMLFieldButton extends HTMLField {
       render(wrapper) {
@@ -371,7 +388,7 @@ WCom.Form.Renderer = (function() {
    }
    class HTMLFieldNoValue extends HTMLField {
       render(wrapper) {
-         wrapper.innerHTML = this.field.html;
+         wrapper.appendChild(this.h.frag(this.field.html));
          return;
       }
    }
@@ -436,11 +453,11 @@ WCom.Form.Renderer = (function() {
          const attr = {
             id: field.id + '_select',
             name: field.htmlName + '_select',
-            onclick: function(event) { eval(handler) },
             title,
             type: 'submit',
             value: ''
          };
+         this._setHandlers(attr, { onclick: handler });
          let displayAs;
          if (field.htmlElement == 'icon') {
             displayAs = this.h.icon(JSON.parse(field.displayAs));
@@ -491,7 +508,6 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          if (this.field.cols) this.attr.cols = this.field.cols;
          if (this.field.rows) this.attr.rows = this.field.rows;
-         
          const element = this.h.textarea(this.attr, this.field.fif);
          wrapper.appendChild(element);
          return element;

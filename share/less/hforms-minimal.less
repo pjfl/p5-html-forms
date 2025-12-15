@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.93
+ * @version 0.1.94
  * Colours */
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
@@ -494,9 +494,6 @@ form.classic {
             margin-right: 0.25rem;
         }
     }
-    .form-page.hide {
-        display: none;
-    }
     .input-boolean {
         &:has(.label-checkbox) {
             align-items: center !important;
@@ -650,6 +647,18 @@ form.classic {
                 border: 1px solid @line-border;
                 border-bottom: 1px solid transparent;
                 color: @text-dark;
+            }
+        }
+    }
+    .page-wrapper {
+        display: flex; overflow: clip; position: relative;
+        .form-page {
+            opacity: 1; position: relative; transition: opacity 0.5s;
+            &.fade {
+                opacity: 0; position: absolute;
+            }
+            &.hide {
+                display: none;
             }
         }
     }

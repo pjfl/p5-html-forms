@@ -6,6 +6,7 @@ use HTML::Forms::Constants qw( BANG EXCEPTION_CLASS SECRET
                                TRUE FALSE META NUL SPC );
 use Data::Clone            qw( clone );
 use HTML::Entities         qw( encode_entities );
+use JSON::MaybeXS          qw( encode_json );
 use MIME::Base64           qw( decode_base64 encode_base64 );
 use Ref::Util              qw( is_arrayref is_blessed_ref
                                is_coderef is_hashref );
@@ -19,8 +20,8 @@ use Try::Tiny;
 use Sub::Exporter -setup => { exports => [
    qw( cc_widget cipher convert_full_name duration_to_string
        encode_only_entities get_meta get_token has_some_value inflate_interval
-       interval_to_string json_bool merge now process_attrs quote_single
-       ucc_widget uri_escape verify_token )
+       interval_to_string json_bool merge make_handler now process_attrs
+       quote_single ucc_widget uri_escape verify_token )
 ]};
 
 =pod
@@ -334,6 +335,21 @@ sub merge ($$) {
    $right = clone( $right );
 
    return $MATRIX->{ $lefttype }{ $righttype }->( $left, $right );
+}
+
+=item make_handler( $method, $targets, $id?, $uri?)
+
+=cut
+
+sub make_handler {
+   my ($method, $targets, $id, $uri) = @_;
+
+   my $args = { targetIds => $targets };
+
+   $args->{id} = $id  if $id;
+   $args->{url} = "${uri}" if $uri;
+
+   return sprintf $method, encode_json($args);
 }
 
 =item now

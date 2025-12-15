@@ -118,7 +118,7 @@ has 'is_row_readonly' =>
 
 =cut
 
-has 'remove_callback' => is => 'ro', isa => Str, default => NUL;
+has 'remove_callback' => is => 'rw', isa => Str, default => NUL;
 
 =item reorderable
 

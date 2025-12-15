@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.93
+    @version 0.1.94
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -19,9 +19,10 @@ WCom.Form.Util = (function () {
       }
       return true;
    };
-   const fieldChange = function(fieldId, targetIds) {
+   const fieldChange = function(args) {
+      const { id, targetIds } = args;
       for (const targetId of targetIds) {
-         _setFieldMap(targetId, fieldId);
+         _setFieldMap(targetId, id);
          const target = document.getElementById(targetId);
          if (_allOk(target)) target.removeAttribute('disabled');
          else target.setAttribute('disabled', 'disabled');
@@ -32,53 +33,13 @@ WCom.Form.Util = (function () {
       const field = form.querySelector(selector);
       if (field) setTimeout(function() { field.focus() }, 500);
    };
-   const _repRemoveHandlers = function() {
-      const rmElems = document.getElementsByClassName('remove-repeatable');
-      for (const el of rmElems) {
-         if (el.getAttribute('clicklistener')) continue;
-         el.setAttribute('clicklistener', true);
-         el.addEventListener('click', function(event) {
-            event.preventDefault();
-            const repElemId = this.dataset.repeatableElementId;
-            if (!repElemId) return;
-            const field = document.getElementById(wrapperIdPrefix + repElemId);
-            if (field && confirm('Remove?')) field.remove();
-         }.bind(el));
-      }
-   };
-   const _repAddHandlers = function(htmls, indexes, levels) {
-      const addElems = document.getElementsByClassName('add-repeatable');
-      for (const el of addElems) {
-         if (el.getAttribute('clicklistener')) continue;
-         el.setAttribute('clicklistener', true);
-         el.addEventListener('click', function(event) {
-            event.preventDefault();
-            const repId = this.dataset.repeatableId;
-            if (!repId) return;
-            const wrapper = document.getElementById(wrapperIdPrefix + repId);
-            if (!wrapper) return;
-            const controls = wrapper.getElementsByClassName('controls');
-            if (!controls) return;
-            const html  = htmls[repId];
-            const level = levels[repId];
-            const regex = new RegExp('\{index-' + level + '\}',"g");
-            let   index = indexes[repId];
-            controls[0].innerHTML += html.replace(regex, index++);
-            indexes[repId] = index;
-            _repRemoveHandlers();
-         }.bind(el));
-      }
-   };
-   const repeatable = function(htmls, indexes, levels) {
-      WCom.Util.Event.onReady(function(event) {
-         _repAddHandlers(htmls, indexes, levels);
-         _repRemoveHandlers();
-      });
-   };
    const revealPassword = function(id) {
       const field = document.getElementById(id);
-      const handler = function(event) { field.type = 'password' };
-      field.addEventListener('mouseleave', handler);
+      if (!field.getAttribute('leavelistener')) {
+         const handler = function(event) { field.type = 'password' };
+         field.addEventListener('mouseleave', handler);
+         field.setAttribute('leavelistener', true);
+      }
       field.type = 'text';
    };
    const scan = function(content = document, options = {}) {
@@ -120,14 +81,16 @@ WCom.Form.Util = (function () {
          }
       }
    };
-   const showIfRequired = function(valueFieldName, toggleFieldNames, url) {
+   const showIfRequired = function(args) {
+      const { id, targetIds, url } = args;
       const target = new URL(url);
-      const field = document.getElementById(valueFieldName);
+      const field = document.getElementById(id);
       target.searchParams.set('value', field.value);
-      _showIfRequired(target, toggleFieldNames);
+      _showIfRequired(target, targetIds);
    };
-   const unrequire = function(fieldNames) {
-      for (name of fieldNames) {
+   const unrequire = function(args) {
+      const { targetIds } = args;
+      for (name of targetIds) {
          const field = document.getElementById(name);
          if (field.getAttribute('required') == 'required') {
             field.removeAttribute('required');
@@ -201,9 +164,10 @@ WCom.Form.Util = (function () {
          parent.appendChild(error);
       }
    };
-   const validateField = function(url, fieldId) {
-      const field = document.getElementById(fieldId);
-      url = new URL(url.replace(/\*/, field.form.id).replace(/\*/, fieldId));
+   const validateField = function(args) {
+      let { url, id } = args;
+      const field = document.getElementById(id);
+      url = new URL(url.replace(/\*/, field.form.id).replace(/\*/, id));
       url.searchParams.set('value', field.value);
       _validateField(url, field);
    };
@@ -211,7 +175,6 @@ WCom.Form.Util = (function () {
    return {
       fieldChange: fieldChange,
       focusFirst: focusFirst,
-      repeatable: repeatable,
       revealPassword: revealPassword,
       scan: scan,
       showIfRequired: showIfRequired,

@@ -3,6 +3,7 @@ package HTML::Forms::Role::Defaults;
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE TT_THEME );
 use HTML::Forms::Types     qw( ArrayRef Str );
 use HTML::Forms::Util      qw( get_meta );
+use JSON::MaybeXS          qw( encode_json );
 use Unexpected::Functions  qw( throw );
 use Moo::Role;
 
@@ -226,10 +227,10 @@ around 'html_attributes' => sub {
 sub _add_field_validation {
    my ($self, $field, $attrs) = @_;
 
-   my $name    = $field->name;
    my $uri     = $self->context->uri_for_action($self->default_action_path);
+   my $args    = { url => "${uri}", id => $field->name };
    my $vmethod = $self->default_validate_method;
-   my $call    = "${vmethod}('${uri}', '${name}')";
+   my $call    = sprintf "${vmethod}(%s)", encode_json($args);
 
    if (my $js = $attrs->{javascript}) {
       if (exists $js->{onblur}) {
