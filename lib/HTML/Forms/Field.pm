@@ -79,6 +79,8 @@ Defines the following attributes;
 
 =item C<hide_info> - If true do not display the field C<info>
 
+=item C<info_top> - If true displays the help information above the field
+
 =item C<is_contains> - Set to true if this is a container for other fields
 
 =item C<label_top> - When true the label is rendered in and above the  field
@@ -105,6 +107,7 @@ Defines the following attributes;
 
 has [ 'disabled',
       'hide_info',
+      'info_top',
       'is_contains',
       'label_top',
       'no_value_if_empty',
@@ -577,18 +580,27 @@ trait
 
 =cut
 
-has 'tags'       =>
-    is           => 'rw',
-    isa          => HashRef,
-    builder      => sub { {} },
-    handles_via  => 'Hash',
-    handles      => {
+has 'tags' =>
+   is          => 'rw',
+   isa         => HashRef,
+   handles_via => 'Hash',
+   handles     => {
       delete_tag => 'delete',
       _get_tag   => 'get',
       has_tag    => 'exists',
       set_tag    => 'set',
       tag_exists => 'exists',
-    };
+   },
+   lazy        => TRUE,
+   default     => sub {
+      my $self = shift;
+      my $tags = {};
+
+      $tags->{label_tag} = 'span' if $self->label_top;
+      $tags->{info_top } = TRUE   if $self->info_top;
+
+      return $tags;
+   };
 
 =item temp
 

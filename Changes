@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Allows info to be placed above the field
           - Removes uses of innerHTML and most eval string in JS
           - Removes Repeatable field type. Use DataStructure
           - Added version numbers to LESS and JS

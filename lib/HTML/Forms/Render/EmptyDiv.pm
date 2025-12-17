@@ -222,6 +222,7 @@ sub _serialise_field {
       htmlName     => $field->html_name,
       id           => $field->id,
       info         => $field->info,
+      infoTop      => json_bool $field->get_tag('info_top') // FALSE,
       inputType    => $field->input_type,
       label        => $field->localise_label,
       labelAttr    => $label_attr,

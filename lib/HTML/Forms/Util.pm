@@ -349,7 +349,7 @@ sub make_handler {
    $args->{id} = $id  if $id;
    $args->{url} = "${uri}" if $uri;
 
-   return sprintf $method, encode_json($args);
+   return sprintf "${method}(%s)", encode_json($args);
 }
 
 =item now

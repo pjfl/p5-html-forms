@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.94
+ * @version 0.1.95
  * Colours */
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
@@ -39,7 +39,7 @@
 
 @error-max-width: 50rem;
 
-@field-min-width: 12rem;
+@field-min-width: 13rem;
 @field-row-gap: 0.5rem;
 @field-col-gap: 0.5rem;
 
@@ -52,7 +52,7 @@
 @input-max-width: 24rem;
 @input-max-width-compound: 12rem;
 
-@label-width-base: 2rem;
+@label-width-base: 2.5rem;
 @label-width-tiny: 3rem;
 @label-width-narrow: (@label-width-base + @label-width-tiny);
 @label-width: (@label-width-tiny + @label-width-narrow);
@@ -67,7 +67,7 @@
 @tile-min-width: 8ch;
 
 @textarea-min-height: 3lh;
-@textarea-min-width: 20rem;
+@textarea-min-width: 18rem;
 @textarea-max-width: 40rem;
 
 /* Font Sizes and Weights */
@@ -166,7 +166,8 @@ form.classic {
         }
     }
     .input-field {
-        padding-bottom: @field-row-gap; position: relative;
+        padding: 0.1875rem 0 (@field-row-gap - 0.1875rem);
+        position: relative;
         &.fixed {
             align-items: baseline; column-gap: 0.5rem; display: grid;
             grid-template-columns: var(--label-width) min-content min-content;
@@ -244,6 +245,9 @@ form.classic {
             .field-label::after {
                 content: ' ';
             }
+        }
+        &:has(.alert-info.top) {
+            grid-template-areas: "blank alert alert" "label input selector";
         }
         &:hover, &:has(input:focus), &:has(input:valid) {
             span.field-label {
@@ -385,10 +389,10 @@ form.classic {
             }
         }
         a.form-button {
-            padding: 0.125rem 0.75rem 0.1875rem;
+            padding: 0.0625rem 0.75rem 0.25rem;
         }
         button {
-            padding: 0.25rem 0.75rem;
+            padding: 0.1875rem 0.75rem 0.3125rem;
             &[disabled=disabled], &[disabled=disabled]::after {
                 background: var(--button-bg-disabled);
             }
@@ -543,6 +547,9 @@ form.classic {
         &.right {
             margin-right: 0 !important; position: absolute; right: 1rem;
         }
+    }
+    .input-colour {
+        align-items: center !important;
     }
     .input-datetime input.tile {
         background: var(--bg-lightest);

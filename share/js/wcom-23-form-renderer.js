@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.94
+    @version 0.1.95
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -193,6 +193,7 @@ WCom.Form.Renderer = (function() {
       renderField(container) {
          const field = this.field;
          const wrapper = this.h.div(field.wrapperAttr);
+         if (field.infoTop) this._fieldInfo(wrapper, field);
          if (field.doLabel && field.label.length && !field.labelRight) {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
@@ -203,7 +204,10 @@ WCom.Form.Renderer = (function() {
             const label = this.h[field.labelTag](field.labelAttr, field.label);
             wrapper.appendChild(label);
          }
-         if (element) this._fieldAlerts(wrapper, field, element);
+         if (element) {
+            this._fieldAlerts(wrapper, field, element);
+            if (!field.infoTop) this._fieldInfo(wrapper, field);
+         }
          if (field.doLabel) {
             if (field.labelTag == 'span') wrapper.classList.add('floating');
             else wrapper.classList.add('fixed');
@@ -221,9 +225,13 @@ WCom.Form.Renderer = (function() {
             container.appendChild(this.h.span(warningAttr, error));
             element.removeAttribute('disabled');
          }
+      }
+      _fieldInfo(container, field) {
          if (field.info && !field.hideInfo) {
             const infoAttr = { className: 'alert alert-info' };
-            container.appendChild(this.h.div(infoAttr, field.info));
+            const info = this.h.div(infoAttr, field.info);
+            if (field.infoTop) info.classList.add('top');
+            container.appendChild(info);
          }
       }
       _setElementAttributes(field, element) {
@@ -241,10 +249,7 @@ WCom.Form.Renderer = (function() {
       }
       _setHandlers(acc, handlers) {
          for (const [ev, handler] of Object.entries(handlers)) {
-            if (handler.match(/^WCom\./)) {
-               acc[ev] = this.getEventHandler(handler, this.field.allowDefault);
-            }
-            else { console.warn(`Unknown event handler: ${handler}`) }
+            acc[ev] = this.getEventHandler(handler, this.field.allowDefault);
          }
       }
    }
