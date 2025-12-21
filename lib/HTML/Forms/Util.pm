@@ -9,19 +9,20 @@ use HTML::Entities         qw( encode_entities );
 use JSON::MaybeXS          qw( encode_json );
 use MIME::Base64           qw( decode_base64 encode_base64 );
 use Ref::Util              qw( is_arrayref is_blessed_ref
-                               is_coderef is_hashref );
+                               is_coderef is_hashref is_plain_hashref );
 use Scalar::Util           qw( blessed );
 use Unexpected::Functions  qw( throw );
 use Crypt::CBC;
 use DateTime;
 use DateTime::Duration;
+use HTML::Tiny;
 use Try::Tiny;
 
 use Sub::Exporter -setup => { exports => [
-   qw( cc_widget cipher convert_full_name duration_to_string
+   qw( cc_widget cipher convert_full_name data2markup duration_to_string
        encode_only_entities get_meta get_token has_some_value inflate_interval
        interval_to_string json_bool merge make_handler now process_attrs
-       quote_single ucc_widget uri_escape verify_token )
+       quote_single trim ucc_widget uri_escape verify_token )
 ]};
 
 =pod
@@ -159,6 +160,120 @@ sub convert_full_name ($) {
    $full_name =~ s{ \. }{_}gmx;
 
    return $full_name;
+}
+
+=item data2markup
+
+   $markup = data2markup($data);
+
+Accepts an arbitary data structure and returns a string of HTML with each
+element of the data structure wrapped in HTML tags of a suitable class for
+styling with CSS
+
+=cut
+
+sub data2markup ($) {
+   return _data2markup(shift, { ht => HTML::Tiny->new(), level => 0 });
+}
+
+sub _data2markup {
+   my ($data, $options) = @_;
+
+   $options->{level}++;
+
+   my $markup = q();
+
+   if (is_arrayref $data) { $markup .= _array2markup($data, $options) }
+   elsif (is_plain_hashref $data) { $markup .= _hash2markup($data, $options) }
+   else {
+      my $ht    = $options->{ht};
+      my $attr  = { class => 'value' };
+      my $value = encode_entities("${data}", '[]<>&"');
+
+      $markup .= $ht->span($attr, length $value ? $value : 'NUL');
+   }
+
+   $options->{level}--;
+
+   return trim($markup);
+}
+
+sub _array2markup {
+   my ($data, $options) = @_;
+
+   my $ht      = $options->{ht};
+   my $comma   = $ht->span({ class => 'comma' }, ',');
+   my $padding = $ht->span({ class => 'level_' . $options->{level} });
+   my $markup  = q();
+
+   $markup .= $ht->span({ class => 'break' }) if $options->{array};
+
+   if ($options->{inline}) {
+      my $start = $options->{array} ? [$padding, '['] : '[';
+
+      $markup .= $ht->span({ class => 'start-inline-array' }, $start);
+   }
+   else { $markup .= $ht->span({ class => 'start-array' }, [$padding, '[']) }
+
+   my $first = 1;
+
+   for my $item (@{$data}) {
+      $markup .= $comma unless $first;
+      $markup .= $padding if $first && !$options->{inline};
+      $markup .= _data2markup($item, {array => 1, inline => 1, %{$options}});
+      $first   = 0;
+   }
+
+   if ($options->{inline}) {
+      $markup .= $ht->span({ class => 'end-inline-array' }, ']');
+   }
+   else { $markup .= $ht->span({ class => 'end-array' }, [$padding, ']']) }
+
+   return trim($markup);
+}
+
+sub _hash2markup {
+   my ($data, $options) = @_;
+
+   my $ht      = $options->{ht};
+   my $comma   = $ht->span({ class => 'comma' }, ',');
+   my $padding = $ht->span({ class => 'level_' . $options->{level} });
+   my $markup  = q();
+
+   if ($options->{inline}) {
+      $markup .= $ht->span({ class => 'start-inline-object'}, '{');
+   }
+   else {
+      $markup .= $ht->span({ class => 'start-object' }, [$padding, '{']);
+   }
+
+   my $level   = $options->{level} + ($options->{array} ? 0 : 1);
+   my $inner   = $ht->span({ class => "level_${level}" });
+   my $entries = q();
+
+   for my $data_key (sort keys %{$data}) {
+      my $key   = $ht->span({ class => 'key' }, $data_key);
+      my $sep   = $ht->span({ class => 'separator' }, ':');
+      my $opts  = { object => 1, inline => 1, %{$options} };
+      my $val   = _data2markup($data->{$data_key}, $opts);
+      my $entry = [$inner, $key, $sep, $val, $comma];
+
+      $entries .= trim($ht->div({ class => 'entry' }, $entry));
+   }
+
+   $markup .= $ht->div({ class => 'object' }, $entries);
+
+   if ($options->{inline}) {
+      my $outdent = $ht->span({ class => 'level_'.($options->{level} - 1) });
+      my $entry   = $options->{array} ? [$outdent, '}'] : [$padding, '}'];
+
+      $markup .= $ht->span({ class => 'end-inline-object' }, $entry);
+   }
+   else {
+      $markup .= $ht->span({ class => 'end-object' }, [$padding, '}']);
+   }
+
+   return trim($markup);
 }
 
 =item duration_to_string
@@ -428,6 +543,25 @@ sub quote_single ($) {
   s{ ([\\']) }{\\$1}gmx; #'])}emacs
 
   return qq('$_');
+}
+
+=item trim
+
+   $trimmed_string = trim $string;
+
+Remove leading and trailing whitespace including trailing newlines. Takes
+an additional string used as the character class to remove. Defaults to
+space and tab
+
+=cut
+
+sub trim (;$$) {
+   my $chs = $_[1] // " \t";
+   (my $v = $_[0] // NUL) =~ s{ \A [$chs]+ }{}mx;
+
+   chomp $v;
+   $v =~ s{ [$chs]+ \z }{}mx;
+   return $v;
 }
 
 =item ucc_widget

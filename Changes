@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds data2markup to utilities
           - Allows info to be placed above the field
           - Removes uses of innerHTML and most eval string in JS
           - Removes Repeatable field type. Use DataStructure

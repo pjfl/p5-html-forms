@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.95
+ * @version 0.1.96
  * Colours */
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
@@ -15,6 +15,7 @@
 
 @text-dark: black;
 @text-disabled: gray;
+@text-doc-punc: sienna;
 @text-link: seagreen;
 @text-watermark: gray;
 
@@ -27,14 +28,14 @@
 @alert-min-width: 10rem;
 @alert-max-width: 18rem;
 
-@display-text-min-width: 15rem;
-@display-text-max-width: 20rem;
-
 @checkbox-height: 1.25rem;
 @checkbox-width: 40px;
 @checkbox-width-knob: 20px;
 
-@ds-form-max-height-vertical: 40rem;
+@display-text-min-width: 10rem;
+@display-text-max-width: 20rem;
+
+@ds-form-max-height-vertical: 60vh;
 @ds-form-max-width-horizontal: 21rem;
 
 @error-max-width: 50rem;
@@ -398,6 +399,10 @@ form.classic {
             }
         }
     }
+    .data-structure {
+        align-items: flex-start; display: flex; flex-direction: column;
+        row-gap: @field-row-gap;
+    }
     .digit-input-wrapper {
         display: flex; grid-area: input;
     }
@@ -406,9 +411,6 @@ form.classic {
         padding-bottom: (@field-row-gap + 0.25rem); position: relative;
         overscroll-behavior-inline: contain; scroll-behavior: smooth;
         &.horizontal, &.vertical {
-            &.snaps-inline {
-                scroll-snap-type: inline mandatory;
-            }
             &.snaps-inline > * {
                 scroll-snap-align: start;
             }
@@ -417,10 +419,16 @@ form.classic {
             flex-direction: row; overflow-x: auto;
             max-width: @ds-form-max-width-horizontal;
             padding-right: 0.25rem;
+            &.snaps-inline {
+                scroll-snap-type: inline mandatory;
+            }
         }
         &.vertical {
             max-height: @ds-form-max-height-vertical; overflow-y: auto;
             padding-right: 0.75rem;
+            &.snaps-inline {
+                scroll-snap-type: block mandatory;
+            }
         }
         .ds-header {
             font-family: #fonts[sans]; font-size: @system-font-size;
@@ -544,6 +552,9 @@ form.classic {
                 flex: 2;
             }
         }
+        &.left {
+            justify-content: left;
+        }
         &.right {
             margin-right: 0 !important; position: absolute; right: 1rem;
         }
@@ -563,14 +574,14 @@ form.classic {
         span {
             font-family: #fonts[serif]; font-size: @data-font-size;
             grid-area: input; max-width: @display-text-max-width;
-            padding: 0.25rem;
+            min-width: @display-text-min-width; padding: 0.25rem;
             &.breaking-text {
-                min-width: @display-text-min-width; white-space: break-spaces;
+                white-space: break-spaces;
             }
             &.code {
-                min-width: @display-text-min-width; white-space: unset;
+                white-space: unset;
             }
-            &.datetime {
+            &.datetime, &.identity, &.version {
                 white-space: nowrap;
             }
             &.tile {
@@ -600,14 +611,89 @@ form.classic {
         }
     }
     .input-immutable {
+        &.documentation {
+            .comma {
+                color: @text-doc-punc; font-size: 1rem;
+                padding-right: 0.5rem;
+            }
+            .separator {
+                color: @text-doc-punc; font-size: 1rem; padding: 0 0.5rem;
+            }
+            .start-array, .start-inline-array, .end-array, .end-inline-array,
+            .start-object, .start-inline-object, .end-object, .end-inline-object {
+                color: @text-doc-punc; font-size: @system-font-size;
+            }
+            .start-array {
+                padding-right: 0.5rem;
+            }
+            .end-array, .start-object, .end-object, .break {
+                display: block;
+            }
+            .start-inline-array, .start-inline-object {
+                display: inline-block; padding-right: 0.5rem;
+            }
+            .end-inline-array {
+                display: inline-block; padding-left: 0.5rem;
+            }
+            .end-inline-object {
+                display: inline-block;
+            }
+            .entry:has(> .level_3) > .key {
+                min-width: 6rem !important;
+            }
+            .object:has(.entry > .object .level_3) > .entry .key {
+                min-width: 8rem;
+            }
+            .level_1 {
+                display: inline-block; width: 2rem;
+            }
+            .level_2 {
+                display: inline-block; width: 4rem;
+            }
+            .level_3 {
+                display: inline-block; width: 6rem;
+            }
+            .level_4 {
+                display: inline-block; width: 8rem;
+            }
+            .inline-entry, .inline-object {
+                display: inline-block;
+            }
+            .key {
+                color: @text-watermark; display: inline-block;
+                font-size: 1rem; min-width: 6rem;
+            }
+            .value {
+                display: inline-block; font-family: #fonts[serif];
+                font-size: @data-font-size;
+            }
+        }
         h1, h2, h3, h4, h5 {
             margin: 0.5rem 0;
         }
-        p, pre code {
-            font-size: @system-font-size; line-height: 1rem; max-width: 50rem;
+        a {
+            color: @text-link;
         }
-        pre code {
-            display: inline-block; white-space: break-spaces;
+        code, p {
+            line-height: 1.25rem; max-width: 50rem;
+        }
+        code {
+            font-family: #fonts[mono]; display: inline-block;
+            font-size: 0.8rem;
+        }
+        p {
+            font-size: 1rem;
+            code {
+                font-size: 0.9rem;
+            }
+        }
+        pre {
+            white-space: break-spaces;
+        }
+        p {
+            &:has(.start-object) {
+                margin-bottom: 0;
+            }
         }
     }
     .input-integer {
@@ -709,10 +795,15 @@ form.classic {
         margin-left: -0.25rem;
     }
 }
-.modal .filemanager {
-    margin: 0; min-width: @filemanager-min-width;
-    .input-field:has(label.field-label) {
-        grid-template-columns: auto max-content auto !important;
+.modal {
+    .attachment {
+        box-shadow: none;
+    }
+    .filemanager {
+        margin: 0; min-width: @filemanager-min-width;
+        .input-field:has(label.field-label) {
+            grid-template-columns: auto max-content auto !important;
+        }
     }
 }
 .selector form.classic:not(.wide) {
