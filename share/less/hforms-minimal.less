@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.96
+ * @version 0.1.97
  * Colours */
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
@@ -613,21 +613,35 @@ form.classic {
     .input-immutable {
         &.documentation {
             .comma {
-                color: @text-doc-punc; font-size: 1rem;
-                padding-right: 0.5rem;
+                color: @text-doc-punc; font-size: 1rem; padding-right: 0.5rem;
             }
             .separator {
                 color: @text-doc-punc; font-size: 1rem; padding: 0 0.5rem;
             }
             .start-array, .start-inline-array, .end-array, .end-inline-array,
-            .start-object, .start-inline-object, .end-object, .end-inline-object {
+            .start-object, .start-inline-object, .end-object,
+            .end-inline-object {
                 color: @text-doc-punc; font-size: @system-font-size;
+            }
+            .key {
+                color: @text-watermark; display: inline-block;
+                font-size: 1rem; min-width: 7rem;
+            }
+            .value {
+                display: inline-block; font-family: #fonts[serif];
+                font-size: @data-font-size;
+            }
+            .start-object, .end-object, .end-array, .break {
+                display: block;
+            }
+            .data > .array, .end-inline-object, .inline-entry, .inline-object {
+                display: inline-block;
+            }
+            .data, .object, .start-inline-array .level_2 {
+                padding-left: 2rem;
             }
             .start-array {
                 padding-right: 0.5rem;
-            }
-            .end-array, .start-object, .end-object, .break {
-                display: block;
             }
             .start-inline-array, .start-inline-object {
                 display: inline-block; padding-right: 0.5rem;
@@ -635,37 +649,11 @@ form.classic {
             .end-inline-array {
                 display: inline-block; padding-left: 0.5rem;
             }
-            .end-inline-object {
-                display: inline-block;
-            }
             .entry:has(> .level_3) > .key {
-                min-width: 6rem !important;
+                min-width: 5rem !important;
             }
             .object:has(.entry > .object .level_3) > .entry .key {
-                min-width: 8rem;
-            }
-            .level_1 {
-                display: inline-block; width: 2rem;
-            }
-            .level_2 {
-                display: inline-block; width: 4rem;
-            }
-            .level_3 {
-                display: inline-block; width: 6rem;
-            }
-            .level_4 {
-                display: inline-block; width: 8rem;
-            }
-            .inline-entry, .inline-object {
-                display: inline-block;
-            }
-            .key {
-                color: @text-watermark; display: inline-block;
-                font-size: 1rem; min-width: 6rem;
-            }
-            .value {
-                display: inline-block; font-family: #fonts[serif];
-                font-size: @data-font-size;
+                min-width: 7rem;
             }
         }
         h1, h2, h3, h4, h5 {

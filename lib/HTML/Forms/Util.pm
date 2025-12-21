@@ -173,7 +173,11 @@ styling with CSS
 =cut
 
 sub data2markup ($) {
-   return _data2markup(shift, { ht => HTML::Tiny->new(), level => 0 });
+   my $data   = shift;
+   my $ht     = HTML::Tiny->new();
+   my $markup = _data2markup($data, { ht => $ht, level => 0 });
+
+   return $ht->div({ class => 'data' }, $markup);
 }
 
 sub _data2markup {
@@ -206,8 +210,6 @@ sub _array2markup {
    my $padding = $ht->span({ class => 'level_' . $options->{level} });
    my $markup  = q();
 
-   $markup .= $ht->span({ class => 'break' }) if $options->{array};
-
    if ($options->{inline}) {
       my $start = $options->{array} ? [$padding, '['] : '[';
 
@@ -215,17 +217,20 @@ sub _array2markup {
    }
    else { $markup .= $ht->span({ class => 'start-array' }, [$padding, '[']) }
 
-   my $first = 1;
+   my $a_of_a = 0;
+   my $first  = 1;
 
    for my $item (@{$data}) {
+      $a_of_a  = 1 if is_arrayref $item;
       $markup .= $comma unless $first;
-      $markup .= $padding if $first && !$options->{inline};
-      $markup .= _data2markup($item, {array => 1, inline => 1, %{$options}});
+      $markup .= _data2markup($item, { array => 1, inline => 1, %{$options} });
       $first   = 0;
    }
 
-   if ($options->{inline}) {
+   if ($options->{inline} || !$a_of_a) {
       $markup .= $ht->span({ class => 'end-inline-array' }, ']');
+      $markup  = $ht->span({ class => 'array' }, trim($markup));
+      $markup  = $ht->span({ class => 'break' }).$markup if $options->{array};
    }
    else { $markup .= $ht->span({ class => 'end-array' }, [$padding, ']']) }
 
