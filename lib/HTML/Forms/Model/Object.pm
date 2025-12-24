@@ -32,6 +32,11 @@ Defines the following methods;
 
 =item update_model
 
+   $self->update_model;
+
+If the item supplied to the form has attributes whose names match the field
+names then the item attribute is updated with the field value
+
 =cut
 
 sub update_model {

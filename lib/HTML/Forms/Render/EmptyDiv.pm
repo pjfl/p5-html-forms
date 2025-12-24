@@ -198,7 +198,7 @@ sub _serialise_field {
    my $label_attr = $field->label_attributes // {};
 
    $label_attr->{className} = join SPC, @{delete $label_attr->{class}};
-   $label_attr->{htmlFor}   = $field->id;
+   $label_attr->{htmlFor}   = $field->id unless $field->type eq 'Display';
 
    my $page_break = $field->get_tag('page_break') // FALSE;
 

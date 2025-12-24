@@ -86,7 +86,7 @@ has 'interval_string' =>
       my $interval = $self->fif || $self->default;
       my $default_period = $self->interval_options->[0]->{value} . 's';
 
-      return interval_to_string($interval, $default_period);
+      return interval_to_string $interval, $default_period;
    };
 
 =item period_class

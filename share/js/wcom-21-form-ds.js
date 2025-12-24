@@ -1,12 +1,19 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.94
+    @version 0.1.98
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
    const triggerClass = 'data-structure';
+   /** @class
+       @classdesc Provides drag and drop handlers
+       @alias DataStructure/Drag
+   */
    class Drag {
+      /** @constructs
+          @desc Initialise drag and drop handling
+      */
       constructor(args = {}) {
          this.drag = {};
          this.dragNodeX = null;
@@ -16,6 +23,9 @@ WCom.Form.DataStructure = (function() {
          this.dragHandler = this._dragHandler.bind(this);
          this.dropHandler = this._dropHandler.bind(this);
       }
+      /** @function
+          @desc Handle auto scroll event
+      */
       autoScrollHandler(event) {
          const threshold = this.drag.autoScroll;
          if (!threshold || threshold < 1) return;
@@ -30,6 +40,9 @@ WCom.Form.DataStructure = (function() {
             this.setScrollInterval();
          }
       }
+      /** @function
+          @desc Clear the scroll interval
+      */
       clearScrollInterval() {
          if (this.drag.scrollInterval) clearInterval(this.drag.scrollInterval);
       }
@@ -73,16 +86,25 @@ WCom.Form.DataStructure = (function() {
             this.drag.dropCallback(node, this.drag.dragNode);
          this.stop();
       }
+      /** @function
+          @desc Hover handler
+      */
       hoverHandler(event, node) {
          if (this.drag.hoverClass) node.classList.add(this.drag.hoverClass);
          if (this.drag.hoverCallback)
             this.drag.hoverCallback(node, this.drag.dragNode, true);
       }
+      /** @function
+          @desc Leave handler
+      */
       leaveHandler(event, node) {
          if (this.drag.hoverClass) node.classList.remove(this.drag.hoverClass);
          if (this.drag.hoverCallback)
             this.drag.hoverCallback(node, this.drag.dragNode, false);
       }
+      /** @function
+          @desc Sets the scroll interval
+      */
       setScrollInterval() {
          this.clearScrollInterval();
          const dirn = this.drag.scrollDirection;
@@ -93,9 +115,15 @@ WCom.Form.DataStructure = (function() {
             this.scrollableWrapper.scrollBy(0, scrollBy);
          }.bind(this), this.drag.autoScrollSpeed);
       }
+      /** @function
+          @desc Accessor the the drag object
+      */
       state() {
          return this.drag;
       }
+      /** @function
+          @desc Start dragging
+      */
       start(event, settings = {}) {
          if (!event) throw new Error('You must supply an event');
          event.preventDefault();
@@ -143,6 +171,9 @@ WCom.Form.DataStructure = (function() {
          this.updateDropNodePositions();
          this.dragHandler(event);
       }
+      /** @function
+          @desc Stop dragging
+      */
       stop() {
          this.clearScrollInterval();
          const dragNode = this.drag.dragNode;
@@ -155,6 +186,9 @@ WCom.Form.DataStructure = (function() {
          this.drag = {};
          // TODO: Remove wheel/scroll events
       }
+      /** @function
+          @desc Updates drop nodes positions
+      */
       updateDropNodePositions() {
          this.drag.dropNodePositions = [];
          for (const dropNode of this.drag.dropNodes) {
@@ -169,6 +203,9 @@ WCom.Form.DataStructure = (function() {
          }
          this.drag.updateDropNodePositions = false;
       }
+      /** @function
+          @desc Updates the hover node
+      */
       updateHoverNode(event) {
          let hoverNode = null;
          for (const target of this.drag.dropNodePositions) {
@@ -190,7 +227,14 @@ WCom.Form.DataStructure = (function() {
       }
    }
    Object.assign(Drag.prototype, WCom.Util.Markup);
+   /** @class
+       @classdesc Enables adding/remove rows of related field content
+       @alias DataStructure/DataStructure
+   */
    class DataStructure {
+      /** @constructs
+          @desc Creates a DS object
+      */
       constructor(container) {
          this.container = container;
          this.hidden = this.container.querySelector('input[type=hidden]');
@@ -282,6 +326,9 @@ WCom.Form.DataStructure = (function() {
             el = el.parentNode;
          return el;
       }
+      /** @function
+          @desc Creates a field
+      */
       createField(column, item) {
          const useDefault = !item;
          item ||= {};
@@ -297,6 +344,9 @@ WCom.Form.DataStructure = (function() {
          if (this.isObject) this.registerValidation(field, column.name);
          return field;
       }
+      /** @function
+          @desc Creates a row
+      */
       createRow(item, index) {
          const readonly = this.readonly[index];
          const attr = { className: 'ds-field-group ' + this.fieldGroupDirn };
@@ -355,6 +405,9 @@ WCom.Form.DataStructure = (function() {
          }
          this.table.appendChild(row);
       }
+      /** @function
+          @desc Called when the row is dropped
+      */
       dropCallback(tr, row, dropTarget) {
          const selected = row.querySelector(
             '.ds-field > input[data-ds-name="selected"]'
@@ -374,6 +427,9 @@ WCom.Form.DataStructure = (function() {
          tr.classList.remove('hide');
          // TODO: Drop highlight. Also where highlight come from?
       }
+      /** @function
+          @desc Returns row data
+      */
       getValue() {
          const errors = [];
          const data = (this.isObject) ? {} : [];
@@ -415,6 +471,9 @@ WCom.Form.DataStructure = (function() {
          if (this.isObject && errors.length) return { errors, valid: false };
          return { content: (this.singleRow ? data[0] : data), valid: true };
       }
+      /** @function
+          @desc Tests to see if name is valid
+      */
       isValidName(name) {
          const result = { errors: [], valid: true };
          if (!name) {
@@ -484,6 +543,9 @@ WCom.Form.DataStructure = (function() {
          if (!this.fixed) header.appendChild(this.h.div(attr));
          return hasLabels ? header : false;
       }
+      /** @function
+          @desc Renders the data structure
+      */
       render() {
          const direction = this.flexDirection;
          const className = `ds-form ${direction} snaps-inline hide`;
@@ -522,6 +584,9 @@ WCom.Form.DataStructure = (function() {
             this.hasLoaded = true;
          }
       }
+      /** @function
+          @desc Registers field validation
+      */
       registerValidation(field, name) {
          if (name != 'name') return;
          field.addEventListener('input', function(event) {
@@ -530,6 +595,9 @@ WCom.Form.DataStructure = (function() {
             else this.classList.add('ds-error');
          }.bind(this));
       }
+      /** @function
+          @desc Sets up the reorderable event handlers
+      */
       setupReorderable() {
          const knobs = '.ds-reorderable .knob';
          for (const knob of this.container.querySelectorAll(knobs)) {
@@ -555,17 +623,32 @@ WCom.Form.DataStructure = (function() {
    }
    Object.assign(DataStructure.prototype, WCom.Util.Markup);
    Object.assign(DataStructure.prototype, WCom.Util.Modifiers);
+   /** @class
+       @classdesc Factory class for creating DataStructures
+       @alias DataStructure/Manager
+   */
    class Manager {
       constructor() {
          this.ds = {};
       }
-      async reload(args) {
-         const { target, url } = args;
+      /** @function
+          @async
+          @desc Reload the data structure source data and re-render the DS
+          @param {object} options
+          @property {string} target Name of the DS to reload
+          @property {string} url Server endpoint to fetch the source data from
+      */
+      async reload(options) {
+         const { target, url } = options;
          const ds = this.ds[target];
          const response = await fetch(url, { method: 'GET' });
          ds.sourceData = await response.json();
          ds.render();
       }
+      /** @function
+          @desc Scan the supplied content for the DS trigger class. Creates
+             instances of {@link DataStructure/DataStructure|DataStructure}
+      */
       scan(container = document) {
          for (const el of container.querySelectorAll(`div.${triggerClass}`)) {
             const ds = new DataStructure(el);
@@ -575,8 +658,18 @@ WCom.Form.DataStructure = (function() {
       }
    }
    const manager = new Manager();
+   /** @module Form/DataStructure
+   */
    return {
-      manager: manager,
-      reload: manager.reload,
+      /** @function
+          @desc Reloads content on demand. Calls
+             {@link DataStructure/Manager#reload}
+      */
+      reload: manager.reload.bind(manager),
+      /** @function
+          @desc Scans for and inflates data structures. Calls
+             {@link DataStructure/Manager#scan}
+      */
+      scan: manager.scan.bind(manager),
    };
 })();

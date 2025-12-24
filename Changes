@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Documentation updates
           - Better styling for data2markup output
           - Adds data2markup to utilities
           - Allows info to be placed above the field

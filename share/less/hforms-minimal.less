@@ -1,14 +1,14 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.97
+ * @version 0.1.98
  * Colours */
 @button-border: gainsboro;
 @checkbox-bg-false: firebrick;
 @checkbox-bg-true: seagreen;
-@display-tile-border: gainsboro;
 @exception-bg: lightpink;
 @field-focus-outline: darkorange;
 @field-required: firebrick;
 @form-bg-border-focus: seagreen;
+@input-border: gainsboro;
 @line-border: gray;
 @panel-shadow: gray;
 @text-close: firebrick;
@@ -139,6 +139,9 @@ form.classic {
         &.hide {
             display: none;
         }
+        &.right {
+            justify-content: right;
+        }
         input:not([type=submit]) {
             max-width: @input-max-width-compound !important;
         }
@@ -146,7 +149,8 @@ form.classic {
             background: var(--bg-dark); border-radius: 5px;
             box-shadow: 3px 3px 3px @panel-shadow;
             left: calc(var(--label-width) + @field-col-gap);
-            padding: 0.25rem; position: absolute; top: -2rem;
+            margin-left: -2px;
+            padding: 0.25rem 0.5rem; position: absolute; top: -2rem;
             white-space: nowrap;
         }
         .input-field:not(.hide) .input-field {
@@ -154,9 +158,8 @@ form.classic {
         }
     }
     .form-wrapper {
-        border-radius: 5px;
-        min-width: @form-min-width; max-width: @form-max-width;
-        margin: 0; padding: 0 1rem @field-row-gap; position: relative;
+        border-radius: 5px;min-width: @form-min-width; margin: 0;
+        padding: 0 1rem @field-row-gap; position: relative;
         &:has(.input-field.floating) .input-button button {
             margin-top: 1rem;
         }
@@ -269,7 +272,7 @@ form.classic {
             }
         }
         input {
-            height: 1.75rem;
+            border: 2px inset @input-border; height: 1.75rem;
             &:focus {
                 background: var(--bg-base);
             }
@@ -308,9 +311,9 @@ form.classic {
             }
         }
         select {
-            background: var(--button-bg);
-            max-width: @select-max-width;
-            min-width: @select-min-width; padding: 0.25rem;
+            background: var(--button-bg); border: 2px inset @input-border;
+            max-width: @select-max-width; min-width: @select-min-width;
+            padding: 0.25rem;
             &:not(.select-multiple) option {
                 font-family: #fonts[sans]; font-size: @system-font-size;
             }
@@ -322,9 +325,9 @@ form.classic {
             }
         }
         textarea {
-            box-sizing: content-box; min-height: @textarea-min-height;
-            max-width: @textarea-max-width; min-width: @textarea-min-width;
-            overflow: auto; padding: 0.25rem;
+            box-sizing: content-box; border: 2px inset @input-border;
+            min-height: @textarea-min-height; max-width: @textarea-max-width;
+            min-width: @textarea-min-width; overflow: auto; padding: 0.25rem;
             &:focus {
                 background: var(--bg-base);
             }
@@ -340,7 +343,7 @@ form.classic {
         }
         .alert-info {
             background: var(--bg-dark); box-shadow: 3px 3px 3px @panel-shadow;
-            min-width: 12.5rem;
+            margin-left: -2px; min-width: 12.5rem;
         }
         .field-label {
             font-family: #fonts[sans]; font-size: @system-font-size;
@@ -564,7 +567,7 @@ form.classic {
     }
     .input-datetime input.tile {
         background: var(--bg-lightest);
-        border: 2px inset @display-tile-border; border-radius: 5px;
+        border: 2px inset @input-border; border-radius: 5px;
         color: @text-disabled; font-size: (@data-font-size - 0.0625rem);
     }
     .input-display {
@@ -586,7 +589,7 @@ form.classic {
             }
             &.tile {
                 background: var(--bg-lightest);
-                border: 2px inset @display-tile-border; border-radius: 5px;
+                border: 2px inset @input-border; border-radius: 5px;
                 color: @text-disabled; min-width: @tile-min-width;
             }
         }
@@ -689,11 +692,11 @@ form.classic {
             border-left: none; border-radius: 0; border-right: none;
             outline: 0; text-align: center; width: 2rem;
             &:first-child {
-                border-left: 2px inset @button-border;
+                border-left: 2px inset @input-border;
                 border-bottom-left-radius: 5px; border-top-left-radius: 5px;
             }
             &:last-child {
-                border-right: 2px inset @button-border;
+                border-right: 2px inset @input-border;
                 border-bottom-right-radius: 5px; border-top-right-radius: 5px;
             }
         }

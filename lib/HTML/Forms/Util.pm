@@ -19,10 +19,10 @@ use HTML::Tiny;
 use Try::Tiny;
 
 use Sub::Exporter -setup => { exports => [
-   qw( cc_widget cipher convert_full_name data2markup duration_to_string
-       encode_only_entities get_meta get_token has_some_value inflate_interval
-       interval_to_string json_bool merge make_handler now process_attrs
-       quote_single trim ucc_widget uri_escape verify_token )
+   qw( cc_widget cipher convert_full_name data2markup encode_only_entities
+       get_meta get_token has_some_value interval_to_string json_bool merge
+       make_handler now process_attrs quote_single trim ucc_widget uri_escape
+       verify_token )
 ]};
 
 =pod
@@ -120,6 +120,11 @@ my $PERIOD_CONVERSION = {
 
 =item cc_widget
 
+   $widget_class = cc_widget $widget_name;
+
+Removes underscores and capitalises the first letter of each word. Used to
+create a widget class name from the name of the widget
+
 =cut
 
 sub cc_widget ($) {
@@ -134,6 +139,12 @@ sub cc_widget ($) {
 }
 
 =item cipher
+
+   $crypt_obj = cipher $key?
+
+Returns a L<Crypt::CBC> object initialised with the C<Twofish2> cipher. If the
+optional key is supplied it is used in place of the default
+L<HTML::Forms::Constants/SECRET>
 
 =cut
 
@@ -151,6 +162,12 @@ sub cipher (;$) {
 
 =item convert_full_name
 
+   $sub_name = convert_full_name $full_name;
+
+Removes the compound field encoding of an accessors full name. Used to create
+the C<default_*>, C<options_*>, and C<validate_*> method names from the
+field's full name
+
 =cut
 
 sub convert_full_name ($) {
@@ -166,7 +183,7 @@ sub convert_full_name ($) {
 
    $markup = data2markup($data);
 
-Accepts an arbitary data structure and returns a string of HTML with each
+Accepts an arbitrary data structure and returns a string of HTML with each
 element of the data structure wrapped in HTML tags of a suitable class for
 styling with CSS
 
@@ -281,11 +298,143 @@ sub _hash2markup {
    return trim($markup);
 }
 
-=item duration_to_string
+=item encode_only_entities
+
+   $encoded = encode_only_entities $html;
+
+Uses L<HTML::Entities/char2entity> to encode the characters that HTML finds
+problematic
 
 =cut
 
-sub duration_to_string ($$) {
+sub encode_only_entities ($) {
+   my $html = shift;
+
+   # Encode control chars and high bit chars, but leave '<', '&', '>', ''' and
+   # '"'. Encode as decimal rather than hex, to keep Lotus Notes happy.
+   $html =~ s{([^<>&"'\n\r\t !\#\$%\(-;=?-~])}{ #"emacs
+      $HTML::Entities::char2entity{$1} || '&#' . ord($1) . ';'
+   }ge;
+
+   return $html;
+}
+
+=item get_meta
+
+   $meta_obj = get_meta $object_ref;
+
+Returns the meta object reference for the supplied object reference if it
+exists. Returns undefined otherwise
+
+=cut
+
+sub get_meta ($) {
+   my $self   = shift;
+   my $class  = blessed $self || $self;
+   my $method = META;
+
+   return $class->can($method) ? $class->$method : undef;
+}
+
+=item get_token
+
+   $token = get_token $expires, $prefix;
+
+Takes the C<prefix> and C<expires> time in seconds and encrypts then C<base64>
+encodes them. Can be used as a C<CSRF> token on form submissions
+
+=cut
+
+sub get_token ($$) {
+   my ($expires, $prefix) = @_;
+
+   $prefix .= BANG if $prefix;
+
+   my $value = $prefix . (time + $expires);
+   my $token = encode_base64(cipher->encrypt($value));
+
+   $token =~ s{[\s\r\n]+}{}gmx;
+   return $token;
+}
+
+=item has_some_value
+
+   $bool = has_some_value $some_scalar_value;
+
+Returns C<TRUE> if the supplied scalar has some value
+
+=cut
+
+sub has_some_value ($) {
+   return _has_some_value(shift);
+}
+
+sub _has_some_value {
+   my $x = shift;
+
+   return unless defined $x;
+   return $x =~ m{ \S }mx ? TRUE : FALSE unless ref $x;
+
+   if (is_arrayref $x) {
+      for my $elem (@{ $x }) { return TRUE if _has_some_value( $elem ) }
+
+      return FALSE;
+   }
+
+   if (is_hashref $x) {
+      for my $key (keys %{ $x }) {
+         return TRUE if _has_some_value( $x->{ $key } );
+      }
+
+      return FALSE;
+   }
+
+   return TRUE if is_blessed_ref $x or ref $x;
+
+   return FALSE;
+}
+
+=item interval_to_string
+
+   $interval_string = interval_to_string $interval, $default_period;
+
+Inflates a L<DateTime::Duration> object from the supplied C<interval>. Returns
+a string describing the length of the duration
+
+=cut
+
+sub interval_to_string ($$) {
+   my ($interval, $default_period) = @_;
+
+   my $duration = _inflate_interval($interval);
+
+   return _duration_to_string($duration, $default_period);
+}
+
+sub _inflate_interval {
+   my $interval = shift;
+
+   $interval //= NUL;
+
+   my @parts    = $interval =~ m{ (\d+ \s* \w+) }gmx;
+   my %duration;
+
+   if ($interval =~ m{ (\d+) : (\d+) : (\d+) }mx) {
+      %duration = (hours => $1, minutes => $2, seconds => $3);
+   }
+
+   for my $interval (@parts) {
+      my ($unit, $period) = $interval =~ m{ (\d+) \s* (\w+) }mx;
+
+      while (my ($valid_period, $regexp) = each %{ $INTERVAL_REGEXP }) {
+         $duration{ $valid_period } = $unit if $period =~ $regexp;
+      }
+   }
+
+   return DateTime::Duration->new( %duration );
+}
+
+sub _duration_to_string ($$) {
    my ($duration, $default_period) = @_;
 
    $default_period //= 'seconds';
@@ -316,119 +465,9 @@ sub duration_to_string ($$) {
    return "${time_units} ${smallest_period}";
 }
 
-=item encode_only_entities
+=item json_bool
 
-=cut
-
-sub encode_only_entities {
-   my $html = shift;
-
-   # Encode control chars and high bit chars, but leave '<', '&', '>', ''' and
-   # '"'. Encode as decimal rather than hex, to keep Lotus Notes happy.
-   $html =~ s{([^<>&"'\n\r\t !\#\$%\(-;=?-~])}{ #"emacs
-      $HTML::Entities::char2entity{$1} || '&#' . ord($1) . ';'
-   }ge;
-
-   return $html;
-}
-
-=item get_meta
-
-=cut
-
-sub get_meta {
-   my $self   = shift;
-   my $class  = blessed $self || $self;
-   my $method = META;
-
-   return $class->can($method) ? $class->$method : undef;
-}
-
-=item get_token
-
-=cut
-
-sub get_token ($$) {
-   my ($expires, $prefix) = @_;
-
-   $prefix .= BANG if $prefix;
-
-   my $value = $prefix . (time + $expires);
-   my $token = encode_base64(cipher->encrypt($value));
-
-   $token =~ s{[\s\r\n]+}{}gmx;
-   return $token;
-}
-
-=item has_some_value
-
-=cut
-
-sub has_some_value {
-   my $x = shift;
-
-   return unless defined $x;
-   return $x =~ m{ \S }mx ? TRUE : FALSE unless ref $x;
-
-   if (is_arrayref $x) {
-      for my $elem (@{ $x }) { return TRUE if has_some_value( $elem ) }
-
-      return FALSE;
-   }
-
-   if (is_hashref $x) {
-      for my $key (keys %{ $x }) {
-         return TRUE if has_some_value( $x->{ $key } );
-      }
-
-      return FALSE;
-   }
-
-   return TRUE if is_blessed_ref $x or ref $x;
-
-   return FALSE;
-}
-
-=item inflate_interval
-
-=cut
-
-sub inflate_interval {
-   my $interval = shift;
-
-   $interval //= NUL;
-
-   my @parts    = $interval =~ m{ (\d+ \s* \w+) }gmx;
-   my %duration;
-
-   if ($interval =~ m{ (\d+) : (\d+) : (\d+) }mx) {
-      %duration = (hours => $1, minutes => $2, seconds => $3);
-   }
-
-   for my $interval (@parts) {
-      my ($unit, $period) = $interval =~ m{ (\d+) \s* (\w+) }mx;
-
-      while (my ($valid_period, $regexp) = each %{ $INTERVAL_REGEXP }) {
-         $duration{ $valid_period } = $unit if $period =~ $regexp;
-      }
-   }
-
-   return DateTime::Duration->new( %duration );
-}
-
-=item interval_to_string
-
-=cut
-
-sub interval_to_string ($$) {
-   my ($interval, $default_period) = @_;
-
-   my $duration = inflate_interval( $interval );
-
-   return duration_to_string( $duration, $default_period );
-}
-
-=item json_bool( $scalar )
+   $scalar_ref = json_bool $scalar;
 
 Evaluates the scalar value provided and returns references to true/false values
 for serialising to JSON
@@ -440,6 +479,10 @@ sub json_bool ($) {
 }
 
 =item merge
+
+   $merged = merge $left, $right;
+
+Merges values from the supplied scalars
 
 =cut
 
@@ -457,11 +500,16 @@ sub merge ($$) {
    return $MATRIX->{ $lefttype }{ $righttype }->( $left, $right );
 }
 
-=item make_handler( $method, $targets, $id?, $uri?)
+=item make_handler
+
+   $handler_str = make_handler $method, $targets, $id?, $uri?;
+
+Returns a JS handler string for the supplied arguments. These are attached to
+events like C<change>, C<blur>, C<click> etc. on the form fields
 
 =cut
 
-sub make_handler {
+sub make_handler ($$;$$) {
    my ($method, $targets, $id, $uri) = @_;
 
    my $args = { targetIds => $targets };
@@ -473,6 +521,11 @@ sub make_handler {
 }
 
 =item now
+
+   $date_time = now $timezone?, $locale?;
+
+Returns the L<DateTime> now object. Time zone defaults to C<UTC>, locale
+defaults to C<en_GB>
 
 =cut
 
@@ -489,11 +542,13 @@ sub now (;$$) {
 
 =item process_attrs
 
+   $processed = process_attrs $attributes;
+
 This is a function for processing various attribute flavors
 
 =cut
 
-sub process_attrs {
+sub process_attrs ($) {
    my $attrs = shift;
 
    $attrs ||= {};
@@ -540,6 +595,11 @@ sub process_attrs {
 
 =item quote_single
 
+   $quoted = quote_single $string;
+
+Returns the supplied string wrapped in single quotes. Embedded single quotes
+are escaped
+
 =cut
 
 sub quote_single ($) {
@@ -571,6 +631,10 @@ sub trim (;$$) {
 
 =item ucc_widget
 
+   $widget = ucc_widget $widget_name
+
+Returns the widget name correctly cased for use as a widget
+
 =cut
 
 sub ucc_widget ($) {
@@ -589,6 +653,11 @@ sub ucc_widget ($) {
 }
 
 =item verify_token
+
+   $reason = verify_token $token;
+
+Verifies the supplied C<CSRF> token. Returns undefined if the token is good.
+Returns the reason the token is bad otherwise
 
 =cut
 

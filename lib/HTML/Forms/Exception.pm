@@ -33,6 +33,8 @@ Defines the following attributes;
 
 =item C<rv>
 
+An immutable integer which default to C<1>. The return value
+
 =cut
 
 has 'rv' => is => 'ro', isa => Int, default => 1;
@@ -51,11 +53,16 @@ Defines the following exceptions
 
 =item C<HTML::Forms::Exception>
 
+Defines the class name as an exception class. This can be inherited by the
+other exceptions defined here providing them with a common parent
+
 =cut
 
 has_exception $class;
 
 =item C<BadToken>
+
+The C<CSRF> token was bad
 
 =cut
 
@@ -64,12 +71,16 @@ has_exception 'BadToken' => parent => [$class],
 
 =item C<NotFound>
 
+Path to a file not found
+
 =cut
 
 has_exception 'NotFound' => parent => [$class],
    error => 'Path [_1] not found. [_2]', rv => HTTP_NOT_FOUND;
 
 =item C<PackageUndefined>
+
+Undefined package
 
 =cut
 
@@ -78,12 +89,16 @@ has_exception 'PackageUndefined' => parent => [$class],
 
 =item C<ReadFailed>
 
+Attempt to read the path failed
+
 =cut
 
 has_exception 'ReadFailed' => parent => [$class],
    error => 'Path [_1] read failed. [_2]';
 
 =item C<UnknownPackage>
+
+The request package was unknown
 
 =cut
 

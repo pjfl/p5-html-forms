@@ -23,6 +23,9 @@ README.pod
 t/ipc_srlock*
 *.tar.gz
 HTML-Forms-*
+node_modules
+package-lock.json
+package.json
 xt/var/root/css
 xt/var/root/js
 xt/var/tmp

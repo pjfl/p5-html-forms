@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.94
+    @version 0.1.98
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -19,8 +19,8 @@ WCom.Form.Util = (function () {
       }
       return true;
    };
-   const fieldChange = function(args) {
-      const { id, targetIds } = args;
+   const fieldChange = function(options) {
+      const { id, targetIds } = options;
       for (const targetId of targetIds) {
          _setFieldMap(targetId, id);
          const target = document.getElementById(targetId);
@@ -49,7 +49,7 @@ WCom.Form.Util = (function () {
       const forms = content.querySelector('form.' + formClass);
       if (!forms) return;
       for (const form of forms) {
-         WCom.Form.DataStructure.manager.scan(form);
+         WCom.Form.DataStructure.scan(form);
          WCom.Form.Toggle.scan(form);
          WCom.Util.Markup.animateButtons(form, '.input-field button');
          focusFirst(form);
@@ -81,15 +81,15 @@ WCom.Form.Util = (function () {
          }
       }
    };
-   const showIfRequired = function(args) {
-      const { id, targetIds, url } = args;
+   const showIfRequired = function(options) {
+      const { id, targetIds, url } = options;
       const target = new URL(url);
       const field = document.getElementById(id);
       target.searchParams.set('value', field.value);
       _showIfRequired(target, targetIds);
    };
-   const unrequire = function(args) {
-      const { targetIds } = args;
+   const unrequire = function(options) {
+      const { targetIds } = options;
       for (name of targetIds) {
          const field = document.getElementById(name);
          if (field.getAttribute('required') == 'required') {
@@ -164,24 +164,82 @@ WCom.Form.Util = (function () {
          parent.appendChild(error);
       }
    };
-   const validateField = function(args) {
-      let { url, id } = args;
+   const validateField = function(options) {
+      let { id, url } = options;
       const field = document.getElementById(id);
       url = new URL(url.replace(/\*/, field.form.id).replace(/\*/, id));
       url.searchParams.set('value', field.value);
       _validateField(url, field);
    };
    WCom.Util.Event.registerOnload(scan);
+   /** @module Form/Util
+       @desc Exports form related static functions
+   */
    return {
+      /** @function
+          @desc Enables/disables elements based on the values of other elements
+          @param {object} options
+          @property {string} options.id If this field has a value enable the
+             target ids if all of their dependent fields also have a value
+          @property {array} options.targetIds Element ids to be enabled/disabled
+      */
       fieldChange: fieldChange,
+      /** @function
+          @desc Focuses the the first suitable field on the form
+          @param {object} form Select the first focusable field from this form
+      */
       focusFirst: focusFirst,
+      /** @function
+          @desc Toggles the field type between 'password' and 'text'
+          @param {string} id The id of the password field
+      */
       revealPassword: revealPassword,
+      /** @function
+          @desc Scans the supplied DOM element for the form's trigger class
+          @param {object} content DOM element to scan
+          @param {object} options
+          @property {string} options.formClass Form class to select. Defaults
+             to 'classic'
+      */
       scan: scan,
+      /** @function
+          @desc Shows/hides fields depending other fields current values
+          @param {object} options
+          @property {string} options.id This field value is set to the server.
+             Based on the result the target ids are show/hidden
+          @property {array} options.targetIds Element ids to be show/hide
+          @property {string} options.url Server endpoint used to test the
+             field value
+      */
       showIfRequired: showIfRequired,
+      /** @function
+          @desc Marks selected fields as no longer required
+          @param {object} options
+          @property {array} options.targetIds Element ids to require/unrequire
+      */
       unrequire: unrequire,
+      /** @function
+          @desc Updates the hidden field associated with a list of digit fields
+          @param {string} id Id of the hidden element to update
+          @param {integer} index Index of the digit to operate on
+      */
       updateDigits: updateDigits,
+      /** @function
+          @desc Updates datetime field from the compound digit fields
+          @param {string} id Id of the element to update from the hours,
+             minutes, and timezone fields
+      */
       updateTimeWithZone: updateTimeWithZone,
+      /** @function
+          @desc Validates the specified field
+          @param {object} options
+          @property {string} id Id of the field to validate
+          @property {string} url Server endpoint used to validate form fields
+      */
       validateField: validateField,
+      /** @constant
+          @desc Prefix used when naming fields
+      */
       wrapperIdPrefix: wrapperIdPrefix
    };
 })();
