@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.98
+    @version 0.1.99
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -193,7 +193,10 @@ WCom.Form.Renderer = (function() {
             name: field.htmlName || field.name,
          };
          if (field.handlers) this._setHandlers(this.attr, field.handlers);
-         if (field.htmlElement == 'input') this.attr.type = field.inputType;
+         if (field.htmlElement == 'input') {
+            this.attr.autocomplete = field.autocomplete ? 'on' : 'off';
+            this.attr.type = field.inputType;
+         }
          if (field.value !== undefined) this.attr.value = field.value;
       }
       renderField(container) {
@@ -540,7 +543,6 @@ WCom.Form.Renderer = (function() {
    class HTMLFieldText extends HTMLField {
       render(wrapper) {
          this.attr.value = this.field.fif;
-         this.attr.autocomplete = 'off';
          const element = this.h[this.field.htmlElement](this.attr);
          wrapper.appendChild(element);
          return element;

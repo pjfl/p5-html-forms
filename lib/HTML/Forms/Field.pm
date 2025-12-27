@@ -75,6 +75,8 @@ Defines the following attributes;
 
 =over 3
 
+=item C<autocomplete> - When true C<autocomplete> is turned on
+
 =item C<disabled> - If true the field is disabled
 
 =item C<hide_info> - If true do not display the field C<info>
@@ -105,7 +107,8 @@ Defines the following attributes;
 
 =cut
 
-has [ 'disabled',
+has [ 'autocomplete',
+      'disabled',
       'hide_info',
       'info_top',
       'is_contains',

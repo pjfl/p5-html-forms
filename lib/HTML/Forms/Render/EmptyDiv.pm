@@ -212,6 +212,7 @@ sub _serialise_field {
    my $result   = $field->result;
    my $attr     = {
       attributes   => $field_attr,
+      autocomplete => json_bool $field->autocomplete,
       depends      => $depends,
       disabled     => $disabled,
       doLabel      => json_bool $field->do_label,
