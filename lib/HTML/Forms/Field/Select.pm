@@ -71,6 +71,8 @@ has 'has_many' => is => 'rw', isa => Str;
 
 =item label_column
 
+Used by L<HTML::Forms::Model::DBIC>. TODO: This shouldn't be here
+
 =cut
 
 has 'label_column' => is => 'ro', isa => Str, default => 'name';

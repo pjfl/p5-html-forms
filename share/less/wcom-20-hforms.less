@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.98
+ * @version 0.1.100
  */
 @import "wcom-05-constants";
 form.classic {
@@ -41,7 +41,8 @@ form.classic {
         max-width: unset; --label-width: @label-width-wide;
     }
     & > .alert-info, .form-wrapper > .alert-info, .form-page > .alert-info {
-        padding-bottom: @field-row-gap; padding-top: 0.5rem;
+        max-width: @alert-info-max-width; padding-bottom: @field-row-gap;
+        padding-top: 0.5rem;
     }
     .alert {
         font-family: #fonts[sans]; font-size: @system-font-size;
@@ -69,12 +70,15 @@ form.classic {
             padding: 0.25rem 0.5rem; position: absolute; top: -2rem;
             white-space: nowrap;
         }
+        .input-button.right {
+            right: 0;
+        }
         .input-field:not(.hide) .input-field {
             padding-bottom: 0;
         }
     }
     .form-wrapper {
-        border-radius: 5px;min-width: @form-min-width; margin: 0;
+        border-radius: 5px; min-width: @form-min-width; margin: 0;
         padding: 0 1rem @field-row-gap; position: relative;
         &:has(.input-field.floating) .input-button button {
             margin-top: 1rem;
@@ -539,6 +543,12 @@ form.classic {
     }
     .input-immutable {
         &.documentation {
+            height: 70vh; overflow-y: auto;
+            overscroll-behavior-inline: contain; scroll-behavior: smooth;
+            scroll-snap-type: block mandatory;
+            h2 {
+                scroll-snap-align: start;
+            }
             .comma {
                 color: @text-doc-punc; font-size: 1rem; padding-right: 0.5rem;
             }
@@ -567,6 +577,9 @@ form.classic {
             .data, .object, .start-inline-array .level_2 {
                 padding-left: 2rem;
             }
+            .data, .value {
+                background: var(--bg-lighter);
+            }
             .start-array {
                 padding-right: 0.5rem;
             }
@@ -590,7 +603,7 @@ form.classic {
             color: @text-link;
         }
         code, p {
-            line-height: 1.25rem; max-width: 50rem;
+            line-height: 1.25rem; max-width: @paragraph-max-width;
         }
         code {
             font-family: #fonts[mono]; display: inline-block;
@@ -598,17 +611,15 @@ form.classic {
         }
         p {
             font-size: 1rem;
+            &:has(.start-object) {
+                margin-bottom: 0;
+            }
             code {
                 font-size: 0.9rem;
             }
         }
         pre {
             white-space: break-spaces;
-        }
-        p {
-            &:has(.start-object) {
-                margin-bottom: 0;
-            }
         }
     }
     .input-integer {
@@ -667,6 +678,9 @@ form.classic {
             }
             &.hide {
                 display: none;
+            }
+            .input-button.right {
+                right: 0;
             }
         }
     }

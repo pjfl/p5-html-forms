@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Moved LESS constants to wcom-05-constants.less
           - Added field autocomplete
           - Documentation updates
           - Better styling for data2markup output
