@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Improved styling for disabled DS fields
           - Moved LESS constants to wcom-05-constants.less
           - Added field autocomplete
           - Documentation updates

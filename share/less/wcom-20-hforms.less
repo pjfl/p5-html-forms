@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.1.100
+ * @version 0.1.101
  */
 @import "wcom-05-constants";
 form.classic {
@@ -377,10 +377,10 @@ form.classic {
                 aspect-ratio: 16 / 9; inline-size: 100%; object-fit: contain;
             }
             input[readonly=readonly] {
-                background: var(--bg-base) !important;
                 font-family: #fonts[sans]; font-size: @system-font-size;
                 font-weight: normal;
                 &.input-datetime {
+                    background: var(--bg-base);
                     margin-left: -0.25rem;
                 }
             }
@@ -388,12 +388,8 @@ form.classic {
         .ds-field-group {
             display: flex;
             &.vertical {
-                flex-direction: column;
+                flex-direction: column; row-gap: @field-row-gap;
             }
-        }
-        .ds-input.input-text[readonly=readonly] {
-            background: var(--bg-lighter-semitrans); border: 0;
-            border-radius: 0; color: @text-dark; padding: 0;
         }
         .ds-output {
             box-sizing: content-box; font-size: @system-font-size;
