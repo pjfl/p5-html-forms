@@ -502,22 +502,21 @@ sub merge ($$) {
 
 =item make_handler
 
-   $handler_str = make_handler $method, $targets, $id?, $uri?;
+   $handler_str = make_handler $method, \%options?, \@targets?;
 
 Returns a JS handler string for the supplied arguments. These are attached to
 events like C<change>, C<blur>, C<click> etc. on the form fields
 
 =cut
 
-sub make_handler ($$;$$) {
-   my ($method, $targets, $id, $uri) = @_;
+sub make_handler ($;$$) {
+   my ($method, $options, $target_ids) = @_;
 
-   my $args = { targetIds => $targets };
+   $options //= {};
 
-   $args->{id} = $id  if $id;
-   $args->{url} = "${uri}" if $uri;
+   my $args = $target_ids ? { targetIds => $target_ids } : {};
 
-   return sprintf "${method}(%s)", encode_json($args);
+   return sprintf "${method}(%s)", encode_json({ %{$args}, %{$options} });
 }
 
 =item now

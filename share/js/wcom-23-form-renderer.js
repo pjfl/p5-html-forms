@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.99
+    @version 0.1.100
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -258,7 +258,7 @@ WCom.Form.Renderer = (function() {
       }
       _setHandlers(acc, handlers) {
          for (const [ev, handler] of Object.entries(handlers)) {
-            acc[ev] = this.getEventHandler(handler, this.field.allowDefault);
+            acc[ev] = this.getEventHandler(handler);
          }
       }
    }

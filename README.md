@@ -676,9 +676,14 @@ information to `stderr`
 
 # Dependencies
 
-- [Data::Clone](https://metacpan.org/pod/Data%3A%3AClone)
-- [Moo](https://metacpan.org/pod/Moo)
-- [Unexpected](https://metacpan.org/pod/Unexpected)
+- [HTML::Forms::Base](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ABase)
+- [HTML::Forms::Model](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AModel)
+- [HTML::Forms::Fields](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AFields)
+- [HTML::Forms::InitResult](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AInitResult)
+- [HTML::Forms::Widget::ApplyRole](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AWidget%3A%3AApplyRole)
+- [HTML::Forms::Blocks](https://metacpan.org/pod/HTML%3A%3AForms%3A%3ABlocks)
+- [HTML::Forms::Params](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AParams)
+- [HTML::Forms::Result](https://metacpan.org/pod/HTML%3A%3AForms%3A%3AResult)
 
 # Incompatibilities
 
