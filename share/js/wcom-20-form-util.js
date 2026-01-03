@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.98
+    @version 0.2.2
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {

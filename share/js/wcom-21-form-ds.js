@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.98
+    @version 0.2.2
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';

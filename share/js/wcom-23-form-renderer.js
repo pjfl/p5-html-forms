@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.100
+    @version 0.2.2
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';

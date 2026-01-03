@@ -1,7 +1,7 @@
 /** @file HTML Forms - Toggle
     @classdesc Toggles field visibility based on the values of other fields
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.1.98
+    @version 0.2.2
 */
 WCom.Form.Toggle = (function() {
    const dsName = 'toggleConfig';
