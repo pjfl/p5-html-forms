@@ -1,12 +1,11 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 3 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
-use HTML::Forms::Types     qw( ArrayRef Bool HashRef
-                               HFsArrayRefStr HFsField HFsResult
-                               LoadableClass Object Str Undef );
+use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFsArrayRefStr HFsField
+                               HFsResult LoadableClass Object Str Undef );
 use Data::Clone            qw( clone );
 use HTML::Forms::Util      qw( has_some_value );
 use Ref::Util              qw( is_arrayref is_blessed_ref
@@ -1139,7 +1138,8 @@ sub build_active {
 
 =item build_errors
 
-Moves the errors to the C<result> object
+Copies the results C<error_results> to the results C<errors>. This is done
+after the fields have been validated
 
 =cut
 

@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Default API endpoint changed
           - Version number fixes
 
 0.2.100   2026-01-02 22:36:06

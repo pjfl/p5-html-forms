@@ -203,6 +203,9 @@ sub is_valid { shift->validated }
 
 =item validated
 
+Have added the test for C<has_errors>. This was not present in
+L<HTML::FormHandler>
+
 =cut
 
 sub validated {

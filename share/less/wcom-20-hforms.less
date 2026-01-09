@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.2
+ * @version 0.2.3
  */
 @import "wcom-05-constants";
 form.classic {
@@ -539,7 +539,7 @@ form.classic {
     }
     .input-immutable {
         &.documentation {
-            height: 70vh; overflow-y: auto;
+            height: @doc-item-height; overflow-y: auto;
             overscroll-behavior-inline: contain; scroll-behavior: smooth;
             scroll-snap-type: block mandatory;
             h2 {

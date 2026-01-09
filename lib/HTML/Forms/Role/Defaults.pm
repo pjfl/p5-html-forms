@@ -35,7 +35,7 @@ Defines the following attributes;
 has 'default_action_path' =>
    is      => 'ro',
    isa     => Str,
-   default => 'api/form_validate_field';
+   default => 'api/validate';
 
 =item default_charset
 
