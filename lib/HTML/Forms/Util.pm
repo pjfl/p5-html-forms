@@ -514,6 +514,10 @@ sub make_handler ($;$$) {
 
    $options //= {};
 
+   if (my $default = delete $options->{allow_default}) {
+      $options->{allowDefault} = json_bool($default);
+   }
+
    my $args = $target_ids ? { targetIds => $target_ids } : {};
 
    return sprintf "${method}(%s)", encode_json({ %{$args}, %{$options} });
