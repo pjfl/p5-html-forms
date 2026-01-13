@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds droplets form styling
           - Adds event to args of event handlers if arg is object
           - Default API endpoint changed
           - Version number fixes

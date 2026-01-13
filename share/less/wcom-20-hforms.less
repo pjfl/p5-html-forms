@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.4
+ * @version 0.2.5
  */
 @import "wcom-05-constants";
 form.classic {
@@ -8,7 +8,7 @@ form.classic {
     background: var(--bg-lighter-semitrans); border-radius: 5px;
     box-shadow: 3px 3px 3px @panel-shadow; color: @text-dark;
     display: inline-block; padding: 0 0.5rem 0.5rem; position: relative;
-    &.bling {
+    &.radar {
         @property --angle {
             syntax: '<angle>'; initial-value: 0deg; inherits: false;
         }
@@ -16,22 +16,80 @@ form.classic {
             from { --angle: 0deg; }
             to { --angle: 360deg; }
         }
-        &::after {
+        &::before, &::after {
             animation: 3s spin linear infinite;
             background: conic-gradient(
-                from var(--angle), transparent 70%, var(--bg-base)
+                from var(--angle), transparent 90%, var(--bg-base)
             );
             border-radius: 5px; content: ''; height: 100%; left: 50%;
             position: absolute; top: 50%; translate: -50% -50%;
             width: 100%; z-index: -1;
         }
-        &:focus-within::after {
+        &::after {
+            animation-delay: 1.5s;
+        }
+        &:focus-within::before, &:focus-within::after {
             background: conic-gradient(
-                from var(--angle), transparent 70%, @form-bg-border-focus
+                from var(--angle), transparent 90%, var(--bg-dark)
             );
         }
         .form-wrapper {
             background: var(--bg-lighter);
+        }
+    }
+    &.droplets {
+        --shadow-darkest-semitrans: hsl(from var(--bg-darkest) h s l / 0.1);
+        --shadow-lightest-semitrans: hsl(from var(--bg-lightest) h s l / 0.9);
+        border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
+        box-shadow: inset 20px 20px 20px var(--shadow-darkest-semitrans),
+                    25px 35px 20px var(--shadow-darkest-semitrans),
+                    25px 30px 30px var(--shadow-darkest-semitrans),
+                    inset -20px -20px 25px var(--shadow-lightest-semitrans);
+        height: 20rem; transform: translate(-10rem, 3rem);
+        transition: 0.25s; width: 20rem;
+        &::before, &::after {
+            border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
+        }
+        &:hover {
+            border-radius: 50%;
+            &::before, &::after {
+                border-radius: 50%;
+            }
+        }
+        .droplet {
+            align-items: center; background: var(--bg-dark);
+            border-radius: 44% 56% 65% 35% / 57% 58% 42% 43%;
+            box-shadow: inset 10px 10px 10px var(--shadow-darkest-semitrans),
+                        15px 25px 10px var(--shadow-darkest-semitrans),
+                        15px 20px 20px var(--shadow-darkest-semitrans),
+                        inset -10px -10px 15px var(--shadow-lightest-semitrans);
+            color: @text-light; display: flex; font-size: 0.8em;
+            height: 7rem; justify-content: center; letter-spacing: 0.01em;
+            line-height: 1.5rem; padding: 0 0.5rem; position: absolute;
+            text-align: center; text-decoration: none; transition: 0.25s;
+            &:hover {
+                border-radius: 50%;
+            }
+            &:nth-child(1 of .droplet) {
+                offset: circle(17rem) calc(-9% + (0 * 9%)) 0deg;
+            }
+            &:nth-child(2 of .droplet) {
+                offset: circle(17rem) calc(-9% + (1 * 9%)) 0deg;
+            }
+            &:nth-child(3 of .droplet) {
+                offset: circle(17rem) calc(-9% + (2 * 9%)) 0deg;
+            }
+        }
+        .form-wrapper {
+            border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
+            height: 19rem; padding: 2rem 3.5rem 0 0;
+            transform: translateY(0.5rem); width: 19rem;
+            .alert-info {
+                text-align: right;
+            }
+        }
+        .input-field.floating {
+            justify-content: right;
         }
     }
     &.narrow, .form-wrapper.narrow {
@@ -48,8 +106,8 @@ form.classic {
         font-family: #fonts[sans]; font-size: @system-font-size;
     }
     .compound-field {
-        display: flex; column-gap: @field-col-gap; flex-wrap: wrap;
-        position: relative; row-gap: @field-row-gap;
+        align-items: flex-start; display: flex; column-gap: @field-col-gap;
+        flex-wrap: wrap; position: relative; row-gap: @field-row-gap;
         &:has(.alert-info) {
             margin-top: 2rem;
         }
@@ -63,7 +121,7 @@ form.classic {
             max-width: @input-max-width-compound !important;
         }
         .alert-info {
-            background: var(--bg-dark); border-radius: 5px;
+            background: var(--bg-darker); border-radius: 5px;
             box-shadow: 3px 3px 3px @panel-shadow;
             left: calc(var(--label-width) + @field-col-gap);
             margin-left: -2px;
@@ -80,9 +138,6 @@ form.classic {
     .form-wrapper {
         border-radius: 5px; min-width: @form-min-width; margin: 0;
         padding: 0 1rem @field-row-gap; position: relative;
-        &:has(.input-field.floating) .input-button button {
-            margin-top: 1rem;
-        }
         .form-title {
             font-family: #fonts[sans];
             font-size: @title-font-size; font-weight: @title-font-weight;
@@ -146,7 +201,7 @@ form.classic {
             }
         }
         &.hide {
-            display: none !important; opacity: 0;
+            display: none; opacity: 0;
         }
         &.inline:not(.hide) {
             display: inline-grid !important; margin-right: 0.5rem;
@@ -244,7 +299,7 @@ form.classic {
                 min-width: @select-option-min-width; padding: 0.125rem;
             }
             &.select-multiple option[selected=selected] {
-                background: var(--bg-base);
+                background: var(--bg-dark);
             }
         }
         textarea {
@@ -256,17 +311,25 @@ form.classic {
             }
         }
         .alert {
-            border-radius: 5px; display: block;
-            grid-area: alert; max-width: @alert-max-width;
-            min-width: @alert-min-width;
-            padding: 0.4375rem 0.5rem 0.3175rem;
+            border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
+            display: block; grid-area: alert; max-width: @alert-max-width;
+            min-width: @alert-min-width; padding: 0.4375rem 0.5rem 0.3175rem;
+            &:empty {
+                display: none;
+            }
+            &:has(.alert-error) {
+                background: @exception-bg;
+            }
+            &:has(.alert-info) {
+                background: var(--bg-dark);
+            }
         }
         .alert-error {
-            background: @exception-bg; box-shadow: 3px 3px 3px @panel-shadow;
+            display: inline-block;
         }
         .alert-info {
-            background: var(--bg-dark); box-shadow: 3px 3px 3px @panel-shadow;
-            margin-left: -2px; min-width: 12.5rem;
+            box-shadow: 3px 3px 3px @panel-shadow;
+            margin-left: -2px; min-width: @alert-info-min-width;
         }
         .field-label {
             font-family: #fonts[sans]; font-size: @system-font-size;
@@ -302,6 +365,9 @@ form.classic {
                     opacity: 1;
                 }
             }
+            &[disabled=disabled], &[disabled=disabled]::after {
+                background: var(--button-bg-disabled);
+            }
             span, svg {
                 font-family: #fonts[sans]; font-size: @btn-font-size;
                 font-weight: @btn-font-weight; letter-spacing: 0.1rem;
@@ -316,12 +382,7 @@ form.classic {
             }
         }
         a.form-button {
-            padding: 0.0625rem 0.75rem 0.25rem;
-        }
-        button {
-            &[disabled=disabled], &[disabled=disabled]::after {
-                background: var(--button-bg-disabled);
-            }
+            height: 1.75rem; padding: 0 0.75rem 0.3125rem;
         }
     }
     .data-structure {
@@ -396,7 +457,7 @@ form.classic {
             margin-right: 0.25rem;
         }
         .ds-reorderable {
-            margin: auto; padding-left: 0.5rem;
+            cursor: pointer; margin: auto; padding-left: 0.5rem;
             .knob {
                 display: block; height: 20px; width: 20px;
             }
@@ -472,8 +533,8 @@ form.classic {
         align-items: center; display: flex; justify-content: right;
         &.expand {
             padding-left: 2px; padding-right: 2px;
-            button {
-                flex: 2;
+            a.form-button, button {
+                flex: 2; text-align: center; margin-top: 1rem;
             }
         }
         &.left {

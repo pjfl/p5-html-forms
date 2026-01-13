@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 4 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 5 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFsArrayRefStr HFsField
@@ -283,28 +283,6 @@ has 'field_traits' =>
    handles     => {
       add_field_trait  => 'push',
       has_field_traits => 'count',
-   };
-
-=item for_js
-
-A mutable hash reference with an empty default. Provides support for the
-C<Repeatable> field type. Keyed by the repeatable field name contains a
-data structure used by the JS event handlers to add/remove repeatable fields
-to/from the form. Populated automatically by the C<Repeatable> field type
-
-Handles; C<clear_for_js>, C<has_for_js>, and C<set_for_js> via the hash trait
-
-=cut
-
-has 'for_js'   =>
-   is          => 'rw',
-   isa         => HashRef,
-   builder     => sub { {} },
-   handles_via => 'Hash',
-   handles     => {
-      clear_for_js => 'clear',
-      has_for_js   => 'count',
-      set_for_js   => 'set',
    };
 
 =item form_element_attr
@@ -1219,7 +1197,6 @@ sub clear {
    $self->clear_no_update;
    $self->clear_error_message;
    $self->clear_info_message;
-   $self->clear_for_js;
    return;
 }
 

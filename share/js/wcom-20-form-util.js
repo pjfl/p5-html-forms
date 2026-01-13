@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.2
+    @version 0.2.5
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -15,7 +15,10 @@ WCom.Form.Util = (function () {
    const _allOk = function(target) {
       const depends = target.getAttribute('data-field-depends') || '';
       for (const fieldId of depends.split(/ /)) {
-         if (!_fieldMap[target.id][fieldId]) return false;
+         if (fieldId.match(/^!/)) {
+            if (_fieldMap[target.id][fieldId.replace(/!/, '')]) return false;
+         }
+         else if (!_fieldMap[target.id][fieldId]) return false;
       }
       return true;
    };
@@ -24,6 +27,7 @@ WCom.Form.Util = (function () {
       for (const targetId of targetIds) {
          _setFieldMap(targetId, id);
          const target = document.getElementById(targetId);
+         if (!target) continue;
          if (_allOk(target)) target.removeAttribute('disabled');
          else target.setAttribute('disabled', 'disabled');
       }
@@ -154,15 +158,18 @@ WCom.Form.Util = (function () {
       const object = await response.json();
       if (!object) return;
       const parent = field.parentElement;
-      for (const el of parent.querySelectorAll('.alert-error')) {
+      for (const el of parent.querySelectorAll('.alert')) {
          parent.removeChild(el);
       }
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('alert');
       for (const reason of object.reason) {
          const error = document.createElement('span');
-         error.className = 'alert alert-error';
+         error.classList.add('alert-error');
          error.appendChild(document.createTextNode(reason));
-         parent.appendChild(error);
+         wrapper.appendChild(error);
       }
+      parent.appendChild(wrapper);
    };
    const validateField = function(options) {
       let { id, url } = options;

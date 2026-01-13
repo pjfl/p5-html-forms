@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.2
+    @version 0.2.5
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -224,16 +224,18 @@ WCom.Form.Renderer = (function() {
          container.appendChild(wrapper);
       }
       _fieldAlerts(container, field, element) {
-         const errorAttr = { className: 'alert alert-error' };
+         const wrapper = this.h.div({ className: 'alert' });
+         const errorAttr = { className: 'alert-error' };
          for (const error of field.result.allErrors) {
-            container.appendChild(this.h.span(errorAttr, error));
+            wrapper.appendChild(this.h.span(errorAttr, error));
             element.removeAttribute('disabled');
          }
-         const warningAttr = { className: 'alert alert-warning' };
+         const warningAttr = { className: 'alert-warning' };
          for (const warning of field.result.allWarnings) {
-            container.appendChild(this.h.span(warningAttr, error));
+            wrapper.appendChild(this.h.span(warningAttr, error));
             element.removeAttribute('disabled');
          }
+         container.appendChild(wrapper);
       }
       _fieldInfo(container, field) {
          if (field.info && !field.hideInfo) {
