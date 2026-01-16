@@ -202,13 +202,21 @@ sub _data2markup {
 
    $options->{level}++;
 
+   my $attr   = { class => 'value' };
+   my $ht     = $options->{ht};
    my $markup = q();
 
    if (is_arrayref $data) { $markup .= _array2markup($data, $options) }
    elsif (is_plain_hashref $data) { $markup .= _hash2markup($data, $options) }
+   elsif (is_coderef $data) {
+      my $type   = $data->();
+      my $symbol = is_arrayref $type ? '[]'
+                 : is_plain_hashref $type ? '{}' : "${type}";
+      my $value  = encode_entities("sub { ${symbol} }", '[]<>&"');
+
+      $markup .= $ht->span($attr, $value);
+   }
    else {
-      my $ht    = $options->{ht};
-      my $attr  = { class => 'value' };
       my $value = encode_entities("${data}", '[]<>&"');
 
       $markup .= $ht->span($attr, length $value ? $value : 'NUL');

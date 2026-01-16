@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Implments checkbox and radio groups auto_widget_size
           - Adds droplets form styling
           - Adds event to args of event handlers if arg is object
           - Default API endpoint changed

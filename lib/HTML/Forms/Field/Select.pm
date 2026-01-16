@@ -393,6 +393,11 @@ sub next_option_id {
 
 =item select_widget
 
+If this is a C<Select> widget, C<auto_widget_size> is non zero, and there are
+fewer options than the C<auto_widget_size>, change the widget to
+C<CheckboxGroup> if C<multiple> is true, change the widget to C<RadioGroup>
+otherwise. This is called at object construction time
+
 =cut
 
 sub select_widget {

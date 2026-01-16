@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.5
+    @version 0.2.6
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -303,6 +303,44 @@ WCom.Form.Renderer = (function() {
       }
    }
    /** @class
+       @classdesc Renders a checkbox group
+       @alias Renderer/HTMLFieldCheckboxGroup
+   */
+   class HTMLFieldCheckboxGroup extends HTMLField {
+      render(wrapper) {
+         const element = this.h.ul({ className: 'checkbox-group' });
+         const field = this.field;
+         let nextOptionId = 0;
+         for (const option of field.options) {
+            element.appendChild(this._renderOption(option, nextOptionId));
+            nextOptionId++;
+         }
+         wrapper.appendChild(element);
+         return element;
+      }
+      _renderOption(option, nextOptionId) {
+         const field = this.field;
+         const itemAttr = {};
+         if (this.h.typeOf(field.fif) == 'array') {
+            for (const selectedVal of field.fif) {
+               if (selectedVal == option.value) itemAttr.selected = 'selected';
+            }
+         }
+         else {
+            if (field.fif == option.value) itemAttr.selected = 'selected';
+         }
+         const id = field.id + '-' + nextOptionId;
+         const boxAttr = { id, name: field.name, value: option.value };
+         if (itemAttr.selected) boxAttr.checked = 'checked';
+         const checkbox = this.h.checkbox(boxAttr);
+         const wrapperAttr = { className: 'checkbox-wrapper' };
+         const wrapper = this.h.span(wrapperAttr, checkbox);
+         const labelAttr = { className: 'checkbox-label', htmlFor: id };
+         const label = this.h.label(labelAttr, option.label);
+         return this.h.li(itemAttr, [label, wrapper]);
+      }
+   }
+   /** @class
        @classdesc Renders a colour selector
        @alias Renderer/HTMLFieldColour
    */
@@ -441,6 +479,44 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          wrapper.appendChild(this.h.frag(this.field.html));
          return;
+      }
+   }
+   /** @class
+       @classdesc Renders a checkbox group
+       @alias Renderer/HTMLFieldRadioGroup
+   */
+   class HTMLFieldRadioGroup extends HTMLField {
+      render(wrapper) {
+         const element = this.h.ul({ className: 'radio-group' });
+         const field = this.field;
+         let nextOptionId = 0;
+         for (const option of field.options) {
+            element.appendChild(this._renderOption(option, nextOptionId));
+            nextOptionId++;
+         }
+         wrapper.appendChild(element);
+         return element;
+      }
+      _renderOption(option, nextOptionId) {
+         const field = this.field;
+         const itemAttr = {};
+         if (this.h.typeOf(field.fif) == 'array') {
+            for (const selectedVal of field.fif) {
+               if (selectedVal == option.value) itemAttr.selected = 'selected';
+            }
+         }
+         else {
+            if (field.fif == option.value) itemAttr.selected = 'selected';
+         }
+         const id = field.id + '-' + nextOptionId;
+         const buttonAttr = { id, name: field.name, value: option.value };
+         if (itemAttr.selected) buttonAttr.checked = 'checked';
+         const button = this.h.radio(buttonAttr);
+         const wrapperAttr = { className: 'button-wrapper' };
+         const wrapper = this.h.span(wrapperAttr, button);
+         const labelAttr = { className: 'button-label', htmlFor: id };
+         const label = this.h.label(labelAttr, option.label);
+         return this.h.li(itemAttr, [label, wrapper]);
       }
    }
    /** @class
