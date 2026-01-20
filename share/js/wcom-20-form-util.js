@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.5
+    @version 0.2.7
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -146,7 +146,35 @@ WCom.Form.Util = (function () {
          inputEl.focus();
          if (inputEl.select) inputEl.select();
       }
-   }
+   };
+   const updateList = function(options) {
+      const ht = WCom.Util.Markup.h;
+      const id = '_' + options.target + '-group';
+      const current = document.getElementById(id);
+      const parent = current.parentNode;
+      const group = ht.ul({ id, className: 'selectmany-group' });
+      const height = current.style['max-height'];
+      if (height) group.style['max-height'] = height;
+      const labelAttr = { className: 'item-label' };
+      const tuples = [];
+      for (const value of options.value.split(/,/)) {
+         tuples.push([options.lookup[value], value]);
+      }
+      const values = [];
+      for (const tuple of tuples.sort((a,b) => (a < b ? -1 : (a > b ? 1 : 0)))){
+         values.push(tuple[1]);
+      }
+      let nextOptionId = 0;
+      for (const value of values) {
+         const id = '_' + options.target + '-' + nextOptionId;
+         const label = ht.label(labelAttr, options.lookup[value]);
+         const hiddenAttr = { id, name: options.target, value };
+         const item = ht.li({}, [label, ht.hidden(hiddenAttr)])
+         group.appendChild(item);
+         nextOptionId++;
+      }
+      parent.replaceChild(group, current);
+   };
    const updateTimeWithZone = function(id) {
       const hours = document.getElementById(id + '_hours').value;
       const mins  = document.getElementById(id + '_mins').value;
@@ -231,6 +259,11 @@ WCom.Form.Util = (function () {
           @param {integer} index Index of the digit to operate on
       */
       updateDigits: updateDigits,
+      /** @function
+          @desc Update a list of values from a comma separated string of values
+          @param {string} options
+       */
+      updateList: updateList,
       /** @function
           @desc Updates datetime field from the compound digit fields
           @param {string} id Id of the element to update from the hours,

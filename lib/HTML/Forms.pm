@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 6 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 7 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFsArrayRefStr HFsField
@@ -919,7 +919,8 @@ C<verbose> is true
 
 The methods C<before_build_fields>, and C<after_build_fields> are called either
 side of the above and are dummy methods in this class. Made for overriding in a
-form role
+form role. N.B. The method C<after_build_fields> is called before the result is
+initialised so field option lookups will not have been performed yet
 
 =cut
 

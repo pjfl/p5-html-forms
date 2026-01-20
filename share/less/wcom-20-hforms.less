@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.6
+ * @version 0.2.7
  */
 @import "wcom-05-constants";
 form.classic {
@@ -45,8 +45,8 @@ form.classic {
                     25px 35px 20px var(--shadow-darkest-semitrans),
                     25px 30px 30px var(--shadow-darkest-semitrans),
                     inset -20px -20px 25px var(--shadow-lightest-semitrans);
-        transform: translate(-10rem, 3rem); transition: 0.25s;
-        height: 21rem; width: 21rem;
+        padding-top: 0.5rem; transform: translate(-10rem, 3rem);
+        transition: 0.25s;
         &::before, &::after {
             border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
         }
@@ -71,24 +71,23 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                offset: circle(17rem) calc(-9% + (0 * 9%)) 5deg;
+                offset: circle(17rem) calc(-7% + (0 * 9%)) 5deg;
             }
             &:nth-child(2 of .droplet) {
-                offset: circle(17rem) calc(-9% + (1 * 9%)) 0deg;
+                offset: circle(17rem) calc(-7% + (1 * 9%)) 0deg;
             }
             &:nth-child(3 of .droplet) {
-                offset: circle(17rem) calc(-9% + (2 * 9%)) -5deg;
+                offset: circle(17rem) calc(-7% + (2 * 9%)) -5deg;
             }
         }
         .form-wrapper {
             border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
-            height: 20rem; padding: 2rem 3.5rem 0 0; text-align: right;
-            transform: translateY(0.5rem); width: 20rem;
+            padding: 2.75rem 2rem 0 2rem; text-align: right;
             legend {
                 text-align: left;
             }
             .alert-info, .form-messages {
-                text-align: right;
+                padding: 0.25rem 0.5rem 0.25rem 0; text-align: right;
             }
             .form-messages {
                 display: none;
@@ -101,9 +100,12 @@ form.classic {
                     15px 25px 10px var(--shadow-darkest-semitrans),
                     15px 20px 20px var(--shadow-darkest-semitrans),
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
-                height: 4rem; offset: circle(17rem at -90% 0%) 0% -5deg;
+                height: 4rem; offset: circle(12rem at -90% 0%) 0% -5deg;
                 padding: 1.25rem 0 0 0.5rem; position: absolute; width: 5rem;
             }
+        }
+        .input-field:not(.droplet) button {
+            margin-bottom: 1rem; margin-top: 0.25rem;
         }
         .input-field.floating {
             justify-content: right;
@@ -201,7 +203,7 @@ form.classic {
             grid-template-areas: "label input selector" "blank alert alert";
             justify-content: center; row-gap: 0.25rem;
             input {
-                height: 1.75rem; margin-top: 1.25rem;
+                height: 1.75rem; margin-top: 1rem;
                 max-width: @input-max-width-compound !important;
                 outline: transparent;
                 &[type=password], &[type=text]:not(.digit) {
@@ -248,7 +250,7 @@ form.classic {
         }
         &:hover, &:has(input:focus), &:has(input:valid) {
             span.field-label {
-                top: -0.25rem;
+                top: -0.5rem;
             }
         }
         & > .checkbox-wrapper {
@@ -256,7 +258,7 @@ form.classic {
         }
         span.field-label {
             border: 2px solid transparent; padding: 0.125rem 0.25rem;
-            position: absolute; top: 1.3175rem; transition: top 0.5s;
+            position: absolute; top: 1.125rem; transition: top 0.5s;
             translate: 0.5rem;
         }
         input, select, textarea {
@@ -268,8 +270,9 @@ form.classic {
             }
         }
         input {
+            background: var(--bg-lightest);
             &:focus {
-                background: var(--bg-base);
+                background: @bg-selected;
             }
             &[type=date], &[type=email], &[type=password], &[type=text] {
                 padding: 0.125rem 0.25rem;
@@ -316,9 +319,13 @@ form.classic {
                 font-family: #fonts[sans]; font-size: @system-font-size;
             }
             &.select-multiple {
-                resize: vertical;
+                background: var(--bg-lightest); resize: vertical;
+                &:focus {
+                    background: @bg-selected;
+                }
                 option {
                     background: @select-bg-false;
+                    border-bottom: 1px dashed @line-border;
                     min-width: @select-option-min-width; padding: 0.125rem;
                     &[selected=selected] {
                         background: @select-bg-true;
@@ -328,6 +335,7 @@ form.classic {
                         border-top-right-radius: 3px;
                     }
                     &:last-child {
+                        border-bottom: 0;
                         border-bottom-left-radius: 3px;
                         border-bottom-right-radius: 3px;
                     }
@@ -335,17 +343,19 @@ form.classic {
             }
         }
         textarea {
+            background: var(--bg-lightest);
             box-sizing: content-box; border: 2px inset @input-border;
             min-height: @textarea-min-height; max-width: @textarea-max-width;
             min-width: @textarea-min-width; overflow: auto; padding: 0.25rem;
             &:focus {
-                background: var(--bg-base);
+                background: @bg-selected;
             }
         }
         .alert {
             border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
             display: block; grid-area: alert; max-width: @alert-max-width;
             min-width: @alert-min-width; padding: 0.4375rem 0.5rem 0.3175rem;
+            text-align: left;
             &:empty {
                 display: none;
             }
@@ -408,7 +418,8 @@ form.classic {
         a.form-button, button {
             background: var(--btn-bg); border: 2px outset @btn-border;
             border-radius: 50px; color: @text-link;
-            cursor: pointer; display: inline-block; overflow: hidden;
+            cursor: pointer; display: inline-block;
+            margin: 0 2px; overflow: hidden;
             position: relative; text-decoration: none;
             transition: border 0.5s, color 0.5s;
             &::before {
@@ -755,12 +766,29 @@ form.classic {
                 }
                 .button-wrapper, .checkbox-wrapper {
                     grid-area: box;
+                    &:has(input:focus)::before {
+                        outline: 1px solid @field-focus-outline;
+                    }
                 }
             }
         }
     }
-    .input-selector button {
-        grid-area: selector; padding: 0.1875rem 0.75rem 0.3125rem;
+    .input-selector {
+        button {
+            grid-area: selector; padding: 0.1875rem 0.75rem 0.3125rem;
+        }
+        .selectmany-group {
+            background: var(--btn-bg);
+            border: 2px inset @input-border; border-radius: 5px;
+            list-style: none; margin: 0; overflow-x: auto;
+            padding: 0.1875rem 0.25rem;
+            .item-label {
+                color: @text-dark; display: inline-block;
+                font-family: #fonts[serif]; font-size: @data-font-size;
+                font-weight: @data-font-weight; grid-area: label;
+                min-width: @label-min-width; white-space: nowrap; width: 100%;
+            }
+        }
     }
     .input-textarea:has(.field-label) {
         align-items: flex-start !important;
@@ -849,6 +877,70 @@ form.classic {
         }
     }
 }
-.selector form.classic:not(.wide) {
-    box-shadow: none; margin: 0; min-width: @selector-min-width; padding: 0;
+.selector {
+    form.classic:not(.wide) {
+        box-shadow: none; margin: 0; min-width: @selector-min-width; padding: 0;
+    }
+    .selectmany-group {
+        background: var(--bg-lightest);
+        border: 2px inset @input-border; border-radius: 5px;
+        list-style: none; margin: 0; overflow-x: auto;
+        padding: 0.1875rem 0.25rem;
+        li {
+            align-items: center; column-gap: 0.5rem; display: grid;
+            grid-template-areas: "label box";
+            grid-template-columns: 1fr auto;
+            justify-items: flex-start;
+            input[type=checkbox], input[type=radio] {
+                margin: 0;
+            }
+            .button-label, .checkbox-label {
+                font-family: #fonts[serif]; font-size: @data-font-size;
+                font-weight: @data-font-weight; grid-area: label;
+                white-space: nowrap;
+            }
+            .button-wrapper, .checkbox-wrapper {
+                grid-area: box;
+                &:has(input:focus)::before {
+                    outline: 1px solid @field-focus-outline;
+                }
+            }
+        }
+        .item-label {
+            color: @text-dark; display: inline-block;
+            font-family: #fonts[serif]; font-size: @data-font-size;
+            font-weight: @data-font-weight; grid-area: label;
+            min-width: @label-min-width; white-space: nowrap; width: 100%;
+        }
+        .checkbox-wrapper {
+            display: flex; isolation: isolate;
+            padding: 2px 0; position: relative;
+            &::before {
+                background: @checkbox-bg-false;
+                border: 2px inset @btn-border; border-radius: 10px;
+                content: ''; display: block; position: absolute;
+                height: @checkbox-height; left: 0; width: @checkbox-width;
+                z-index: 1;
+            }
+            &::after {
+                background: var(--btn-bg);
+                border: 2px inset @btn-border; border-radius: 10px;
+                content: ''; display: block; position: absolute;
+                height: @checkbox-height; left: 0;
+                width: @checkbox-width-knob; z-index: 2;
+            }
+            &:has(input[type=checkbox]:checked) {
+                &::before {
+                    background: @checkbox-bg-true;
+                }
+                &::after {
+                    left: @checkbox-width-knob;
+                }
+            }
+            input[type=checkbox] {
+                height: @checkbox-height; margin: 0; opacity: 0;
+                position: relative; width: @checkbox-width; z-index: 3;
+            }
+        }
+    }
 }

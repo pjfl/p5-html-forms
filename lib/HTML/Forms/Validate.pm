@@ -233,7 +233,6 @@ sub validate_field {
 
       $continue_validation = FALSE;
    }
-   elsif ($self->DOES('HTML::Forms::Field::Repeatable')) {}
    elsif (!$self->has_input) { $continue_validation = FALSE }
    elsif (!$self->input_defined) {
       if ($self->not_nullable) {

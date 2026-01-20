@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.6
+    @version 0.2.7
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -226,16 +226,19 @@ WCom.Form.Renderer = (function() {
       _fieldAlerts(container, field, element) {
          const wrapper = this.h.div({ className: 'alert' });
          const errorAttr = { className: 'alert-error' };
+         let found = false;
          for (const error of field.result.allErrors) {
             wrapper.appendChild(this.h.span(errorAttr, error));
             element.removeAttribute('disabled');
+            found = true;
          }
          const warningAttr = { className: 'alert-warning' };
          for (const warning of field.result.allWarnings) {
             wrapper.appendChild(this.h.span(warningAttr, error));
             element.removeAttribute('disabled');
+            found = true;
          }
-         container.appendChild(wrapper);
+         if (found) container.appendChild(wrapper);
       }
       _fieldInfo(container, field) {
          if (field.info && !field.hideInfo) {
@@ -260,7 +263,8 @@ WCom.Form.Renderer = (function() {
       }
       _setHandlers(acc, handlers) {
          for (const [ev, handler] of Object.entries(handlers)) {
-            acc[ev] = this.getEventHandler(handler);
+            if (handler) acc[ev] = this.getEventHandler(handler);
+            else acc[ev] = function(event) { event.preventDefault() };
          }
       }
    }
@@ -573,16 +577,16 @@ WCom.Form.Renderer = (function() {
       }
    }
    /** @class
-       @classdesc Renders a selector
-       @alias Renderer/HTMLFieldSelector
+       @classdesc Renders a selector for one value
+       @alias Renderer/HTMLFieldSelectOne
    */
-   class HTMLFieldSelector extends HTMLField {
+   class HTMLFieldSelectOne extends HTMLField {
       render(wrapper) {
          const field = this.field;
          this.attr.value = field.fif;
          const handler = field.clickHandler; delete field.clickHandler;
          const title = this.attr.title; delete this.attr.title;
-         const element = this.h.input(this.attr);
+         const element = this.h[field.htmlElement](this.attr);
          element.setAttribute('readonly', 'readonly');
          wrapper.appendChild(element);
          const attr = {
@@ -600,6 +604,75 @@ WCom.Form.Renderer = (function() {
          else { displayAs = this.h.span(field.displayAs) }
          wrapper.appendChild(this.h.button(attr, displayAs));
          return element;
+      }
+   }
+   /** @class
+       @classdesc Renders a selector for many values
+       @alias Renderer/HTMLFieldSelectMany
+   */
+   class HTMLFieldSelectMany extends HTMLField {
+      render(wrapper) {
+         const field = this.field;
+         const handler = field.clickHandler; delete field.clickHandler;
+         const title = this.attr.title; delete this.attr.title;
+         const element = this._renderList(wrapper);
+         const attr = {
+            id: field.id + '_select',
+            name: field.htmlName + '_select',
+            title: title || 'Select',
+            type: 'submit',
+            value: ''
+         };
+         this._setHandlers(attr, { onclick: handler });
+         let displayAs;
+         if (field.htmlElement == 'icon') {
+            displayAs = this.h.icon(JSON.parse(field.displayAs));
+         }
+         else { displayAs = this.h.span(field.displayAs) }
+         wrapper.appendChild(this.h.button(attr, displayAs));
+         return element;
+      }
+      _renderList(wrapper) {
+         const field = this.field;
+         const fieldId = '_' + field.id + '-group';
+         const listAttr = { className: 'selectmany-group', id: fieldId };
+         const element = this.h.ul(listAttr);
+         if (field.size) {
+            const height = (10 + (20 * field.size)) + 'px';
+            element.style['max-height'] = height;
+         }
+         let nextOptionId = 0;
+         let value = '';
+         for (const option of field.options) {
+            const item = this._renderItem(option, nextOptionId);
+            if (item) {
+               element.appendChild(item);
+               value = value + (value ? ',' : '') + option.value;
+               nextOptionId++;
+            }
+         }
+         const id = '_' + field.id;
+         wrapper.appendChild(this.h.hidden({ id, name: id, value }));
+         wrapper.appendChild(element);
+         return element;
+      }
+      _renderItem(option, nextOptionId) {
+         const field = this.field;
+         let selected = false;
+         if (this.h.typeOf(field.fif) == 'array') {
+            for (const selectedVal of field.fif) {
+               if (selectedVal == option.value) selected = true;
+            }
+         }
+         else {
+            if (field.fif == option.value) selected = true;
+         }
+         if (!selected) return;
+         const id = '_' + field.id + '-' + nextOptionId;
+         const labelAttr = { className: 'item-label' };
+         const label = this.h.label(labelAttr, option.label);
+         const hiddenAttr = { id, name: field.id, value: option.value};
+         return this.h.li({}, [label, this.h.hidden(hiddenAttr)]);
       }
    }
    /** @class
