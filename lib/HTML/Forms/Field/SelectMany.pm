@@ -35,6 +35,28 @@ Defines the following attributes;
 
 =over 3
 
+=item callback
+
+=cut
+
+has 'callback' =>
+   is      => 'rw',
+   isa     => Str,
+   lazy    => TRUE,
+   default => sub {
+      my $self   = shift;
+      my $params = { lookup => {}, target => $self->name, value => '%value' };
+
+      for my $option (@{$self->options}) {
+         $params->{lookup}->{$option->{value}} = $option->{label};
+      }
+
+      my $util = $self->form_util;
+      my $args = encode_json($params);
+
+      return "${util}.updateList(${args})",
+   };
+
 =item click_handler
 
 =cut
@@ -89,26 +111,28 @@ has 'selector' =>
    isa     => Str,
    lazy    => TRUE,
    default => sub {
-      my $self = shift;
-      my $args = { lookup => {}, target => $self->name, value => '%value' };
-
-      for my $option (@{$self->options}) {
-         $args->{lookup}->{$option->{value}} = $option->{label};
-      }
-
+      my $self   = shift;
       my $modal  = $self->modal;
-      my $util   = $self->form_util;
-      my $result = encode_json($args);
-      my $params = encode_json({
-         callback => qq{${util}.updateList(${result})},
+      my $params = {
+         callback => $self->callback,
          icons    => $self->icons,
-         items    => encode_json($self->options),
          target   => $self->name,
          title    => $self->title,
-      });
+      };
 
-      return "${modal}.createSelector(${params})";
+      if ($self->selector_url) { $params->{url} = $self->selector_url }
+      else { $params->{items} = encode_json($self->options) }
+
+      my $args = encode_json($params);
+
+      return "${modal}.createSelector(${args})";
    };
+
+=item selector_url
+
+=cut
+
+has 'selector_url' => is => 'rw', isa => Str;
 
 =item widget
 

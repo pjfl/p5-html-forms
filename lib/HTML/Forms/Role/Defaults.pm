@@ -185,7 +185,7 @@ around 'before_build_fields' => sub {
    if (my $name = $self->default_request_token) {
       my $meta = get_meta($self);
 
-      $meta->add_to_field_list({ name => $name, type => 'RequestToken' });
+      unshift @{$meta->field_list}, { name => $name, type => 'RequestToken' };
    }
 
    return;

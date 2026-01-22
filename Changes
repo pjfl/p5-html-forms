@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Unifies SelectOne and SelectMany apis
           - Adds SelectMany field type
           - Implments checkbox and radio groups auto_widget_size
           - Adds droplets form styling

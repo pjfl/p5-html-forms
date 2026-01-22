@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.7
+ * @version 0.2.8
  */
 @import "wcom-05-constants";
 form.classic {
@@ -71,26 +71,23 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                offset: circle(17rem) calc(-7% + (0 * 9%)) 5deg;
+                right: -7rem; top: -3rem; transform: rotate(5deg);
             }
             &:nth-child(2 of .droplet) {
-                offset: circle(17rem) calc(-7% + (1 * 9%)) 0deg;
+                right: -13rem; top: 6rem;
             }
             &:nth-child(3 of .droplet) {
-                offset: circle(17rem) calc(-7% + (2 * 9%)) -5deg;
+                bottom: -4rem; right: -9rem; transform: rotate(-5deg);
             }
         }
         .form-wrapper {
             border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
-            padding: 2.75rem 2rem 0 2rem; text-align: right;
+            padding: 2.75rem 2.5rem 0 2.5rem; text-align: right;
             legend {
                 text-align: left;
             }
             .alert-info, .form-messages {
-                padding: 0.25rem 0.5rem 0.25rem 0; text-align: right;
-            }
-            .form-messages {
-                display: none;
+                text-align: center;
             }
             .form-title {
                 background: var(--bg-dark);
@@ -100,12 +97,16 @@ form.classic {
                     15px 25px 10px var(--shadow-darkest-semitrans),
                     15px 20px 20px var(--shadow-darkest-semitrans),
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
-                height: 4rem; offset: circle(12rem at -90% 0%) 0% -5deg;
-                padding: 1.25rem 0 0 0.5rem; position: absolute; width: 5rem;
+                height: 4rem; left: -3rem; padding: 1.25rem 1rem;
+                position: absolute; top: -3rem; transform: rotate(-5deg);
+                white-space: nowrap;
             }
         }
-        .input-field:not(.droplet) button {
-            margin-bottom: 1rem; margin-top: 0.25rem;
+        .input-field:not(.droplet) {
+            text-align: left;
+            button {
+                margin-bottom: 1rem; margin-top: 0.25rem;
+            }
         }
         .input-field.floating {
             justify-content: right;
@@ -203,7 +204,7 @@ form.classic {
             grid-template-areas: "label input selector" "blank alert alert";
             justify-content: center; row-gap: 0.25rem;
             input {
-                height: 1.75rem; margin-top: 1rem;
+                height: 1.75rem; margin-top: 1.25rem;
                 max-width: @input-max-width-compound !important;
                 outline: transparent;
                 &[type=password], &[type=text]:not(.digit) {
@@ -250,7 +251,7 @@ form.classic {
         }
         &:hover, &:has(input:focus), &:has(input:valid) {
             span.field-label {
-                top: -0.5rem;
+                top: -0.25rem;
             }
         }
         & > .checkbox-wrapper {
@@ -258,7 +259,7 @@ form.classic {
         }
         span.field-label {
             border: 2px solid transparent; padding: 0.125rem 0.25rem;
-            position: absolute; top: 1.125rem; transition: top 0.5s;
+            position: absolute; top: 1.3125rem; transition: top 0.5s;
             translate: 0.5rem;
         }
         input, select, textarea {

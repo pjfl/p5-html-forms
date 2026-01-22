@@ -35,6 +35,12 @@ Defines the following attributes;
 
 =over 3
 
+=item callback
+
+=cut
+
+has 'callback' => is => 'rw', isa => Str;
+
 =item click_handler
 
 =cut
@@ -49,12 +55,6 @@ has 'click_handler' =>
 
       return "${selector}";
    };
-
-=item callback
-
-=cut
-
-has 'callback' => is => 'rw', isa => Str;
 
 =item display_as
 
@@ -85,15 +85,19 @@ has 'selector' =>
    default => sub {
       my $self   = shift;
       my $modal  = $self->modal;
-      my $params = encode_json({
+      my $params = {
          callback => $self->callback,
          icons    => $self->icons,
          target   => $self->name,
          title    => $self->title,
-         url      => $self->selector_url,
-      });
+      };
 
-      return "${modal}.createSelector(${params})";
+      if ($self->selector_url) { $params->{url} = $self->selector_url }
+      else { $params->{items} = encode_json($self->options) }
+
+      my $args = encode_json($params);
+
+      return "${modal}.createSelector(${args})";
    };
 
 =item selector_url

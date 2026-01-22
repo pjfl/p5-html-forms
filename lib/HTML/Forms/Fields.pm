@@ -839,7 +839,8 @@ sub _order_fields {
 sub _order_last {
    my $type = lc shift;
 
-   return TRUE if $type eq 'hidden' || $type eq 'requesttoken';
+   return FALSE if $type eq 'requesttoken';
+   return TRUE if $type eq 'hidden';
    return FALSE;
 }
 
