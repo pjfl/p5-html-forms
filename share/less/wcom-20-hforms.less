@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.8
+ * @version 0.2.9
  */
 @import "wcom-05-constants";
 form.classic {
@@ -87,7 +87,7 @@ form.classic {
                 text-align: left;
             }
             .alert-info, .form-messages {
-                text-align: center;
+                align-items: center; text-align: center;
             }
             .form-title {
                 background: var(--bg-dark);
@@ -129,13 +129,20 @@ form.classic {
         align-items: flex-start; display: flex; column-gap: @field-col-gap;
         flex-wrap: wrap; position: relative; row-gap: @field-row-gap;
         &:has(.alert-info) {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
         }
         &.hide {
             display: none;
         }
         &.right {
             justify-content: right;
+        }
+        &.section {
+            border-bottom: 1px dashed @line-border;
+            margin-bottom: @field-row-gap;
+            .alert-info {
+                left: 0;
+            }
         }
         input:not([type=submit]) {
             max-width: @input-max-width-compound !important;
@@ -354,9 +361,9 @@ form.classic {
         }
         .alert {
             border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
-            display: block; grid-area: alert; max-width: @alert-max-width;
-            min-width: @alert-min-width; padding: 0.4375rem 0.5rem 0.3175rem;
-            text-align: left;
+            display: inline-block; grid-area: alert; margin-right: 3px;
+            max-width: @alert-max-width; min-width: @alert-min-width;
+            padding: 0.4375rem 0.5rem 0.3175rem; text-align: left;
             &:empty {
                 display: none;
             }
@@ -368,7 +375,7 @@ form.classic {
             }
         }
         .alert-error {
-            display: inline-block;
+            display: block;
         }
         .alert-info {
             background: var(--bg-darker);
@@ -462,7 +469,6 @@ form.classic {
     }
     .data-structure {
         align-items: flex-start; display: flex; flex-direction: column;
-        row-gap: @field-row-gap;
         button {
             padding: 0.25rem 0.75rem;
         }
@@ -471,9 +477,10 @@ form.classic {
         display: flex; grid-area: input;
     }
     .ds-form {
-        display: flex; flex-direction: column; gap: 0.5rem;
-        padding-bottom: (@field-row-gap + 0.25rem); position: relative;
-        overscroll-behavior-inline: contain; scroll-behavior: smooth;
+        align-items: flex-start; display: flex; flex-direction: column;
+        gap: 0.5rem; padding-bottom: (@field-row-gap + 0.25rem);
+        position: relative; overscroll-behavior-inline: contain;
+        scroll-behavior: smooth;
         &.horizontal, &.vertical {
             &.snaps-inline > * {
                 scroll-snap-align: start;
@@ -495,8 +502,15 @@ form.classic {
             }
         }
         .ds-header {
+            background: var(--bg-dark); border-radius: 5px;
+            column-gap: @field-col-gap; display: flex;
+            box-shadow: 3px 3px 3px @panel-shadow;
             font-family: #fonts[sans]; font-size: @system-font-size;
-            font-weight: normal; padding-top: 0.2rem;
+            font-weight: normal; padding: 0.25rem 0.875rem; position: sticky;
+            top: 0; z-index: 3;
+            .ds-header-cell:empty {
+                display: none;
+            }
         }
         .ds-row {
             background: var(--bg-base); border-radius: 5px;
@@ -508,6 +522,9 @@ form.classic {
             border-top-right-radius: 0; display: flex; flex-direction: column;
             &.hide {
                 display: none;
+            }
+            &.ipaddress input, .input-ipaddress {
+                max-width: 15ch; text-align: right;
             }
             img {
                 aspect-ratio: 16 / 9; inline-size: 100%; object-fit: contain;
@@ -522,7 +539,7 @@ form.classic {
             }
         }
         .ds-field-group {
-            display: flex;
+            column-gap: @field-col-gap; display: flex;
             &.vertical {
                 flex-direction: column; row-gap: @field-row-gap;
             }
@@ -532,7 +549,7 @@ form.classic {
             margin-right: 0.25rem;
         }
         .ds-reorderable {
-            cursor: pointer; margin: auto; padding-left: 0.5rem;
+            cursor: pointer; margin: auto; padding: 0 0.25rem;
             .knob {
                 display: block; height: 20px; width: 20px;
             }
@@ -781,8 +798,11 @@ form.classic {
         .selectmany-group {
             background: var(--btn-bg);
             border: 2px inset @input-border; border-radius: 5px;
-            list-style: none; margin: 0; overflow-x: auto;
-            padding: 0.1875rem 0.25rem;
+            list-style: none; margin: 0; min-height: 2rem; min-width: 3rem;
+            overflow-x: auto; padding: 0.1875rem 0.25rem;
+            &:empty {
+                display: none;
+            }
             .item-label {
                 color: @text-dark; display: inline-block;
                 font-family: #fonts[serif]; font-size: @data-font-size;
@@ -838,15 +858,22 @@ form.classic {
     }
 }
 .form-messages {
-    display: inline-flex; flex-direction: column;
-    padding-bottom: @field-row-gap;
+    align-items: flex-start; display: flex; flex-direction: column;
+    gap: 0.25rem; padding-bottom: @field-row-gap;
     &:empty {
         display: none;
     }
-    .alert .card {
+    .alert {
+        display: inline-block;
+    }
+    .alert-error, .alert-error-message, .alert-severe .card {
+        border-radius: 5px; background: @exception-bg;
+        box-shadow: 3px 3px 3px @panel-shadow;
+        padding: 0.4375rem 0.25rem 0.3175rem;
+    }
+    .card {
         font-family: #fonts[serif]; font-weight: @data-font-weight;
-        margin-top: 0.25rem; max-width: @error-max-width;
-        padding: 0 0.25rem;
+        margin-top: 0.25rem; max-width: @error-max-width; padding: 0 0.25rem;
         p {
             margin: 0; max-height: 6rem; overflow: hidden;
             position: relative;
@@ -857,14 +884,6 @@ form.classic {
                 position: absolute; right: 0; width: 100%;
             }
         }
-    }
-    .alert-error, .alert-error-message, .alert-severe .card {
-        border-radius: 5px; background: @exception-bg;
-        box-shadow: 3px 3px 3px @panel-shadow;
-        padding: 0.4375rem 0.25rem 0.3175rem;
-    }
-    .alert-error, .alert-error-message {
-        margin-left: -0.25rem;
     }
 }
 .modal {
@@ -883,12 +902,11 @@ form.classic {
         box-shadow: none; margin: 0; min-width: @selector-min-width; padding: 0;
     }
     .selectmany-group {
-        background: var(--bg-lightest);
-        border: 2px inset @input-border; border-radius: 5px;
-        list-style: none; margin: 0; overflow-x: auto;
+        background: var(--bg-lightest); border: 2px inset @input-border;
+        border-radius: 5px; list-style: none; margin: 0; overflow-x: auto;
         padding: 0.1875rem 0.25rem;
         li {
-            align-items: center; column-gap: 0.5rem; display: grid;
+            align-items: center; column-gap: @field-col-gap; display: grid;
             grid-template-areas: "label box";
             grid-template-columns: 1fr auto;
             justify-items: flex-start;
@@ -914,8 +932,8 @@ form.classic {
             min-width: @label-min-width; white-space: nowrap; width: 100%;
         }
         .checkbox-wrapper {
-            display: flex; isolation: isolate;
-            padding: 2px 0; position: relative;
+            display: flex; isolation: isolate; padding: 2px 0;
+            position: relative;
             &::before {
                 background: @checkbox-bg-false;
                 border: 2px inset @btn-border; border-radius: 10px;

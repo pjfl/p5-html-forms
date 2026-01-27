@@ -4,6 +4,7 @@ use HTML::Forms::Constants qw( FALSE NUL TRUE );
 use HTML::Forms::Types     qw( ArrayRef Bool CodeRef HashRef Str );
 use HTML::Forms::Util      qw( encode_only_entities json_bool );
 use JSON::MaybeXS          qw( decode_json encode_json );
+use Ref::Util              qw( is_arrayref );
 use Moo;
 
 extends 'HTML::Forms::Field::Text';
@@ -36,11 +37,11 @@ Defines the following attributes;
 
 =over 3
 
-=item add_handler
+=item add_button_handler
 
 =cut
 
-has 'add_handler' => is => 'rw', isa => Str, default => NUL;
+has 'add_button_handler' => is => 'rw', isa => Str, default => NUL;
 
 =item add_icon
 
@@ -66,11 +67,11 @@ has 'add_icon_width' => is => 'ro', isa => Str;
 
 has 'add_title' => is => 'ro', isa => Str, default => 'Add';
 
-=item html5_type_attr
+=item button_value
 
 =cut
 
-has '+html5_type_attr' => default => 'hidden';
+has 'button_value' => is => 'ro', isa => Str, default => NUL;
 
 =item drag_title
 
@@ -98,6 +99,12 @@ has 'fixed' => is => 'ro', isa => Bool, default => FALSE;
 =cut
 
 has 'flex_direction' => is => 'ro', isa => Str, default => 'vertical';
+
+=item html5_type_attr
+
+=cut
+
+has '+html5_type_attr' => default => 'hidden';
 
 =item icons
 
@@ -167,18 +174,21 @@ Defines no methods
 sub _build_element_attr {
    my $self     = shift;
    my $readonly = [];
+   my $rows     = is_arrayref $self->value
+      ? $self->value : decode_json($self->value // '[]');
 
-   for my $row (@{decode_json($self->value // '[]')}) {
+   for my $row (@{$rows}) {
       push @{$readonly}, json_bool $self->is_row_readonly->($self, $row);
    }
 
    return {
       'data-ds-specification' => encode_only_entities(encode_json({
-         'add-handler'      => $self->add_handler,
+         'add-handler'      => $self->add_button_handler,
          'add-icon'         => $self->add_icon,
          'add-icon-height'  => $self->add_icon_height,
          'add-icon-width'   => $self->add_icon_width,
          'add-title'        => $self->add_title,
+         'button-value'     => $self->button_value,
          'drag-title'       => $self->drag_title,
          'field-group-dirn' => $self->field_group_direction,
          'fixed'            => json_bool $self->fixed,

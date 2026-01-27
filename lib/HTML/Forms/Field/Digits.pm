@@ -49,20 +49,11 @@ has '+widget' => default => 'Digits';
 
 =head1 Subroutines/Methods
 
-Defines the following methods;
+Defines no methods
 
 =over 3
 
-=item javascript
-
 =cut
-
-sub javascript {
-   my ($self, $count) = @_;
-
-   return qq{oninput="} . $self->js_package . qq{.updateDigits('}
-        . $self->id . qq{', } . $count . qq{)"};
-}
 
 use namespace::autoclean -except => META;
 

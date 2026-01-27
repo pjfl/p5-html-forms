@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.2
+    @version 0.2.9
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -245,6 +245,7 @@ WCom.Form.DataStructure = (function() {
          this.addIconHeight = this.config['add-icon-height'] || '14px';
          this.addIconWidth = this.config['add-icon-width'] || '14px';
          this.addTitle = this.config['add-title'] || 'Add';
+         this.buttonValue = this.config['button-value'];
          this.dragTitle = this.config['drag-title'] || 'Drag to reorder';
          this.fieldGroupDirn = this.config['field-group-dirn'] || '';
          this.fixed = this.config['fixed'] || false;
@@ -260,7 +261,12 @@ WCom.Form.DataStructure = (function() {
          this.identifier = Math.random().toString().replace(/\D+/g, '');
          this.mousedownHandler = this._mousedownHandler.bind(this);
          WCom.Util.Event.registerOnunload(this._submitHandler.bind(this));
-         const data = this.hidden.value ? JSON.parse(this.hidden.value) : [];
+         let data = [];
+         const value = this.hidden.value;
+         if (value) {
+            try { data = JSON.parse(value) }
+            catch { WCom.Navigation.logger('error', `DS JSON bad: ${value}`) }
+         }
          const isArray = Array.isArray(data);
          if (this.config['single-hash']) {
             this.singleRow = true;
@@ -276,6 +282,14 @@ WCom.Form.DataStructure = (function() {
          else this.sourceData = data;
          this.fieldRenderer = {
             // TODO: More field types
+            boolean: function(specification, value = '') {
+               const box = this.h.checkbox({
+                  checked: (value ? 'checked' : ''),
+                  className: 'input input-checkbox ds-input',
+                  value: 1,
+               });
+               return this.h.span({ className: 'checkbox-wrapper' }, box);
+            }.bind(this),
             datetime: function(specification, value = '') {
                return this.h.input({
                   className: 'input input-datetime ds-input',
@@ -299,6 +313,16 @@ WCom.Form.DataStructure = (function() {
                   height: specification.height,
                   src: value,
                   width: specification.width
+               });
+            }.bind(this),
+            integer: function(specification, value = '') {
+               return this.h.text({
+                  className: 'input input-integer ds-input', value
+               });
+            }.bind(this),
+            ipaddress: function(specification, value = '') {
+               return this.h.text({
+                  className: 'input input-ipaddress ds-input', value
                });
             }.bind(this),
             text: function(specification, value = '') {
@@ -365,10 +389,10 @@ WCom.Form.DataStructure = (function() {
                }
                const labelAttr = { className: 'ds-tag-label' };
                if (column.tagLabelLeft)
-                  tags.appendChild(this.h.span(labelAttr, column.tagLabelLeft));
+                  tags.appendChild(this.h.span(labelAttr,column.tagLabelLeft));
                tags.appendChild(field);
                if (column.tagLabelRight)
-                  tags.appendChild(this.h.span(labelAttr, column.tagLabelRight));
+                  tags.appendChild(this.h.span(labelAttr,column.tagLabelRight));
             }
             else {
                const className = 'ds-field'
@@ -384,12 +408,16 @@ WCom.Form.DataStructure = (function() {
             const knob = this.h.span({
                className: 'knob', title: this.dragTitle
             }, icon);
-            group.appendChild(this.h.div({ className: 'ds-reorderable' }, knob));
+            group.appendChild(this.h.div({ className: 'ds-reorderable' },knob));
          }
          if (!this.singleRow && !this.fixed && !readonly) {
             let callback = this.removeCallback;
             if (callback && typeof(callback) == 'string')
                callback = this.getEventHandler(this.removeCallback);
+            let icon = this.h.span({ className: 'icon-wrapper' }, 'X');
+            if (this.icons) {
+               icon = this.h.icon({ name: 'close', icons: this.icons });
+            }
             const button = this.h.span({
                className: 'ds-remove-icon',
                onclick: function(event) {
@@ -400,7 +428,7 @@ WCom.Form.DataStructure = (function() {
                   return true;
                }.bind(this),
                title: 'Remove'
-            }, this.h.icon({ name: 'close', icons: this.icons }));
+            }, icon);
             row.appendChild(this.h.div({ className: 'ds-remove' }, button));
          }
          this.table.appendChild(row);
@@ -535,6 +563,8 @@ WCom.Form.DataStructure = (function() {
          let hasLabels = false;
          for (const column of this.structure) {
             if (column.label) {
+               if (column.width) attr.width = column.width;
+               else delete attr.width;
                header.appendChild(this.h.div(attr, column.label));
                hasLabels = true;
             }
@@ -570,16 +600,21 @@ WCom.Form.DataStructure = (function() {
             }.bind(this);
             const handler = this.addHandler
                   ? this.getEventHandler(this.addHandler) : defaultHandler;
+            let icon = this.h.span({ className: 'icon-wrapper' }, '+');
+            if (this.icons) {
+               icon = this.h.icon({
+                  className: 'ds-add-icon',
+                  height: this.addIconHeight,
+                  icons: this.icons,
+                  name: this.addIcon,
+                  width: this.addIconWidth,
+               });
+            }
             const addButton = this.h.button({
                onclick: handler,
-               title: this.addTitle
-            }, this.h.icon({
-               className: 'ds-add-icon',
-               height: this.addIconHeight,
-               icons: this.icons,
-               name: this.addIcon,
-               width: this.addIconWidth
-            }));
+               title: this.addTitle,
+               value: this.buttonValue,
+            }, icon);
             this.container.appendChild(addButton);
             this.hasLoaded = true;
          }

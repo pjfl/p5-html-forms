@@ -46,7 +46,7 @@ has 'is_compound' => is => 'ro', isa => Bool, default => TRUE;
 
 =cut
 
-has 'item'        => is => 'rw', clearer => 'clear_item';
+has 'item' => is => 'rw', clearer => 'clear_item';
 
 =item primary_key
 

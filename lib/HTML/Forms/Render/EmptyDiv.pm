@@ -264,6 +264,14 @@ sub _serialise_field {
    $attr->{toggle}       = $field->toggle_config_encoded
       if $field->can('has_toggle') && $field->has_toggle;
 
+   if ($field->can('sorted_fields')) {
+      $attr->{sortedFields} = [];
+
+      for my $inner (@{$field->sorted_fields}) {
+         push @{$attr->{sortedFields}}, $self->_serialise_field($inner);
+      }
+   }
+
    return $attr;
 }
 

@@ -1,5 +1,9 @@
 Revision history for HTML::Forms
 
+          - Adds FormBuilder role
+          - Adds boolean integer and ipaddress DS rendering widgets
+          - Renderer supports serialising compound fields
+          - Adds the add_handler field method
           - Unifies SelectOne and SelectMany apis
           - Adds SelectMany field type
           - Implments checkbox and radio groups auto_widget_size

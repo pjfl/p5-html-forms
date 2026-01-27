@@ -952,6 +952,30 @@ sub add_error {
    return $self->push_errors($out);
 }
 
+=item add_handler
+
+   $method = $self->add_handler($event, $method);
+
+Adds the given method to the fields C<element_attr> C<javascript> field
+
+=cut
+
+sub add_handler {
+   my ($self, $event, $method) = @_;
+
+   return unless $event && $method;
+
+   my $js = $self->element_attr->{javascript} //= {};
+
+   $event = 'on' . $event unless $event =~ m{ \A on }mx;
+
+   my $existing = $js->{$event};
+
+   return $js->{$event} = "${existing}; ${method}" if $existing;
+
+   return $js->{$event} = $method;
+}
+
 =item add_standard_element_classes
 
    $self->add_standard_element_classes($result, $class);

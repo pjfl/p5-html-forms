@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.7
+    @version 0.2.9
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -361,6 +361,19 @@ WCom.Form.Renderer = (function() {
          const list = this.h.datalist({ id: 'custom-colours' }, options);
          wrapper.appendChild(list);
          return element;
+      }
+   }
+   /** @class
+       @classdesc Renders a list of fields
+       @alias Renderer/HTMLFieldCompound
+   */
+   class HTMLFieldCompound extends HTMLField {
+      render(wrapper) {
+         for (const field of this.field.sortedFields) {
+            const className = 'HTMLField' + field.widget;
+            const widget = eval('new ' + className + '(this, field)');
+            widget.renderField(wrapper);
+         }
       }
    }
    /** @class
