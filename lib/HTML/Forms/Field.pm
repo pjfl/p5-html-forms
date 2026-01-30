@@ -339,8 +339,8 @@ has 'inactive' => is => 'rw', isa => Bool, clearer => 'clear_inactive';
 
 =item info
 
-A mutable string without default. This text to display near the start of the
-form. Usually an instruction to fill in the form
+A mutable string without default. Additional information about filling in
+this field
 
 =cut
 

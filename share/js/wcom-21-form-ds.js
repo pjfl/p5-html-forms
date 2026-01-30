@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.9
+    @version 0.2.10
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -362,7 +362,10 @@ WCom.Form.DataStructure = (function() {
          const renderer = this.fieldRenderer[column.type];
          if (!renderer) return;
          const field = renderer.call(this, column, value, item);
-         field.setAttribute('data-ds-name', column.name);
+         if (column.type == 'boolean') {
+            field.querySelector('.input').setAttribute('data-ds-name', column.name);
+         }
+         else { field.setAttribute('data-ds-name', column.name) }
          if (column.readonly) field.setAttribute('readonly', 'readonly');
          if (column.select) this._addSelectHandler(field, column, item);
          if (this.isObject) this.registerValidation(field, column.name);
@@ -475,10 +478,10 @@ WCom.Form.DataStructure = (function() {
                }
                const valueEl = row.querySelector('[data-ds-name="value"]');
                const type = valueEl.getAttribute('type');
-               const value = type == 'radio' || type == 'checkbox'
-                     ? (valueEl.getAttribute('checked') ? valueEl.value : '')
-                     : valueEl.value;
-               data[name] = value;
+               if (type === 'radio' || type === 'checkbox') {
+                  data[name] = valueEl.checked ? valueEl.value : '';
+               }
+               else { data[name] = valueEl.value }
             }
             else {
                const item = {};
@@ -486,11 +489,10 @@ WCom.Form.DataStructure = (function() {
                   for (const field of cell.querySelectorAll('.ds-input')) {
                      const name = field.getAttribute('data-ds-name');
                      const type = field.getAttribute('type');
-                     if (type == 'radio' || type == 'checkbox') {
-                        const checked = field.getAttribute('checked');
-                        item[name] = checked ? field.value : '';
+                     if (type === 'radio' || type === 'checkbox') {
+                        item[name] = field.checked ? field.value : '';
                      }
-                     else item[name] = field.value;
+                     else { item[name] = field.value }
                   }
                }
                data.push(item);

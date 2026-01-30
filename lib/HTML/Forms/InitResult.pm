@@ -149,9 +149,9 @@ sub _result_from_input {
    my ($self, $self_result, $input, $exists) = @_;
 
    # Transfer the input values to the input attributes of the subfields
-   return unless defined( $input ) || $exists || $self->has_fields;
+   return unless defined($input) || $exists || $self->has_fields;
 
-   $self_result->_set_input( $input );
+   $self_result->_set_input($input);
 
    if (is_plain_hashref $input) {
       for my $field ($self->sorted_fields) {
@@ -164,16 +164,16 @@ sub _result_from_input {
 
          $result = $field->_result_from_input(
             $result,
-            $input->{ $field->input_param || $field_name },
-            exists $input->{ $field->input_param || $field_name }
+            $input->{$field->input_param || $field_name},
+            exists $input->{$field->input_param || $field_name}
          );
 
-         $self_result->add_result( $result ) if $result;
+         $self_result->add_result($result) if $result;
       }
    }
 
-   $self->_set_result( $self_result );
-   $self_result->_set_field_def( $self ) if $self->DOES( 'HTML::Forms::Field' );
+   $self->_set_result($self_result);
+   $self_result->_set_field_def($self) if $self->DOES('HTML::Forms::Field');
 
    return $self_result;
 }

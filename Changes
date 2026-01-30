@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Builder role returns changed fields
           - Adds FormBuilder role
           - Adds boolean integer and ipaddress DS rendering widgets
           - Renderer supports serialising compound fields

@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.9
+ * @version 0.2.10
  */
 @import "wcom-05-constants";
 form.classic {
@@ -97,9 +97,10 @@ form.classic {
                     15px 25px 10px var(--shadow-darkest-semitrans),
                     15px 20px 20px var(--shadow-darkest-semitrans),
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
-                height: 4rem; left: -3rem; padding: 1.25rem 1rem;
-                position: absolute; top: -3rem; transform: rotate(-5deg);
-                white-space: nowrap;
+                font-size: 1.75rem; height: 4rem; left: -3rem;
+                padding: 1.25rem 1rem; position: absolute;
+                text-shadow: 3px 3px 3px var(--bg-darker); top: -3rem;
+                transform: rotate(-5deg); white-space: nowrap;
             }
         }
         .input-field:not(.droplet) {
@@ -819,6 +820,7 @@ form.classic {
     }
     .page-list {
         list-style-type: none; margin: 0; padding: @field-row-gap 0;
+        position: relative;
         li {
             border-bottom: 1px solid @line-border;
             border-top-left-radius: 5px; border-top-right-radius: 5px;
@@ -826,9 +828,8 @@ form.classic {
             font-family: #fonts[sans]; font-size: @system-font-size;
             padding: 0.125rem 0.5rem;
             &.selected {
-                border: 1px solid @line-border;
-                border-bottom: 1px solid transparent;
-                color: @text-dark;
+                background: var(--bg-dark); border: 1px solid @line-border;
+                border-bottom: 1px solid transparent; color: @text-dark;
             }
         }
     }

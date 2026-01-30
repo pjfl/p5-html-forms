@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.9
+    @version 0.2.10
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -204,14 +204,12 @@ WCom.Form.Renderer = (function() {
          const wrapper = this.h.div(field.wrapperAttr);
          if (field.infoTop) this._fieldInfo(wrapper, field);
          if (field.doLabel && field.label.length && !field.labelRight) {
-            const label = this.h[field.labelTag](field.labelAttr, field.label);
-            wrapper.appendChild(label);
+            wrapper.appendChild(this._renderLabel(field));
          }
          const element = this.render(wrapper);
          if (element) this._setElementAttributes(field, element);
          if (field.doLabel && field.label.length && field.labelRight) {
-            const label = this.h[field.labelTag](field.labelAttr, field.label);
-            wrapper.appendChild(label);
+            wrapper.appendChild(this._renderLabel(field));
          }
          if (element) {
             this._fieldAlerts(wrapper, field, element);
@@ -247,6 +245,14 @@ WCom.Form.Renderer = (function() {
             if (field.infoTop) info.classList.add('top');
             container.appendChild(info);
          }
+      }
+      _renderLabel(field) {
+         const attr = field.labelAttr;
+         if (attr.className.match(/\-multiple/)
+             || field.widget == 'DataStructure') {
+            delete attr.htmlFor;
+         }
+         return this.h[field.labelTag](attr, field.label);
       }
       _setElementAttributes(field, element) {
          if (field.depends)
