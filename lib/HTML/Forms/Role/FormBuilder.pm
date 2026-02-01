@@ -2,15 +2,51 @@ package HTML::Forms::Role::FormBuilder;
 
 use Class::Usul::Cmd::Constants qw( DUMP_EXCEPT );
 use HTML::Forms::Constants      qw( EXCEPTION_CLASS FALSE NUL SPC TRUE );
-use HTML::Forms::Types          qw( HashRef Str );
+use HTML::Forms::Types          qw( Bool HashRef Str );
 use HTML::Forms::Util           qw( json_bool );
 use Class::Usul::Cmd::Util      qw( ensure_class_loaded includes
                                     list_methods_of );
+use Data::Validate::IP          qw( is_ip );
 use JSON::MaybeXS               qw( decode_json encode_json );
 use Ref::Util                   qw( is_arrayref );
 use Scalar::Util                qw( blessed );
 use Unexpected::Functions       qw( throw );
 use Moo::Role;
+
+=pod
+
+=encoding utf-8
+
+=head1 Name
+
+HTML::Forms::Role::FormBuilder - Generate fields from an object
+
+=head1 Synopsis
+
+   use Moo;
+   use HTML::Forms::Moo;
+
+   extends 'HTML::Forms';
+   with    'HTML::Forms::Role::FormBuilder';
+
+=head1 Description
+
+Generate fields from an object
+
+=head1 Configuration and Environment
+
+Defines no public attributes
+
+=over 3
+
+=item include_private
+
+A boolean which defaults false. If true private attributes of the supplied
+object will be listed
+
+=cut
+
+has 'include_private' => is => 'ro', isa => Bool, default => FALSE;
 
 has '_type_dispatch' =>
    is      => 'ro',
@@ -45,16 +81,43 @@ has '_update_dispatch' =>
    isa     => HashRef,
    default => sub {
       return {
-         Boolean       => \&_update_bool,
-         Compound      => \&_update_hashref_scalar,
-         DataStructure => \&_update_arrayref_ref,
-         OctalNum      => \&_update_octal_num,
-         PosInteger    => \&_update_int,
-         Password      => \&_update_str,
-         TextArea      => \&_update_arrayref_str,
-         Text          => \&_update_str,
+         Boolean       => \&_update_boolean,
+         Compound      => \&_update_compound,
+         DataStructure => \&_update_datastructure,
+         OctalNum      => \&_update_octalnum,
+         PosInteger    => \&_update_posinteger,
+         Password      => \&_update_text,
+         Text          => \&_update_text,
+         TextArea      => \&_update_textarea,
       };
    };
+
+=back
+
+=head1 Subroutines/Methods
+
+=over 3
+
+=cut
+
+around 'html_attributes' => sub {
+   my ($orig, $self, $obj, $type, $attrs, $result) = @_;
+
+   $attrs = $orig->($self, $obj, $type, $attrs, $result);
+
+   push @{$attrs->{class}}, 'right' if $type eq 'label';
+
+   return $attrs;
+};
+
+=item changed_fields
+
+   $hash_ref = $self->changed_fields($object);
+
+Introspects the supplied object and compares it's values with that provided
+by the posted form. Differences are returned
+
+=cut
 
 sub changed_fields {
    my ($self, $object) = @_;
@@ -79,7 +142,7 @@ sub changed_fields {
       my $attr    = $object->can("_${key}") ? "_${key}" : $key;
       my $handler = $self->_update_dispatch->{$type};
 
-      throw "Type ${type} not handled\n" unless $handler;
+      throw "Type ${type} not handled" unless $handler;
 
       my $result = $handler->($self, $object, $attr, $value);
 
@@ -88,6 +151,14 @@ sub changed_fields {
 
    return $changed;
 }
+
+=item field_builder
+
+   $list_ref = $self->field_builder($object);
+
+Introspects the supplied object and generates a list of fields
+
+=cut
 
 sub field_builder {
    my ($self, $object) = @_;
@@ -145,8 +216,10 @@ sub _field_map {
       $self->_attr_map($object, $method, $map);
    }
 
-   for my $method (@{list_methods_of $object, 'private'}) {
-      $self->_attr_map($object, $method, $map);
+   if ($self->include_private) {
+      for my $method (@{list_methods_of $object, 'private'}) {
+         $self->_attr_map($object, $method, $map);
+      }
    }
 
    return $map;
@@ -167,16 +240,19 @@ sub _get_attribute {
    return {} if $attr->{documentation} && $attr->{documentation} eq 'NoUpdate';
    return {} if !$attr->{init_arg} || !$type || $type eq '__ANON__';
 
-   my $types = [map { s{ \[ [^\]]+ \] }{}gmx; $_ } split m{ [\|] }mx, $type];
+   my $types     = [map { s{ \[ [^\]]+ \] }{}gmx; $_ } split m{ [\|] }mx,$type];
    my ($subtype) = $type =~ m{ \[ ([^\]]+) \]}mx;
    my $reader    = $attr->{reader} // $attr_name;
    my $default   = $object->$reader() // NUL;
    (my $name     = $attr_name) =~ s{ \A _ }{}mx;
+   my $subfields = [ split m{ [ ] }mx, $attr->{documentation} // NUL ];
+   my $subftypes = $self->_types_from_dmf($subfields);
 
    return {
       default   => $default,
       name      => $name,
-      subfields => [split m{ [ ] }mx, $attr->{documentation} // NUL],
+      subfields => [ map { s{ = [^=]+ \z }{}mx; $_} @{$subfields}],
+      subftypes => $subftypes,
       subtype   => ($subtype // 'Str'),
       type      => $types->[0],
    };
@@ -189,13 +265,10 @@ sub _get_field_class {
 
    return unless $handler;
 
-   $handler->($self, $object, $attr, $options);
-
+   my $class = $handler->($self, $object, $attr, $options);
    my $space = $self->_fieldspace;
 
-   return "${space}::" . (delete $options->{class}) if $options->{class};
-
-   return "${space}::Text";
+   return "${space}::${class}";
 }
 
 sub _make_label {
@@ -236,27 +309,25 @@ sub _new_field {
 sub _type_boolean {
    my ($self, $object, $attr, $options) = @_;
 
-   $options->{class}   = 'Boolean';
    $options->{default} = $attr->{default} . NUL;
-   return;
+   return 'Boolean';
 }
 
 sub _type_compound {
    my ($self, $object, $attr, $options) = @_;
 
-   my $types = $self->_types_from_dmf($attr);
    my $count = $options->{order} + 1;
-   my $index = {};
+   my $types = {};
 
-   for my $key (keys %{$types}) {
-      $index->{lc $key} = _dmftype2type_tiny($types->{lc $key});
+   for my $key (keys %{$attr->{subftypes}}) {
+      $types->{lc $key} = _dmftype2type_tiny($attr->{subftypes}->{$key});
    }
 
    $attr->{callback} = sub {
       my ($self, $compound) = @_;
 
       for my $key (sort keys %{$attr->{default}}) {
-         next if $index->{lc $key} && $index->{lc $key} eq 'NoUpdate';
+         next if $types->{lc $key} && $types->{lc $key} eq 'NoUpdate';
 
          my $attr  = {
             default     => $attr->{default}->{$key},
@@ -264,7 +335,7 @@ sub _type_compound {
             label       => $self->_make_label($key),
             name        => ($attr->{name} . '.' . $key),
             subtype     => 'Str',
-            type        => $index->{lc $key} // 'Str',
+            type        => $types->{lc $key} // 'Str',
          };
 
          if (my $field = $self->_new_field($object, $attr, $count)) {
@@ -273,116 +344,121 @@ sub _type_compound {
          }
       }
    };
-   $options->{class} = 'Compound';
-   $options->{info} = $self->_make_label($attr->{name});
-   $options->{info_top} = TRUE;
-   $options->{wrapper_class} = 'compound-field section';
-   return;
+
+   $options->{info}          = $self->_make_label($attr->{name});
+   $options->{info_top}      = TRUE;
+   $options->{wrapper_class} = ['compound-field', 'section'];
+   return 'Compound';
 }
 
 sub _type_datastructure {
    my ($self, $object, $attr, $options) = @_;
 
-   my $types     = $self->_types_from_dmf($attr);
-   my $structure = [];
+   $options->{structure} = [];
 
    for my $key (@{$attr->{subfields}}) {
-      push @{$structure}, {
+      push @{$options->{structure}}, {
          label => $self->_make_label($key),
          name  => $key,
-         type  => $types->{lc $key},
+         type  => $attr->{subftypes}->{lc $key},
          width => '13rem', # TODO: Yuck. Make it go away
       };
    }
 
-   $options->{class}     = 'DataStructure';
-   $options->{structure} = $structure;
+   my $type   = lc $attr->{subtype};
+   my $method = "_type_ds_${type}";
+   my $name   = $attr->{name};
 
-   if ($attr->{subtype} eq 'ArrayRef') {
-      my $default = [];
+   throw "Attr ${name} DS type ${type} not handled" unless $self->can($method);
 
-      for my $tuple (@{$attr->{default}}) {
-         my $index = 0;
-         my $item  = {};
+   $options->{default} = $self->$method($attr);
+   $options->{validate_method} = \&_validate_ds;
+   return 'DataStructure';
+}
 
-         for my $key (@{$attr->{subfields}}) {
-            if ($types->{lc $key} eq 'boolean') {
-               $item->{$key} = json_bool(!!$tuple->[$index++] ? TRUE : FALSE);
-            }
-            else { $item->{$key} = $tuple->[$index++] }
+sub _type_ds_arrayref {
+   my ($self, $attr) = @_;
+
+   my $default = [];
+
+   for my $tuple (@{$attr->{default}}) {
+      my $index = 0;
+      my $item  = {};
+
+      for my $key (@{$attr->{subfields}}) {
+         if ($attr->{subftypes}->{lc $key} eq 'boolean') {
+            $item->{$key} = json_bool(!!$tuple->[$index++] ? TRUE : FALSE);
          }
-
-         push @{$default}, $item;
+         else { $item->{$key} = $tuple->[$index++] }
       }
 
-      $options->{default} = encode_json($default);
+      push @{$default}, $item;
    }
-   else {
-      my $default = [];
 
-      for my $item (@{$attr->{default}}) {
-         for my $key (@{$attr->{subfields}}) {
-            if ($types->{lc $key} eq 'boolean') {
-               $item->{$key} = json_bool(!!$item->{$key} ? TRUE : FALSE);
-            }
-            else { $item->{$key} = $item->{$key} }
+   return encode_json($default);
+}
+
+sub _type_ds_hashref {
+   my ($self, $attr) = @_;
+
+   my $default = [];
+
+   for my $item (@{$attr->{default}}) {
+      for my $key (@{$attr->{subfields}}) {
+         if ($attr->{subftypes}->{lc $key} eq 'boolean') {
+            $item->{$key} = json_bool(!!$item->{$key} ? TRUE : FALSE);
          }
-
-         push @{$default}, $item;
+         else { $item->{$key} = $item->{$key} }
       }
 
-      $options->{default} = encode_json($default);
+      push @{$default}, $item;
    }
 
-   return;
+   return encode_json($default);
 }
 
 sub _type_password {
    my ($self, $object, $attr, $options) = @_;
 
-   $options->{class}   = 'Password';
    $options->{default} = $attr->{default} . NUL;
    $options->{tags}    = { reveal => TRUE };
-   return;
+   return 'Password';
 }
 
 sub _type_octalnum {
    my ($self, $object, $attr, $options) = @_;
 
-   $options->{class}   = 'OctalNum';
    $options->{default} = $attr->{default} . NUL;
-   return;
+   return 'OctalNum';
 }
 
 sub _type_posinteger {
    my ($self, $object, $attr, $options) = @_;
 
-   $options->{class}   = 'PosInteger';
    $options->{default} = $attr->{default} . NUL;
-   return;
+   return 'PosInteger';
 }
 
 sub _type_text {
    my ($self, $object, $attr, $options) = @_;
 
    $options->{default} = $attr->{default} . NUL;
-   return;
+   return 'Text';
 }
 
 sub _type_textarea {
    my ($self, $object, $attr, $options) = @_;
 
-   $options->{class}   = 'TextArea';
    $options->{default} = join "\n", @{$attr->{default}};
-   return;
+   return 'TextArea';
 }
 
-sub _types_from_dmf {
-   my ($self, $attr) = @_;
+sub _types_from_dmf { # Documentation attribute micro format
+   my ($self, $subfields) = @_;
 
    my $hash = {};
 
-   for my $key (@{$attr->{subfields}}) {
+   for my $key (@{$subfields}) {
       my $type;
 
       ($key, $type) = $key =~ m{ \A ([^=]+) \= (.+) \z }mx if $key =~ m{ \= }mx;
@@ -393,112 +469,24 @@ sub _types_from_dmf {
    return $hash;
 }
 
-sub _update_arrayref_ref {
-   my ($self, $object, $attr, $encoded) = @_;
-
-   my $attribute = $self->_get_attribute($object, $attr);
-   my $types     = $self->_types_from_dmf($attribute);
-   my $subfields = $attribute->{subfields};
-   my $changed   = [];
-   my $index     = 0;
-
-   for my $item (@{decode_json($encoded)}) {
-      if ($attribute->{subtype} eq 'ArrayRef') {
-         my $updated  = FALSE;
-         my $new_item = [];
-         my $subindex = 0;
-
-         for my $key (map { s{ = [^=]+ \z }{}mx; $_} @{$subfields}) {
-            my $type      = $types->{lc $key} // 'text';
-            my $current   = $object->$attr->[$index]->[$subindex];
-            my $value     = $item->{$key};
-            my $new_value = $self->_update_by_dmftype($type, $current, $value);
-
-            $updated = TRUE if defined $new_value;
-
-            push @{$new_item}, (
-               defined $new_value ? $new_value : defined $current
-                     ? $current   : $type eq 'boolean' ? FALSE : undef
-            );
-            $subindex++;
-         }
-
-         push @{$changed}, $new_item if $updated;
-      }
-      else { # HashRef
-         my $new_item = {};
-
-         for my $key (sort keys %{$item}) {
-            my $type      = $types->{lc $key} // 'text';
-            my $current   = $object->$attr->[$index]->{$key};
-            my $value     = $item->{$key};
-            my $new_value = $self->_update_by_dmftype($type, $current, $value);
-
-            $new_item->{$key} = $new_value if defined $new_value;
-         }
-
-         push @{$changed}, $new_item  if scalar keys %{$new_item};
-      }
-
-      $index++;
-   }
-
-   return (scalar @{$changed}) ? $changed : undef;
-}
-
-sub _update_arrayref_str {
+sub _update_boolean {
    my ($self, $object, $attr, $value) = @_;
 
-   my $attr_val = join "\n", @{$object->$attr};
-
-   $value =~ s{ [\r] }{}gmx;
-
-   return $attr_val ne $value ? [split m{ [\n] }mx, $value] : undef;
+   return $self->_update__scalar('boolean', $object->$attr, $value);
 }
 
-sub _update_by_dmftype {
-   my ($self, $type, $current, $updated) = @_;
-
-   my $changed;
-
-   if ($type eq 'boolean') {
-      $current //= FALSE;
-      $changed = (!!$updated ? TRUE : FALSE) if !!$current != !!$updated;
-   }
-   elsif ($type eq 'integer') {
-      $current //= 0;
-      $changed = $updated if $current != $updated;
-   }
-   elsif ($type eq 'ipaddress' || $type eq 'password' || $type eq 'text') {
-      $current //= NUL;
-      $changed = $updated if $current ne $updated;
-   }
-   elsif ($type eq 'noupdate') {
-   }
-   else { throw "Type ${type} not handled\n" }
-
-   return $changed;
-}
-
-sub _update_bool {
-   my ($self, $object, $attr, $value) = @_;
-
-   return !!$object->$attr != !!$value ? $value : undef;
-}
-
-sub _update_hashref_scalar {
+sub _update_compound {
    my ($self, $object, $attr, $value) = @_;
 
    my $attribute = $self->_get_attribute($object, $attr);
-   my $types     = $self->_types_from_dmf($attribute);
-   my $subfields = $attribute->{subfields};
    my $changed   = {};
 
-   for my $subkey (sort keys(%{$value}), @{$subfields}) {
-      my $type      = $types->{lc $subkey} // 'text';
-      my $current   = $object->$attr->{$subkey};
+   for my $subkey (sort keys(%{$value}), @{$attribute->{subfields}}) {
+      my $type      = $attribute->{subftypes}->{lc $subkey} // 'text';
+      my $hash      = $object->$attr;
+      my $current   = exists $hash->{$subkey} ? $hash->{$subkey} : undef;
       my $updated   = $value->{$subkey};
-      my $new_value = $self->_update_by_dmftype($type, $current, $updated);
+      my $new_value = $self->_update__scalar($type, $current, $updated);
 
       $changed->{$subkey} = $new_value if defined $new_value;
    }
@@ -506,22 +494,192 @@ sub _update_hashref_scalar {
    return (scalar keys %{$changed}) ? $changed : undef;
 }
 
-sub _update_int {
+sub _update_datastructure {
    my ($self, $object, $attr, $value) = @_;
 
-   return $object->$attr != $value ? $value : undef;
+   my $attribute = $self->_get_attribute($object, $attr);
+   my $subtype   = lc $attribute->{subtype} // 'not_supplied';
+   my $method    = "_update_ds_${subtype}";
+
+   throw "Subtype ${subtype} not handled" unless $self->can($method);
+
+   my $changed = $self->$method($object, $attr, decode_json($value));
+
+   return (scalar @{$changed}) ? $changed : undef;
 }
 
-sub _update_octal_num {
+sub _update_ds_arrayref {
    my ($self, $object, $attr, $value) = @_;
 
-   return $object->$attr ne $value ? "${value}" : undef;
+   my $attribute = $self->_get_attribute($object, $attr);
+   my $changed   = [];
+   my $index     = 0;
+
+   for my $item (@{$value}) {
+      my $updated  = FALSE;
+      my $new_item = [];
+      my $subindex = 0;
+
+      for my $key (@{$attribute->{subfields}}) {
+         my $type      = $attribute->{subftypes}->{lc $key} // 'text';
+         my $array     = $object->$attr->[$index];
+         my $current   = defined $array ? $array->[$subindex] : undef;
+         my $input     = $item->{$key};
+         my $new_value = $self->_update__scalar($type, $current, $input);
+
+         $updated = TRUE if defined $new_value;
+
+         push @{$new_item}, (
+            defined $new_value ? $new_value :
+            defined $current   ? $current   :
+            $type eq 'boolean' ? FALSE      : undef
+         );
+         $subindex++;
+      }
+
+      push @{$changed}, $new_item if $updated;
+      $index++;
+   }
+
+   return $changed;
 }
 
-sub _update_str {
+sub _update_ds_hashref {
    my ($self, $object, $attr, $value) = @_;
 
-   return $object->$attr ne $value ? $value : undef;
+   my $attribute = $self->_get_attribute($object, $attr);
+   my $changed   = [];
+   my $index     = 0;
+
+   for my $item (@{$value}) {
+      my $new_item = {};
+
+      for my $key (sort keys %{$item}) {
+         my $type      = $attribute->{subftypes}->{lc $key} // 'text';
+         my $hash      = $object->$attr->[$index];
+         my $current   = exists $hash->{$key} ? $hash->{$key} : undef;
+         my $input     = $item->{$key};
+         my $new_value = $self->_update__scalar($type, $current, $input);
+
+         $new_item->{$key} = $new_value if defined $new_value;
+      }
+
+      push @{$changed}, $new_item  if scalar keys %{$new_item};
+      $index++;
+   }
+
+   return $changed;
+}
+
+sub _update_octalnum {
+   my ($self, $object, $attr, $value) = @_;
+
+   return $self->_update__scalar('octalnum', $object->$attr, $value);
+}
+
+sub _update_posinteger {
+   my ($self, $object, $attr, $value) = @_;
+
+   return $self->_update__scalar('integer', $object->$attr, $value);
+}
+
+sub _update_text {
+   my ($self, $object, $attr, $value) = @_;
+
+   return $self->_update__scalar('text', $object->$attr, $value);
+}
+
+sub _update_textarea {
+   my ($self, $object, $attr, $value) = @_;
+
+   $value =~ s{ [\r] }{}gmx;
+
+   my $attr_val = join "\n", @{$object->$attr};
+   my $changed  = $self->_update__scalar('text', $attr_val, $value);
+
+   return $changed ? [split m{ [\n] }mx, $changed] : undef;
+}
+
+sub _update__scalar {
+   my ($self, $type, $current, $updated) = @_;
+
+   my $method = lc "_update__${type}";
+
+   throw "Type ${type} not handled" unless $self->can($method);
+
+   return $self->$method($current, $updated);
+}
+
+sub _update__boolean {
+   my ($self, $current, $updated) = @_;
+
+   return !!$current != !!$updated ? (!!$updated ? TRUE : FALSE) : undef;
+}
+
+sub _update__integer {
+   my ($self, $current, $updated) = @_;
+
+   $current //= 0; $updated //= 0;
+
+   return $current != $updated ? $updated : undef;
+}
+
+sub _update__ipaddress {
+   my ($self, $current, $updated) = @_;
+
+   $current //= NUL; $updated //= NUL;
+
+   return $current ne $updated ? $updated : undef;
+}
+
+sub _update__noupdate {
+   my ($self, $current, $updated) = @_; return;
+}
+
+sub _update__octalnum {
+   my ($self, $current, $updated) = @_;
+
+   $current //= "0"; $updated //= "0";
+
+   return $current ne $updated ? $updated : undef;
+}
+
+sub _update__password {
+   my ($self, $current, $updated) = @_;
+
+   $current //= NUL; $updated //= NUL;
+
+   return $updated ne NUL ? $updated : undef;
+}
+
+sub _update__text {
+   my ($self, $current, $updated) = @_;
+
+   $current //= NUL; $updated //= NUL;
+
+   return $current ne $updated ? $updated : undef;
+}
+
+sub _validate_ds {
+   my $field = shift;
+   my $types = {};
+
+   for my $item (@{$field->structure}) {
+      $types->{$item->{name}} = $item->{type};
+   }
+
+   for my $row (@{decode_json($field->result->value // '[]')}) {
+      for my $key (sort keys %{$row}) {
+         my $value = $row->{$key};
+         my $type  = $types->{$key};
+
+         if ($type eq 'ipaddress') {
+            $field->add_error('Bad IP address') if $value && !is_ip($value);
+         }
+      }
+   }
+
+   return;
 }
 
 # Private functions
@@ -529,11 +687,12 @@ sub _dmftype2type_tiny {
    my $type = lc shift;
 
    return {
-      boolean  => 'Bool',
-      integer  => 'PositiveInt',
-      noupdate => 'NoUpdate',
-      password => 'Password',
-      text     => 'Str',
+      boolean   => 'Bool',
+      integer   => 'PositiveInt',
+      ipaddress => 'Str',
+      noupdate  => 'NoUpdate',
+      password  => 'Password',
+      text      => 'Str',
    }->{$type} // 'Str';
 }
 
@@ -543,32 +702,11 @@ use namespace::autoclean;
 
 __END__
 
-=pod
-
-=encoding utf-8
-
-=head1 Name
-
-HTML::Forms::Role::FormBuilder - HTML forms using Moo
-
-=head1 Synopsis
-
-   use HTML::Forms::Role::FormBuilder;
-   # Brief but working code examples
-
-=head1 Description
-
-=head1 Configuration and Environment
-
-Defines the following attributes;
-
-=over 3
-
 =back
 
-=head1 Subroutines/Methods
-
 =head1 Diagnostics
+
+None
 
 =head1 Dependencies
 
@@ -594,7 +732,7 @@ Larry Wall - For the Perl programming language
 
 =head1 Author
 
-Peter Flanigan, C<< <lazarus@roxsoft.co.uk> >>
+Peter Flanigan, C<< <pjfl@cpan.org> >>
 
 =head1 License and Copyright
 

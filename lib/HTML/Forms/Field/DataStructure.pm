@@ -169,8 +169,11 @@ has '+widget' => default => 'DataStructure';
 
 Defines no methods
 
+=over 3
+
 =cut
 
+# Private methods
 sub _build_element_attr {
    my $self     = shift;
    my $readonly = [];
@@ -213,6 +216,8 @@ use namespace::autoclean;
 1;
 
 __END__
+
+=back
 
 =head1 Diagnostics
 

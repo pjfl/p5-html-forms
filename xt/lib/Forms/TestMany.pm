@@ -17,7 +17,6 @@ has '+do_label_colon'      => default => TRUE;
 has '+info_message'        => default => 'You know what to do';
 #has '+do_label_right'         => default => TRUE;
 
-# TODO: Test repeatable field post
 # TODO: Fix interval result from post
 has_field 'single_boolean' => type => 'Boolean',
    info => 'Each field comes with its own helpful information';

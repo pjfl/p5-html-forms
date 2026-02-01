@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.10
+ * @version 0.2.11
  */
 @import "wcom-05-constants";
 form.classic {
@@ -387,6 +387,9 @@ form.classic {
             font-family: #fonts[sans]; font-size: @system-font-size;
             grid-area: label; line-height: 1rem; position: relative;
             white-space: nowrap;
+            &.right {
+                justify-self: flex-end;
+            }
             .label-sep-after {
                 position: absolute; right: 0.25rem;
             }

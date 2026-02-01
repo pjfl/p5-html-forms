@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Octal field type uses type validation
           - Builder role returns changed fields
           - Adds FormBuilder role
           - Adds boolean integer and ipaddress DS rendering widgets

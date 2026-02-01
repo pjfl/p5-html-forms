@@ -18,6 +18,7 @@ my $prereqs  = {
     'Class::Load' => '0.25',
     'Crypt::CBC' => '3.04',
     'Data::Clone' => '0.006',
+    'Data::Validate::IP' => '0.31',
     'DateTime' => '1.65',
     'DateTime::Format::Strptime' => '1.79',
     'DateTime::TimeZone' => '2.57',

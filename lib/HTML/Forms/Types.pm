@@ -4,10 +4,11 @@ use strictures;
 
 use Type::Library             -base, -declare =>
                           qw( HFs HFsArrayRefStr HFsField HFsFieldResult
-                              HFsResult HFsSelectOptions Template );
+                              HFsResult HFsSelectOptions OctalNum Template );
 use Type::Utils           qw( as class_type coerce declare extends from
-                              inline_as message via where );
+                              inline_as message subtype via where );
 use Unexpected::Functions qw( inflate_message );
+use Scalar::Util          qw( dualvar isdual );
 
 BEGIN { extends 'Unexpected::Types' };
 
@@ -48,6 +49,34 @@ coerce HFsSelectOptions, from ArrayRef[ArrayRef] => via {
 
    return $opts;
 };
+
+subtype OctalNum, as Str,
+   where   { _constraint_for_octalnum($_) },
+   message { inflate_message('Value [_1] is not an octal number', $_) };
+
+coerce OctalNum, from Str, via { _coercion_for_octalnum($_) };
+
+sub _coercion_for_octalnum {
+   my $x = shift;
+
+   return $x unless length $x;
+   return $x if $x =~ m{ [^0-7] }mx;
+
+   $x =~ s{ \A 0 }{}gmx;
+
+   return dualvar oct "${x}", "0${x}";
+}
+
+sub _constraint_for_octalnum {
+   my $x = shift;
+
+   return 0 unless length $x;
+   return 0 if $x =~ m{ [^0-7] }mx;
+
+   $x = dualvar oct "${x}", "0${x}" unless isdual($x);
+
+   return  ($x + 0 < 8) || (oct "${x}" == $x + 0) ? 1 : 0;
+}
 
 1;
 

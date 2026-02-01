@@ -128,15 +128,6 @@ Defines the following attributes;
 
     Handles; `add_field_trait` and `has_field_traits` via the array trait
 
-- for\_js
-
-    A mutable hash reference with an empty default. Provides support for the
-    `Repeatable` field type. Keyed by the repeatable field name contains a
-    data structure used by the JS event handlers to add/remove repeatable fields
-    to/from the form. Populated automatically by the `Repeatable` field type
-
-    Handles; `clear_for_js`, `has_for_js`, and `set_for_js` via the hash trait
-
 - form\_element\_attr
 
     A mutable hash reference with an empty default. Attributes and values applied
@@ -428,7 +419,8 @@ Defines the following methods;
 
     The methods `before_build_fields`, and `after_build_fields` are called either
     side of the above and are dummy methods in this class. Made for overriding in a
-    form role
+    form role. N.B. The method `after_build_fields` is called before the result is
+    initialised so field option lookups will not have been performed yet
 
 - add\_form\_element\_class
 
@@ -481,7 +473,8 @@ Defines the following methods;
 
 - build\_errors
 
-    Moves the errors to the `result` object
+    Copies the results `error_results` to the results `errors`. This is done
+    after the fields have been validated
 
 - build\_language\_handle
 

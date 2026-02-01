@@ -1,6 +1,7 @@
 package HTML::Forms::Field::OctalNum;
 
 use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Types     qw( OctalNum );
 use Try::Tiny;
 use Moo;
 use HTML::Forms::Moo;
@@ -18,7 +19,9 @@ sub get_class_messages {
 }
 
 apply([{
-   check   => sub { my $v = shift; $v =~ m{ \A [0-7]+ \z }mx ? TRUE : FALSE },
+   check => sub {
+      my $value = shift; return OctalNum->check("${value}") ? TRUE : FALSE;
+   },
    message => sub {
       my ($value, $field) = @_; return $field->get_message('octal_number');
    }

@@ -544,7 +544,7 @@ has 'set_default' => is => 'ro', isa => Str, writer => '_set_default';
 
 An immutable string without default. Used by the C<build_validate_method>
 method.  If not set the above method uses the string C<< validate_C<full_name>
->>. If the form has that as a method installs that as the C<validate_method> on
+>>. If the form has that as a method installs it as the C<validate_method> on
 this field object
 
 =cut

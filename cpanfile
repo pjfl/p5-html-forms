@@ -4,6 +4,7 @@
 requires "Class::Load" => "0.25";
 requires "Crypt::CBC" => "3.04";
 requires "Data::Clone" => "0.006";
+requires "Data::Validate::IP" => "0.31";
 requires "DateTime" => "1.65";
 requires "DateTime::Format::Strptime" => "1.79";
 requires "DateTime::TimeZone" => "2.57";
