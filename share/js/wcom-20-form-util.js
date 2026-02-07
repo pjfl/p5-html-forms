@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.7
+    @version 0.2.12
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -37,8 +37,33 @@ WCom.Form.Util = (function () {
       const field = form.querySelector(selector);
       if (field) setTimeout(function() { field.focus() }, 500);
    };
-   const revealPassword = function(id) {
+   const passwordStrength = function(options) {
+      const { id } = options;
       const field = document.getElementById(id);
+      if (!field) return;
+      const wrapperId = wrapperIdPrefix + id;
+      const wrapper = document.getElementById(wrapperId);
+      if (!wrapper) return;
+      const meterId = `${id}-meter`;
+      const oldMeter = document.getElementById(meterId);
+      const meterAttr = { className: 'alert alert-info', id: meterId };
+      const value = field.value;
+      let score = -2;
+      if (value.match(/[a-z]/) && value.match(/[A-Z]/)) { score++ }
+      if (value.match(/[0-9]/)) { score++ }
+      if (value.match(/[^a-zA-Z0-9]/)) { score++ }
+      if (value.length >= 5) { score += value.length - 4 }
+      if (score < 0) { score = 0 }
+      if (score > 10) { score = 10 }
+      let content = 'Strength weak';
+      if (score > 3 && score < 8) { content = 'Strength medium' }
+      else if (score > 7) { content = 'Strength high' }
+      const newMeter = WCom.Util.Markup.h.div(meterAttr, content);
+      WCom.Util.Markup.addOrReplace(wrapper, newMeter, oldMeter);
+   };
+   const passwordReveal = function(id) {
+      const field = document.getElementById(id);
+      if (!field) return;
       if (!field.getAttribute('leavelistener')) {
          const handler = function(event) { field.type = 'password' };
          field.addEventListener('mouseleave', handler);
@@ -225,10 +250,15 @@ WCom.Form.Util = (function () {
       */
       focusFirst: focusFirst,
       /** @function
+          @desc Displays a password strenght meter
+          @param {string} id The id of the password field
+      */
+      passwordStrength: passwordStrength,
+      /** @function
           @desc Toggles the field type between 'password' and 'text'
           @param {string} id The id of the password field
       */
-      revealPassword: revealPassword,
+      passwordReveal: passwordReveal,
       /** @function
           @desc Scans the supplied DOM element for the form's trigger class
           @param {object} content DOM element to scan

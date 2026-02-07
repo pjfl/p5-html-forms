@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.10
+    @version 0.2.12
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -432,7 +432,9 @@ WCom.Form.DataStructure = (function() {
                }.bind(this),
                title: 'Remove'
             }, icon);
-            row.appendChild(this.h.div({ className: 'ds-remove' }, button));
+            const remove = this.h.div({ className: 'ds-remove' }, button);
+            if (this.fieldGroupDirn == 'vertical') { row.appendChild(remove) }
+            else { group.appendChild(remove) }
          }
          this.table.appendChild(row);
       }
@@ -561,9 +563,9 @@ WCom.Form.DataStructure = (function() {
       }
       _header() {
          const header = this.h.div({ className: 'ds-header' });
-         const attr = { className: 'ds-header-cell' };
          let hasLabels = false;
          for (const column of this.structure) {
+            const attr = { className: 'ds-header-cell ' + column.type };
             if (column.label) {
                if (column.width) attr.width = column.width;
                else delete attr.width;
@@ -571,8 +573,14 @@ WCom.Form.DataStructure = (function() {
                hasLabels = true;
             }
          }
-         if (this.reorderable) header.appendChild(this.h.div(attr));
-         if (!this.fixed) header.appendChild(this.h.div(attr));
+         if (this.reorderable) {
+            const attr = { className: 'ds-header-cell reorderable' };
+            header.appendChild(this.h.div(attr, ' '));
+         }
+         if (!this.fixed) {
+            const attr = { className: 'ds-header-cell remove' };
+            header.appendChild(this.h.div(attr, ' '));
+         }
          return hasLabels ? header : false;
       }
       /** @function

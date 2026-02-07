@@ -1,7 +1,7 @@
 package HTML::Forms::Manager;
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS TRUE );
-use HTML::Forms::Types     qw( Str );
+use HTML::Forms::Types     qw( ArrayRef Str );
 use Class::Load            qw( load_class );
 use Scalar::Util           qw( blessed );
 use Type::Utils            qw( class_type );
@@ -32,6 +32,8 @@ Defines the following attributes;
 =over 3
 
 =item namespace
+
+Class prefix of where to find the field classes. Required string
 
 =cut
 
@@ -94,14 +96,15 @@ sub new_with_context {
 
    throw Unspecified, ['context'] unless $context;
    throw 'Not an object reference [_1]', ['context'] unless blessed($context);
-   throw 'Context object has no request method' unless $context->can('request');
+   throw 'Context no request attribute' unless $context->can('request');
+   throw 'Context no body_parameters'   unless $context->can('body_parameters');
+   throw 'Context no posted attribute'  unless $context->can('posted');
 
    my $args = { %{$options} };
 
    $args->{action} //= $context->request->uri->as_string;
 
-   $args->{params} //= $context->get_body_parameters
-      if lc $context->request->method eq 'post';
+   $args->{params} //= $context->body_parameters if $context->posted;
 
    $args->{renderer_class} = $self->renderer_class if $self->has_renderer_class;
 

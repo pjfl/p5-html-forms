@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.11
+ * @version 0.2.12
  */
 @import "wcom-05-constants";
 form.classic {
@@ -71,13 +71,18 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                right: -7rem; top: -3rem; transform: rotate(5deg);
+                right: -7rem; top: 0.5rem; transform: rotate(5deg);
+                z-index: 6;
             }
             &:nth-child(2 of .droplet) {
-                right: -13rem; top: 6rem;
+                right: -13rem; top: 6rem; z-index: 7;
             }
             &:nth-child(3 of .droplet) {
-                bottom: -4rem; right: -9rem; transform: rotate(-5deg);
+                bottom: 0; right: -9rem; transform: rotate(-5deg);
+                z-index: 8;
+            }
+            .tooltip {
+                left: 0; transform: translateY(calc(1.25rem - 100%));
             }
         }
         .form-wrapper {
@@ -101,6 +106,9 @@ form.classic {
                 padding: 1.25rem 1rem; position: absolute;
                 text-shadow: 3px 3px 3px var(--bg-darker); top: -3rem;
                 transform: rotate(-5deg); white-space: nowrap;
+                &:hover {
+                    transform: rotate(-5deg) scale(0.96);
+                }
             }
         }
         .input-field:not(.droplet) {
@@ -177,10 +185,14 @@ form.classic {
         position: relative;
         &.fixed {
             align-items: baseline; column-gap: 0.5rem; display: grid;
-            grid-template-columns: var(--label-width) min-content min-content;
+            grid-template-columns: min-content min-content min-content;
             grid-template-areas: "label input selector" "blank alert alert";
             justify-items: start; min-width: @field-min-width;
             row-gap: 0.25rem;
+            &:has(.field-label) {
+                grid-template-columns:
+                    var(--label-width) min-content min-content;
+            }
             &.collapse:not(.hide) {
                 &:not(.input-datastructure) {
                     grid-template-columns:
@@ -227,6 +239,12 @@ form.classic {
                     border-top-right-radius: 50px;
                 }
             }
+            .tooltip {
+                left: 0;
+            }
+        }
+        &:has(.alert-info.top) {
+            grid-template-areas: "blank alert alert" "label input selector";
         }
         &.hide {
             display: none; opacity: 0;
@@ -253,9 +271,6 @@ form.classic {
             .field-label::after {
                 content: ' ';
             }
-        }
-        &:has(.alert-info.top) {
-            grid-template-areas: "blank alert alert" "label input selector";
         }
         &:hover, &:has(input:focus), &:has(input:valid) {
             span.field-label {
@@ -473,6 +488,7 @@ form.classic {
     }
     .data-structure {
         align-items: flex-start; display: flex; flex-direction: column;
+        grid-area: input;
         button {
             padding: 0.25rem 0.75rem;
         }
@@ -481,8 +497,7 @@ form.classic {
         display: flex; grid-area: input;
     }
     .ds-form {
-        align-items: flex-start; display: flex; flex-direction: column;
-        gap: 0.5rem; padding-bottom: (@field-row-gap + 0.25rem);
+        margin-bottom: 0.25rem; padding-bottom: (@field-row-gap + 0.25rem);
         position: relative; overscroll-behavior-inline: contain;
         scroll-behavior: smooth;
         &.horizontal, &.vertical {
@@ -491,14 +506,15 @@ form.classic {
             }
         }
         &.horizontal {
-            flex-direction: row; overflow-x: auto;
-            max-width: @ds-form-max-width-horizontal;
+            column-gap: @field-col-gap; display: flex; flex-direction: row;
+            overflow-x: auto; max-width: @ds-form-max-width-horizontal;
             padding-right: 0.25rem;
             &.snaps-inline {
                 scroll-snap-type: inline mandatory;
             }
         }
         &.vertical {
+            display: grid; row-gap: @field-row-gap;
             max-height: @ds-form-max-height-vertical; overflow-y: auto;
             padding-right: 0.75rem;
             &.snaps-inline {
@@ -506,20 +522,32 @@ form.classic {
             }
         }
         .ds-header {
+            column-gap: @field-col-gap; display: grid; grid-auto-flow: column;
             background: var(--bg-dark); border-radius: 5px;
-            column-gap: @field-col-gap; display: flex;
             box-shadow: 3px 3px 3px @panel-shadow;
             font-family: #fonts[sans]; font-size: @system-font-size;
-            font-weight: normal; padding: 0.25rem 0.875rem; position: sticky;
+            font-weight: normal; padding: 0.25rem 0.5rem; position: sticky;
             top: 0; z-index: 3;
-            .ds-header-cell:empty {
-                display: none;
+            .ds-header-cell {
+                display: inline-block;
+                &.boolean {
+                    width: 40px;
+                }
+                &.ipaddress {
+                    width: 9rem;
+                }
+                &.text {
+                    min-width: 13rem;
+                }
+                &.remove {
+                    justify-self: start; width: 1.75rem;
+                }
             }
         }
         .ds-row {
             background: var(--bg-base); border-radius: 5px;
-            box-shadow: 3px 3px 3px @panel-shadow; display: flex;
-            justify-content: space-between; padding: @field-row-gap;
+            box-shadow: 3px 3px 3px @panel-shadow;
+            display: flex; padding: @field-row-gap;
         }
         .ds-field {
             border-radius: 5px; border-bottom-right-radius: 0;
@@ -543,9 +571,13 @@ form.classic {
             }
         }
         .ds-field-group {
-            column-gap: @field-col-gap; display: flex;
+            &.horizontal {
+                column-gap: @field-col-gap; display: grid;
+                grid-auto-flow: column;
+            }
             &.vertical {
-                flex-direction: column; row-gap: @field-row-gap;
+                display: inline-grid; grid-auto-flow: row;
+                row-gap: @field-row-gap;
             }
         }
         .ds-output {
@@ -563,7 +595,8 @@ form.classic {
         }
         .ds-remove {
             border-radius: 5px; border-bottom-left-radius: 0;
-            border-top-left-radius: 0; padding: 0.125rem 0 0 0.25rem;
+            border-top-left-radius: 0; display: inline-block;
+            padding: 0.125rem 0 0;
             .ds-remove-icon {
                 align-items: center; background: var(--btn-bg);
                 border-radius: 3px; box-shadow: 2px 2px 2px @panel-shadow;
@@ -849,6 +882,20 @@ form.classic {
             .input-button.right {
                 right: 0;
             }
+        }
+    }
+    .tooltip {
+        background: var(--bg-darker); border: 1px solid @line-border;
+        border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
+        color: @text-light; font-family: #fonts[sans]; font-size: 1rem;
+        left: @label-width; min-width: 10rem; padding: 0.5rem;
+        position: absolute; top: 0;
+        transform: translateY(calc(-0.25rem - 100%)); z-index: 10;
+        &.hide {
+            display: none;
+        }
+        p {
+            margin: 0;
         }
     }
 }

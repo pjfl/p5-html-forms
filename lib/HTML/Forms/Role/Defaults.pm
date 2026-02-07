@@ -188,6 +188,12 @@ around 'before_build_fields' => sub {
       unshift @{$meta->field_list}, { name => $name, type => 'RequestToken' };
    }
 
+   if ($self->context && $self->context->can('session')) {
+      my $session = $self->context->session;
+
+      $self->features([@{$session->features}]) if $session->can('features');
+   }
+
    return;
 };
 

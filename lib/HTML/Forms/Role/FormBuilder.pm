@@ -3,14 +3,17 @@ package HTML::Forms::Role::FormBuilder;
 use Class::Usul::Cmd::Constants qw( DUMP_EXCEPT );
 use HTML::Forms::Constants      qw( EXCEPTION_CLASS FALSE NUL SPC TRUE );
 use HTML::Forms::Types          qw( Bool HashRef Str );
-use HTML::Forms::Util           qw( json_bool );
 use Class::Usul::Cmd::Util      qw( ensure_class_loaded includes
-                                    list_methods_of );
+                                    list_attr_of list_methods_of );
 use Data::Validate::IP          qw( is_ip );
+use HTML::Forms::Util           qw( json_bool );
 use JSON::MaybeXS               qw( decode_json encode_json );
-use Ref::Util                   qw( is_arrayref );
+use Ref::Util                   qw( is_arrayref is_hashref );
 use Scalar::Util                qw( blessed );
+use Type::Utils                 qw( class_type );
 use Unexpected::Functions       qw( throw );
+use Pod::Markdown::Github;
+use Text::MultiMarkdown;
 use Moo::Role;
 
 =pod
@@ -46,7 +49,12 @@ object will be listed
 
 =cut
 
-has 'include_private' => is => 'ro', isa => Bool, default => FALSE;
+has 'include_private' => is => 'rw', isa => Bool, default => FALSE;
+
+has '_md_formatter' =>
+   is      => 'lazy',
+   isa     => class_type('Text::MultiMarkdown'),
+   default => sub { Text::MultiMarkdown->new };
 
 has '_type_dispatch' =>
    is      => 'ro',
@@ -120,7 +128,7 @@ by the posted form. Differences are returned
 =cut
 
 sub changed_fields {
-   my ($self, $object) = @_;
+   my ($self, $object, $for_update) = @_;
 
    my $space = $self->_fieldspace;
    my $item  = {};
@@ -137,14 +145,14 @@ sub changed_fields {
    my $changed = {};
 
    for my $key (sort keys %{$item}) {
-      my $type    = $item->{$key}->{type};
-      my $value   = $item->{$key}->{value};
-      my $attr    = $object->can("_${key}") ? "_${key}" : $key;
-      my $handler = $self->_update_dispatch->{$type};
+      my $type     = $item->{$key}->{type};
+      my $value    = $item->{$key}->{value};
+      my $accessor = $object->can("_${key}") ? "_${key}" : $key;
+      my $handler  = $self->_update_dispatch->{$type};
 
       throw "Type ${type} not handled" unless $handler;
 
-      my $result = $handler->($self, $object, $attr, $value);
+      my $result = $handler->($self, $object, $accessor, $value, $for_update);
 
       $changed->{$key} = $result if defined $result;
    }
@@ -190,17 +198,61 @@ sub field_builder {
    return $fields;
 }
 
+=item merge_changed
+
+=cut
+
+sub merge_changed {
+   my ($self, $object, $changed, $content) = @_;
+
+   for my $key (keys %{$changed}) {
+      my $accessor = blessed $object && $object->can("_${key}") ? "_${key}"
+                   : $key;
+      my $existing = exists $content->{$key} ? $content->{$key}
+                   : blessed $object         ? $object->$accessor
+                   : $object->{$accessor};
+
+      if (is_arrayref $existing) {
+         my $has_item = exists $content->{$key} && $content->{$key}->[0];
+         my $subtype  = $has_item             ? $content->{$key}->[0]
+                      : $changed->{$key}->[0] ? $changed->{$key}->[0]
+                      : blessed $object       ? $object->$accessor->[0]
+                      : $object->{$accessor}->[0];
+
+         if (is_arrayref $subtype or is_hashref $subtype) {
+            $content->{$key} = [];
+
+            for my $item (@{$object->$accessor}, @{$changed->{$key}}) {
+               push @{$content->{$key}}, $item;
+            }
+         }
+         else { $content->{$key} = [@{$changed->{$key}}] }
+      }
+      elsif (is_hashref $existing) {
+         $content->{$key} = $self->merge_changed(
+            $object->$key, $changed->{$key}, {%{$existing}}
+         );
+      }
+      else { $content->{$key} = $changed->{$key} }
+   }
+
+   return $content;
+}
+
 # Private methods
 sub _attr_map {
    my ($self, $object, $method, $map) = @_;
 
    my ($attr_name) = reverse split m{ :: }mx, $method;
-
-   return if includes $attr_name, [
+   my $except      = [
       DUMP_EXCEPT, @{($object->can('DumpExcept') ? $object->DumpExcept : [])}
    ];
 
+   return if includes $attr_name, $except;
+
    my $attr = $self->_get_attribute($object, $attr_name);
+
+   $attr->{documentation} = $self->_get_documentation($object, $method);
 
    $map->{$attr_name} = $attr if exists $attr->{type};
 
@@ -258,6 +310,35 @@ sub _get_attribute {
    };
 }
 
+sub _get_documentation {
+   my ($self, $object, $method) = @_;
+
+   my $pod = [list_attr_of $object, [$method]]->[0]->[2] // NUL;
+
+   if ($pod eq 'Undocumented') {
+      my ($attr_name, @rest) = reverse split m{ :: }mx, $method;
+
+      $attr_name =~ s{ \A _ }{}mx;
+
+      if ($object->can($attr_name)) {
+         $method = join '::', reverse(@rest), $attr_name;
+         $pod = [list_attr_of $object, [$method]]->[0]->[2] // NUL;
+      }
+   }
+
+   my $parser = Pod::Markdown::Github->new;
+
+   $parser->output_string(\my $markdown);
+   $parser->parse_string_document("=pod\n\n${pod}\n\n=cut\n");
+
+
+   if (includes 'tooltips', $self->features) {
+      return $self->_md_formatter->markdown("${markdown}\n");
+   }
+
+   return $markdown;
+}
+
 sub _get_field_class {
    my ($self, $object, $attr, $options) = @_;
 
@@ -289,6 +370,7 @@ sub _new_field {
       name   => "fb_${name}",
       order  => $count,
       parent => $self,
+      title  => $attr->{documentation} // NUL,
    };
 
    $options->{input_param} = $attr->{input_param} if $attr->{input_param};
@@ -361,7 +443,6 @@ sub _type_datastructure {
          label => $self->_make_label($key),
          name  => $key,
          type  => $attr->{subftypes}->{lc $key},
-         width => '13rem', # TODO: Yuck. Make it go away
       };
    }
 
@@ -470,9 +551,9 @@ sub _types_from_dmf { # Documentation attribute micro format
 }
 
 sub _update_boolean {
-   my ($self, $object, $attr, $value) = @_;
+   my ($self, $object, $attr, $value, $for_updt) = @_;
 
-   return $self->_update__scalar('boolean', $object->$attr, $value);
+   return $self->_update__scalar('boolean', $object->$attr, $value, $for_updt);
 }
 
 sub _update_compound {
@@ -601,19 +682,24 @@ sub _update_textarea {
 }
 
 sub _update__scalar {
-   my ($self, $type, $current, $updated) = @_;
+   my ($self, $type, $current, $updated, $for_update) = @_;
 
    my $method = lc "_update__${type}";
 
    throw "Type ${type} not handled" unless $self->can($method);
 
-   return $self->$method($current, $updated);
+   return $self->$method($current, $updated, $for_update);
 }
 
 sub _update__boolean {
-   my ($self, $current, $updated) = @_;
+   my ($self, $current, $updated, $for_update) = @_;
 
-   return !!$current != !!$updated ? (!!$updated ? TRUE : FALSE) : undef;
+   if (!!$current != !!$updated) {
+      if ($for_update) { return json_bool(!!$updated ? TRUE : FALSE) }
+      else { return !!$updated ? TRUE : FALSE }
+   }
+
+   return;
 }
 
 sub _update__integer {

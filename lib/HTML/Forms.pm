@@ -1,7 +1,7 @@
 package HTML::Forms;
 
 use 5.010001;
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 11 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 12 $ =~ /\d+/gmx );
 
 use HTML::Forms::Constants qw( EXCEPTION_CLASS FALSE TRUE NUL );
 use HTML::Forms::Types     qw( ArrayRef Bool HashRef HFsArrayRefStr HFsField
@@ -264,6 +264,15 @@ has 'error_message' =>
    isa       => Str,
    clearer   => 'clear_error_message',
    predicate => 'has_error_message';
+
+=item features
+
+An array reference with an empty default. If set can be used to test for
+optional features to enable
+
+=cut
+
+has 'features' => is => 'rw', isa => ArrayRef, default => sub { [] };
 
 =item field_traits
 

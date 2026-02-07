@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.10
+    @version 0.2.12
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -187,6 +187,9 @@ WCom.Form.Renderer = (function() {
       constructor(form, field) {
          this.form = form;
          this.field = field;
+         if (WCom.Navigation.feature('tooltips')) {
+            this.title = field.attributes.title; delete field.attributes.title;
+         }
          this.attr = {
             ...field.attributes,
             id: field.id,
@@ -204,14 +207,15 @@ WCom.Form.Renderer = (function() {
          const wrapper = this.h.div(field.wrapperAttr);
          if (field.infoTop) this._fieldInfo(wrapper, field);
          if (field.doLabel && field.label.length && !field.labelRight) {
-            wrapper.appendChild(this._renderLabel(field));
+            this._fieldLabel(wrapper, field);
          }
          const element = this.render(wrapper);
          if (element) this._setElementAttributes(field, element);
          if (field.doLabel && field.label.length && field.labelRight) {
-            wrapper.appendChild(this._renderLabel(field));
+            this._fieldLabel(wrapper, field);
          }
          if (element) {
+            if (this.title) this._fieldTitle(wrapper, field);
             this._fieldAlerts(wrapper, field, element);
             if (!field.infoTop) this._fieldInfo(wrapper, field);
          }
@@ -246,13 +250,25 @@ WCom.Form.Renderer = (function() {
             container.appendChild(info);
          }
       }
-      _renderLabel(field) {
+      _fieldLabel(wrapper, field) {
          const attr = field.labelAttr;
          if (attr.className.match(/\-multiple/)
              || field.widget == 'DataStructure') {
             delete attr.htmlFor;
          }
-         return this.h[field.labelTag](attr, field.label);
+         return wrapper.appendChild(this.h[field.labelTag](attr, field.label));
+      }
+      _fieldTitle(container, field) {
+         const id = 'tooltip-' + field.name;
+         const attr = { className: 'tooltip hide', id };
+         const tooltip = this.h.div(attr, this.h.frag(this.title));
+         container.addEventListener('mouseover', () => {
+            tooltip.classList.remove('hide');
+         });
+         container.addEventListener('mouseout', () => {
+            tooltip.classList.add('hide');
+         });
+         container.appendChild(tooltip);
       }
       _setElementAttributes(field, element) {
          if (field.depends)
@@ -432,7 +448,6 @@ WCom.Form.Renderer = (function() {
             className: 'digit',
             id: id,
             inputmode: 'numeric',
-            name: id,
             oninput: this._handler(field.id, count),
             pattern: '[0-9]',
             required: (this.attr.required == 'required' ? true : false),
@@ -489,6 +504,7 @@ WCom.Form.Renderer = (function() {
       render(wrapper) {
          const field = this.field;
          const attr = { ...field.attributes, href: field.href, id: field.id };
+         delete attr.title;
          const element = this.h.a(attr, this.h.span({}, field.displayAs));
          wrapper.appendChild(element);
          return element;
@@ -735,7 +751,7 @@ WCom.Form.Renderer = (function() {
          if (this.field.reveal) {
             const id = this.field.id;
             const handler = function(event) {
-               WCom.Form.Util.revealPassword(id);
+               WCom.Form.Util.passwordReveal(id);
             };
             const attr = {
                className: 'reveal',

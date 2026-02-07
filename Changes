@@ -1,5 +1,7 @@
 Revision history for HTML::Forms
 
+          - Adds tooltips
+          - Adds password strength meter
           - Octal field type uses type validation
           - Builder role returns changed fields
           - Adds FormBuilder role
