@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.12
+    @version 0.2.13
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -38,6 +38,7 @@ WCom.Form.Util = (function () {
       if (field) setTimeout(function() { field.focus() }, 500);
    };
    const passwordStrength = function(options) {
+      const ht = WCom.Util.Markup.h;
       const { id } = options;
       const field = document.getElementById(id);
       if (!field) return;
@@ -55,10 +56,17 @@ WCom.Form.Util = (function () {
       if (value.length >= 5) { score += value.length - 4 }
       if (score < 0) { score = 0 }
       if (score > 10) { score = 10 }
-      let content = 'Strength weak';
-      if (score > 3 && score < 8) { content = 'Strength medium' }
-      else if (score > 7) { content = 'Strength high' }
-      const newMeter = WCom.Util.Markup.h.div(meterAttr, content);
+      const states = [];
+      if (score == 0) { states.push('off', 'off', 'off') }
+      else if (score > 0 && score < 4) { states.push('on', 'off', 'off') }
+      else if (score > 3 && score < 8) { states.push('on', 'on', 'off') }
+      else if (score > 7) { states.push('on', 'on', 'on')}
+      const content = [ht.span({}, ['Strength', ht.frag('&nbsp;')])];
+      for (const state of states) {
+         const star = ht.frag('&#9733');
+         content.push(ht.span({ className: `star ${state}` }, star));
+      }
+      const newMeter = ht.div(meterAttr, content);
       WCom.Util.Markup.addOrReplace(wrapper, newMeter, oldMeter);
    };
    const passwordReveal = function(id) {

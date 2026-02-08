@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Uses stars in password strength meter display
           - Adds tooltips
           - Adds password strength meter
           - Octal field type uses type validation

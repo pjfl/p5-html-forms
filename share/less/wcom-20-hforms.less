@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.12
+ * @version 0.2.13
  */
 @import "wcom-05-constants";
 form.classic {
@@ -45,7 +45,7 @@ form.classic {
                     25px 35px 20px var(--shadow-darkest-semitrans),
                     25px 30px 30px var(--shadow-darkest-semitrans),
                     inset -20px -20px 25px var(--shadow-lightest-semitrans);
-        padding-top: 0.5rem; transform: translate(-10rem, 3rem);
+        padding-top: 0.5rem; transform: translate(-6rem, 8rem);
         transition: 0.25s;
         &::before, &::after {
             border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
@@ -71,14 +71,16 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                right: -7rem; top: 0.5rem; transform: rotate(5deg);
-                z-index: 6;
+                offset: center 8rem circle(12rem) calc(100% * 5 / 6);
+                transform: rotate(-20deg) translateX(6rem); z-index: 6;
             }
             &:nth-child(2 of .droplet) {
-                right: -13rem; top: 6rem; z-index: 7;
+                offset: center 8rem circle(12rem) calc(100% * 6 / 6);
+                transform: rotate(-90deg) translateX(6rem); z-index: 7;
             }
             &:nth-child(3 of .droplet) {
-                bottom: 0; right: -9rem; transform: rotate(-5deg);
+                offset: center 8rem circle(12rem) calc(100% * 1 / 6);
+                transform: rotate(195deg) translate(8rem, 2rem);
                 z-index: 8;
             }
             .tooltip {
@@ -102,23 +104,26 @@ form.classic {
                     15px 25px 10px var(--shadow-darkest-semitrans),
                     15px 20px 20px var(--shadow-darkest-semitrans),
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
-                font-size: 1.75rem; height: 4rem; left: -3rem;
+                font-size: 1.75rem; height: 4rem;
+                offset: center 8rem circle(12rem) calc(100% * 4 / 6);
                 padding: 1.25rem 1rem; position: absolute;
-                text-shadow: 3px 3px 3px var(--bg-darker); top: -3rem;
-                transform: rotate(-5deg); white-space: nowrap;
+                text-shadow: 3px 3px 3px var(--bg-darker);
+                transform: rotate(15deg); white-space: nowrap;
                 &:hover {
-                    transform: rotate(-5deg) scale(0.96);
+                    transform: rotate(10deg) scale(0.96);
                 }
             }
         }
-        .input-field:not(.droplet) {
-            text-align: left;
-            button {
-                margin-bottom: 1rem; margin-top: 0.25rem;
+        .input-field {
+            &:not(.droplet) {
+                text-align: left;
+                button {
+                    margin-bottom: 1rem; margin-top: 0.25rem;
+                }
             }
-        }
-        .input-field.floating {
-            justify-content: right;
+            &.floating {
+                justify-content: right;
+            }
         }
     }
     &.narrow, .form-wrapper.narrow {
@@ -792,8 +797,16 @@ form.classic {
             }
         }
     }
-    .input-password .reveal {
-        cursor: pointer; grid-area: selector;
+    .input-password {
+        .reveal {
+            cursor: pointer; grid-area: selector;
+        }
+        .star.on {
+            color: @indicator-star;
+        }
+        .star.off {
+            color: @text-disabled;
+        }
     }
     .input-select {
         &:has(.select-multiple) {

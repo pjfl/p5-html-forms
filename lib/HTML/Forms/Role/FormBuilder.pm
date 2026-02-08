@@ -106,6 +106,8 @@ has '_update_dispatch' =>
 
 =over 3
 
+=item html_attributes
+
 =cut
 
 around 'html_attributes' => sub {
@@ -200,6 +202,8 @@ sub field_builder {
 
 =item merge_changed
 
+   $content = $self->merge_changed($object, $changed, $content);
+
 =cut
 
 sub merge_changed {
@@ -292,18 +296,19 @@ sub _get_attribute {
    return {} if $attr->{documentation} && $attr->{documentation} eq 'NoUpdate';
    return {} if !$attr->{init_arg} || !$type || $type eq '__ANON__';
 
-   my $types     = [map { s{ \[ [^\]]+ \] }{}gmx; $_ } split m{ [\|] }mx,$type];
+   my $types     = [ map { s{ \[ [^\]]+ \] }{}gmx; $_ } split m{[\|]}mx, $type];
    my ($subtype) = $type =~ m{ \[ ([^\]]+) \]}mx;
    my $reader    = $attr->{reader} // $attr_name;
    my $default   = $object->$reader() // NUL;
    (my $name     = $attr_name) =~ s{ \A _ }{}mx;
-   my $subfields = [ split m{ [ ] }mx, $attr->{documentation} // NUL ];
-   my $subftypes = $self->_types_from_dmf($subfields);
+   my $dmf       = [ split m{ [ ] }mx, $attr->{documentation} // NUL ];
+   my $subfields = [ map { s{ = [^=]+ \z }{}mx; $_ } @{$dmf} ];
+   my $subftypes = $self->_types_from_dmf($dmf);
 
    return {
       default   => $default,
       name      => $name,
-      subfields => [ map { s{ = [^=]+ \z }{}mx; $_} @{$subfields}],
+      subfields => $subfields,
       subftypes => $subftypes,
       subtype   => ($subtype // 'Str'),
       type      => $types->[0],
@@ -331,12 +336,9 @@ sub _get_documentation {
    $parser->output_string(\my $markdown);
    $parser->parse_string_document("=pod\n\n${pod}\n\n=cut\n");
 
+   return $markdown unless includes 'tooltips', $self->features;
 
-   if (includes 'tooltips', $self->features) {
-      return $self->_md_formatter->markdown("${markdown}\n");
-   }
-
-   return $markdown;
+   return $self->_md_formatter->markdown("${markdown}\n");
 }
 
 sub _get_field_class {
@@ -447,7 +449,7 @@ sub _type_datastructure {
    }
 
    my $type   = lc $attr->{subtype};
-   my $method = "_type_ds_${type}";
+   my $method = "_default_ds_${type}";
    my $name   = $attr->{name};
 
    throw "Attr ${name} DS type ${type} not handled" unless $self->can($method);
@@ -457,7 +459,7 @@ sub _type_datastructure {
    return 'DataStructure';
 }
 
-sub _type_ds_arrayref {
+sub _default_ds_arrayref {
    my ($self, $attr) = @_;
 
    my $default = [];
@@ -479,7 +481,7 @@ sub _type_ds_arrayref {
    return encode_json($default);
 }
 
-sub _type_ds_hashref {
+sub _default_ds_hashref {
    my ($self, $attr) = @_;
 
    my $default = [];
