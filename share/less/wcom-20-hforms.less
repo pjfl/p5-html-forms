@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.13
+ * @version 0.2.14
  */
 @import "wcom-05-constants";
 form.classic {
@@ -45,7 +45,7 @@ form.classic {
                     25px 35px 20px var(--shadow-darkest-semitrans),
                     25px 30px 30px var(--shadow-darkest-semitrans),
                     inset -20px -20px 25px var(--shadow-lightest-semitrans);
-        padding-top: 0.5rem; transform: translate(-6rem, 8rem);
+        padding-top: 0.5rem; transform: translate(-6rem, 7rem);
         transition: 0.25s;
         &::before, &::after {
             border-radius: 62% 38% 24% 76% / 59% 60% 40% 41%;
@@ -71,17 +71,13 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                offset: center 8rem circle(12rem) calc(100% * 5 / 6);
-                transform: rotate(-20deg) translateX(6rem); z-index: 6;
+                left: 18rem; top: -4rem; transform: rotate(15deg); z-index: 6;
             }
             &:nth-child(2 of .droplet) {
-                offset: center 8rem circle(12rem) calc(100% * 6 / 6);
-                transform: rotate(-90deg) translateX(6rem); z-index: 7;
+                left: 20rem; top: 5rem; z-index: 7;
             }
             &:nth-child(3 of .droplet) {
-                offset: center 8rem circle(12rem) calc(100% * 1 / 6);
-                transform: rotate(195deg) translate(8rem, 2rem);
-                z-index: 8;
+                left: 19rem; top: 14rem; transform: rotate(-15deg); z-index: 8;
             }
             .tooltip {
                 left: 0; transform: translateY(calc(1.25rem - 100%));
@@ -104,13 +100,12 @@ form.classic {
                     15px 25px 10px var(--shadow-darkest-semitrans),
                     15px 20px 20px var(--shadow-darkest-semitrans),
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
-                font-size: 1.75rem; height: 4rem;
-                offset: center 8rem circle(12rem) calc(100% * 4 / 6);
-                padding: 1.25rem 1rem; position: absolute;
-                text-shadow: 3px 3px 3px var(--bg-darker);
-                transform: rotate(15deg); white-space: nowrap;
+                font-size: 1.75rem; height: 4rem; padding: 1.25rem 1rem;
+                position: absolute; text-shadow: 3px 3px 3px var(--bg-darker);
+                white-space: nowrap;
+                left: -4rem; top: -4rem; transform: rotate(-15deg);
                 &:hover {
-                    transform: rotate(10deg) scale(0.96);
+                    border-radius: 50%; transform: rotate(-10deg) scale(0.96);
                 }
             }
         }

@@ -302,7 +302,7 @@ sub _get_attribute {
    my $default   = $object->$reader() // NUL;
    (my $name     = $attr_name) =~ s{ \A _ }{}mx;
    my $dmf       = [ split m{ [ ] }mx, $attr->{documentation} // NUL ];
-   my $subfields = [ map { s{ = [^=]+ \z }{}mx; $_ } @{$dmf} ];
+   my $subfields = [ map { (my $x = $_) =~ s{ = [^=]+ \z }{}mx; $x } @{$dmf} ];
    my $subftypes = $self->_types_from_dmf($dmf);
 
    return {

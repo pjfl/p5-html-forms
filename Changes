@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Fixes subfield extraction in FormBuilder
           - Uses stars in password strength meter display
           - Adds tooltips
           - Adds password strength meter
