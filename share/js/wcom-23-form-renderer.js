@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.12
+    @version 0.2.15
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -396,6 +396,7 @@ WCom.Form.Renderer = (function() {
             const widget = eval('new ' + className + '(this, field)');
             widget.renderField(wrapper);
          }
+         this._fieldTitle(wrapper, this.field);
       }
    }
    /** @class
@@ -612,36 +613,6 @@ WCom.Form.Renderer = (function() {
       }
    }
    /** @class
-       @classdesc Renders a selector for one value
-       @alias Renderer/HTMLFieldSelectOne
-   */
-   class HTMLFieldSelectOne extends HTMLField {
-      render(wrapper) {
-         const field = this.field;
-         this.attr.value = field.fif;
-         const handler = field.clickHandler; delete field.clickHandler;
-         const title = this.attr.title; delete this.attr.title;
-         const element = this.h[field.htmlElement](this.attr);
-         element.setAttribute('readonly', 'readonly');
-         wrapper.appendChild(element);
-         const attr = {
-            id: field.id + '_select',
-            name: field.htmlName + '_select',
-            title,
-            type: 'submit',
-            value: ''
-         };
-         this._setHandlers(attr, { onclick: handler });
-         let displayAs;
-         if (field.htmlElement == 'icon') {
-            displayAs = this.h.icon(JSON.parse(field.displayAs));
-         }
-         else { displayAs = this.h.span(field.displayAs) }
-         wrapper.appendChild(this.h.button(attr, displayAs));
-         return element;
-      }
-   }
-   /** @class
        @classdesc Renders a selector for many values
        @alias Renderer/HTMLFieldSelectMany
    */
@@ -654,7 +625,6 @@ WCom.Form.Renderer = (function() {
          const attr = {
             id: field.id + '_select',
             name: field.htmlName + '_select',
-            title: title || 'Select',
             type: 'submit',
             value: ''
          };
@@ -708,6 +678,35 @@ WCom.Form.Renderer = (function() {
          const label = this.h.label(labelAttr, option.label);
          const hiddenAttr = { id, name: field.id, value: option.value};
          return this.h.li({}, [label, this.h.hidden(hiddenAttr)]);
+      }
+   }
+   /** @class
+       @classdesc Renders a selector for one value
+       @alias Renderer/HTMLFieldSelectOne
+   */
+   class HTMLFieldSelectOne extends HTMLField {
+      render(wrapper) {
+         const field = this.field;
+         this.attr.value = field.fif;
+         const handler = field.clickHandler; delete field.clickHandler;
+         const title = this.attr.title; delete this.attr.title;
+         const element = this.h[field.htmlElement](this.attr);
+         element.setAttribute('readonly', 'readonly');
+         wrapper.appendChild(element);
+         const attr = {
+            id: field.id + '_select',
+            name: field.htmlName + '_select',
+            type: 'submit',
+            value: ''
+         };
+         this._setHandlers(attr, { onclick: handler });
+         let displayAs;
+         if (field.htmlElement == 'icon') {
+            displayAs = this.h.icon(JSON.parse(field.displayAs));
+         }
+         else { displayAs = this.h.span(field.displayAs) }
+         wrapper.appendChild(this.h.button(attr, displayAs));
+         return element;
       }
    }
    /** @class

@@ -10,7 +10,7 @@ use HTML::Forms::Moo;
 extends 'HTML::Forms::Field::Hidden';
 
 our $class_messages = {
-   'token_fail' => 'Submission failed. [_1]. Please reload and try again.',
+   'token_fail' => 'Submission failed. [_1]. Please try again.',
 };
 
 =pod
@@ -66,7 +66,7 @@ has '+noupdate' => default => TRUE;
 
 =cut
 
-has 'expiration_time' => is => 'ro', isa => Int, default => 3600;
+has 'expiration_time' => is => 'ro', isa => Int, default => 3_600;
 
 =item token_prefix
 
@@ -115,6 +115,17 @@ sub build_token_prefix {
 
    return (blessed $session ? $session->serialise : $session->{id}) // NUL;
 }
+
+=item fif
+
+=cut
+
+sub fif {
+   my ($self, $result) = @_;
+
+   return $self->get_default_value;
+}
+
 
 =item validate
 

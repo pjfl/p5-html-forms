@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.14
+ * @version 0.2.15
  */
 @import "wcom-05-constants";
 form.classic {
@@ -71,13 +71,16 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                left: 18rem; top: -4rem; transform: rotate(15deg); z-index: 6;
+                left: 19rem; top: 11rem; z-index: 8;
             }
             &:nth-child(2 of .droplet) {
-                left: 20rem; top: 5rem; z-index: 7;
+                left: 18rem; top: -4rem; z-index: 6;
             }
             &:nth-child(3 of .droplet) {
-                left: 19rem; top: 14rem; transform: rotate(-15deg); z-index: 8;
+                left: -10rem; top: 5rem; z-index: 6;
+            }
+            &:nth-child(4 of .droplet) {
+                left: 21rem; top: 3rem; z-index: 7;
             }
             .tooltip {
                 left: 0; transform: translateY(calc(1.25rem - 100%));
@@ -102,8 +105,8 @@ form.classic {
                     inset -10px -10px 15px var(--shadow-lightest-semitrans);
                 font-size: 1.75rem; height: 4rem; padding: 1.25rem 1rem;
                 position: absolute; text-shadow: 3px 3px 3px var(--bg-darker);
-                white-space: nowrap;
-                left: -4rem; top: -4rem; transform: rotate(-15deg);
+                white-space: nowrap; left: -4rem; top: -4rem;
+                transform: rotate(-15deg);
                 &:hover {
                     border-radius: 50%; transform: rotate(-10deg) scale(0.96);
                 }
@@ -148,9 +151,12 @@ form.classic {
         }
         &.section {
             border-bottom: 1px dashed @line-border;
-            margin-bottom: @field-row-gap;
+            margin-bottom: @field-row-gap; max-width: 50rem;
             .alert-info {
                 left: 0;
+            }
+            .input-field {
+                min-width: 23rem;
             }
         }
         input:not([type=submit]) {
@@ -242,6 +248,11 @@ form.classic {
             .tooltip {
                 left: 0;
             }
+            &:hover, &:has(input:focus), &:has(input:not(:placeholder-shown)) {
+                span.field-label {
+                    top: -0.25rem;
+                }
+            }
         }
         &:has(.alert-info.top) {
             grid-template-areas: "blank alert alert" "label input selector";
@@ -272,11 +283,6 @@ form.classic {
                 content: ' ';
             }
         }
-        &:hover, &:has(input:focus), &:has(input:valid) {
-            span.field-label {
-                top: -0.25rem;
-            }
-        }
         & > .checkbox-wrapper {
             grid-area: input;
         }
@@ -296,7 +302,7 @@ form.classic {
         input {
             background: var(--bg-lightest);
             &:focus {
-                background: @bg-selected;
+                background: @bg-lightest;
             }
             &[type=date], &[type=email], &[type=password], &[type=text] {
                 padding: 0.125rem 0.25rem;
@@ -345,7 +351,7 @@ form.classic {
             &.select-multiple {
                 background: var(--bg-lightest); resize: vertical;
                 &:focus {
-                    background: @bg-selected;
+                    background: @bg-lightest;
                 }
                 option {
                     background: @select-bg-false;
@@ -372,7 +378,7 @@ form.classic {
             min-height: @textarea-min-height; max-width: @textarea-max-width;
             min-width: @textarea-min-width; overflow: auto; padding: 0.25rem;
             &:focus {
-                background: @bg-selected;
+                background: @bg-lightest;
             }
         }
         .alert {
@@ -897,13 +903,16 @@ form.classic {
         border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
         color: @text-light; font-family: #fonts[sans]; font-size: 1rem;
         left: @label-width; min-width: 10rem; padding: 0.5rem;
-        position: absolute; top: 0;
+        pointer-events: none; position: absolute; top: 0;
         transform: translateY(calc(-0.25rem - 100%)); z-index: 10;
         &.hide {
             display: none;
         }
         p {
             margin: 0;
+            a {
+                color: @text-light; text-decoration: none;
+            }
         }
     }
 }
