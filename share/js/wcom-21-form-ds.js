@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.12
+    @version 0.2.16
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -670,9 +670,9 @@ WCom.Form.DataStructure = (function() {
    Object.assign(DataStructure.prototype, WCom.Util.Modifiers);
    /** @class
        @classdesc Factory class for creating DataStructures
-       @alias DataStructure/Manager
+       @alias DataStructure/Factory
    */
-   class Manager {
+   class Factory {
       constructor() {
          this.ds = {};
       }
@@ -702,19 +702,19 @@ WCom.Form.DataStructure = (function() {
          }
       }
    }
-   const manager = new Manager();
+   const factory = new Factory();
    /** @module Form/DataStructure
    */
    return {
       /** @function
           @desc Reloads content on demand. Calls
-             {@link DataStructure/Manager#reload}
+             {@link DataStructure/Factory#reload}
       */
-      reload: manager.reload.bind(manager),
+      reload: factory.reload.bind(factory),
       /** @function
           @desc Scans for and inflates data structures. Calls
-             {@link DataStructure/Manager#scan}
+             {@link DataStructure/Factory#scan}
       */
-      scan: manager.scan.bind(manager),
+      scan: factory.scan.bind(factory),
    };
 })();
