@@ -242,6 +242,8 @@ sub _serialise_field {
       wrapperAttr  => $wrapper_attr,
    };
 
+   $attr->{captchaType} = $field->captcha_type
+      if $field->can('captcha_type');
    $attr->{checkboxValue} = $field->checkbox_value
       if $field->can('checkbox_value');
    $attr->{clickHandler} = $field->click_handler
@@ -255,6 +257,7 @@ sub _serialise_field {
    $attr->{href}         = $field->href         if $field->can('href');
    $attr->{html}         = $field->html         if $field->can('html');
    $attr->{icons}        = $field->icons        if $field->can('icons');
+   $attr->{imageAttr}    = $field->image_attr   if $field->can('image_attr');
    $attr->{multiple}     = $field->multiple     if $field->can('multiple');
    $attr->{options}      = $field->options      if $field->can('options');
    $attr->{rows}         = $field->rows

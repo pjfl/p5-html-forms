@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.15
+    @version 0.2.17
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -251,6 +251,7 @@ WCom.Form.Renderer = (function() {
          }
       }
       _fieldLabel(wrapper, field) {
+         if (field.widget == 'NoRender') return;
          const attr = field.labelAttr;
          if (attr.className.match(/\-multiple/)
              || field.widget == 'DataStructure') {
@@ -512,6 +513,15 @@ WCom.Form.Renderer = (function() {
       }
    }
    /** @class
+       @classdesc Renders nothing
+       @alias Renderer/HTMLFieldNoRender
+   */
+   class HTMLFieldNoRender extends HTMLField {
+      render(wrapper) {
+         return;
+      }
+   }
+   /** @class
        @classdesc Renders a fragment of HTML
        @alias Renderer/HTMLFieldNoValue
    */
@@ -731,6 +741,23 @@ WCom.Form.Renderer = (function() {
          const element = this.h[this.field.htmlElement](this.attr);
          wrapper.appendChild(element);
          return element;
+      }
+   }
+   /** @class
+       @classdesc Renders a captcha
+       @alias Renderer/HTMLFieldCaptcha
+   */
+   class HTMLFieldCaptcha extends HTMLFieldText {
+      render(wrapper) {
+         if (this.field.captchaType == 'local') {
+            const element = super.render(wrapper);
+            const field = this.field.imageAttr
+            const attr = { ...field.attributes, src: field.src };
+            wrapper.appendChild(this.h.span(this.h.img(attr)));
+            return element;
+         }
+         wrapper.appendChild(this.h.frag(this.field.html));
+         return;
       }
    }
    /** @class

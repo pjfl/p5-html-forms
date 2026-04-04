@@ -1,13 +1,14 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.15
+ * @version 0.2.17
  */
 @import "wcom-05-constants";
 form.classic {
     --label-width: @label-width;
     --bg-lighter-semitrans: hsl(from var(--bg-lighter) h s l / 0.25);
     background: var(--bg-lighter-semitrans); border-radius: 5px;
-    box-shadow: 3px 3px 3px @panel-shadow; color: @text-dark;
-    display: inline-block; padding: 0 0.5rem 0.5rem; position: relative;
+    box-shadow: 3px 3px 3px @panel-shadow; caret-color: @field-caret;
+    color: @text-dark; display: inline-block; padding: 0 0.5rem 0.5rem;
+    position: relative;
     &.radar {
         @property --angle {
             syntax: '<angle>'; initial-value: 0deg; inherits: false;
@@ -71,16 +72,16 @@ form.classic {
                 border-radius: 50%;
             }
             &:nth-child(1 of .droplet) {
-                left: 19rem; top: 11rem; z-index: 8;
-            }
-            &:nth-child(2 of .droplet) {
                 left: 18rem; top: -4rem; z-index: 6;
             }
+            &:nth-child(2 of .droplet) {
+                left: 21rem; top: 3rem; z-index: 7;
+            }
             &:nth-child(3 of .droplet) {
-                left: -10rem; top: 5rem; z-index: 6;
+                left: 19rem; top: 11rem; z-index: 8;
             }
             &:nth-child(4 of .droplet) {
-                left: 21rem; top: 3rem; z-index: 7;
+                left: -10rem; top: 5rem; z-index: 7;
             }
             .tooltip {
                 left: 0; transform: translateY(calc(1.25rem - 100%));
@@ -650,6 +651,22 @@ form.classic {
         }
         button {
             padding: 0.1875rem 0.75rem 0.3125rem;
+        }
+    }
+    .input-captcha {
+        align-items: flex-start !important;
+        img {
+            background-repeat: no-repeat; background-size: cover;
+            font-style: italic; shape-margin: 1rem; vertical-align: middle;
+        }
+        label {
+            padding-top: 0.5rem;
+        }
+        span {
+            display: block; grid-area: selector;
+        }
+        .g-recaptcha {
+            grid-area: input;
         }
     }
     .input-colour {

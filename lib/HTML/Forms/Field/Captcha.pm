@@ -46,11 +46,11 @@ Defines the following attributes;
 
 has 'address_key' => is => 'rw', isa => Str, default => NUL;
 
-=item capture
+=item captcha
 
 =cut
 
-has 'capture' =>
+has 'captcha' =>
    is      => 'lazy',
    isa     => Object,
    builder => sub {
@@ -93,12 +93,6 @@ has 'gd_font' => is => 'rw', isa => Str, default => 'Large';
 
 has 'height' => is => 'rw', isa => Int, default => 20;
 
-=item image
-
-=cut
-
-has 'image' => is => 'rw';
-
 =item image_attr
 
 =cut
@@ -109,7 +103,10 @@ has 'image_attr' =>
    builder => sub {
       my $self = shift;
       my $form = $self->form;
-      my $attr = { height => $self->height, width => $self->width };
+      my $attr = {
+         height => $self->height . 'px',
+         width  => $self->width  . 'px',
+      };
 
       return { attributes => $attr, src => $form->captcha_image_url };
    };
@@ -236,7 +233,6 @@ sub get_default_value {
       else {
          $self->required(TRUE);
          $self->widget('Captcha');
-         $self->image($captcha->{image});
       }
    }
    else {
@@ -248,17 +244,19 @@ sub get_default_value {
    return;
 }
 
-=item get_html
+=item html
 
 =cut
 
-sub get_html {
+sub html {
    my $self    = shift;
    my $options = {};
 
+   return unless $self->captcha_type ne 'local';
+
    $options->{theme} = $self->theme if $self->theme;
 
-   return $self->capture->get_html_v2($self->site_key, $options);
+   return $self->captcha->get_html_v2($self->site_key, $options);
 }
 
 =item validate
@@ -343,7 +341,6 @@ sub _generate_captcha {
       validated => FALSE,
    };
 
-   $self->image($image);
    $self->form->set_captcha($captcha) if $self->form;
    return;
 }

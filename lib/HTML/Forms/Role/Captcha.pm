@@ -1,11 +1,12 @@
 package HTML::Forms::Role::Captcha;
 
-use HTML::Forms::Constants qw( META );
-use HTML::Forms::Types     qw( Str );
+use HTML::Forms::Constants qw( FALSE META TRUE );
+use HTML::Forms::Types     qw( Int Str );
+use Type::Utils            qw( class_type );
 use Moo::Role;
 use HTML::Forms::Moo;
 
-requires 'context';
+requires qw(context json_parser redis_client);
 
 =pod
 
@@ -35,12 +36,13 @@ Defines the following attributes;
 
 =cut
 
-has 'captcha_image_url' =>
-   is      => 'lazy',
-   isa     => Str,
-   default => '/captcha/image';
+has 'captcha_image_url' => is => 'rw', isa => class_type('URI'), lazy => TRUE;
 
-has_field 'captcha' => type => 'Captcha', label => 'Verification';
+=item captcha_lifetime
+
+=cut
+
+has 'captcha_lifetime' => is => 'ro', isa => Int, default => 3_600;
 
 =back
 
@@ -55,11 +57,11 @@ Defines the following methods;
 =cut
 
 sub get_captcha {
-   my $self = shift;
+   my $self  = shift;
+   my $key   = 'html_forms_captcha-' . $self->context->session->{id};
+   my $value = $self->redis_client->get($key) or return;
 
-   return unless $self->context;
-
-   return $self->context->session->{captcha};
+   return $self->json_parser->decode($value);
 }
 
 =item set_captcha
@@ -69,9 +71,11 @@ sub get_captcha {
 sub set_captcha {
    my ($self, $captcha) = @_;
 
-   return unless $self->context;
+   my $key   = 'html_forms_captcha-' . $self->context->session->{id};
+   my $value = $self->json_parser->encode($captcha);
+   my $ttl   = $self->captcha_lifetime;
 
-   return $self->context->session( captcha => $captcha );
+   return $self->redis_client->set_with_ttl($key, $value, $ttl);
 }
 
 use namespace::autoclean -except => META;

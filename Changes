@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Reworked Captchas use of local storage
           - Added password options to select validity tests
           - Request token refreshes value automatically
           - Fixes subfield extraction in FormBuilder
