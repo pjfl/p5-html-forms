@@ -4,7 +4,6 @@ use HTML::Forms::Constants qw( FALSE META TRUE );
 use HTML::Forms::Types     qw( Int Str );
 use Type::Utils            qw( class_type );
 use Moo::Role;
-use HTML::Forms::Moo;
 
 requires qw(context json_parser redis_client);
 

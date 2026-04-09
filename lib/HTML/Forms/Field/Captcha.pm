@@ -254,7 +254,7 @@ sub html {
 
    return unless $self->captcha_type ne 'local';
 
-   $options->{theme} = $self->theme if $self->theme;
+   $options->{'data-theme'} = $self->theme if $self->theme;
 
    return $self->captcha->get_html_v2($self->site_key, $options);
 }
