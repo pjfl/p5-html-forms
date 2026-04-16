@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.16
+    @version 0.2.19
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -13,18 +13,21 @@ WCom.Form.DataStructure = (function() {
    class Drag {
       /** @constructs
           @desc Initialise drag and drop handling
+          @param {object} options
+          @property {string} wrapperId Defaults to '#main'.
       */
-      constructor(args = {}) {
+      constructor(options = {}) {
          this.drag = {};
          this.dragNodeX = null;
          this.dragNodeY = null;
-         const wrapperId = args.wrapperId || '#main';
+         const wrapperId = options.wrapperId || '#main';
          this.scrollableWrapper = document.querySelector(wrapperId);
          this.dragHandler = this._dragHandler.bind(this);
          this.dropHandler = this._dropHandler.bind(this);
       }
       /** @function
           @desc Handle auto scroll event
+          @param {object} event
       */
       autoScrollHandler(event) {
          const threshold = this.drag.autoScroll;
@@ -88,6 +91,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Hover handler
+          @param {object} event
+          @param {element} node
       */
       hoverHandler(event, node) {
          if (this.drag.hoverClass) node.classList.add(this.drag.hoverClass);
@@ -96,6 +101,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Leave handler
+          @param {object} event
+          @param {element} node
       */
       leaveHandler(event, node) {
          if (this.drag.hoverClass) node.classList.remove(this.drag.hoverClass);
@@ -123,6 +130,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Start dragging
+          @param {object} event
+          @param {object} settings
       */
       start(event, settings = {}) {
          if (!event) throw new Error('You must supply an event');
@@ -205,6 +214,7 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Updates the hover node
+          @param {object} event
       */
       updateHoverNode(event) {
          let hoverNode = null;
@@ -234,6 +244,8 @@ WCom.Form.DataStructure = (function() {
    class DataStructure {
       /** @constructs
           @desc Creates a DS object
+          @param {element} container Containing element for the data
+             structure
       */
       constructor(container) {
          this.container = container;
@@ -352,6 +364,9 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Creates a field
+          @param {object} column
+          @param {object} item
+          @return {element}
       */
       createField(column, item) {
          const useDefault = !item;
@@ -373,6 +388,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Creates a row
+          @param {object} item Passed to create field
+          @param {integer} index
       */
       createRow(item, index) {
          const readonly = this.readonly[index];
@@ -440,6 +457,9 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Called when the row is dropped
+          @param {element} tr
+          @param {element} row
+          @param {element} dropTarget
       */
       dropCallback(tr, row, dropTarget) {
          const selected = row.querySelector(
@@ -462,6 +482,7 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Returns row data
+          @return {object}
       */
       getValue() {
          const errors = [];
@@ -505,6 +526,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Tests to see if name is valid
+          @param {string} name
+          @return {object} result
       */
       isValidName(name) {
          const result = { errors: [], valid: true };
@@ -631,6 +654,8 @@ WCom.Form.DataStructure = (function() {
       }
       /** @function
           @desc Registers field validation
+          @param {element} field
+          @param {string} name
       */
       registerValidation(field, name) {
          if (name != 'name') return;
@@ -669,7 +694,8 @@ WCom.Form.DataStructure = (function() {
    Object.assign(DataStructure.prototype, WCom.Util.Markup);
    Object.assign(DataStructure.prototype, WCom.Util.Modifiers);
    /** @class
-       @classdesc Factory class for creating DataStructures
+       @classdesc Factory class for creating
+          {@link DataStructure/DataStructure|DataStructures}
        @alias DataStructure/Factory
    */
    class Factory {
@@ -680,8 +706,9 @@ WCom.Form.DataStructure = (function() {
           @async
           @desc Reload the data structure source data and re-render the DS
           @param {object} options
-          @property {string} target Name of the DS to reload
-          @property {string} url Server endpoint to fetch the source data from
+          @property {string} options.target Name of the DS to reload
+          @property {string} options.url Server endpoint to fetch the
+             source data from
       */
       async reload(options) {
          const { target, url } = options;
@@ -693,6 +720,8 @@ WCom.Form.DataStructure = (function() {
       /** @function
           @desc Scan the supplied content for the DS trigger class. Creates
              instances of {@link DataStructure/DataStructure|DataStructure}
+          @param {element} container Document element to scan for elements
+             with the trigger class
       */
       scan(container = document) {
          for (const el of container.querySelectorAll(`div.${triggerClass}`)) {
@@ -704,16 +733,25 @@ WCom.Form.DataStructure = (function() {
    }
    const factory = new Factory();
    /** @module Form/DataStructure
+       @desc {@link DataStructure/DataStructure|DataStructures} are used to
+          edit records related to the primary record. Each DS is comprised of
+          rows of input fields. Row can be added an removed
    */
    return {
       /** @function
           @desc Reloads content on demand. Calls
-             {@link DataStructure/Factory#reload}
+             {@link DataStructure/Factory#reload|factory reload}
+          @param {object} options
+          @property {string} options.target Name of the DS to reload
+          @property {string} options.url Server endpoint to fetch the
+             source data from
       */
       reload: factory.reload.bind(factory),
       /** @function
           @desc Scans for and inflates data structures. Calls
-             {@link DataStructure/Factory#scan}
+             {@link DataStructure/Factory#scan|factory scan}
+          @param {element} container Document element to scan for elements
+             with the trigger class
       */
       scan: factory.scan.bind(factory),
    };

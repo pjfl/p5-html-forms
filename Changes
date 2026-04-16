@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Improved JSDoc
           - Fixes captcha tests
           - Reworked Captchas use of local storage
           - Added password options to select validity tests

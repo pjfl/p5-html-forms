@@ -84,7 +84,7 @@ has 'schema' =>
 sub new_with_context {
    my ($self, $name, $options) = @_;
 
-   my $class = $self->namespace . '::' . $name;
+   my $class = $self->namespace . "::${name}";
    my $exception;
 
    try   { load_class($class) }
@@ -103,6 +103,8 @@ sub new_with_context {
    my $args = { %{$options} };
 
    $args->{action} //= $context->request->uri->as_string;
+
+   $args->{field_name_space} //= $self->namespace . '::Field';
 
    $args->{params} //= $context->body_parameters if $context->posted;
 

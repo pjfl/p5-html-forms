@@ -1,17 +1,21 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.17
+    @version 0.2.19
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
    const triggerClass = 'html-forms';
    /** @class
        @classdesc Form class
-       @alias Renderer/HTMLForm
+       @alias Form/HTMLForm
    */
    class HTMLForm {
       // Public
+      /** @constructs
+          @desc Creates the form object
+          @param {element} container Container element for the form
+      */
       constructor(container) {
          this.container = container;
          const data = container.dataset[dsName];
@@ -23,6 +27,9 @@ WCom.Form.Renderer = (function() {
             this.fieldIndex[field.name] = field;
          }
       }
+      /** @function
+          @desc Render the form
+       */
       render() {
          const config = this.config;
          if (!config) return;
@@ -181,9 +188,14 @@ WCom.Form.Renderer = (function() {
    Object.assign(HTMLForm.prototype, WCom.Util.Markup);
    /** @class
        @classdesc Field base class
-       @alias Renderer/HTMLField
+       @alias Form/HTMLField
    */
    class HTMLField {
+      /** @constructs
+          @desc Creates the field object
+          @param {object} form The parent form object
+          @param {object} field Configuration attributes for the field
+      */
       constructor(form, field) {
          this.form = form;
          this.field = field;
@@ -202,6 +214,10 @@ WCom.Form.Renderer = (function() {
          }
          if (field.value !== undefined) this.attr.value = field.value;
       }
+      /** @function
+          @desc Render a field
+          @param {element} container Containing element for the field
+      */
       renderField(container) {
          const field = this.field;
          const wrapper = this.h.div(field.wrapperAttr);
@@ -295,9 +311,15 @@ WCom.Form.Renderer = (function() {
    Object.assign(HTMLField.prototype, WCom.Util.Modifiers);
    /** @class
        @classdesc Renders a button
-       @alias Renderer/HTMLFieldButton
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldButton
    */
    class HTMLFieldButton extends HTMLField {
+      /** @function
+          @desc Render a button
+          @param {element} wrapper Container for the button element
+          @return {element} Returns the button
+      */
       render(wrapper) {
          const field = this.field;
          const element = this.h[field.htmlElement](this.attr);
@@ -314,9 +336,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a checkbox
-       @alias Renderer/HTMLFieldCheckbox
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldCheckbox
    */
    class HTMLFieldCheckbox extends HTMLField {
+      /** @function
+          @desc Render a checkbox
+          @param {element} wrapper Container for the checkbox element
+          @return {element} Returns the checkbox
+      */
       render(wrapper) {
          const field = this.field;
          this.attr.type = field.inputType;
@@ -331,9 +359,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a checkbox group
-       @alias Renderer/HTMLFieldCheckboxGroup
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldCheckboxGroup
    */
    class HTMLFieldCheckboxGroup extends HTMLField {
+      /** @function
+          @desc Render a checkbox group
+          @param {element} wrapper Container for the checkbox group element
+          @return {element} Returns the checkbox group (an unordered list)
+      */
       render(wrapper) {
          const element = this.h.ul({ className: 'checkbox-group' });
          const field = this.field;
@@ -369,9 +403,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a colour selector
-       @alias Renderer/HTMLFieldColour
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldColour
    */
    class HTMLFieldColour extends HTMLField {
+      /** @function
+          @desc Render a colour selector
+          @param {element} wrapper Container for the colour selector element
+          @return {element} Returns the colour selector element
+      */
       render(wrapper) {
          this.attr.list = 'custom-colours';
          this.attr.colorspace = 'oklch';
@@ -388,9 +428,14 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a list of fields
-       @alias Renderer/HTMLFieldCompound
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldCompound
    */
    class HTMLFieldCompound extends HTMLField {
+      /** @function
+          @desc Render a compound field. One containing other fields
+          @param {element} wrapper Container for the compound element
+      */
       render(wrapper) {
          for (const field of this.field.sortedFields) {
             const className = 'HTMLField' + field.widget;
@@ -402,9 +447,16 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a data structure
-       @alias Renderer/HTMLFieldDataStructure
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldDataStructure
    */
    class HTMLFieldDataStructure extends HTMLField {
+      /** @function
+          @desc Render a data structure. One containing rows/columns of
+             other fields
+          @param {element} wrapper Container for the data structure element
+          @return {element} Returns the data structure element
+      */
       render(wrapper) {
          const field = this.field;
          const attr = { className: 'data-structure input-field' };
@@ -420,9 +472,16 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a list of digits
-       @alias Renderer/HTMLFieldDigits
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldDigits
    */
    class HTMLFieldDigits extends HTMLField {
+      /** @function
+          @desc Render a group of digit fields
+          @param {element} wrapper Container for the input digit fields
+          @return {element} Returns the hidden element which will contain
+             the fields value
+      */
       render(wrapper) {
          const field = this.field;
          const digits = [];
@@ -464,9 +523,14 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a field group
-       @alias Renderer/HTMLFieldGroup
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldGroup
    */
    class HTMLFieldGroup extends HTMLField {
+      /** @function
+          @desc Render a group fields
+          @param {element} wrapper Container for the field group
+      */
       render(wrapper) {
          const form = this.form;
          const fields = form.fieldGroups[this.field.name];
@@ -487,9 +551,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders an image
-       @alias Renderer/HTMLFieldImage
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldImage
    */
    class HTMLFieldImage extends HTMLField {
+      /** @function
+          @desc Render an image
+          @param {element} wrapper Container for the image
+          @return {element} Returns the image element
+      */
       render(wrapper) {
          const field = this.field;
          const attr = { ...field.attributes, id: field.id, src: field.src };
@@ -500,9 +570,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a link
-       @alias Renderer/HTMLFieldLink
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldLink
    */
    class HTMLFieldLink extends HTMLField {
+      /** @function
+          @desc Render a link
+          @param {element} wrapper Container for the link
+          @return {element} Returns the link element
+      */
       render(wrapper) {
          const field = this.field;
          const attr = { ...field.attributes, href: field.href, id: field.id };
@@ -514,18 +590,28 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders nothing
-       @alias Renderer/HTMLFieldNoRender
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldNoRender
    */
    class HTMLFieldNoRender extends HTMLField {
+      /** @function
+          @desc Renders nothing
+          @param {element} wrapper Container for the nothing
+      */
       render(wrapper) {
          return;
       }
    }
    /** @class
        @classdesc Renders a fragment of HTML
-       @alias Renderer/HTMLFieldNoValue
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldNoValue
    */
    class HTMLFieldNoValue extends HTMLField {
+      /** @function
+          @desc Render a fragment of raw HTML
+          @param {element} wrapper Container for the fragment
+      */
       render(wrapper) {
          wrapper.appendChild(this.h.frag(this.field.html));
          return;
@@ -533,9 +619,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a checkbox group
-       @alias Renderer/HTMLFieldRadioGroup
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldRadioGroup
    */
    class HTMLFieldRadioGroup extends HTMLField {
+      /** @function
+          @desc Render an unordered list of radio buttons
+          @param {element} wrapper Container for the list
+          @return {element} Returns the list element
+      */
       render(wrapper) {
          const element = this.h.ul({ className: 'radio-group' });
          const field = this.field;
@@ -571,9 +663,16 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a select/options field
-       @alias Renderer/HTMLFieldSelect
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldSelect
    */
    class HTMLFieldSelect extends HTMLField {
+      /** @function
+          @desc Render a select/option field. If field multiple is true
+              allow multiple selections, displaying field size elements
+          @param {element} wrapper Container for the select element
+          @return {element} Returns the select element
+      */
       render(wrapper) {
          const field = this.field;
          if (field.multiple) {
@@ -624,9 +723,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a selector for many values
-       @alias Renderer/HTMLFieldSelectMany
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldSelectMany
    */
    class HTMLFieldSelectMany extends HTMLField {
+      /** @function
+          @desc Render a select many from many element
+          @param {element} wrapper Container for the select element
+          @return {element} Returns the select element
+      */
       render(wrapper) {
          const field = this.field;
          const handler = field.clickHandler; delete field.clickHandler;
@@ -692,9 +797,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a selector for one value
-       @alias Renderer/HTMLFieldSelectOne
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldSelectOne
    */
    class HTMLFieldSelectOne extends HTMLField {
+      /** @function
+          @desc Render a select one from many
+          @param {element} wrapper Container for the select element
+          @return {element} Returns the select element
+      */
       render(wrapper) {
          const field = this.field;
          this.attr.value = field.fif;
@@ -721,9 +832,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a span
-       @alias Renderer/HTMLFieldSpan
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldSpan
    */
    class HTMLFieldSpan extends HTMLField {
+      /** @function
+          @desc Render a span element
+          @param {element} wrapper Container for the span element
+          @return {element} Returns the span element
+      */
       render(wrapper) {
          const attr = { ...this.field.attributes, id: this.field.id };
          const element = this.h.span(attr, this.field.value);
@@ -733,9 +850,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a text field
-       @alias Renderer/HTMLFieldText
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldText
    */
    class HTMLFieldText extends HTMLField {
+      /** @function
+          @desc Render a span text input field
+          @param {element} wrapper Container for the input element
+          @return {element} Returns the input element
+      */
       render(wrapper) {
          this.attr.value = this.field.fif;
          const element = this.h[this.field.htmlElement](this.attr);
@@ -745,9 +868,14 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a captcha
-       @alias Renderer/HTMLFieldCaptcha
+       @extends Form/HTMLFieldText
+       @alias Form/HTMLFieldCaptcha
    */
    class HTMLFieldCaptcha extends HTMLFieldText {
+      /** @function
+          @desc Render a Captcha field
+          @param {element} wrapper Container for the captcha element
+      */
       render(wrapper) {
          if (this.field.captchaType == 'local') {
             const element = super.render(wrapper);
@@ -762,15 +890,22 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a hidden field
-       @alias Renderer/HTMLFieldHidden
+       @extends Form/HTMLFieldText
+       @alias Form/HTMLFieldHidden
    */
    class HTMLFieldHidden extends HTMLFieldText {
    }
    /** @class
        @classdesc Renders a password field
-       @alias Renderer/HTMLFieldPassword
+       @extends Form/HTMLFieldText
+       @alias Form/HTMLFieldPassword
    */
    class HTMLFieldPassword extends HTMLFieldText {
+      /** @function
+          @desc Render a password input field
+          @param {element} wrapper Container for the input element
+          @return {element} Returns the input element
+      */
       render(wrapper) {
          this.field.fif = '';
          const element = super.render(wrapper);
@@ -791,9 +926,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders a textarea
-       @alias Renderer/HTMLFieldTextarea
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldTextarea
    */
    class HTMLFieldTextarea extends HTMLField {
+      /** @function
+          @desc Render a textarea input field
+          @param {element} wrapper Container for the input element
+          @return {element} Returns the input element
+      */
       render(wrapper) {
          if (this.field.cols) this.attr.cols = this.field.cols;
          if (this.field.rows) this.attr.rows = this.field.rows;
@@ -804,9 +945,15 @@ WCom.Form.Renderer = (function() {
    }
    /** @class
        @classdesc Renders an upload field
-       @alias Renderer/HTMLFieldUpload
+       @extends Form/HTMLField
+       @alias Form/HTMLFieldUpload
    */
    class HTMLFieldUpload extends HTMLField {
+      /** @function
+          @desc Render a file upload field
+          @param {element} wrapper Container for the input element
+          @return {element} Returns the input element
+      */
       render(wrapper) {
          this.attr.type = 'file';
          const element = this.h.input(this.attr);
@@ -814,12 +961,15 @@ WCom.Form.Renderer = (function() {
          return element;
       }
    }
-   /** @module Form/Renderer
-       @desc Scans for, creates, and renders forms
+   /** @module Form
+       @desc Scans for, creates, and renders {@link Form/HTMLForm|forms}
    */
    return {
       /** @function
-          @desc Scan for forms. Create form objects. Render the form
+          @desc Scan for forms. Creates {@link Form/HTMLForm|form} objects.
+             Renders the form.
+          @param {element} content
+          @param {object} options
       */
       scan: function(content, options) {
          const els = content.getElementsByClassName(triggerClass);
