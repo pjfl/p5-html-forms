@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.19
+    @version 0.2.20
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -15,15 +15,27 @@ WCom.Form.Renderer = (function() {
       /** @constructs
           @desc Creates the form object
           @param {element} container Container element for the form
+          @param {object} config
+          @property {object} config.attributes The form element attributes
+          @property {integer} config.currentPage
+          @property {array} config.fieldGroups Defines groups of fields
+          @property {array} config.fields Each object in the array defines a
+             field on the form
+          @property {boolean} config.hasPageBreaks
+          @property {boolean} config.msgsBeforeStart
+          @property {string} config.novalidate If set to 'novalidate' it is
+             applied to the form
+          @property {integer} config.pageSize
+          @property {number} config.titleWait How long to wait in seconds before
+             the mouseover tips appear. Defaults to 0.85
       */
-      constructor(container) {
+      constructor(container, config) {
          this.container = container;
-         const data = container.dataset[dsName];
-         if (!data) return;
-         this.config = JSON.parse(data);
-         this.fieldGroups = this.config.fieldGroups;
+         this.config = config;
+         this.fieldGroups = config.fieldGroups;
+         this.titleWait =  config.titleWait || 0.85;
          this.fieldIndex = {};
-         for (const field of this.config.fields) {
+         for (const field of config.fields) {
             this.fieldIndex[field.name] = field;
          }
       }
@@ -76,6 +88,7 @@ WCom.Form.Renderer = (function() {
             fieldCount += 1;
             if (pageSize > 0 && fieldCount >= pageSize) fieldCount = 0;
          }
+         WCom.Form.Toggle.scan(this.form);
          const btnSelect = '.input-field button, .input-field a.form-button';
          this.animateButtons(this.form, btnSelect);
          if (hasPages) {
@@ -83,7 +96,6 @@ WCom.Form.Renderer = (function() {
             WCom.Form.Util.focusFirst(this.pages[this.pageItemSelected]);
          }
          else WCom.Form.Util.focusFirst(this.form);
-         WCom.Form.Toggle.scan(this.form);
       }
       // Private
       _field(container, field) {
@@ -279,10 +291,15 @@ WCom.Form.Renderer = (function() {
          const id = 'tooltip-' + field.name;
          const attr = { className: 'tooltip hide', id };
          const tooltip = this.h.div(attr, this.h.frag(this.title));
+         const wait = this.form.titleWait;
+         let timeoutId;
          container.addEventListener('mouseover', () => {
-            tooltip.classList.remove('hide');
+            timeoutId = setTimeout(function() {
+               tooltip.classList.remove('hide');
+            }, 1000 * wait);
          });
          container.addEventListener('mouseout', () => {
+            if (timeoutId) clearTimeout(timeoutId);
             tooltip.classList.add('hide');
          });
          container.appendChild(tooltip);
@@ -961,24 +978,63 @@ WCom.Form.Renderer = (function() {
          return element;
       }
    }
+   /** @class
+       @classdesc Form factory. {@link WCom.Util/Event Registers}
+          the 'scan' method so that it is called when the page loads.
+          Creates instances of {@link Form/HTMLForm HTMLForm}
+       @alias Form/Factory
+   */
+   class Factory {
+      constructor() {
+         WCom.Util.Event.registerOnload(this.scan.bind(this));
+      }
+      /** @function
+          @desc Scans the supplied DOM element for the form's trigger class
+             which defaults to 'html-forms'. If a form with the trigger class
+             is not found, forms of a given form class are scanned for
+             instead
+          @param {object} content DOM element to scan
+          @param {object} options
+          @property {string} options.formClass Non default form class to select
+             Defaults to 'classic'
+      */
+      scan(content = document, options = {}) {
+         let found = false;
+         const els = content.getElementsByClassName(triggerClass);
+         if (els) {
+            for (const el of els) {
+               const data = el.dataset[dsName];
+               if (!data) next;
+               const form = new HTMLForm(el, JSON.parse(data));
+               form.render();
+               found = true;
+            }
+         }
+         if (found) return;
+         const formClass = options.formClass ? options.formClass
+                         : WCom.Form.Util.defaultFormClass;
+         const forms = content.querySelector(`form.${formClass}`);
+         if (!forms) return;
+         for (const form of forms) {
+            WCom.Form.DataStructure.scan(form);
+            WCom.Form.Toggle.scan(form);
+            this.animateButtons(form, '.input-field button');
+            WCom.Form.Util.focusFirst(form);
+         }
+      }
+   }
+   Object.assign(Factory.prototype, WCom.Util.Markup);
+   const factory = new Factory();
    /** @module Form
-       @desc Scans for, creates, and renders {@link Form/HTMLForm|forms}
+       @desc Scans for and creates instances of
+          {@link Form/HTMLForm|HTMLform}. Renders the form
    */
    return {
       /** @function
-          @desc Scan for forms. Creates {@link Form/HTMLForm|form} objects.
-             Renders the form.
+          @see {@link Form/Factory#scan|Factory scan}
           @param {element} content
           @param {object} options
       */
-      scan: function(content, options) {
-         const els = content.getElementsByClassName(triggerClass);
-         if (!els) return false;
-         for (const el of els) {
-            const form = new HTMLForm(el);
-            form.render();
-         }
-         return true;
-      }
+      scan: factory.scan.bind(factory)
    };
 })();

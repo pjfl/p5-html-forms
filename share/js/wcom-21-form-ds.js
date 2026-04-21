@@ -1,7 +1,7 @@
 /** @file HTML Forms - Data Structure
     @classdesc Allows rows of fields to be added/removed from a form
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.19
+    @version 0.2.20
 */
 WCom.Form.DataStructure = (function() {
    const dsName       = 'dsSpecification';
@@ -238,14 +238,35 @@ WCom.Form.DataStructure = (function() {
    }
    Object.assign(Drag.prototype, WCom.Util.Markup);
    /** @class
-       @classdesc Enables adding/remove rows of related field content
+       @classdesc Enables adding/removal of rows of related field content
+          DataStructures are used to edit records related to the primary
+          record. Each DS is comprised of rows of input fields. Rows can be
+          added and removed
        @alias DataStructure/DataStructure
    */
    class DataStructure {
       /** @constructs
-          @desc Creates a DS object
+          @desc Creates a DS object. Configuration is taken from the dataset
+             attribute of the hidden field in the container
           @param {element} container Containing element for the data
              structure
+          @property {string} config.addHandler
+          @property {string} config.addIcon
+          @property {string} config.addIconHeight
+          @property {string} config.addIconWidth
+          @property {string} config.addTitle
+          @property {string} config.buttonValue
+          @property {string} config.dragTitle
+          @property {string} config.fieldGroupDirn
+          @property {boolean} config.fixed
+          @property {string} config.flexDirection
+          @property {string} config.icons
+          @property {boolean} config.isObject
+          @property {boolean} config.readonly
+          @property {string} config.removeCallback
+          @property {boolean} config.reorderable
+          @property {boolean} config.single-hash
+          @property {array} config.structure
       */
       constructor(container) {
          this.container = container;
@@ -292,6 +313,19 @@ WCom.Form.DataStructure = (function() {
             });
          }
          else this.sourceData = data;
+         /** @member {object}
+             @desc These methods return their respective HTML input field
+                elements. We are going to need more of these
+             @property {method} fieldRenderer.boolean
+             @property {method} fieldRenderer.datetime
+             @property {method} fieldRenderer.display
+             @property {method} fieldRenderer.hidden
+             @property {method} fieldRenderer.image
+             @property {method} fieldRenderer.integer
+             @property {method} fieldRenderer.ipaddress
+             @property {method} fieldRenderer.text
+             @property {method} fieldRenderer.textarea
+         */
          this.fieldRenderer = {
             // TODO: More field types
             boolean: function(specification, value = '') {
@@ -363,10 +397,11 @@ WCom.Form.DataStructure = (function() {
          return el;
       }
       /** @function
-          @desc Creates a field
+          @desc Creates a field. Uses column type to select the renderer which
+             it then calls
           @param {object} column
           @param {object} item
-          @return {element}
+          @return {element} The element returned by the renderer
       */
       createField(column, item) {
          const useDefault = !item;
@@ -387,7 +422,8 @@ WCom.Form.DataStructure = (function() {
          return field;
       }
       /** @function
-          @desc Creates a row
+          @desc Creates a row and appends it to the table. Iterates over the
+             structure objects creating a column object for each
           @param {object} item Passed to create field
           @param {integer} index
       */
@@ -733,14 +769,14 @@ WCom.Form.DataStructure = (function() {
    }
    const factory = new Factory();
    /** @module Form/DataStructure
-       @desc {@link DataStructure/DataStructure|DataStructures} are used to
-          edit records related to the primary record. Each DS is comprised of
-          rows of input fields. Row can be added an removed
+       @desc Scans for and creates instances of
+          {@link DataStructure/DataStructure|DataStructure}. Renders the
+          array of objects
    */
    return {
       /** @function
-          @desc Reloads content on demand. Calls
-             {@link DataStructure/Factory#reload|factory reload}
+          @desc Reloads content on demand
+          @see {@link DataStructure/Factory#reload|Factory reload}
           @param {object} options
           @property {string} options.target Name of the DS to reload
           @property {string} options.url Server endpoint to fetch the
@@ -748,8 +784,8 @@ WCom.Form.DataStructure = (function() {
       */
       reload: factory.reload.bind(factory),
       /** @function
-          @desc Scans for and inflates data structures. Calls
-             {@link DataStructure/Factory#scan|factory scan}
+          @desc Scans for and inflates data structures
+          @see {@link DataStructure/Factory#scan|Factory scan}
           @param {element} container Document element to scan for elements
              with the trigger class
       */

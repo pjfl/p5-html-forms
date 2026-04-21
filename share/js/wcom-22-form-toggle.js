@@ -1,7 +1,7 @@
 /** @file HTML Forms - Toggle
     @classdesc Toggles field visibility based on the values of other fields
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.2
+    @version 0.2.20
 */
 WCom.Form.Toggle = (function() {
    const dsName = 'toggleConfig';
@@ -171,14 +171,14 @@ WCom.Form.Toggle = (function() {
       /** @function
           @desc Scan the form for fields that require toggling
       */
-      scan: scan,
+      scan,
       /** @function
           @desc Change the visibility of toggled fields
       */
-      toggleFields: toggleFields,
+      toggleFields,
       /** @function
           @desc Updates an interval field and triggers related toggles
       */
-      updateInterval: updateInterval
+      updateInterval
    };
 })();
