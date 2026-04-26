@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Moves tootips to Util.Markup
           - More JSDoc
           - Improved JSDoc
           - Fixes captcha tests

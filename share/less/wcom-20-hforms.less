@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.18
+ * @version 0.2.21
  */
 @import "wcom-05-constants";
 form.classic {
@@ -918,10 +918,10 @@ form.classic {
     .tooltip {
         background: var(--bg-darker); border: 1px solid @line-border;
         border-radius: 5px; box-shadow: 3px 3px 3px @panel-shadow;
-        color: @text-light; font-family: #fonts[sans]; font-size: 1rem;
-        left: @label-width; min-width: 10rem; padding: 0.5rem;
-        pointer-events: none; position: absolute; top: 0;
-        transform: translateY(calc(-0.25rem - 100%)); z-index: 10;
+        color: @text-light; font-family: #fonts[sans];
+        font-size: @tips-font-size; left: @label-width; min-width: 5rem;
+        padding: 0.25rem 0.5rem; pointer-events: none; position: absolute;
+        top: 0; transform: translateY(calc(-0.25rem - 100%)); z-index: 10;
         &.hide {
             display: none;
         }

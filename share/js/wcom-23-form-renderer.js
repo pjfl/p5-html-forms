@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.20
+    @version 0.2.21
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -288,21 +288,7 @@ WCom.Form.Renderer = (function() {
          return wrapper.appendChild(this.h[field.labelTag](attr, field.label));
       }
       _fieldTitle(container, field) {
-         const id = 'tooltip-' + field.name;
-         const attr = { className: 'tooltip hide', id };
-         const tooltip = this.h.div(attr, this.h.frag(this.title));
-         const wait = this.form.titleWait;
-         let timeoutId;
-         container.addEventListener('mouseover', () => {
-            timeoutId = setTimeout(function() {
-               tooltip.classList.remove('hide');
-            }, 1000 * wait);
-         });
-         container.addEventListener('mouseout', () => {
-            if (timeoutId) clearTimeout(timeoutId);
-            tooltip.classList.add('hide');
-         });
-         container.appendChild(tooltip);
+         this.tooltip(container, field.name, this.title, this.form.titleWait);
       }
       _setElementAttributes(field, element) {
          if (field.depends)
