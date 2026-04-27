@@ -249,12 +249,17 @@ sub get_default_value {
 =cut
 
 sub html {
-   my $self    = shift;
+   my $self = shift;
+
+   return unless $self->captcha_type eq 'remote';
+
    my $options = {};
+   my $theme   = NUL;
 
-   return unless $self->captcha_type ne 'local';
+   $theme = 'dark'  if $self->theme =~ m{ dark  }mx;
+   $theme = 'light' if $self->theme =~ m{ light }mx;
 
-   $options->{'data-theme'} = $self->theme if $self->theme;
+   $options->{'data-theme'} = $theme if $theme;
 
    return $self->captcha->get_html_v2($self->site_key, $options);
 }

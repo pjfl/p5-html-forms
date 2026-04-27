@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Fixes theme attribute for Captcha
           - Moves tootips to Util.Markup
           - More JSDoc
           - Improved JSDoc
