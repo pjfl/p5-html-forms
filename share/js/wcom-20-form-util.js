@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.20
+    @version 0.2.23
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -269,10 +269,11 @@ WCom.Form.Util = (function () {
           @property {string} url Server endpoint used to validate form fields
       */
       validateField(options) {
-         let { id, url } = options;
+         let { id, itemId, url } = options;
          const field = document.getElementById(id);
          url = new URL(url.replace(/\*/, field.form.id).replace(/\*/, id));
          url.searchParams.set('value', field.value);
+         url.searchParams.set('item-id', itemId);
          this._validateField(url, field);
       }
       async _validateField(url, field) {

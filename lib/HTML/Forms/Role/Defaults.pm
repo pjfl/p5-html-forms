@@ -232,8 +232,9 @@ around 'html_attributes' => sub {
 sub _add_field_validation {
    my ($self, $field, $attrs) = @_;
 
+   my $item_id = $self->item ? $self->item->id : 0;
    my $uri     = $self->context->uri_for_action($self->default_action_path);
-   my $args    = { url => "${uri}", id => $field->name };
+   my $args    = { url => "${uri}", id => $field->name, itemId => $item_id };
    my $vmethod = $self->default_validate_method;
    my $call    = sprintf "${vmethod}(%s)", encode_json($args);
 
