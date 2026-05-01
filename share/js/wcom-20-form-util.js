@@ -1,7 +1,7 @@
 /** @file HTML Forms - Utilities
     @classdesc Exports functions used by the other HTML Forms Modules
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.23
+    @version 0.2.24
 */
 if (!WCom.Form) WCom.Form = {};
 WCom.Form.Util = (function () {
@@ -245,11 +245,47 @@ WCom.Form.Util = (function () {
             const id = '_' + options.target + '-' + nextOptionId;
             const label = this.h.label(labelAttr, options.lookup[value]);
             const hiddenAttr = { id, name: options.target, value };
-            const item = this.h.li({}, [label, ht.hidden(hiddenAttr)])
+            const item = this.h.li({}, [label, this.h.hidden(hiddenAttr)])
             group.appendChild(item);
             nextOptionId++;
          }
          parent.replaceChild(group, current);
+      }
+      /** @function
+          @desc Update a permission string from a comma separated
+             string of integer values
+          @param {string} options
+       */
+      updatePermission(options) {
+         const field = document.getElementById(options.target);
+         const name = '_' + options.target;
+         for (const value of [1, 2, 4, 8, 16, 32, 64, 128, 256]) {
+            const el = document.getElementById(`${name}-${value}`);
+            if (el) el.remove();
+         }
+         let total = 0;
+         for (const value of options.value.split(/,/)) {
+            const id = `${name}-${value}`;
+            field.parentNode.appendChild(this.h.hidden({ id, name, value }));
+            total += parseInt(value);
+         }
+         field.value = total;
+         const display = document.getElementById(`${name}-display`);
+         if (display) display.value = this._int2rwx(total);
+      }
+      _int2rwx(value) {
+         const map = {
+            '0': '---', '1': '--x', '2': '-w-', '3': '-wx',
+            '4': 'r--', '5': 'r-x', '6': 'rw-', '7': 'rwx'
+         };
+         const ugo = [
+            Math.floor(value / 64),
+            Math.floor((value % 64) / 8),
+            (value % 64) % 8
+         ];
+         let rwx = '';
+         for (const v of ugo) rwx += map[v];
+         return rwx;
       }
       /** @function
           @desc Updates datetime field from the compound digit fields
@@ -346,6 +382,11 @@ WCom.Form.Util = (function () {
           @param {object} options
       */
       updateList: util.updateList.bind(util),
+      /** @function
+          @see {@link Form/Util#updatePermission|Update permission}
+          @param {object} options
+      */
+      updatePermission: util.updatePermission.bind(util),
       /** @function
           @see {@link Form/Util#updateTimeWithZone|Update time}
           @param {string} id

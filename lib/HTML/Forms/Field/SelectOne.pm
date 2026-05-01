@@ -1,7 +1,7 @@
 package HTML::Forms::Field::SelectOne;
 
 use HTML::Forms::Constants qw( FALSE META NUL TRUE );
-use HTML::Forms::Types     qw( Str );
+use HTML::Forms::Types     qw( HFsSelectOptions Str );
 use JSON::MaybeXS          qw( encode_json );
 use Moo;
 use HTML::Forms::Moo;
@@ -74,6 +74,25 @@ has 'icons' => is => 'rw', isa => Str;
 
 has 'modal' => is => 'rw', isa => Str;
 
+=item options
+
+=cut
+
+has 'options'   =>
+    is          => 'rw',
+    isa         => HFsSelectOptions,
+    builder     => 'build_options',
+    coerce      => TRUE,
+    handles_via => 'Array',
+    handles     => {
+        all_options   => 'elements',
+        clear_options => 'clear',
+        has_options   => 'count',
+        num_options   => 'count',
+        reset_options => 'clear',
+    },
+    lazy        => TRUE;
+
 =item selector
 
 =cut
@@ -127,6 +146,8 @@ Defines no methods
 =over 3
 
 =cut
+
+sub build_options { [] }
 
 use namespace::autoclean -except => META;
 

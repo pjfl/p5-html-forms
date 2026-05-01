@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Adds Permission field type
           - Validate inline adds item_id to API request
           - Fixes theme attribute for Captcha
           - Moves tootips to Util.Markup

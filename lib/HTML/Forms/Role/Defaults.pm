@@ -175,6 +175,7 @@ around 'before_build_fields' => sub {
    $self->set_tag( legend => $self->default_form_legend );
    $self->set_tag( wrapper_tag => $self->default_wrapper_tag );
    $self->set_form_element_attr( 'accept-charset' => $self->default_charset );
+   $self->set_form_element_attr( 'novalidate' => 'novalidate' );
    $self->add_form_element_class( $self->default_form_class );
    $self->add_form_wrapper_class( $self->default_form_wrapper_class );
 

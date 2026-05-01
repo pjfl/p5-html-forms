@@ -20,9 +20,9 @@ use Try::Tiny;
 
 use Sub::Exporter -setup => { exports => [
    qw( cc_widget cipher convert_full_name data2markup encode_only_entities
-       get_meta get_token has_some_value interval_to_string json_bool merge
-       make_handler now process_attrs quote_single trim ucc_widget uri_escape
-       verify_token )
+       get_meta get_token has_some_value int2rwx interval_to_string json_bool
+       merge make_handler now process_attrs quote_single rwx2int trim
+       ucc_widget uri_escape verify_token )
 ]};
 
 =pod
@@ -402,6 +402,27 @@ sub _has_some_value {
    return FALSE;
 }
 
+=item int2rwx
+
+   $permission_string = int2rwx $int;
+
+=cut
+
+sub int2rwx ($) {
+   my $value = shift;
+   my $map   = {
+      0 => '---', 1 => '--x', 2 => '-w-', 3 => '-wx',
+      4 => 'r--', 5 => 'r-x', 6 => 'rw-', 7 => 'rwx',
+   };
+   my $rwx   = q();
+
+   for my $v (int($value / 64), int(($value % 64) / 8), ($value % 64) % 8) {
+      $rwx .= $map->{$v};
+   }
+
+   return $rwx;
+}
+
 =item interval_to_string
 
    $interval_string = interval_to_string $interval, $default_period;
@@ -619,6 +640,27 @@ sub quote_single ($) {
   s{ ([\\']) }{\\$1}gmx; #'])}emacs
 
   return qq('$_');
+}
+
+=item rwx2int
+
+   $int = rwx2int $permission_string
+
+=cut
+
+sub rwx2int ($) {
+   my $rwx   = shift // q();
+   my @ugo   = $rwx =~ m{ \A ([rwx\-]{3}) ([rwx\-]{3}) ([rwx\-]{3}) \z }mx;
+   my $value = 0;
+
+   for my $acl (@ugo) {
+      $value *= 8 if $value;
+      $value += 4 if $acl =~ m{ \A r }mx;
+      $value += 2 if $acl =~ m{ \A [r\-] w }mx;
+      $value += 1 if $acl =~ m{ \A [r\-] [w\-] x \z }mx;
+   }
+
+   return $value;
 }
 
 =item trim

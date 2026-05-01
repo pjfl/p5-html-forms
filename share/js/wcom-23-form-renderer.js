@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.21
+    @version 0.2.24
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -796,6 +796,43 @@ WCom.Form.Renderer = (function() {
          const label = this.h.label(labelAttr, option.label);
          const hiddenAttr = { id, name: field.id, value: option.value};
          return this.h.li({}, [label, this.h.hidden(hiddenAttr)]);
+      }
+   }
+   /** @class
+       @classdesc Renders a selector for permissions
+       @extends Form/HTMLFieldSelectMany
+       @alias Form/HTMLFieldPermission
+   */
+   class HTMLFieldPermission extends HTMLFieldSelectMany {
+      _renderList(wrapper) {
+         const field = this.field;
+         const list = this._splitValue(field.value);
+         const name = '_' + field.id;
+         wrapper.appendChild(this.h.hidden({ id: `_${name}`, value: list }));
+         for (const value of list) {
+            const id = `${name}-${value}`;
+            wrapper.appendChild(this.h.hidden({ id, name, value }));
+         }
+         const element = this.h.hidden({
+            id: field.id, name: field.id, value: field.value
+         });
+         wrapper.appendChild(element);
+         wrapper.appendChild(this.h.text({
+            className: 'permissions-display',
+            id: '_' + field.id + '-display',
+            readonly: 'readonly',
+            size: 9,
+            value: field.fif
+         }));
+         return element;
+      }
+      _splitValue(value) {
+         const list = [];
+         for (const pow of [...Array(9).keys()]) {
+            if ((value % 2) == 1) list.push(2 ** pow);
+            value = Math.floor(value / 2);
+         }
+         return list;
       }
    }
    /** @class

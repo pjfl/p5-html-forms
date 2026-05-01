@@ -120,6 +120,11 @@ Defines the following attributes;
 
     Predicate
 
+- features
+
+    An array reference with an empty default. If set can be used to test for
+    optional features to enable
+
 - field\_traits
 
     A lazy immutable array reference with an empty default. This list of
