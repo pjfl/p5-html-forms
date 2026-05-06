@@ -1,5 +1,5 @@
 /* @author  pjfl@cpan.org (Peter Flanigan)
- * @version 0.2.24
+ * @version 0.2.25
  */
 @import "wcom-05-constants";
 form.classic {
@@ -117,7 +117,7 @@ form.classic {
             &:not(.droplet) {
                 text-align: left;
                 button {
-                    margin-bottom: 1rem; margin-top: 0.25rem;
+                    margin-bottom: 1rem;
                 }
             }
             &.floating {
@@ -249,7 +249,9 @@ form.classic {
             .tooltip {
                 left: 0;
             }
-            &:hover, &:has(input:focus), &:has(input:not(:placeholder-shown)) {
+            &:hover, &:has(input:focus),
+            &:has(input[type=text]:not(:placeholder-shown)),
+            &:has(input[type=password]:not(:placeholder-shown)) {
                 span.field-label {
                     top: -0.25rem;
                 }

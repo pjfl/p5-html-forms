@@ -204,7 +204,7 @@ sub _data2markup {
 
    my $attr   = { class => 'value' };
    my $ht     = $options->{ht};
-   my $markup = q();
+   my $markup = NUL;
 
    if (is_arrayref $data) { $markup .= _array2markup($data, $options) }
    elsif (is_plain_hashref $data) { $markup .= _hash2markup($data, $options) }
@@ -233,7 +233,7 @@ sub _array2markup {
    my $ht      = $options->{ht};
    my $comma   = $ht->span({ class => 'comma' }, ',');
    my $padding = $ht->span({ class => 'level_' . $options->{level} });
-   my $markup  = q();
+   my $markup  = NUL;
 
    if ($options->{inline}) {
       my $start = $options->{array} ? [$padding, '['] : '[';
@@ -268,7 +268,7 @@ sub _hash2markup {
    my $ht      = $options->{ht};
    my $comma   = $ht->span({ class => 'comma' }, ',');
    my $padding = $ht->span({ class => 'level_' . $options->{level} });
-   my $markup  = q();
+   my $markup  = NUL;
 
    if ($options->{inline}) {
       $markup .= $ht->span({ class => 'start-inline-object'}, '{');
@@ -279,7 +279,7 @@ sub _hash2markup {
 
    my $level   = $options->{level} + ($options->{array} ? 0 : 1);
    my $inner   = $ht->span({ class => "level_${level}" });
-   my $entries = q();
+   my $entries = NUL;
 
    for my $data_key (sort keys %{$data}) {
       my $key   = $ht->span({ class => 'key' }, $data_key);
@@ -414,10 +414,10 @@ sub int2rwx ($) {
       0 => '---', 1 => '--x', 2 => '-w-', 3 => '-wx',
       4 => 'r--', 5 => 'r-x', 6 => 'rw-', 7 => 'rwx',
    };
-   my $rwx   = q();
+   my $rwx   = NUL;
 
    for my $v (int($value / 64), int(($value % 64) / 8), ($value % 64) % 8) {
-      $rwx .= $map->{$v};
+      $rwx .= $map->{$v} // NUL;
    }
 
    return $rwx;
@@ -649,7 +649,7 @@ sub quote_single ($) {
 =cut
 
 sub rwx2int ($) {
-   my $rwx   = shift // q();
+   my $rwx   = shift // NUL;
    my @ugo   = $rwx =~ m{ \A ([rwx\-]{3}) ([rwx\-]{3}) ([rwx\-]{3}) \z }mx;
    my $value = 0;
 

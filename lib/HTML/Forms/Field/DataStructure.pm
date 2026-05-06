@@ -28,7 +28,7 @@ HTML::Forms::Field::DataStructure - Add and remove groups of fields
 
 =head1 Description
 
-Add and remove groups of fields. Like L<HTML::Forms::Field::Repeatable> but
+Add and remove groups of fields. Like the (now deleted) Repeatable field but
 better
 
 =head1 Configuration and Environment

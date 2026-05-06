@@ -1,7 +1,8 @@
 package HTML::Forms::Field::Permission;
 
-use HTML::Forms::Util qw( int2rwx );
-use JSON::MaybeXS     qw( encode_json );
+use HTML::Forms::Constants qw( FALSE TRUE );
+use HTML::Forms::Util      qw( int2rwx );
+use JSON::MaybeXS          qw( encode_json );
 use Moo;
 
 extends 'HTML::Forms::Field::SelectMany';
@@ -28,6 +29,10 @@ Defines the following attributes;
 
 =over 3
 
+=item callback
+
+Which static JS function to call when the modal returns a value
+
 =cut
 
 has '+callback' =>
@@ -45,7 +50,25 @@ has '+callback' =>
       return "${util}.updatePermission(${args})",
    };
 
+=item multiple
+
+Sets the default to C<FALSE>. This field type returns but a single value
+
+=cut
+
+has '+multiple' => default => FALSE;
+
+=item no_option_validation
+
+Sets the default to C<TRUE>. Stops the validation of individual option values
+
+=cut
+
+has '+no_option_validation' => default => TRUE;
+
 =item selector
+
+The static JS function to call used to create the modal select dialog
 
 =cut
 
@@ -68,6 +91,12 @@ has '+selector' =>
       return "${modal}.createSelector(${args})";
    };
 
+=item widget
+
+Sets the widget default to C<Permission>
+
+=cut
+
 has '+widget' => default => 'Permission';
 
 =back
@@ -77,6 +106,11 @@ has '+widget' => default => 'Permission';
 Defines the following methods;
 
 =over 3
+
+=item build_options
+
+Returns an array reference of hash references. The full list of options to
+display
 
 =cut
 
@@ -94,9 +128,13 @@ sub build_options {
    ];
 }
 
-sub fif {
-   my $self = shift; return int2rwx $self->value;
-}
+=item fif
+
+Format the current value for display
+
+=cut
+
+sub fif { int2rwx shift->value }
 
 use namespace::autoclean;
 
@@ -114,7 +152,7 @@ None
 
 =over 3
 
-=item L<Moo>
+=item L<HTML::Forms::Field::SelectMany>
 
 =back
 

@@ -1,7 +1,7 @@
 /** @file HTML Forms - Renderer
     @classdesc Renders forms
     @author pjfl@cpan.org (Peter Flanigan)
-    @version 0.2.24
+    @version 0.2.25
 */
 WCom.Form.Renderer = (function() {
    const dsName = 'formConfig';
@@ -514,6 +514,7 @@ WCom.Form.Renderer = (function() {
             inputmode: 'numeric',
             oninput: this._handler(field.id, count),
             pattern: '[0-9]',
+            placeholder: ' ',
             required: (this.attr.required == 'required' ? true : false),
             size: 1,
             type: field.inputType,
