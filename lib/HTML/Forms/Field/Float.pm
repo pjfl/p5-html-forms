@@ -68,7 +68,7 @@ has 'precision' => is => 'rw', isa => Int|Undef, default => 2;
 
 =cut
 
-has '+deflate_method' => default => \&deflate_float;
+has '+deflate_method' => default => sub { sub { shift->deflate_float(@_) } };
 
 =item inflate_method
 
@@ -76,7 +76,7 @@ has '+deflate_method' => default => \&deflate_float;
 
 =cut
 
-has '+inflate_method' => default => \&inflate_float;
+has '+inflate_method' => default => sub { sub { shift->inflate_float(@_) } };
 
 =item size
 

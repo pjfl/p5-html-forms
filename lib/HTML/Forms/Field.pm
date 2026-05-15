@@ -99,8 +99,6 @@ Defines the following attributes;
 
 =item C<validate_inline> - If true set JS handler to validate field
 
-=item C<validate_when_empty> - If true validate the field even if it has no value
-
 =item C<writeonly> - If true prevents setting of field value from result object
 
 =back
@@ -119,8 +117,19 @@ has [ 'autocomplete',
       'password',
       'readonly',
       'validate_inline',
-      'validate_when_empty',
       'writeonly' ] => is => 'rw', isa => Bool, default => FALSE;
+
+=item Mutable booleans defaulting true
+
+=over 3
+
+=item C<validate_when_empty> - If true validate the field even if it has no value
+
+=back
+
+=cut
+
+has 'validate_when_empty' => is => 'rw', isa => Bool, default => TRUE;
 
 =item accessor
 

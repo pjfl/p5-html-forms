@@ -1,5 +1,6 @@
 Revision history for HTML::Forms
 
+          - Switched validate_when_empty to default true
           - POD for Permission field type
           - Adds Permission field type
           - Validate inline adds item_id to API request
